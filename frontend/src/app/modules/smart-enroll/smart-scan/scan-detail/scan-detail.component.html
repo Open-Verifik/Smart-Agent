@@ -7,9 +7,9 @@
                 <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
                 <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
                 <a
-                    routerLink="/smart-enroll/smart-scan/list"
+                    [routerLink]="basePath + '/list'"
                     class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ 'nav.smart_scan' | transloco }}</a
+                    >{{ (isBusinessMode ? 'nav.smart_business_scan' : 'nav.smart_scan') | transloco }}</a
                 >
                 <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
                 <span class="cursor-default text-stone-600 dark:text-stone-300">{{ 'smartScan.detail' | transloco }}</span>

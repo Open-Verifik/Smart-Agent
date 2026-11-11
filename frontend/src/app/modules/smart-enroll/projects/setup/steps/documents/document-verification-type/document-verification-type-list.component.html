@@ -36,7 +36,9 @@
                                 <mat-icon
                                     class="!h-3.5 !w-3.5 !text-[14px] !leading-none text-amber-600 dark:text-amber-300"
                                     [matTooltip]="
-                                        t('smartEnrollProjects.setup.documents.types.needsAttention')
+                                        t(
+                                            'smartEnrollProjects.setup.documents.types.needsAttention'
+                                        )
                                     "
                                 >
                                     warning
@@ -100,11 +102,15 @@
                             </mat-icon>
                             <div class="min-w-0 flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                    <span
+                                        class="text-sm font-semibold text-stone-800 dark:text-stone-100"
+                                    >
                                         {{
                                             countryValue
                                                 ? t(countryNameKey(countryValue))
-                                                : t('smartEnrollProjects.setup.documents.types.country')
+                                                : t(
+                                                      'smartEnrollProjects.setup.documents.types.country'
+                                                  )
                                         }}
                                     </span>
                                     @if (needsAttention) {
@@ -127,9 +133,12 @@
                                 >
                                     <span>
                                         {{
-                                            t('smartEnrollProjects.setup.documents.types.summaryDocs', {
-                                                count: selectedTotal,
-                                            })
+                                            t(
+                                                'smartEnrollProjects.setup.documents.types.summaryDocs',
+                                                {
+                                                    count: selectedTotal,
+                                                }
+                                            )
                                         }}
                                     </span>
                                     @if (activeCats.length) {
@@ -166,7 +175,9 @@
                                 type="text"
                                 autocomplete="off"
                                 [formControl]="countrySearchCtrl(i)"
-                                [placeholder]="t('smartEnrollProjects.setup.documents.types.searchCountry')"
+                                [placeholder]="
+                                    t('smartEnrollProjects.setup.documents.types.searchCountry')
+                                "
                                 [matAutocomplete]="countryAuto"
                                 (focus)="onCountrySearchFocus(i, $any($event.target))"
                                 (blur)="onCountrySearchBlur(i)"
@@ -213,7 +224,9 @@
                                 mode="indeterminate"
                                 diameter="18"
                             ></mat-progress-spinner>
-                            <span>{{ t('smartEnrollProjects.setup.documents.types.loading') }}</span>
+                            <span>{{
+                                t('smartEnrollProjects.setup.documents.types.loading')
+                            }}</span>
                         </div>
                     } @else {
                         <div
@@ -224,15 +237,10 @@
                                 @let category = configCtrl.get('documentCategory')?.value || '';
                                 @let templates = templatesFor(countryValue, category);
                                 @let selected = selectedCount(configCtrl);
-                                @let otherCategories = categoriesWithTemplates(
-                                    countryValue,
-                                    category
-                                );
-                                @let listExpanded = isCategoryListExpanded(
-                                    i,
-                                    category,
-                                    templates.length
-                                );
+                                @let otherCategories =
+                                    categoriesWithTemplates(countryValue, category);
+                                @let listExpanded =
+                                    isCategoryListExpanded(i, category, templates.length);
                                 @let canCollapseList =
                                     templates.length > categoryListCollapseThreshold;
 
@@ -312,7 +320,9 @@
                                             }}
                                         </p>
                                         @if (otherCategories.length) {
-                                            <p class="text-[11px] text-amber-700 dark:text-amber-300">
+                                            <p
+                                                class="text-[11px] text-amber-700 dark:text-amber-300"
+                                            >
                                                 {{
                                                     t(
                                                         'smartEnrollProjects.setup.documents.types.tryOtherCategories',
@@ -355,13 +365,16 @@
                                         @if (listExpanded) {
                                             <ul class="m-0 flex list-none flex-col gap-1.5 p-0">
                                                 @for (pt of templates; track pt._id) {
+                                                    @let isSel =
+                                                        isTemplateSelected(configCtrl, pt._id);
+                                                    @let fieldsCount = templateFieldsCount(pt);
+                                                    @let reqMode =
+                                                        getTemplateRequired(configCtrl, pt._id);
                                                     <li
-                                                        class="flex items-center justify-between gap-3 rounded-lg border border-stone-200/70 px-3 py-2 dark:border-gray-700"
+                                                        class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-stone-200/70 px-3 py-2 dark:border-gray-700"
                                                     >
                                                         <mat-checkbox
-                                                            [checked]="
-                                                                isTemplateSelected(configCtrl, pt._id)
-                                                            "
+                                                            [checked]="isSel"
                                                             (change)="
                                                                 toggleTemplate(
                                                                     configCtrl,
@@ -372,13 +385,32 @@
                                                             class="min-w-0 flex-1"
                                                         >
                                                             <span
-                                                                class="inline-flex min-w-0 items-center gap-2"
+                                                                class="inline-flex min-w-0 flex-wrap items-center gap-1.5"
                                                             >
                                                                 <span
                                                                     class="truncate text-sm text-stone-800 dark:text-stone-100"
                                                                 >
                                                                     {{ templateLabel(pt) }}
                                                                 </span>
+                                                                @if (fieldsCount > 0) {
+                                                                    <span
+                                                                        class="inline-flex flex-shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                                                        [matTooltip]="
+                                                                            templateFieldsTooltip(
+                                                                                pt
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            t(
+                                                                                'smartBusiness.setup.docs.ocrFieldsCount',
+                                                                                {
+                                                                                    count: fieldsCount,
+                                                                                }
+                                                                            )
+                                                                        }}
+                                                                    </span>
+                                                                }
                                                                 @if (isGlobalTemplate(pt)) {
                                                                     <span
                                                                         class="inline-flex flex-shrink-0 items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
@@ -397,28 +429,60 @@
                                                                 }
                                                             </span>
                                                         </mat-checkbox>
-                                                        <button
-                                                            type="button"
-                                                            mat-icon-button
-                                                            class="!h-8 !w-8 !min-w-0 flex-shrink-0"
-                                                            (click)="openPreview(pt)"
-                                                            [matTooltip]="
-                                                                t(
-                                                                    'smartEnrollProjects.setup.documents.types.preview'
-                                                                )
-                                                            "
-                                                            [attr.aria-label]="
-                                                                t(
-                                                                    'smartEnrollProjects.setup.documents.types.preview'
-                                                                )
-                                                            "
+                                                        <div
+                                                            class="flex flex-shrink-0 items-center gap-1.5"
                                                         >
-                                                            <mat-icon
-                                                                class="!h-4 !w-4 text-stone-600 dark:text-stone-300"
+                                                            @if (target === 'business' && isSel) {
+                                                                <button
+                                                                    type="button"
+                                                                    class="rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-colors"
+                                                                    [ngClass]="
+                                                                        reqMode === 'mandatory'
+                                                                            ? 'border-stone-900 bg-stone-900 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-stone-950'
+                                                                            : 'border-stone-200 bg-stone-100 text-stone-600 hover:bg-stone-200 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300'
+                                                                    "
+                                                                    (click)="
+                                                                        toggleTemplateRequired(
+                                                                            configCtrl,
+                                                                            pt._id,
+                                                                            $event
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    {{
+                                                                        reqMode === 'mandatory'
+                                                                            ? t(
+                                                                                  'smartBusiness.setup.docs.mandatory'
+                                                                              )
+                                                                            : t(
+                                                                                  'smartBusiness.setup.docs.optional'
+                                                                              )
+                                                                    }}
+                                                                </button>
+                                                            }
+                                                            <button
+                                                                type="button"
+                                                                mat-icon-button
+                                                                class="!h-8 !w-8 !min-w-0 flex-shrink-0"
+                                                                (click)="openPreview(pt)"
+                                                                [matTooltip]="
+                                                                    t(
+                                                                        'smartEnrollProjects.setup.documents.types.preview'
+                                                                    )
+                                                                "
+                                                                [attr.aria-label]="
+                                                                    t(
+                                                                        'smartEnrollProjects.setup.documents.types.preview'
+                                                                    )
+                                                                "
                                                             >
-                                                                visibility
-                                                            </mat-icon>
-                                                        </button>
+                                                                <mat-icon
+                                                                    class="!h-4 !w-4 text-stone-600 dark:text-stone-300"
+                                                                >
+                                                                    visibility
+                                                                </mat-icon>
+                                                            </button>
+                                                        </div>
                                                     </li>
                                                 }
                                             </ul>
@@ -438,12 +502,7 @@
             </div>
         }
 
-        <button
-            mat-stroked-button
-            type="button"
-            class="self-start rounded-xl"
-            (click)="addType()"
-        >
+        <button mat-stroked-button type="button" class="self-start rounded-xl" (click)="addType()">
             <mat-icon class="!h-4 !w-4">add</mat-icon>
             {{ t('smartEnrollProjects.setup.documents.types.add') }}
         </button>

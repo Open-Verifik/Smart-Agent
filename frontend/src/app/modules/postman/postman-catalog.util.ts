@@ -1,3 +1,5 @@
+import { areSamePostmanCountry, canonicalPostmanCountryName } from './postman-country.util';
+
 export const DEFAULT_POSTMAN_COUNTRY = 'Colombia';
 export const WORLD_CATALOG_COUNTRY = 'world';
 
@@ -22,7 +24,7 @@ export const catalogCountryScope = (selected: string | null | undefined): string
     if (isWorldCountry(country)) {
         return [WORLD_CATALOG_COUNTRY];
     }
-    return [country];
+    return [canonicalPostmanCountryName(country)];
 };
 
 export const countryCacheKey = (countries: string[]): string =>
@@ -41,7 +43,9 @@ export const catalogCountryScopeForCountries = (
     if (named.every((value) => isWorldCountry(value))) {
         return [WORLD_CATALOG_COUNTRY];
     }
-    const scoped = named.map((value) => (isWorldCountry(value) ? WORLD_CATALOG_COUNTRY : value));
+    const scoped = named.map((value) =>
+        isWorldCountry(value) ? WORLD_CATALOG_COUNTRY : canonicalPostmanCountryName(value)
+    );
     return [...new Set([...scoped, WORLD_CATALOG_COUNTRY])];
 };
 
@@ -51,7 +55,8 @@ export const endpointMatchesCountryFilter = (
 ): boolean => {
     if (!selected) return true;
     if (isWorldCountry(selected)) return isWorldCountry(endpointCountry);
-    return endpointCountry === selected;
+    if (isWorldCountry(endpointCountry)) return false;
+    return areSamePostmanCountry(endpointCountry, selected);
 };
 
 export const catalogNeedsDetailHydration = (
@@ -74,10 +79,18 @@ export const extractFeatureRows = (payload: unknown): any[] => {
 
 export const extractCountryRows = (payload: unknown): CatalogCountryRow[] => {
     const rows = extractFeatureRows(payload);
-    return rows
-        .map((row) => ({
-            country: String(row?.country || '').trim(),
-            count: Number(row?.count) || 0,
-        }))
-        .filter((row) => row.country);
+    const countsByCanonical = new Map<string, number>();
+
+    for (const row of rows) {
+        const rawCountry = String(row?.country || '').trim();
+        if (!rawCountry) continue;
+        const canonical = isWorldCountry(rawCountry)
+            ? WORLD_CATALOG_COUNTRY
+            : canonicalPostmanCountryName(rawCountry);
+        if (!canonical) continue;
+        const count = Number(row?.count) || 0;
+        countsByCanonical.set(canonical, (countsByCanonical.get(canonical) ?? 0) + count);
+    }
+
+    return [...countsByCanonical.entries()].map(([country, count]) => ({ country, count }));
 };

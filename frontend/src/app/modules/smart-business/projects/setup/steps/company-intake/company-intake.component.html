@@ -1,0 +1,116 @@
+<ng-container *transloco="let t">
+    <div [formGroup]="intakeGroup" class="flex flex-col gap-6">
+        <!-- Step Header Banner -->
+        <div class="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white dark:border-gray-800">
+            <div class="flex items-start gap-4">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-400">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:building-office-2"></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold">{{ t('smartBusiness.setup.intake.bannerTitle') }}</h3>
+                    <p class="mt-1 text-xs text-stone-300">
+                        {{ t('smartBusiness.setup.intake.bannerSubtitle') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entity Types & Country Settings -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartBusiness.setup.intake.entityTypesTitle') }}
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartBusiness.setup.intake.entityTypesSubtitle') }}
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                @for (type of entityTypes; track type.code) {
+                    <div class="flex items-center justify-between rounded-xl border border-stone-200 p-3.5 hover:bg-stone-50 dark:border-gray-800 dark:hover:bg-gray-800/40">
+                        <span class="text-sm font-medium text-stone-800 dark:text-stone-200">{{ t('smartBusiness.setup.intake.entityTypes.' + type.code) }}</span>
+                        <mat-checkbox
+                            [checked]="isEntityTypeSelected(type.code)"
+                            (change)="toggleEntityType(type.code, $event.checked)"
+                        ></mat-checkbox>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- Company Fields Configuration -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartBusiness.setup.intake.fieldsTitle') }}
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartBusiness.setup.intake.fieldsSubtitle') }}
+                </p>
+            </header>
+
+            <div class="flex flex-col divide-y divide-stone-100 dark:divide-gray-800">
+                <!-- Commercial / Trade Name -->
+                <div class="flex items-center justify-between py-3.5">
+                    <div>
+                        <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.intake.commercialNameTitle') }}</h4>
+                        <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.intake.commercialNameDesc') }}</p>
+                    </div>
+                    <mat-slide-toggle formControlName="collectCommercialName"></mat-slide-toggle>
+                </div>
+
+                <!-- Physical Address -->
+                <div class="flex items-center justify-between py-3.5">
+                    <div>
+                        <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.intake.addressTitle') }}</h4>
+                        <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.intake.addressDesc') }}</p>
+                    </div>
+                    <mat-slide-toggle formControlName="collectAddress"></mat-slide-toggle>
+                </div>
+
+                <!-- Corporate Phone Validation -->
+                <div class="flex flex-col gap-3 py-3.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.intake.phoneTitle') }}</h4>
+                            <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.intake.phoneDesc') }}</p>
+                        </div>
+                        <mat-slide-toggle formControlName="collectPhone"></mat-slide-toggle>
+                    </div>
+
+                    @if (intakeGroup?.get('collectPhone')?.value) {
+                        <div class="ml-4 flex flex-wrap gap-4 rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                            <mat-radio-group formControlName="phoneGateway" class="flex flex-wrap gap-6">
+                                <mat-radio-button value="whatsapp">{{ t('smartBusiness.setup.intake.whatsappOnly') }}</mat-radio-button>
+                                <mat-radio-button value="sms">{{ t('smartBusiness.setup.intake.smsOnly') }}</mat-radio-button>
+                                <mat-radio-button value="both">{{ t('smartBusiness.setup.intake.whatsappAndSms') }}</mat-radio-button>
+                                <mat-radio-button value="none">{{ t('smartBusiness.setup.intake.noOtpCaptureOnly') }}</mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+                    }
+                </div>
+
+                <!-- Corporate Email Validation -->
+                <div class="flex flex-col gap-3 py-3.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.intake.emailTitle') }}</h4>
+                            <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.intake.emailDesc') }}</p>
+                        </div>
+                        <mat-slide-toggle formControlName="collectEmail"></mat-slide-toggle>
+                    </div>
+
+                    @if (intakeGroup?.get('collectEmail')?.value) {
+                        <div class="ml-4 flex flex-wrap gap-4 rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                            <mat-radio-group formControlName="emailGateway" class="flex flex-wrap gap-6">
+                                <mat-radio-button value="mailgun">{{ t('smartBusiness.setup.intake.validateWithOtp') }}</mat-radio-button>
+                                <mat-radio-button value="none">{{ t('smartBusiness.setup.intake.noOtpCaptureOnly') }}</mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+</ng-container>

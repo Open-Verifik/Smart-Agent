@@ -102,3 +102,71 @@ iframe[title="Veri — Verifik AI"] {
     font-size: 1.25rem;
     line-height: 1.25rem;
 }
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Directional & Same-Document View Transitions (modern-web-guidance)
+/* ----------------------------------------------------------------------------------------------------- */
+@keyframes kyb-slide-to-left {
+    to {
+        opacity: 0;
+        transform: translateX(-28px);
+    }
+}
+
+@keyframes kyb-slide-from-right {
+    from {
+        opacity: 0;
+        transform: translateX(28px);
+    }
+}
+
+@keyframes kyb-slide-to-right {
+    to {
+        opacity: 0;
+        transform: translateX(28px);
+    }
+}
+
+@keyframes kyb-slide-from-left {
+    from {
+        opacity: 0;
+        transform: translateX(-28px);
+    }
+}
+
+::view-transition-group(root),
+::view-transition-group(rep-avatar),
+::view-transition-group(rep-title) {
+    animation-duration: 0.32s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
+}
+
+::view-transition-old(rep-avatar),
+::view-transition-new(rep-avatar) {
+    height: 100%;
+}
+
+html:active-view-transition-type(forward)::view-transition-old(root) {
+    animation-name: kyb-slide-to-left;
+}
+
+html:active-view-transition-type(forward)::view-transition-new(root) {
+    animation-name: kyb-slide-from-right;
+}
+
+html:active-view-transition-type(backward)::view-transition-old(root) {
+    animation-name: kyb-slide-to-right;
+}
+
+html:active-view-transition-type(backward)::view-transition-new(root) {
+    animation-name: kyb-slide-from-left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}

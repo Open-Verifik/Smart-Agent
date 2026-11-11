@@ -1,0 +1,123 @@
+<ng-container *transloco="let t">
+    <div [formGroup]="form" class="flex flex-col gap-6">
+        <!-- Project Identity Card -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
+                        <mat-icon class="icon-size-4" svgIcon="heroicons_outline:briefcase"></mat-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{ t('smartBusiness.setup.basic.title') }}
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartBusiness.setup.basic.subtitle') }}
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.projectName') }}</mat-label>
+                    <input matInput formControlName="name" [placeholder]="t('smartBusiness.setup.basic.projectNamePlaceholder')" />
+                    <mat-icon matSuffix class="text-stone-400">badge</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.contactEmail') }}</mat-label>
+                    <input matInput type="email" formControlName="contactEmail" [placeholder]="t('smartBusiness.setup.basic.contactEmailPlaceholder')" />
+                    <mat-icon matSuffix class="text-stone-400">email</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.allowedCountries') }}</mat-label>
+                    <mat-select formControlName="allowedCountries" multiple>
+                        @for (country of availableCountries; track country.value) {
+                            <mat-option [value]="country.value">{{ country.name }} ({{ country.code }})</mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matSuffix class="text-stone-400">public</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.defaultLanguage') }}</mat-label>
+                    <mat-select formControlName="defaultLanguage">
+                        @for (lang of languages; track lang.code) {
+                            <mat-option [value]="lang.code">{{ lang.name }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matSuffix class="text-stone-400">language</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.termsUrl') }}</mat-label>
+                    <input matInput type="url" formControlName="termsAndConditionsUrl" [placeholder]="t('smartBusiness.setup.basic.termsUrlPlaceholder')" />
+                    <mat-icon matSuffix class="text-stone-400">gavel</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.privacyUrl') }}</mat-label>
+                    <input matInput type="url" formControlName="privacyUrl" [placeholder]="t('smartBusiness.setup.basic.privacyUrlPlaceholder')" />
+                    <mat-icon matSuffix class="text-stone-400">privacy_tip</mat-icon>
+                </mat-form-field>
+            </div>
+        </section>
+
+        <!-- Compliance & Data Protection Card -->
+        <section [formGroup]="dataProtectionGroup" class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+                        <mat-icon class="icon-size-4" svgIcon="heroicons_outline:shield-check"></mat-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{ t('smartBusiness.setup.basic.dpoTitle') }}
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartBusiness.setup.basic.dpoSubtitle') }}
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.dpoName') }}</mat-label>
+                    <input matInput formControlName="name" [placeholder]="t('smartBusiness.setup.basic.dpoNamePlaceholder')" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.dpoEmail') }}</mat-label>
+                    <input matInput type="email" formControlName="email" [placeholder]="t('smartBusiness.setup.basic.dpoEmailPlaceholder')" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.dpoAddress') }}</mat-label>
+                    <input matInput formControlName="address" [placeholder]="t('smartBusiness.setup.basic.dpoAddressPlaceholder')" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.dpoCity') }}</mat-label>
+                    <input matInput formControlName="city" [placeholder]="t('smartBusiness.setup.basic.dpoCityPlaceholder')" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.dpoPostalCode') }}</mat-label>
+                    <input matInput formControlName="postalCode" placeholder="110111" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.basic.dpoCountry') }}</mat-label>
+                    <mat-select formControlName="country">
+                        @for (country of availableCountries; track country.value) {
+                            <mat-option [value]="country.value">{{ country.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </section>
+    </div>
+</ng-container>

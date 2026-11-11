@@ -2,7 +2,7 @@
     <header class="wizard-header">
         <div class="wizard-header__inner">
             <div class="wizard-crumb">
-                <a routerLink="/smart-enroll/smart-scan/new" [queryParams]="country ? { country: country } : {}">
+                <a [routerLink]="basePath + '/new'" [queryParams]="country ? { country: country } : {}">
                     {{ 'smartScan.wizard.breadcrumbScan' | transloco }}
                 </a>
                 <span>/</span>

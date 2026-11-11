@@ -194,13 +194,18 @@ const pickEnglishDocLang = (docs: EndpointDocs | undefined): EndpointDocLang | n
     docs?.en ?? null;
 
 /**
- * Removes JSON-exported emoji codepoints, leading flag glyphs, and humanizes snake_case identifiers.
+ * Removes JSON-exported emoji codepoints, leading flag glyphs, strips 'undefined' artifacts,
+ * and humanizes snake_case identifiers.
  */
 export const sanitizePostmanCopyText = (value: string | null | undefined): string => {
     if (!value?.trim()) return '';
     let text = value.trim();
     text = text.replace(/\\U0001[A-Fa-f0-9]{4}/g, '');
     text = text.replace(/^[\u{1F1E6}-\u{1F1FF}]{2}\s*/u, '');
+    text = text.replace(/^undefined\s*(?:[-–—:]\s*|\s+|$)/i, '');
+    if (text.toLowerCase() === 'undefined') {
+        return '';
+    }
     text = text.replace(/\s{2,}/g, ' ').trim();
     if (text.includes('_') && !text.includes(' ')) {
         text = text.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -349,7 +354,11 @@ export const resolvePostmanEndpointCopy = (
               endpoint.code || ''
           );
 
-    const title = stripCountryPrefixFromTitle(rawTitle, endpoint.country);
+    const cleanRawTitle =
+        rawTitle.replace(/^undefined\s*(?:[-–—:]\s*|\s+|$)/i, '').trim() || rawTitle;
+
+    let title = stripCountryPrefixFromTitle(cleanRawTitle, endpoint.country);
+    title = title.replace(/^undefined\s*(?:[-–—:]\s*|\s+|$)/i, '').trim() || title;
 
     const activeDocDescription = activeDoc?.description?.trim();
     const enDocDescription = enDoc?.description?.trim();
@@ -386,11 +395,14 @@ export const resolvePostmanEndpointCopy = (
     if (description.includes('_') && !description.includes(' ')) {
         description = sanitizePostmanCopyText(description);
     }
+    if (description) {
+        description = description.replace(/^undefined\s*(?:[-–—:]\s*|\s+|$)/i, '').trim();
+    }
 
     return {
         title,
         description,
-        fullTitle: rawTitle,
+        fullTitle: cleanRawTitle,
     };
 };
 
@@ -455,6 +467,20 @@ export const postmanEndpointMatchesSearch = (
 };
 
 /**
+ * Defensively strips redundant leading heading lines like `## Overview` or `### Descripción general`
+ * from overview markdown content so the UI does not render double headers.
+ */
+export const stripLeadingOverviewHeading = (text: string): string => {
+    if (!text || typeof text !== 'string') return '';
+    return text
+        .replace(
+            /^#{1,4}\s*(?:overview|descripción general|descripcion general|aperçu|apercu|visão geral|visao geral|概要|개요|概述)\s*(?:\r?\n)+/i,
+            ''
+        )
+        .trim();
+};
+
+/**
  * Resolves the About-tab overview markdown from docs, i18n catalog, and OpenAPI fallback.
  * Prefers active-locale content and avoids English OpenAPI text when a localized catalog exists.
  */
@@ -467,32 +493,33 @@ export const resolveAboutOverview = (input: ResolveAboutOverviewInput): string =
     const catalogDesc = catalogDescription?.trim();
     const activeOverview = activeDoc?.overview?.trim();
     if (activeOverview && !skipEnglishLeak(activeOverview, activeLocale)) {
-        return activeOverview;
+        return stripLeadingOverviewHeading(activeOverview);
     }
 
     const activeDocDescription = activeDoc?.description?.trim();
     if (activeDocDescription && !skipEnglishLeak(activeDocDescription, activeLocale)) {
-        return activeDocDescription;
+        return stripLeadingOverviewHeading(activeDocDescription);
     }
 
     if (catalogDesc && !isGenericDescription(catalogDesc)) {
-        return catalogDesc;
+        return stripLeadingOverviewHeading(catalogDesc);
     }
 
     const allowEnglishFallback = activeLocale === 'en' || !activeLocale;
     if (allowEnglishFallback && !activeDoc) {
         const enOverview = enDoc?.overview?.trim();
-        if (enOverview) return enOverview;
+        if (enOverview) return stripLeadingOverviewHeading(enOverview);
         const enDocDescription = enDoc?.description?.trim();
-        if (enDocDescription) return enDocDescription;
+        if (enDocDescription) return stripLeadingOverviewHeading(enDocDescription);
     }
 
     const endpointDesc = endpoint.description?.trim();
     if (allowEnglishFallback && endpointDesc && !isGenericDescription(endpointDesc)) {
-        return endpointDesc;
+        return stripLeadingOverviewHeading(endpointDesc);
     }
 
-    if (catalogDesc) return catalogDesc;
+    if (catalogDesc) return stripLeadingOverviewHeading(catalogDesc);
 
-    return allowEnglishFallback ? (endpointDesc ?? '') : '';
+    return allowEnglishFallback ? stripLeadingOverviewHeading(endpointDesc ?? '') : '';
 };
+

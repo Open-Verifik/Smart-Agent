@@ -147,6 +147,13 @@ export class SetupUserInterfaceComponent implements OnInit, OnChanges, OnDestroy
 
         if (this.verifyStyleControl) {
             const sub = this.verifyStyleControl.valueChanges.subscribe((styleId) => {
+                if (parseVerifyStyle(styleId)) {
+                    const clientCtrl = this.form?.get('projectFlow.onboardingSettings.enrollmentClient');
+                    if (clientCtrl && clientCtrl.value !== 'v2') {
+                        clientCtrl.setValue('v2');
+                        clientCtrl.markAsDirty();
+                    }
+                }
                 this.applyStyleDefaults(styleId);
             });
             this._subscriptions.push(sub);
