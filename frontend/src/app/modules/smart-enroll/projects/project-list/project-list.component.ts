@@ -317,7 +317,7 @@ export class ProjectListComponent implements OnInit {
     private _loadProjects(): void {
         this._projectsService.listProjects().subscribe({
             next: (list) => {
-                this.projects.set(list);
+                this.projects.set((list || []).filter((p) => p.target !== 'business'));
                 this.loading.set(false);
             },
             error: () => {

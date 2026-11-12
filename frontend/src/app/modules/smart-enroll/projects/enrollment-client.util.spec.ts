@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    enrollmentBlockers,
     enrollmentSegment,
     liveEnrollmentPath,
     readEnrollmentClient,
@@ -53,6 +54,20 @@ describe('enrollment-client.util', () => {
         expect(VERIFY_STYLE_LABELS['c']).toEqual({ en: 'Paper', es: 'Papel' });
         expect(VERIFY_STYLE_LABELS['d']).toEqual({ en: 'Vault', es: 'Bóveda' });
         expect(VERIFY_STYLE_LABELS['e']).toEqual({ en: 'Porcelain', es: 'Porcelana' });
+    });
+
+    it('evaluates enrollmentBlockers for personal KYC without business or representative blockers', () => {
+        expect(enrollmentBlockers(null)).toEqual([]);
+        expect(enrollmentBlockers({ target: 'business' } as any)).toEqual([]);
+        expect(enrollmentBlockers({ liveness: { kycType: 'zero_knowledge' } })).toEqual(['zeroKnowledge']);
+        expect(
+            enrollmentBlockers({
+                documents: {
+                    documentTypes: [{ configurations: [{ active: true, documentCategory: 'tax_document' }] }],
+                },
+            })
+        ).toEqual(['taxInformation']);
+        expect(enrollmentBlockers({ steps: { form: 'mandatory' } as any })).toEqual(['signature']);
     });
 });
 

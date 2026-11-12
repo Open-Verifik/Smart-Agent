@@ -1,0 +1,163 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header class="border-b border-stone-200/90 bg-white px-5 py-5 dark:border-gray-800 dark:bg-gray-900 md:px-8">
+            <div class="mx-auto flex w-full max-w-7xl items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button mat-icon-button (click)="returnToProjects()" class="shrink-0 text-stone-600 dark:text-stone-300">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-stone-900 dark:text-white md:text-2xl">
+                            {{ t('smartBusiness.records.title') }}
+                        </h1>
+                        <p class="text-xs text-stone-500">
+                            {{ t('smartBusiness.records.subtitle') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-6 md:px-8">
+            <div class="mx-auto w-full max-w-7xl">
+                @if (loading()) {
+                    <div class="flex items-center justify-center py-20">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                } @else {
+                    <div role="status" class="sr-status">{{ sortStatusAnnouncement() }}</div>
+                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs dark:border-gray-800 dark:bg-gray-900/40">
+                        <div class="overflow-x-auto" role="region" aria-labelledby="kyb-records-caption" tabindex="0">
+                            <table class="records-table w-full min-w-[860px] text-left text-xs">
+                                <caption id="kyb-records-caption" class="sr-status">
+                                    {{ t('smartBusiness.records.title') }}
+                                </caption>
+                                <thead class="border-b border-stone-200 bg-stone-50/70 text-stone-500 uppercase tracking-wider dark:border-gray-800 dark:bg-gray-800/40">
+                                    <tr>
+                                        <th scope="col" class="py-3 px-4" [attr.aria-sort]="getAriaSort('company')">
+                                            <button type="button" class="sort-btn" (click)="toggleSort('company', t('smartBusiness.records.colCompany'))">
+                                                <span>{{ t('smartBusiness.records.colCompany') }}</span>
+                                                <span class="sort-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </th>
+                                        <th scope="col" class="py-3 px-4">{{ t('smartBusiness.records.colTaxId') }}</th>
+                                        <th scope="col" class="py-3 px-4">{{ t('smartBusiness.records.colCountryType') }}</th>
+                                        <th scope="col" class="py-3 px-4" [attr.aria-sort]="getAriaSort('documents')">
+                                            <button type="button" class="sort-btn" (click)="toggleSort('documents', t('smartBusiness.records.colDocuments'))">
+                                                <span>{{ t('smartBusiness.records.colDocuments') }}</span>
+                                                <span class="sort-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </th>
+                                        <th scope="col" class="py-3 px-4" [attr.aria-sort]="getAriaSort('members')">
+                                            <button type="button" class="sort-btn" (click)="toggleSort('members', t('smartBusiness.records.colMembers'))">
+                                                <span>{{ t('smartBusiness.records.colMembers') }}</span>
+                                                <span class="sort-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </th>
+                                        <th scope="col" class="py-3 px-4" [attr.aria-sort]="getAriaSort('status')">
+                                            <button type="button" class="sort-btn" (click)="toggleSort('status', t('smartBusiness.records.colStatus'))">
+                                                <span>{{ t('smartBusiness.records.colStatus') }}</span>
+                                                <span class="sort-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </th>
+                                        <th scope="col" class="py-3 px-4" [attr.aria-sort]="getAriaSort('risk')">
+                                            <button type="button" class="sort-btn" (click)="toggleSort('risk', t('smartBusiness.records.colRisk'))">
+                                                <span>{{ t('smartBusiness.records.colRisk') }}</span>
+                                                <span class="sort-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </th>
+                                        <th scope="col" class="py-3 px-4" [attr.aria-sort]="getAriaSort('updatedAt')">
+                                            <button type="button" class="sort-btn" (click)="toggleSort('updatedAt', t('smartBusiness.records.colUpdated') || 'Last Activity')">
+                                                <span>{{ t('smartBusiness.records.colUpdated') || 'Last Activity' }}</span>
+                                                <span class="sort-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </th>
+                                        <th scope="col" class="py-3 px-4 text-right">{{ t('smartBusiness.records.colAction') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-100 dark:divide-gray-800">
+                                    @if (!sortedRecords().length) {
+                                        <tr>
+                                            <td colspan="9" class="py-12 px-4 text-center text-xs text-stone-400">
+                                                {{ t('smartBusiness.records.emptyState') || 'No corporate dossiers registered yet.' }}
+                                            </td>
+                                        </tr>
+                                    }
+                                    @for (rec of sortedRecords(); track rec._id) {
+                                        <tr (click)="openRecord(rec)" class="cursor-pointer transition-colors hover:bg-stone-50 dark:hover:bg-gray-800/40">
+                                            <td class="py-3.5 px-4">
+                                                <p class="font-semibold text-stone-900 dark:text-white">
+                                                    {{ rec.company?.legalName || t('smartBusiness.common.inProgress') }}
+                                                </p>
+                                                <span class="text-[10px] text-stone-400">{{ rec.company?.email || ('ID: ' + rec._id.slice(-8)) }}</span>
+                                            </td>
+                                            <td class="py-3.5 px-4 font-medium text-stone-800 dark:text-stone-200">
+                                                @if (rec.company?.taxId) {
+                                                    {{ rec.company?.checkDigit ? rec.company?.taxId + '-' + rec.company?.checkDigit : rec.company?.taxId }}
+                                                } @else {
+                                                    —
+                                                }
+                                            </td>
+                                            <td class="py-3.5 px-4 text-stone-600 dark:text-stone-300">
+                                                {{ rec.company?.country || 'CO' }} • {{ rec.company?.entityType || 'SAS' }}
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                <span class="rounded bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                                    {{ t('smartBusiness.records.docsCount', { count: rec.documents?.length || 0 }) }}
+                                                </span>
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                <span class="rounded bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                                    {{ t('smartBusiness.records.membersCount', { count: rec.representatives?.length || 0 }) }}
+                                                </span>
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                @if (rec.status === 'COMPLETED') {
+                                                    <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-800">
+                                                        {{ t('smartBusiness.common.verified') }}
+                                                    </span>
+                                                } @else if (rec.status === 'NEEDS_MANUAL_REVIEW') {
+                                                    <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800">
+                                                        {{ t('smartBusiness.common.manualReview') }}
+                                                    </span>
+                                                } @else if (rec.status === 'REJECTED') {
+                                                    <span class="rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-semibold text-red-800">
+                                                        {{ t('smartBusiness.common.rejected') }}
+                                                    </span>
+                                                } @else {
+                                                    <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-semibold text-blue-800">
+                                                        {{ t('smartBusiness.common.inProgress') }}
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                <span
+                                                    class="font-semibold text-[11px]"
+                                                    [class.text-emerald-600]="rec.riskAssessment?.score === 'LOW'"
+                                                    [class.text-amber-600]="rec.riskAssessment?.score === 'MEDIUM'"
+                                                    [class.text-red-600]="rec.riskAssessment?.score === 'HIGH'"
+                                                >
+                                                    {{ rec.riskAssessment?.score || t('smartBusiness.common.low') }}
+                                                </span>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-stone-500 dark:text-stone-400">
+                                                <time [attr.datetime]="rec.updatedAt || rec.createdAt">
+                                                    {{ (rec.updatedAt || rec.createdAt) | date:'short' }}
+                                                </time>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-right">
+                                                <button mat-button class="!text-xs !text-emerald-600 font-semibold">
+                                                    {{ t('smartBusiness.records.viewDetail') }}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>

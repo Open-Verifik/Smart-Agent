@@ -1,6 +1,6 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
-import { finalize, forkJoin, Subscription } from 'rxjs';
+import { catchError, finalize, forkJoin, of, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
 import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
 import { manualEraseErrorKey } from 'app/core/data-retention/manual-erase.util';
@@ -266,6 +266,12 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     /** fieldLabel() runs per row on every change detection pass; keyed by `lang|field`. */
     private _fieldLabelCache = new Map<string, string>();
 
+    @Input() embeddedProjectId = '';
+    @Input() embeddedRecordId = '';
+    @Input() businessRecordId = '';
+    @Input() businessCompanyName = '';
+    @Output() backToBusinessRecord = new EventEmitter<void>();
+
     projectId = '';
     recordId = '';
     loading = signal(true);
@@ -288,15 +294,20 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     compareActionLoading = signal(false);
 
     ngOnInit(): void {
-        this.projectId = this._route.snapshot.paramMap.get('projectId') ?? '';
-        this.recordId = this._route.snapshot.paramMap.get('recordId') ?? '';
+        this.projectId = this.embeddedProjectId || this._route.snapshot.paramMap.get('projectId') || '';
+        this.businessRecordId = this.businessRecordId || this._route.snapshot.paramMap.get('businessRecordId') || '';
+        this.recordId =
+            this.embeddedRecordId ||
+            this._route.snapshot.paramMap.get('appRegistrationId') ||
+            this._route.snapshot.paramMap.get('recordId') ||
+            '';
         if (!this.projectId || !this.recordId) {
-            this._router.navigate(['/smart-enroll/projects']);
+            this._router.navigate([this.businessRecordId ? '/smart-business/projects' : '/smart-enroll/projects']);
             return;
         }
 
         this._sub = forkJoin({
-            project: this._projectsService.getProject(this.projectId),
+            project: this._projectsService.getProject(this.projectId).pipe(catchError(() => of(null))),
             record: this._projectsService.getAppRegistration(this.recordId),
         }).subscribe({
             next: ({ project, record }) => {
@@ -305,7 +316,11 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                     this.loading.set(false);
                     return;
                 }
-                const recProject = record.project as string | undefined;
+                const recProjectRaw = record.project as unknown;
+                const recProject =
+                    typeof recProjectRaw === 'object' && recProjectRaw !== null && '_id' in recProjectRaw
+                        ? String((recProjectRaw as { _id: unknown })._id)
+                        : (recProjectRaw as string | undefined);
                 if (recProject && recProject !== this.projectId) {
                     this.errorKey.set('smartEnrollProjects.recordDetail.wrongProject');
                     this.loading.set(false);
@@ -332,10 +347,22 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     }
 
     goBack(): void {
+        if (this.backToBusinessRecord.observed) {
+            this.backToBusinessRecord.emit();
+            return;
+        }
+        if (this.businessRecordId) {
+            this._router.navigate(['/smart-business/projects', this.projectId, 'records', this.businessRecordId]);
+            return;
+        }
         this._router.navigate(['/smart-enroll/projects', this.projectId, 'records']);
     }
 
     goProjects(): void {
+        if (this.businessRecordId || this.backToBusinessRecord.observed) {
+            this._router.navigate(['/smart-business/projects']);
+            return;
+        }
         this._router.navigate(['/smart-enroll/projects']);
     }
 

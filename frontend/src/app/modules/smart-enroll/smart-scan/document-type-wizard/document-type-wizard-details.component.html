@@ -49,6 +49,14 @@
                     <span class="field-card__body">{{ 'smartScan.wizard.details.classificationBody' | transloco }}</span>
                     <div class="input-grid">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.country' | transloco }}</mat-label>
+                            <mat-select [(ngModel)]="wizard.country">
+                                @for (c of wizard.availableCountries; track c) {
+                                    <mat-option [value]="c">{{ wizard.formatCountryOption(c) }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
                             <mat-label>{{ 'smartScan.wizard.category' | transloco }}</mat-label>
                             <mat-select [(ngModel)]="wizard.category">
                                 @for (item of wizard.categories; track item) {

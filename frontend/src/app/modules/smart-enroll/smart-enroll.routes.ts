@@ -8,6 +8,18 @@ export default [
             import('./smart-scan/smart-scan.routes').then((m) => m.default),
     },
     {
+        path: 'document-templates',
+        data: {
+            scanTarget: 'personal',
+            basePath: '/smart-enroll/document-templates',
+            scanBasePath: '/smart-enroll/smart-scan',
+        },
+        loadChildren: () =>
+            import('./smart-scan/document-templates/document-templates.routes').then(
+                (m) => m.default
+            ),
+    },
+    {
         path: 'plans',
         loadComponent: () =>
             import('./plans/smart-enroll-plans.component').then((m) => m.SmartEnrollPlansComponent),

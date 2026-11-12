@@ -1,0 +1,108 @@
+<ng-container *transloco="let t">
+    <div [formGroup]="repsPolicyGroup" class="flex flex-col gap-6">
+        <!-- Step Header Banner -->
+        <div class="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white dark:border-gray-800">
+            <div class="flex items-start gap-4">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-400">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:user-group"></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold">{{ t('smartBusiness.setup.reps.bannerTitle') }}</h3>
+                    <p class="mt-1 text-xs text-stone-300">
+                        {{ t('smartBusiness.setup.reps.bannerSubtitle') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Roster & Thresholds Card -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartBusiness.setup.reps.limitsTitle') }}
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartBusiness.setup.reps.limitsSubtitle') }}
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.reps.minRepsLabel') }}</mat-label>
+                    <input matInput type="number" formControlName="minRepresentatives" min="1" max="10" />
+                    <mat-hint>{{ t('smartBusiness.setup.reps.minRepsHint') }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.reps.maxRepsLabel') }}</mat-label>
+                    <input matInput type="number" formControlName="maxRepresentatives" min="1" max="10" />
+                    <mat-hint>{{ t('smartBusiness.setup.reps.maxRepsHint') }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.reps.uboThresholdLabel') }}</mat-label>
+                    <input matInput type="number" formControlName="uboOwnershipThreshold" min="1" max="100" />
+                    <mat-hint>{{ t('smartBusiness.setup.reps.uboThresholdHint') }}</mat-hint>
+                </mat-form-field>
+            </div>
+        </section>
+
+        <!-- Identity Verification Policy Card -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartBusiness.setup.reps.kycStandardTitle') }}
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartBusiness.setup.reps.kycStandardSubtitle') }}
+                </p>
+            </header>
+
+            <div class="flex flex-col divide-y divide-stone-100 dark:divide-gray-800">
+                <!-- Document Scan Required -->
+                <div class="flex items-center justify-between py-3.5">
+                    <div>
+                        <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.reps.docScanTitle') }}</h4>
+                        <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.reps.docScanDesc') }}</p>
+                    </div>
+                    <mat-slide-toggle formControlName="requireDocumentScan"></mat-slide-toggle>
+                </div>
+
+                <!-- 3D Facial Liveness Required -->
+                <div class="flex items-center justify-between py-3.5">
+                    <div>
+                        <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.reps.livenessTitle') }}</h4>
+                        <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.reps.livenessDesc') }}</p>
+                    </div>
+                    <mat-slide-toggle formControlName="requireLiveness"></mat-slide-toggle>
+                </div>
+
+                <!-- Score Thresholds -->
+                <div class="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ t('smartBusiness.setup.reps.livenessMinScoreLabel') }}</mat-label>
+                        <input matInput type="number" step="0.01" formControlName="livenessMinScore" />
+                        <mat-hint>{{ t('smartBusiness.setup.reps.recommendedScoreHint') }}</mat-hint>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ t('smartBusiness.setup.reps.compareMinScoreLabel') }}</mat-label>
+                        <input matInput type="number" step="0.01" formControlName="compareMinScore" />
+                        <mat-hint>{{ t('smartBusiness.setup.reps.recommendedScoreHint') }}</mat-hint>
+                    </mat-form-field>
+                </div>
+
+                <!-- Remote Dispatch Channel -->
+                <div class="flex flex-col gap-2 pt-4">
+                    <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.reps.notificationChannelTitle') }}</h4>
+                    <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.reps.notificationChannelDesc') }}</p>
+                    <mat-radio-group formControlName="notificationChannel" class="mt-2 flex flex-wrap gap-6">
+                        <mat-radio-button value="whatsapp">{{ t('smartBusiness.setup.reps.whatsappDirect') }}</mat-radio-button>
+                        <mat-radio-button value="email">{{ t('smartBusiness.setup.reps.emailChannel') }}</mat-radio-button>
+                        <mat-radio-button value="both">{{ t('smartBusiness.setup.reps.whatsappAndEmailRecommended') }}</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+        </section>
+    </div>
+</ng-container>

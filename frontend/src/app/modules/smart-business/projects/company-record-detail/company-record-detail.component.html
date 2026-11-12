@@ -1,0 +1,1134 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <!-- Top Header -->
+        <header class="border-b border-stone-200/90 bg-white px-5 py-5 dark:border-gray-800 dark:bg-gray-900 md:px-8">
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+                <!-- Breadcrumbs -->
+                <nav aria-label="Breadcrumb" class="flex flex-wrap items-center text-xs font-medium text-stone-500">
+                    <a routerLink="/smart-business/projects" class="cursor-pointer text-stone-700 hover:underline dark:text-stone-300">
+                        SmartBusiness
+                    </a>
+                    <mat-icon class="icon-size-4 mx-1.5 text-stone-400">chevron_right</mat-icon>
+                    <a [routerLink]="['/smart-business/projects', projectId, 'records']" class="cursor-pointer text-stone-700 hover:underline dark:text-stone-300">
+                        {{ t('smartBusiness.dossier.breadcrumbRecords') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-1.5 text-stone-400">chevron_right</mat-icon>
+
+                    @if (selectedMember(); as activeRep) {
+                        <button
+                            type="button"
+                            (click)="closeMemberDrawer($event)"
+                            class="cursor-pointer text-stone-700 hover:text-emerald-600 hover:underline dark:text-stone-300"
+                        >
+                            {{ dossier()?.company?.legalName || recordId }}
+                        </button>
+                        <mat-icon class="icon-size-4 mx-1.5 text-stone-400">chevron_right</mat-icon>
+                        <span class="font-semibold text-stone-900 dark:text-white">
+                            {{ activeRep.firstName }} {{ activeRep.lastName }}
+                        </span>
+                        <span class="ml-2 rounded bg-stone-100 px-1.5 py-0.5 font-mono text-[10px] text-stone-500 dark:bg-gray-800 dark:text-stone-400">
+                            app-registration/{{ activeRep.kycAppRegistrationId || activeRep._id }}
+                        </span>
+                    } @else {
+                        <span class="font-semibold text-stone-900 dark:text-white">
+                            {{ dossier()?.company?.legalName || recordId }}
+                        </span>
+                    }
+                </nav>
+
+                <!-- Context-Aware Title & Action Bar -->
+                @if (selectedMember(); as member) {
+                    <!-- Representative KYC Sub-View Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <button
+                                mat-icon-button
+                                type="button"
+                                (click)="closeMemberDrawer($event)"
+                                aria-label="Back to company dossier"
+                                class="shrink-0 rounded-xl border border-stone-200 bg-stone-50 text-stone-700 transition hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                <mat-icon>arrow_back</mat-icon>
+                            </button>
+
+                            @if (member.selfieUrl || member.documentFaceUrl) {
+                                <img
+                                    [src]="member.selfieUrl || member.documentFaceUrl"
+                                    [alt]="member.firstName + ' ' + member.lastName"
+                                    class="rep-shared-avatar h-12 w-12 shrink-0 rounded-full border-2 border-emerald-500 object-cover shadow-xs"
+                                />
+                            } @else {
+                                <div class="rep-shared-avatar flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-base font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                    {{ (member.firstName || '?').slice(0, 1) }}
+                                </div>
+                            }
+
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h1
+                                        id="rep-kyc-heading"
+                                        tabindex="-1"
+                                        class="rep-shared-title text-xl font-bold tracking-tight text-stone-900 focus:outline-none dark:text-white md:text-2xl"
+                                    >
+                                        {{ member.firstName }} {{ member.lastName }}
+                                    </h1>
+                                    <span class="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                        {{ formatMemberRole(member.role) }}
+                                    </span>
+                                    @if (member.isUBO) {
+                                        <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                                            UBO {{ member.ownershipPercentage ? '(' + member.ownershipPercentage + '%)' : '' }}
+                                        </span>
+                                    }
+                                    @if (member.kycStatus === 'COMPLETED') {
+                                        <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
+                                            {{ t('smartBusiness.common.completed') }}
+                                        </span>
+                                    } @else if (member.kycStatus === 'NEEDS_MANUAL_VERIFICATION') {
+                                        <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-400">
+                                            {{ t('smartBusiness.common.manualReview') }}
+                                        </span>
+                                    } @else if (member.kycStatus === 'FAILED') {
+                                        <span class="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950/60 dark:text-red-400">
+                                            {{ t('smartBusiness.common.failed') }}
+                                        </span>
+                                    } @else {
+                                        <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
+                                            {{ t('smartBusiness.common.inProgress') }}
+                                        </span>
+                                    }
+                                </div>
+                                <p class="mt-0.5 text-xs text-stone-500">
+                                    <span class="font-mono font-medium text-stone-700 dark:text-stone-300">{{ member.documentType }} {{ member.documentNumber }}</span>
+                                    @if (member.email) {
+                                        <span> • {{ member.email }}</span>
+                                    }
+                                    @if (member.phone) {
+                                        <span> • {{ member.phone }}</span>
+                                    }
+                                    <span> • Company: {{ dossier()?.company?.legalName }}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Representative Actions Bar -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                (click)="closeMemberDrawer($event)"
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                <mat-icon class="icon-size-4">arrow_back</mat-icon>
+                                <span>Back to Company Dossier</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                (click)="resendInvite(member)"
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                <mat-icon class="icon-size-4">send</mat-icon>
+                                <span>Resend KYC Link</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                (click)="copyInviteUrl(member)"
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-2xs transition hover:bg-emerald-700"
+                            >
+                                <mat-icon class="icon-size-4">content_copy</mat-icon>
+                                <span>Copy Direct KYC Link</span>
+                            </button>
+                        </div>
+                    </div>
+                } @else {
+                    <!-- Company Dossier Main Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <button mat-icon-button (click)="returnToRecords()" class="shrink-0 text-stone-600 dark:text-stone-300">
+                                <mat-icon>arrow_back</mat-icon>
+                            </button>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h1
+                                        id="company-dossier-heading"
+                                        tabindex="-1"
+                                        class="text-xl font-bold tracking-tight text-stone-900 focus:outline-none dark:text-white md:text-2xl"
+                                    >
+                                        {{ dossier()?.company?.legalName }}
+                                    </h1>
+                                    @if (dossier()?.status === 'COMPLETED') {
+                                        <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
+                                            {{ t('smartBusiness.common.verified') }}
+                                        </span>
+                                    } @else if (dossier()?.status === 'NEEDS_MANUAL_REVIEW') {
+                                        <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-400">
+                                            {{ t('smartBusiness.common.manualReview') }}
+                                        </span>
+                                    } @else if (dossier()?.status === 'REJECTED') {
+                                        <span class="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950/60 dark:text-red-400">
+                                            {{ t('smartBusiness.common.rejected') }}
+                                        </span>
+                                    } @else {
+                                        <span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-950/60 dark:text-blue-400">
+                                            {{ t('smartBusiness.common.inProgress') }}
+                                        </span>
+                                    }
+                                </div>
+                                <p class="text-xs text-stone-500">
+                                    {{ t('smartBusiness.dossier.taxIdLabel') }}: {{ dossier()?.company?.taxId }}{{ dossier()?.company?.checkDigit ? '-' + dossier()?.company?.checkDigit : '' }} • {{ t('smartBusiness.dossier.typeLabel') }}: {{ dossier()?.company?.entityType }} • {{ t('smartBusiness.dossier.registeredAt') }}: {{ (dossier()?.updatedAt || dossier()?.createdAt) | date:'medium' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Compliance Actions Bar -->
+                        <div class="flex items-center gap-2">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                (click)="requestResubmission()"
+                                class="rounded-xl border-amber-300 text-amber-800 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-300"
+                            >
+                                <mat-icon class="icon-size-4 mr-1">history_edu</mat-icon>
+                                <span class="text-xs">{{ t('smartBusiness.dossier.requestResubmission') }}</span>
+                            </button>
+
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                (click)="rejectDossier()"
+                                class="rounded-xl border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400"
+                            >
+                                <mat-icon class="icon-size-4 mr-1">block</mat-icon>
+                                <span class="text-xs">{{ t('smartBusiness.dossier.reject') }}</span>
+                            </button>
+
+                            <button
+                                mat-flat-button
+                                type="button"
+                                (click)="approveDossier()"
+                                class="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                            >
+                                <mat-icon class="icon-size-4 mr-1">check_circle</mat-icon>
+                                <span class="text-xs">{{ t('smartBusiness.dossier.approveDossier') }}</span>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex flex-auto flex-col px-5 py-6 md:px-8">
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+                @if (loading()) {
+                    <div class="flex flex-1 items-center justify-center py-24">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                } @else {
+                    @if (selectedMember(); as member) {
+                        <!-- ===================================================================== -->
+                        <!-- IN-SCREEN SUB-VIEW: REPRESENTATIVE KYC & BIOMETRIC DOSSIER            -->
+                        <!-- URL: .../records/:recordId/app-registration/:appRegistrationId        -->
+                        <!-- ===================================================================== -->
+                    <section class="kyc-subview-stage flex flex-col gap-6">
+                        <!-- 4-Column Verification Telemetry Strip -->
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-gray-800 dark:bg-gray-900/50">
+                                <div class="flex items-center justify-between text-stone-400">
+                                    <span class="text-[11px] font-medium uppercase tracking-wider">KYC Session Status</span>
+                                    <mat-icon class="icon-size-4 text-blue-600">verified_user</mat-icon>
+                                </div>
+                                <p class="mt-1.5 text-sm font-bold text-stone-900 dark:text-white">
+                                    {{ member.kycStatus }} • {{ formatKycStep(member.currentStep || member.kycCurrentStep) }}
+                                </p>
+                                <p class="mt-0.5 font-mono text-[10px] text-stone-400">
+                                    ID: {{ member.kycAppRegistrationId || member._id }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-gray-800 dark:bg-gray-900/50">
+                                <div class="flex items-center justify-between text-stone-400">
+                                    <span class="text-[11px] font-medium uppercase tracking-wider">ID Document Scan</span>
+                                    <mat-icon class="icon-size-4 text-emerald-600">badge</mat-icon>
+                                </div>
+                                <p
+                                    class="mt-1.5 text-sm font-bold"
+                                    [ngClass]="(member.documentFrontUrl || member.documentUrl || member.documentValidation) ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600'"
+                                >
+                                    {{ (member.documentFrontUrl || member.documentUrl || member.documentValidation) ? (member.documentValidation?.status || 'CAPTURED') : 'AWAITING UPLOAD' }}
+                                </p>
+                                <p class="mt-0.5 text-[11px] text-stone-500">
+                                    {{ (member.documentFrontUrl || member.documentUrl) && member.documentBackUrl ? 'Front & Back sides captured' : (member.documentFrontUrl || member.documentUrl) ? 'Front side captured' : 'Pending document capture' }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-gray-800 dark:bg-gray-900/50">
+                                <div class="flex items-center justify-between text-stone-400">
+                                    <span class="text-[11px] font-medium uppercase tracking-wider">AI Document Classification</span>
+                                    <mat-icon class="icon-size-4 text-emerald-600">document_scanner</mat-icon>
+                                </div>
+                                <p class="mt-1.5 text-sm font-bold text-stone-900 dark:text-white">
+                                    {{ member.documentValidation?.OCRExtraction?.documentClassification?.documentType || member.documentValidation?.documentType || member.documentType || '—' }}
+                                </p>
+                                <p class="mt-0.5 text-[11px] text-stone-500">
+                                    {{ member.documentValidation?.country || dossier()?.company?.country || 'CO' }} • Official Government ID
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-xs dark:border-gray-800 dark:bg-gray-900/50">
+                                <div class="flex items-center justify-between text-stone-400">
+                                    <span class="text-[11px] font-medium uppercase tracking-wider">Biometric Liveness & Match</span>
+                                    <mat-icon class="icon-size-4 text-emerald-600">face</mat-icon>
+                                </div>
+                                @if (member.livenessScore) {
+                                    <p class="mt-1.5 font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                        Liveness {{ (member.livenessScore > 1 ? member.livenessScore : member.livenessScore * 100) | number:'1.0-1' }}%
+                                    </p>
+                                    <p class="mt-0.5 text-[11px] text-stone-500">
+                                        Face Match: {{ member.faceCompareScore ? ((member.faceCompareScore > 1 ? member.faceCompareScore : member.faceCompareScore * 100) | number:'1.0-1') + '%' : 'Verified' }}
+                                    </p>
+                                } @else {
+                                    <p class="mt-1.5 text-sm font-semibold text-stone-600 dark:text-stone-300">
+                                        Pending Liveness Selfie
+                                    </p>
+                                    <p class="mt-0.5 text-[11px] text-stone-400">
+                                        Awaiting 3D biometric selfie step
+                                    </p>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Main 12-Col Inspection Workspace -->
+                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                            <!-- Left Column (7 cols): Captured Identity Document & Biometric Photos -->
+                            <div class="flex flex-col gap-6 rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40 lg:col-span-7">
+                                <header class="flex items-center justify-between border-b border-stone-100 pb-3 dark:border-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon class="text-emerald-600">photo_library</mat-icon>
+                                        <div>
+                                            <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                                Captured Identity Document & Biometric Photos
+                                            </h2>
+                                            <p class="text-xs text-stone-500">
+                                                Click any image to inspect in full resolution.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </header>
+
+                                <!-- Front & Back ID Document Cards -->
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <!-- Front of ID -->
+                                    <div class="flex flex-col justify-between rounded-xl border border-stone-200 bg-stone-50/70 p-3.5 dark:border-gray-800 dark:bg-gray-800/40">
+                                        @if (member.documentFrontUrl || member.documentUrl || member.documentValidation?.url; as frontSrc) {
+                                            <div class="mb-2.5 flex items-center justify-between">
+                                                <span class="text-xs font-semibold text-stone-800 dark:text-stone-200">Front of ID Document</span>
+                                                <div class="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        (click)="openImagePreview(frontSrc, 'Front of Identity Document', member.firstName + ' ' + member.lastName)"
+                                                        class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-700 shadow-2xs transition hover:border-emerald-500 dark:border-gray-700 dark:bg-gray-900 dark:text-emerald-400"
+                                                    >
+                                                        <mat-icon class="icon-size-3.5">zoom_in</mat-icon>
+                                                        <span>Zoom</span>
+                                                    </button>
+                                                    <a
+                                                        [href]="frontSrc"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-900"
+                                                        title="Open front image in new tab"
+                                                    >
+                                                        <mat-icon class="icon-size-3.5">open_in_new</mat-icon>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <img
+                                                [src]="frontSrc"
+                                                alt="Front of Identity Document"
+                                                (click)="openImagePreview(frontSrc, 'Front of Identity Document', member.firstName + ' ' + member.lastName)"
+                                                class="h-52 w-full cursor-zoom-in rounded-lg border border-stone-200 bg-white object-contain p-1.5 shadow-2xs transition hover:border-emerald-400 dark:border-gray-700 dark:bg-gray-900"
+                                            />
+                                        } @else {
+                                            <div class="mb-2.5 flex items-center justify-between">
+                                                <span class="text-xs font-semibold text-stone-800 dark:text-stone-200">Front of ID Document</span>
+                                            </div>
+                                            <div class="flex h-52 flex-col items-center justify-center rounded-lg border border-dashed border-stone-200 text-stone-400 dark:border-gray-700">
+                                                <mat-icon class="icon-size-6">badge</mat-icon>
+                                                <span class="mt-1 text-[11px]">Front photo not uploaded yet</span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Back of ID -->
+                                    <div class="flex flex-col justify-between rounded-xl border border-stone-200 bg-stone-50/70 p-3.5 dark:border-gray-800 dark:bg-gray-800/40">
+                                        @if (member.documentBackUrl || member.documentValidation?.backUrl; as backSrc) {
+                                            <div class="mb-2.5 flex items-center justify-between">
+                                                <span class="text-xs font-semibold text-stone-800 dark:text-stone-200">Back of ID Document</span>
+                                                <div class="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        (click)="openImagePreview(backSrc, 'Back of Identity Document', member.firstName + ' ' + member.lastName)"
+                                                        class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-700 shadow-2xs transition hover:border-emerald-500 dark:border-gray-700 dark:bg-gray-900 dark:text-emerald-400"
+                                                    >
+                                                        <mat-icon class="icon-size-3.5">zoom_in</mat-icon>
+                                                        <span>Zoom</span>
+                                                    </button>
+                                                    <a
+                                                        [href]="backSrc"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-900"
+                                                        title="Open back image in new tab"
+                                                    >
+                                                        <mat-icon class="icon-size-3.5">open_in_new</mat-icon>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <img
+                                                [src]="backSrc"
+                                                alt="Back of Identity Document"
+                                                (click)="openImagePreview(backSrc, 'Back of Identity Document', member.firstName + ' ' + member.lastName)"
+                                                class="h-52 w-full cursor-zoom-in rounded-lg border border-stone-200 bg-white object-contain p-1.5 shadow-2xs transition hover:border-emerald-400 dark:border-gray-700 dark:bg-gray-900"
+                                            />
+                                        } @else {
+                                            <div class="mb-2.5 flex items-center justify-between">
+                                                <span class="text-xs font-semibold text-stone-800 dark:text-stone-200">Back of ID Document</span>
+                                            </div>
+                                            <div class="flex h-52 flex-col items-center justify-center rounded-lg border border-dashed border-stone-200 text-stone-400 dark:border-gray-700">
+                                                <mat-icon class="icon-size-6">credit_card</mat-icon>
+                                                <span class="mt-1 text-[11px]">Back photo not uploaded yet</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Cropped Portrait vs Liveness Selfie Comparison -->
+                                <div class="rounded-xl border border-stone-200 bg-stone-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="text-xs font-semibold text-stone-800 dark:text-stone-200">
+                                            Biometric Portrait Comparison (ID Document Crop vs Live Selfie)
+                                        </span>
+                                        @if (member.faceCompareScore) {
+                                            <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-emerald-800">
+                                                Similarity: {{ (member.faceCompareScore > 1 ? member.faceCompareScore : member.faceCompareScore * 100) | number:'1.0-1' }}%
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div class="flex flex-col items-center justify-center rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
+                                            @if (member.documentFaceUrl) {
+                                                <img
+                                                    [src]="member.documentFaceUrl"
+                                                    alt="ID Cropped Portrait"
+                                                    (click)="openImagePreview(member.documentFaceUrl, 'ID Document Portrait Crop', member.firstName + ' ' + member.lastName)"
+                                                    class="h-36 w-auto cursor-zoom-in rounded-lg object-contain shadow-2xs"
+                                                />
+                                                <span class="mt-2 text-[11px] font-semibold text-stone-600 dark:text-stone-300">Cropped ID Portrait</span>
+                                            } @else {
+                                                <div class="flex h-36 flex-col items-center justify-center text-stone-300">
+                                                    <mat-icon class="icon-size-7">account_box</mat-icon>
+                                                    <span class="mt-1 text-[11px] text-stone-400">No ID Crop Available</span>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="flex flex-col items-center justify-center rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
+                                            @if (member.selfieUrl) {
+                                                <img
+                                                    [src]="member.selfieUrl"
+                                                    alt="Biometric Liveness Selfie"
+                                                    (click)="openImagePreview(member.selfieUrl, 'Biometric Liveness Selfie', member.firstName + ' ' + member.lastName)"
+                                                    class="h-36 w-auto cursor-zoom-in rounded-lg object-contain shadow-2xs"
+                                                />
+                                                <span class="mt-2 text-[11px] font-semibold text-emerald-600">Live Biometric Selfie</span>
+                                            } @else {
+                                                <div class="flex h-36 flex-col items-center justify-center text-stone-300">
+                                                    <mat-icon class="icon-size-7">camera_front</mat-icon>
+                                                    <span class="mt-1 text-[11px] text-stone-400">Selfie Pending Capture</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column (5 cols): Extracted Identity Document Data (OCR) -->
+                            <div class="flex flex-col gap-5 rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40 lg:col-span-5">
+                                <header class="flex items-center justify-between border-b border-stone-100 pb-3 dark:border-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon class="text-emerald-600">document_scanner</mat-icon>
+                                        <div>
+                                            <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                                Extracted Identity Document Data (OCR)
+                                            </h2>
+                                            <p class="text-xs text-stone-500">
+                                                Automated computer vision extraction from the scanned ID document.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </header>
+
+                                <!-- Declared vs Extracted Cross-Check Box -->
+                                <div class="rounded-xl border border-stone-200/80 bg-stone-50 p-3.5 text-xs dark:border-gray-800 dark:bg-gray-800/40">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-400">Declared vs OCR Cross-Check</span>
+                                        @if (member.documentValidation?.namesMatch === true) {
+                                            <span class="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">MATCH</span>
+                                        } @else if (member.documentValidation?.OCRExtraction) {
+                                            <span class="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">EXTRACTED</span>
+                                        }
+                                    </div>
+                                    <div class="mt-2 grid grid-cols-2 gap-3 border-t border-stone-200/70 pt-2.5 dark:border-gray-700">
+                                        <div>
+                                            <span class="text-[10px] text-stone-400">Declared Representative</span>
+                                            <p class="font-semibold text-stone-900 dark:text-white">{{ member.firstName }} {{ member.lastName }}</p>
+                                            <p class="font-mono text-[11px] text-stone-500">{{ member.documentType }} {{ member.documentNumber }}</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] text-stone-400">Scanned ID Document (OCR)</span>
+                                            <p class="font-semibold text-stone-900 dark:text-white">
+                                                {{ member.documentValidation?.OCRExtraction?.fullName || ((member.documentValidation?.OCRExtraction?.firstName || '') + ' ' + (member.documentValidation?.OCRExtraction?.lastName || '')).trim() || '—' }}
+                                            </p>
+                                            <p class="font-mono text-[11px] text-emerald-600 dark:text-emerald-400">
+                                                {{ member.documentValidation?.documentType || member.documentType }} {{ ((member.documentValidation?.OCRExtraction?.documentNumber || member.documentValidation?.documentNumber || '—') + '').split('|')[0] }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (memberOcrEntries(member); as entries) {
+                                    @if (entries.length) {
+                                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs">
+                                            @for (item of entries; track item.label) {
+                                                <div class="rounded-xl border border-stone-200/80 bg-stone-50/70 p-3 dark:border-gray-800 dark:bg-gray-800/40">
+                                                    <span class="text-[11px] text-stone-400">{{ item.label }}</span>
+                                                    <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ item.value }}</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    } @else {
+                                        <div class="rounded-xl border border-dashed border-stone-200 p-8 text-center text-xs text-stone-400 dark:border-gray-800">
+                                            No OCR fields extracted yet for this representative. Use the actions above to resend or copy their direct KYC verification link.
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </section>
+                } @else if (dossier()) {
+                    <!-- ===================================================================== -->
+                    <!-- MAIN VIEW: COMPANY DOSSIER                                            -->
+                    <!-- URL: .../records/:recordId                                            -->
+                    <!-- ===================================================================== -->
+                    <section class="company-dossier-stage flex flex-col gap-6">
+                        <!-- Grid: Company Info + Official Registry Validation Status -->
+                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                            <!-- Left: Company Profile & Fiscal Intake (7 cols) -->
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40 lg:col-span-7">
+                                <header class="mb-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon class="text-emerald-600">domain</mat-icon>
+                                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">{{ t('smartBusiness.dossier.corporateProfileTitle') }}</h2>
+                                    </div>
+                                    <span class="font-mono text-xs text-stone-400">ID: {{ dossier()?._id }}</span>
+                                </header>
+
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.legalName') }}</span>
+                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.legalName }}</p>
+                                    </div>
+
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.commercialName') }}</span>
+                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.commercialName || '—' }}</p>
+                                    </div>
+
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.taxIdFull') }}</span>
+                                        <p class="mt-0.5 font-mono font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.taxId }}{{ dossier()?.company?.checkDigit ? '-' + dossier()?.company?.checkDigit : '' }}</p>
+                                    </div>
+
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.entityType') }}</span>
+                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.entityType }} ({{ dossier()?.company?.country }})</p>
+                                    </div>
+
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40 sm:col-span-2">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.registeredAddress') }}</span>
+                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.address }}</p>
+                                    </div>
+
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.corporateEmail') }}</span>
+                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.email }}</p>
+                                    </div>
+
+                                    <div class="rounded-xl bg-stone-50 p-3 dark:bg-gray-800/40">
+                                        <span class="text-stone-400">{{ t('smartBusiness.dossier.corporatePhone') }}</span>
+                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ dossier()?.company?.phone }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Official Registry Validations & Risk Assessment (5 cols) -->
+                            <div class="flex flex-col gap-4 lg:col-span-5">
+                                <!-- Official Registry Checks -->
+                                <div class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40">
+                                    <header class="mb-3 flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <mat-icon class="text-blue-600">verified</mat-icon>
+                                            <h3 class="text-sm font-semibold text-stone-900 dark:text-white">{{ t('smartBusiness.dossier.officialChecksTitle') }}</h3>
+                                        </div>
+                                        <span class="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">{{ t('smartBusiness.dossier.onlineBadge') }}</span>
+                                    </header>
+
+                                    <div class="flex flex-col divide-y divide-stone-100 text-xs dark:divide-gray-800">
+                                        <div class="flex items-center justify-between py-2">
+                                            <span class="text-stone-500">{{ t('smartBusiness.dossier.taxRegistry') }}</span>
+                                            <span class="font-semibold text-emerald-600">{{ dossier()?.officialRegistryChecks?.dianStatus || 'ACTIVO' }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between py-2">
+                                            <span class="text-stone-500">{{ t('smartBusiness.dossier.mercantileRegistry') }}</span>
+                                            <span class="font-semibold text-emerald-600">{{ dossier()?.officialRegistryChecks?.ruesStatus || 'ACTIVO / RENOVADO' }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between py-2">
+                                            <span class="text-stone-500">{{ t('smartBusiness.dossier.sanctionsLists') }}</span>
+                                            <span class="font-semibold text-emerald-600">{{ t('smartBusiness.dossier.cleanZeroMatches') }}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between py-2">
+                                            <span class="text-stone-500">{{ t('smartBusiness.dossier.pepLabel') }}</span>
+                                            <span class="font-semibold text-stone-700 dark:text-stone-300">
+                                                {{ dossier()?.officialRegistryChecks?.sanctionsScreening?.pepMatches ? t('smartBusiness.dossier.oneAlert') : t('smartBusiness.dossier.zeroMatches') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Risk Card -->
+                                <div class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">{{ t('smartBusiness.dossier.riskAssessmentTitle') }}</span>
+                                        <span
+                                            class="rounded-full px-2.5 py-0.5 text-xs font-bold"
+                                            [class.bg-emerald-100]="dossier()?.riskAssessment?.score === 'LOW'"
+                                            [class.text-emerald-800]="dossier()?.riskAssessment?.score === 'LOW'"
+                                            [class.bg-amber-100]="dossier()?.riskAssessment?.score === 'MEDIUM'"
+                                            [class.text-amber-800]="dossier()?.riskAssessment?.score === 'MEDIUM'"
+                                            [class.bg-red-100]="dossier()?.riskAssessment?.score === 'HIGH'"
+                                            [class.text-red-800]="dossier()?.riskAssessment?.score === 'HIGH'"
+                                        >
+                                            {{ t('smartBusiness.dossier.riskPrefix') }} {{ dossier()?.riskAssessment?.score || t('smartBusiness.common.low') }}
+                                        </span>
+                                    </div>
+
+                                    <ul class="mt-3 flex flex-col gap-1 text-xs text-stone-600 dark:text-stone-300">
+                                        @for (reason of dossier()?.riskAssessment?.reasons || []; track reason) {
+                                            <li class="flex items-center gap-1.5">
+                                                <mat-icon class="icon-size-3.5 text-emerald-500">check</mat-icon>
+                                                <span>{{ reason }}</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Corporate Documents & Inline Viewer + OCR Analysis -->
+                        <div class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40">
+                            <header class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon class="text-emerald-600">document_scanner</mat-icon>
+                                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                            {{ t('smartBusiness.dossier.docsAndOcrTitle') }}
+                                        </h2>
+                                    </div>
+                                    <p class="text-xs text-stone-500">
+                                        {{ t('smartBusiness.dossier.docsAndOcrSubtitle') }}
+                                    </p>
+                                </div>
+                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                    {{ dossier()?.documents?.length || 0 }} {{ (dossier()?.documents?.length === 1) ? 'Document' : 'Documents' }}
+                                </span>
+                            </header>
+
+                            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                                <!-- Documents List (5 cols) -->
+                                <div class="flex flex-col gap-3 lg:col-span-5">
+                                    @for (doc of dossier()?.documents; track doc._id) {
+                                        <div
+                                            role="button"
+                                            tabindex="0"
+                                            (click)="selectDocument(doc)"
+                                            (keydown.enter)="selectDocument(doc)"
+                                            (keydown.space)="selectDocument(doc); $event.preventDefault()"
+                                            class="group flex cursor-pointer items-start justify-between gap-3 rounded-xl border p-3.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                                            [ngClass]="selectedDocument()?._id === doc._id ? 'border-emerald-600 bg-emerald-50/70 shadow-xs dark:bg-emerald-950/50' : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/60 dark:border-gray-800 dark:hover:bg-gray-800/40'"
+                                        >
+                                            <div class="flex min-w-0 flex-1 items-start gap-2.5">
+                                                <div
+                                                    class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors"
+                                                    [ngClass]="selectedDocument()?._id === doc._id ? 'border-emerald-200 bg-white text-emerald-600 dark:border-emerald-800 dark:bg-gray-900' : 'border-stone-200/80 bg-stone-50 text-stone-500 dark:border-gray-700 dark:bg-gray-800'"
+                                                >
+                                                    <mat-icon class="icon-size-5">{{ isImageDocument(doc) ? 'image' : 'picture_as_pdf' }}</mat-icon>
+                                                </div>
+                                                <div class="min-w-0 flex-1">
+                                                    <!-- Single-line middle-safe overflow preserving file extension -->
+                                                    <div class="file-row text-xs font-semibold text-stone-900 dark:text-white" [title]="doc.filename">
+                                                        <span class="file-stem">{{ fileBaseName(doc.filename) }}</span>
+                                                        <span class="file-ext">{{ fileExtension(doc.filename) }}</span>
+                                                    </div>
+                                                    <p class="mt-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                                                        {{ formatDocCategory(doc.category) }}
+                                                    </p>
+                                                    <p class="mt-0.5 text-[10px] text-stone-400">
+                                                        {{ t('smartBusiness.dossier.uploadedLabel') }}: {{ doc.uploadedAt | date:'short' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex shrink-0 flex-col items-end gap-2">
+                                                <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                                                    {{ doc.status }}
+                                                </span>
+                                                @if (doc.fileUrl) {
+                                                    <div class="flex items-center gap-1">
+                                                        <button
+                                                            type="button"
+                                                            (click)="openDocumentPreview(doc, $event)"
+                                                            class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1 text-[10px] font-semibold text-stone-700 shadow-2xs transition hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200"
+                                                            title="Expand document preview"
+                                                        >
+                                                            <mat-icon class="icon-size-3.5">fullscreen</mat-icon>
+                                                            <span>Preview</span>
+                                                        </button>
+                                                        <a
+                                                            [href]="doc.fileUrl"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            (click)="$event.stopPropagation()"
+                                                            class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300"
+                                                            title="Open document in new tab"
+                                                        >
+                                                            <mat-icon class="icon-size-3.5">open_in_new</mat-icon>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    } @empty {
+                                        <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 py-12 text-center dark:border-gray-800">
+                                            <mat-icon class="icon-size-8 text-stone-300">folder_off</mat-icon>
+                                            <p class="mt-2 text-xs font-medium text-stone-500">No corporate documents uploaded yet.</p>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Inline Document Preview + OCR Data Viewer (7 cols) -->
+                                <div class="flex flex-col gap-4 rounded-xl border border-stone-200 bg-stone-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40 lg:col-span-7">
+                                    @if (selectedDocument(); as doc) {
+                                        <!-- Document Toolbar -->
+                                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3 dark:border-gray-700">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <mat-icon class="icon-size-4 shrink-0 text-emerald-600">
+                                                        {{ isImageDocument(doc) ? 'image' : 'description' }}
+                                                    </mat-icon>
+                                                    <span class="truncate text-xs font-bold text-stone-900 dark:text-white" [title]="doc.filename">
+                                                        {{ doc.filename }}
+                                                    </span>
+                                                </div>
+                                                <p class="mt-0.5 text-[11px] text-stone-500">
+                                                    {{ formatDocCategory(doc.category) }} • {{ doc.uploadedAt | date:'medium' }}
+                                                </p>
+                                            </div>
+
+                                            @if (doc.fileUrl) {
+                                                <div class="flex flex-wrap items-center gap-1.5">
+                                                    <button
+                                                        type="button"
+                                                        (click)="openDocumentPreview(doc, $event)"
+                                                        class="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                                    >
+                                                        <mat-icon class="icon-size-4">open_in_full</mat-icon>
+                                                        <span>Expand</span>
+                                                    </button>
+                                                    <a
+                                                        [href]="doc.fileUrl"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                                    >
+                                                        <mat-icon class="icon-size-4">open_in_new</mat-icon>
+                                                        <span>Open Tab</span>
+                                                    </a>
+                                                    <a
+                                                        [href]="doc.fileUrl"
+                                                        [attr.download]="doc.filename"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-emerald-700"
+                                                    >
+                                                        <mat-icon class="icon-size-4">download</mat-icon>
+                                                        <span>Download</span>
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <!-- Live Inline File Preview -->
+                                        @if (doc.fileUrl) {
+                                            <div class="overflow-hidden rounded-xl border border-stone-200/90 bg-stone-900/5 dark:border-gray-700 dark:bg-gray-950/60">
+                                                @if (isPdfDocument(doc) && safeResourceUrl(doc.fileUrl); as safePdfUrl) {
+                                                    <iframe
+                                                        [src]="safePdfUrl"
+                                                        [title]="doc.filename"
+                                                        class="h-[380px] w-full border-0 bg-white"
+                                                        loading="lazy"
+                                                    ></iframe>
+                                                } @else if (isImageDocument(doc)) {
+                                                    <div class="flex max-h-[380px] items-center justify-center overflow-auto p-3">
+                                                        <img
+                                                            [src]="doc.fileUrl"
+                                                            [alt]="doc.filename"
+                                                            (click)="openDocumentPreview(doc, $event)"
+                                                            class="max-h-[350px] w-auto cursor-zoom-in rounded-lg object-contain shadow-sm"
+                                                        />
+                                                    </div>
+                                                } @else {
+                                                    <div class="flex flex-col items-center justify-center gap-2 py-10 text-center">
+                                                        <mat-icon class="icon-size-8 text-stone-400">insert_drive_file</mat-icon>
+                                                        <p class="text-xs font-medium text-stone-600 dark:text-stone-300">
+                                                            Preview is available in a new browser tab for this file format.
+                                                        </p>
+                                                        <a
+                                                            [href]="doc.fileUrl"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+                                                        >
+                                                            <mat-icon class="icon-size-4">open_in_new</mat-icon>
+                                                            <span>Open Document</span>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+
+                                        <!-- OCR Extracted Data Sub-panel -->
+                                        @if (doc.ocrData; as ocr) {
+                                            <div class="flex flex-col gap-3 rounded-xl border border-stone-200/80 bg-white p-3.5 text-xs dark:border-gray-700 dark:bg-gray-900/70">
+                                                <div class="flex items-center justify-between border-b border-stone-100 pb-2 dark:border-gray-800">
+                                                    <span class="font-bold text-stone-800 dark:text-stone-200">{{ t('smartBusiness.dossier.ocrExtractedTitle') }}</span>
+                                                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                                                        {{ t('smartBusiness.dossier.confidenceLabel') }}: {{ (ocr.confidenceScore || 0.96) * 100 | number:'1.1-1' }}%
+                                                    </span>
+                                                </div>
+
+                                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                                    <div>
+                                                        <span class="text-[11px] text-stone-400">{{ t('smartBusiness.dossier.docLegalName') }}</span>
+                                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ ocr.legalName || '—' }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-[11px] text-stone-400">{{ t('smartBusiness.dossier.extractedTaxId') }}</span>
+                                                        <p class="mt-0.5 font-mono font-semibold text-stone-900 dark:text-white">{{ ocr.taxId || '—' }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-[11px] text-stone-400">{{ t('smartBusiness.dossier.mercantileRegNumber') }}</span>
+                                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ ocr.registrationNumber || '—' }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-[11px] text-stone-400">{{ t('smartBusiness.dossier.issuanceDate') }}</span>
+                                                        <p class="mt-0.5 font-semibold text-stone-900 dark:text-white">{{ ocr.issuanceDate || '—' }}</p>
+                                                    </div>
+                                                </div>
+
+                                                @if (ocr.legalRepresentatives?.length) {
+                                                    <div class="border-t border-stone-100 pt-2 dark:border-gray-800">
+                                                        <span class="text-[11px] text-stone-400">{{ t('smartBusiness.dossier.identifiedLegalReps') }}</span>
+                                                        <ul class="mt-1 flex flex-wrap gap-2">
+                                                            @for (rep of ocr.legalRepresentatives; track rep) {
+                                                                <li class="inline-flex items-center gap-1 rounded-lg bg-stone-100 px-2 py-1 font-medium text-stone-900 dark:bg-gray-800 dark:text-white">
+                                                                    <mat-icon class="icon-size-3.5 text-emerald-600">person</mat-icon>
+                                                                    <span>{{ rep }}</span>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    } @else {
+                                        <div class="flex items-center justify-center py-16 text-xs text-stone-400">
+                                            {{ t('smartBusiness.dossier.selectDocPrompt') }}
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Company Members & Legal Representatives Table -->
+                        <div class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40">
+                            <header class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon class="text-emerald-600">group</mat-icon>
+                                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                            {{ t('smartBusiness.dossier.membersRosterTitle') }}
+                                        </h2>
+                                    </div>
+                                    <p class="text-xs text-stone-500">
+                                        {{ t('smartBusiness.dossier.membersRosterSubtitle') }}
+                                    </p>
+                                </div>
+                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                    {{ t('smartBusiness.dossier.totalMembers', { count: dossier()?.representatives?.length || 0 }) }}
+                                </span>
+                            </header>
+
+                            <!-- Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="border-b border-stone-200 text-stone-400 uppercase tracking-wider dark:border-gray-800">
+                                        <tr>
+                                            <th scope="col" class="py-3 px-3">{{ t('smartBusiness.dossier.colRepMember') }}</th>
+                                            <th scope="col" class="py-3 px-3">{{ t('smartBusiness.dossier.colRole') }}</th>
+                                            <th scope="col" class="py-3 px-3">{{ t('smartBusiness.dossier.colOwnership') }}</th>
+                                            <th scope="col" class="py-3 px-3">{{ t('smartBusiness.dossier.colDocument') }}</th>
+                                            <th scope="col" class="py-3 px-3">{{ t('smartBusiness.dossier.colKycStatus') }}</th>
+                                            <th scope="col" class="py-3 px-3">{{ t('smartBusiness.dossier.colBiometrics') }}</th>
+                                            <th scope="col" class="py-3 px-3 text-right">{{ t('smartBusiness.dossier.colActions') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-stone-100 dark:divide-gray-800">
+                                        @for (member of dossier()?.representatives; track member._id) {
+                                            <tr
+                                                tabindex="0"
+                                                (click)="selectMember(member, $event)"
+                                                (keydown.enter)="selectMember(member, $event)"
+                                                class="group cursor-pointer transition-colors hover:bg-emerald-50/50 focus-visible:bg-emerald-50/50 focus-visible:outline-none dark:hover:bg-gray-800/60"
+                                            >
+                                                <!-- Name & Contact -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="flex items-center gap-3">
+                                                        @if (member.selfieUrl || member.documentFaceUrl) {
+                                                            <img
+                                                                [src]="member.selfieUrl || member.documentFaceUrl"
+                                                                [alt]="member.firstName + ' ' + member.lastName"
+                                                                [class.rep-shared-avatar]="activeTransitionMemberId() === member._id"
+                                                                class="h-9 w-9 shrink-0 rounded-full border border-emerald-200 object-cover shadow-2xs"
+                                                            />
+                                                        } @else {
+                                                            <div
+                                                                [class.rep-shared-avatar]="activeTransitionMemberId() === member._id"
+                                                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-200 text-xs font-bold text-stone-700 dark:bg-gray-800 dark:text-stone-200"
+                                                            >
+                                                                {{ (member.firstName || '?').slice(0, 1) }}
+                                                            </div>
+                                                        }
+                                                        <div>
+                                                            <p
+                                                                [class.rep-shared-title]="activeTransitionMemberId() === member._id"
+                                                                class="w-fit font-semibold text-stone-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400"
+                                                            >
+                                                                {{ member.firstName }} {{ member.lastName }}
+                                                            </p>
+                                                            <span class="text-[11px] text-stone-400">{{ member.email }}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Role -->
+                                                <td class="py-3.5 px-3 font-medium text-stone-800 dark:text-stone-200">
+                                                    <div class="flex flex-wrap items-center gap-1.5">
+                                                        <span>{{ formatMemberRole(member.role) }}</span>
+                                                        @if (member.isUBO) {
+                                                            <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">UBO</span>
+                                                        }
+                                                    </div>
+                                                </td>
+
+                                                <!-- Ownership % -->
+                                                <td class="py-3.5 px-3 font-mono font-bold text-stone-900 dark:text-white">
+                                                    {{ member.ownershipPercentage ? member.ownershipPercentage + '%' : '—' }}
+                                                </td>
+
+                                                <!-- Document ID -->
+                                                <td class="py-3.5 px-3 font-mono text-stone-700 dark:text-stone-300">
+                                                    <span>{{ member.documentType }} {{ member.documentNumber }}</span>
+                                                    @if (member.documentValidation?.OCRExtraction?.documentNumber; as ocrDocNum) {
+                                                        <p class="text-[10px] font-sans text-emerald-600 dark:text-emerald-400">
+                                                            OCR: {{ (ocrDocNum + '').split('|')[0] }}
+                                                        </p>
+                                                    }
+                                                </td>
+
+                                                <!-- Status -->
+                                                <td class="py-3.5 px-3">
+                                                    @if (member.kycStatus === 'COMPLETED' || member.kycStatus === 'APPROVED') {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300">
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                                                            {{ t('smartBusiness.common.completed') }}
+                                                        </span>
+                                                    } @else if (member.kycStatus === 'IN_PROGRESS' || member.documentFrontUrl || member.documentUrl || member.documentValidation) {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-semibold text-blue-800 dark:bg-blue-950/70 dark:text-blue-300">
+                                                            <span class="h-1.5 w-1.5 rounded-full bg-blue-600"></span>
+                                                            {{ t('smartBusiness.common.inProgress') }}
+                                                        </span>
+                                                    } @else if (member.kycStatus === 'NEEDS_MANUAL_VERIFICATION') {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-950/70 dark:text-amber-300">
+                                                            {{ t('smartBusiness.common.manualReview') }}
+                                                        </span>
+                                                    } @else if (member.kycStatus === 'INVITED') {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2.5 py-0.5 text-[10px] font-semibold text-sky-800">
+                                                            {{ t('smartBusiness.common.inviteSent') }}
+                                                        </span>
+                                                    } @else if (member.kycStatus === 'FAILED' || member.kycStatus === 'REJECTED') {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-semibold text-red-800">
+                                                            {{ t('smartBusiness.common.failed') }}
+                                                        </span>
+                                                    } @else {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800">
+                                                            {{ t('smartBusiness.common.pending') }}
+                                                        </span>
+                                                    }
+                                                </td>
+
+                                                <!-- Biometrics & ID Verification Progress -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="flex flex-col gap-1 text-[10px]">
+                                                        @if (member.documentFrontUrl || member.documentUrl || member.documentValidation) {
+                                                            <span class="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                                                                <mat-icon class="icon-size-3.5">check_circle</mat-icon>
+                                                                <span>ID Document Scanned</span>
+                                                            </span>
+                                                        } @else {
+                                                            <span class="inline-flex items-center gap-1 text-stone-400">
+                                                                <mat-icon class="icon-size-3.5">schedule</mat-icon>
+                                                                <span>ID Document Pending</span>
+                                                            </span>
+                                                        }
+
+                                                        @if (member.livenessScore) {
+                                                            <span class="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                                                                <mat-icon class="icon-size-3.5">face</mat-icon>
+                                                                <span>{{ t('smartBusiness.dossier.livenessLabel') }}: {{ (member.livenessScore > 1 ? member.livenessScore : member.livenessScore * 100) | number:'1.0-1' }}%</span>
+                                                            </span>
+                                                        } @else {
+                                                            <span class="inline-flex items-center gap-1 text-stone-400">
+                                                                <mat-icon class="icon-size-3.5">photo_camera_front</mat-icon>
+                                                                <span>Liveness Selfie Pending</span>
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                </td>
+
+                                                <!-- Actions -->
+                                                <td class="py-3.5 px-3 text-right" (click)="$event.stopPropagation()">
+                                                    <div class="flex items-center justify-end gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            (click)="selectMember(member, $event)"
+                                                            class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50/80 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-600 hover:text-white dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white"
+                                                        >
+                                                            <mat-icon class="icon-size-3.5">badge</mat-icon>
+                                                            <span>View KYC</span>
+                                                        </button>
+                                                        <button
+                                                            mat-icon-button
+                                                            type="button"
+                                                            (click)="resendInvite(member)"
+                                                            [title]="t('smartBusiness.dossier.resendInviteTitle')"
+                                                            class="text-stone-500 hover:text-emerald-600"
+                                                        >
+                                                            <mat-icon class="icon-size-4">send</mat-icon>
+                                                        </button>
+                                                        <button
+                                                            mat-icon-button
+                                                            type="button"
+                                                            (click)="copyInviteUrl(member)"
+                                                            [title]="t('smartBusiness.dossier.copyInviteTitle')"
+                                                            class="text-stone-500 hover:text-blue-600"
+                                                        >
+                                                            <mat-icon class="icon-size-4">link</mat-icon>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                    }
+                }
+            </div>
+        </main>
+
+        <!-- Native Modal Dialog: Fullscreen Document / Image Lightbox -->
+        <dialog
+            #docPreviewDialog
+            closedby="any"
+            aria-labelledby="doc-preview-dialog-title"
+            (close)="previewModalItem.set(null)"
+            class="kyc-modal-dialog w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-0 text-stone-900 shadow-2xl dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+        >
+            @if (previewModalItem(); as item) {
+                <div class="flex max-h-[90dvh] flex-col overflow-hidden">
+                    <header class="flex items-center justify-between gap-4 border-b border-stone-200 bg-stone-50 px-6 py-3.5 dark:border-gray-800 dark:bg-gray-900">
+                        <div class="min-w-0">
+                            <h2 id="doc-preview-dialog-title" class="truncate text-sm font-bold text-stone-900 dark:text-white">
+                                {{ item.title }}
+                            </h2>
+                            @if (item.subtitle) {
+                                <p class="text-xs text-stone-500">{{ item.subtitle }}</p>
+                            }
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a
+                                [href]="item.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                <mat-icon class="icon-size-4">open_in_new</mat-icon>
+                                <span>Open in New Tab</span>
+                            </a>
+                            <button
+                                type="button"
+                                autofocus
+                                (click)="closeDocumentPreview()"
+                                aria-label="Close document preview"
+                                class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 hover:bg-stone-100 dark:border-gray-700 dark:bg-gray-800"
+                            >
+                                <mat-icon class="icon-size-4">close</mat-icon>
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="flex flex-1 items-center justify-center overflow-auto bg-stone-900/5 p-4 dark:bg-gray-950">
+                        @if (item.isPdf && safeResourceUrl(item.url); as safePdf) {
+                            <iframe
+                                [src]="safePdf"
+                                [title]="item.title"
+                                class="h-[75dvh] w-full rounded-xl border border-stone-200 bg-white"
+                            ></iframe>
+                        } @else {
+                            <img
+                                [src]="item.url"
+                                [alt]="item.title"
+                                class="max-h-[75dvh] w-auto rounded-xl object-contain shadow-md"
+                            />
+                        }
+                    </div>
+                </div>
+            }
+        </dialog>
+    </div>
+</ng-container>

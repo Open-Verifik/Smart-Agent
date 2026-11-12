@@ -167,6 +167,18 @@ export class ScanListComponent implements OnInit {
         });
     }
 
+    get isBusinessMode(): boolean {
+        return this._router.url.startsWith('/smart-business');
+    }
+
+    get scanTarget(): 'business' | 'personal' {
+        return this.isBusinessMode ? 'business' : 'personal';
+    }
+
+    get basePath(): string {
+        return this.isBusinessMode ? '/smart-business/smart-scan' : '/smart-enroll/smart-scan';
+    }
+
     loadData() {
         this._scanService.pageIndex.set(this.pageIndex());
         this._scanService.pageSize.set(this.pageSize());
@@ -176,7 +188,9 @@ export class ScanListComponent implements OnInit {
             if (val) filters[key] = val;
         }
 
-        this._scanService.getScans(this.pageIndex() + 1, this.pageSize(), filters).subscribe();
+        this._scanService
+            .getScans(this.pageIndex() + 1, this.pageSize(), filters, this.scanTarget)
+            .subscribe();
     }
 
     applyFilters() {
@@ -207,16 +221,18 @@ export class ScanListComponent implements OnInit {
     }
 
     goToNewScan() {
-        this._router.navigate(['/smart-enroll/smart-scan/new']);
+        this._router.navigate([`${this.basePath}/new`]);
     }
 
     goToDetail(id: string) {
-        this._router.navigate(['/smart-enroll/smart-scan', id]);
+        this._router.navigate([this.basePath, id]);
     }
 
     getScanName(scan: DocumentValidation): string {
         const ocr = scan.OCRExtraction as Record<string, unknown> | undefined;
         if (!ocr) return '';
+        const legal = String(ocr['legalName'] ?? ocr['companyName'] ?? ocr['razonSocial'] ?? '');
+        if (legal) return legal.trim();
         const first = String(ocr['firstName'] ?? '');
         const last = String(ocr['lastName'] ?? '');
         if (first || last) return `${first} ${last}`.trim();

@@ -176,14 +176,22 @@ export class ScanDetailComponent implements OnInit {
         };
     }
 
+    get isBusinessMode(): boolean {
+        return this._router.url.startsWith('/smart-business');
+    }
+
+    get basePath(): string {
+        return this.isBusinessMode ? '/smart-business/smart-scan' : '/smart-enroll/smart-scan';
+    }
+
     goBack() {
-        this._router.navigate(['/smart-enroll/smart-scan/list']);
+        this._router.navigate([`${this.basePath}/list`]);
     }
 
     scanAnother(): void {
         const code = this.scan?.documentType;
         if (!code) return;
-        this._router.navigate(['/smart-enroll/smart-scan/new'], { queryParams: { documentType: code } });
+        this._router.navigate([`${this.basePath}/new`], { queryParams: { documentType: code } });
     }
 
     /**

@@ -16,6 +16,13 @@ import type {
  * step components keep the same wiring as the source repo.
  */
 
+export interface DocumentTemplateFieldLite {
+    page?: number;
+    mapKey: string;
+    name: string;
+    type: string;
+}
+
 /** Minimal `DocumentType` shape used by the documents step preview UX. */
 export interface DocumentTypeLite {
     _id: string;
@@ -23,6 +30,7 @@ export interface DocumentTypeLite {
     code: string;
     country: string;
     category: string;
+    fields?: DocumentTemplateFieldLite[];
     frontImage?: string;
     backImage?: string;
 }
@@ -31,9 +39,11 @@ export interface DocumentTypeLite {
 export interface PromptTemplateLite {
     _id: string;
     name: string;
+    description?: string;
     country?: string;
     documentCategory?: string;
     documentType?: DocumentTypeLite | string;
+    fields?: DocumentTemplateFieldLite[];
     system?: boolean;
 }
 

@@ -10,8 +10,17 @@ import {
     inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+    AbstractControl,
+    FormArray,
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import {
+    MatAutocompleteModule,
+    MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -104,11 +113,38 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     private _userCollapsedCountries = new Set<number>();
     /** Expanded category template lists: `${countryIndex}:${category}`. */
     private _expandedCategoryLists = new Set<string>();
+    /** FormGroups already wired into `_watchCountry`. */
+    private _watchedGroups = new WeakSet<FormGroup>();
 
     readonly categoryListCollapseThreshold = CATEGORY_LIST_COLLAPSE_THRESHOLD;
 
     ngOnInit(): void {
-        this.documentTypes?.controls.forEach((group) => this._watchCountry(group as FormGroup));
+        this._syncWatchedGroups();
+        this.documentTypes?.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => {
+                this._syncWatchedGroups();
+                this._cdr.markForCheck();
+            });
+    }
+
+    private _syncWatchedGroups(): void {
+        if (!this.documentTypes?.controls) return;
+        this.documentTypes.controls.forEach((ctrl, idx) => {
+            const group = ctrl as FormGroup;
+            if (!this._watchedGroups.has(group)) {
+                this._watchedGroups.add(group);
+                this._watchCountry(group);
+            }
+            const code = (group.get('country')?.value as string) || '';
+            const searchCtrl = this._countrySearch.get(idx);
+            if (searchCtrl && this._pickingCountry !== idx) {
+                const expected = this._displayCountry(code);
+                if (searchCtrl.value !== expected) {
+                    searchCtrl.setValue(expected, { emitEvent: false });
+                }
+            }
+        });
     }
 
     get verificationErrors(): string[] {
@@ -137,7 +173,8 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     countrySearchCtrl(index: number): FormControl<string> {
         let ctrl = this._countrySearch.get(index);
         if (ctrl) return ctrl;
-        const code = (this.asGroup(this.documentTypes.at(index)).get('country')?.value as string) || '';
+        const code =
+            (this.asGroup(this.documentTypes.at(index)).get('country')?.value as string) || '';
         ctrl = new FormControl(this._displayCountry(code), { nonNullable: true });
         ctrl.valueChanges
             .pipe(takeUntilDestroyed(this._destroyRef))
@@ -164,8 +201,11 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     onCountrySearchBlur(index: number): void {
         setTimeout(() => {
             if (this._pickingCountry === index) return;
-            const code = (this.asGroup(this.documentTypes.at(index)).get('country')?.value as string) || '';
-            this.countrySearchCtrl(index).setValue(this._displayCountry(code), { emitEvent: false });
+            const code =
+                (this.asGroup(this.documentTypes.at(index)).get('country')?.value as string) || '';
+            this.countrySearchCtrl(index).setValue(this._displayCountry(code), {
+                emitEvent: false,
+            });
             this._cdr.markForCheck();
         }, 0);
     }
@@ -204,6 +244,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         const group = this.asGroup(this.documentTypes.at(index));
         if (this.countryNeedsAttention(group)) return true;
         if (this._userCollapsedCountries.has(index)) return false;
+        if (this.target === 'business' || index === 0) return true;
         return this._expandedCountries.has(index);
     }
 
@@ -333,7 +374,9 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     otherCategoryLabels(country: string, excludeCategory: string): string {
         return this.categoriesWithTemplates(country, excludeCategory)
             .map((category) =>
-                this._transloco.translate(`smartEnrollProjects.setup.documents.category.${category}`)
+                this._transloco.translate(
+                    `smartEnrollProjects.setup.documents.category.${category}`
+                )
             )
             .join(', ');
     }
@@ -360,7 +403,59 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     isTemplateSelected(configCtrl: AbstractControl, promptTemplateId: string): boolean {
         const arr = configCtrl?.get('documentTemplates') as FormArray | null;
         if (!arr) return false;
-        return arr.controls.some((c) => c.get('promptTemplate')?.value === promptTemplateId);
+        return arr.controls.some((c) => {
+            const val = c.get('promptTemplate')?.value;
+            const id = val && typeof val === 'object' ? val._id : val;
+            return id === promptTemplateId;
+        });
+    }
+
+    templateFieldsCount(pt: PromptTemplateLite): number {
+        const dt = this.documentTypeOf(pt);
+        return pt?.fields?.length || dt?.fields?.length || 0;
+    }
+
+    templateFieldsTooltip(pt: PromptTemplateLite): string {
+        const dt = this.documentTypeOf(pt);
+        const fields = pt?.fields?.length ? pt.fields : dt?.fields || [];
+        if (!fields.length) return '';
+        return fields.map((f) => `${f.name} (${f.mapKey})`).join(', ');
+    }
+
+    getTemplateRequired(
+        configCtrl: AbstractControl,
+        promptTemplateId: string
+    ): 'mandatory' | 'optional' {
+        const arr = configCtrl?.get('documentTemplates') as FormArray | null;
+        if (!arr) return 'optional';
+        const match = arr.controls.find((c) => {
+            const val = c.get('promptTemplate')?.value;
+            const id = val && typeof val === 'object' ? val._id : val;
+            return id === promptTemplateId;
+        });
+        return (match?.get('required')?.value as 'mandatory' | 'optional') || 'optional';
+    }
+
+    toggleTemplateRequired(
+        configCtrl: AbstractControl,
+        promptTemplateId: string,
+        event?: Event
+    ): void {
+        event?.stopPropagation();
+        const arr = configCtrl?.get('documentTemplates') as FormArray | null;
+        if (!arr) return;
+        const match = arr.controls.find((c) => {
+            const val = c.get('promptTemplate')?.value;
+            const id = val && typeof val === 'object' ? val._id : val;
+            return id === promptTemplateId;
+        });
+        if (!match) return;
+        const current = match.get('required')?.value === 'mandatory' ? 'mandatory' : 'optional';
+        const next = current === 'mandatory' ? 'optional' : 'mandatory';
+        match.get('required')?.setValue(next);
+        match.markAsDirty();
+        arr.markAsDirty();
+        this._cdr.markForCheck();
     }
 
     toggleTemplate(configCtrl: AbstractControl, pt: PromptTemplateLite, checked: boolean): void {
@@ -368,6 +463,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
 
         const arr = configCtrl?.get('documentTemplates') as FormArray | null;
         const activeCtrl = configCtrl?.get('active');
+        const category = (configCtrl?.get('documentCategory')?.value as string) || '';
         if (!arr) return;
 
         if (checked) {
@@ -375,18 +471,31 @@ export class DocumentVerificationTypeListComponent implements OnInit {
             if (placeholderIndex >= 0) {
                 arr.removeAt(placeholderIndex);
             }
-            const exists = arr.controls.some((c) => c.get('promptTemplate')?.value === pt._id);
+            const exists = arr.controls.some((c) => {
+                const val = c.get('promptTemplate')?.value;
+                const id = val && typeof val === 'object' ? val._id : val;
+                return id === pt._id;
+            });
             if (!exists) {
+                const defaultReq =
+                    this.target === 'business' &&
+                    (category === 'business_document' || category === 'tax_document')
+                        ? 'mandatory'
+                        : 'optional';
                 arr.push(
                     this._factory.createDocumentTemplateFormGroup(
-                        { promptTemplate: pt._id, required: 'optional' },
+                        { promptTemplate: pt._id, required: defaultReq },
                         this.target
                     )
                 );
             }
             activeCtrl?.setValue(true);
         } else {
-            const idx = arr.controls.findIndex((c) => c.get('promptTemplate')?.value === pt._id);
+            const idx = arr.controls.findIndex((c) => {
+                const val = c.get('promptTemplate')?.value;
+                const id = val && typeof val === 'object' ? val._id : val;
+                return id === pt._id;
+            });
             if (idx >= 0) arr.removeAt(idx);
             const stillSelected = arr.controls.some((c) => !!c.get('promptTemplate')?.value);
             if (!stillSelected) activeCtrl?.setValue(false);
@@ -439,7 +548,10 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         this._cdr.markForCheck();
     }
 
-    private _selectAllTemplates(configCtrl: AbstractControl, templates: PromptTemplateLite[]): void {
+    private _selectAllTemplates(
+        configCtrl: AbstractControl,
+        templates: PromptTemplateLite[]
+    ): void {
         if (!templates.length) return;
         for (const pt of templates) {
             if (!pt?._id) continue;
@@ -475,7 +587,10 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         const data: DocumentTypePreviewData = {
             name: dt?.name || pt?.name || '',
             code: dt?.code,
-            country: dt?.country,
+            country: dt?.country || pt?.country,
+            category: pt?.documentCategory || dt?.category,
+            description: pt?.description,
+            fields: pt?.fields?.length ? pt.fields : dt?.fields || [],
             frontImage: dt?.frontImage,
             backImage: dt?.backImage,
         };

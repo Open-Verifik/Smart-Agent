@@ -110,10 +110,8 @@ export class SetupBreadcrumbsComponent implements OnChanges, OnDestroy, AfterVie
         });
     }
 
-    private _setSteps(target: string | undefined): void {
-        if (!target) this.steps = this._setup.initialSteps;
-        else if (target === 'business') this.steps = this._setup.businessSteps;
-        else this.steps = this._setup.personalSteps;
+    private _setSteps(_target?: string): void {
+        this.steps = this._setup.personalSteps;
         this._cdr.markForCheck();
     }
 }

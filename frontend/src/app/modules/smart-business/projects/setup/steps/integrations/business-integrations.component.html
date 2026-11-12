@@ -1,0 +1,78 @@
+<ng-container *transloco="let t">
+    <div [formGroup]="integrationsGroup" class="flex flex-col gap-6">
+        <!-- Step Header Banner -->
+        <div class="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white dark:border-gray-800">
+            <div class="flex items-start gap-4">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-400">
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:link"></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold">{{ t('smartBusiness.setup.integrations.bannerTitle') }}</h3>
+                    <p class="mt-1 text-xs text-stone-300">
+                        {{ t('smartBusiness.setup.integrations.bannerSubtitle') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Endpoints Card -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartBusiness.setup.integrations.endpointsTitle') }}
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartBusiness.setup.integrations.endpointsSubtitle') }}
+                </p>
+            </header>
+
+            <div class="flex flex-col gap-4">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.integrations.redirectUrlLabel') }}</mat-label>
+                    <input matInput type="url" formControlName="redirectUrl" [placeholder]="t('smartBusiness.setup.integrations.redirectUrlPlaceholder')" />
+                    <mat-icon matSuffix class="text-stone-400">open_in_new</mat-icon>
+                    <mat-hint>{{ t('smartBusiness.setup.integrations.redirectUrlHint') }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.integrations.webhookLabel') }}</mat-label>
+                    <input matInput type="url" formControlName="webhook" [placeholder]="t('smartBusiness.setup.integrations.webhookPlaceholder')" />
+                    <mat-icon matSuffix class="text-stone-400">webhook</mat-icon>
+                    <mat-hint>{{ t('smartBusiness.setup.integrations.webhookHint') }}</mat-hint>
+                </mat-form-field>
+            </div>
+        </section>
+
+        <!-- Access Filtering Strategy -->
+        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartBusiness.setup.integrations.filteringTitle') }}
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartBusiness.setup.integrations.filteringSubtitle') }}
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.integrations.validationSourceLabel') }}</mat-label>
+                    <mat-select formControlName="source">
+                        <mat-option value="NONE">{{ t('smartBusiness.setup.integrations.sourceNone') }}</mat-option>
+                        <mat-option value="API">{{ t('smartBusiness.setup.integrations.sourceApi') }}</mat-option>
+                        <mat-option value="DATABASE">{{ t('smartBusiness.setup.integrations.sourceDatabase') }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.integrations.filterStrategyLabel') }}</mat-label>
+                    <mat-select formControlName="strategy">
+                        <mat-option value="none">{{ t('smartBusiness.setup.integrations.strategyNone') }}</mat-option>
+                        <mat-option value="blacklist">{{ t('smartBusiness.setup.integrations.strategyBlacklist') }}</mat-option>
+                        <mat-option value="whitelist">{{ t('smartBusiness.setup.integrations.strategyWhitelist') }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </section>
+    </div>
+</ng-container>

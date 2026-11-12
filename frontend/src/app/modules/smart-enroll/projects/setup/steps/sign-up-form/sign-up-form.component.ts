@@ -78,7 +78,7 @@ export class SetupSignUpFormComponent implements OnInit {
 
     @Input() form!: FormGroup;
     @Input() formGroup!: FormGroup;
-    @Input() formType: 'business' | 'personal' = 'personal';
+    @Input() formType: 'personal' = 'personal';
     @Input() loading = false;
     @Input() saving = false;
     @Input() subForm = false;

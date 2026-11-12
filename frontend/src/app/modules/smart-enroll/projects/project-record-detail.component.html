@@ -6,27 +6,49 @@
             <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
                 <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
                 <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <a
-                    routerLink="/smart-enroll/projects"
-                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ 'smartEnrollProjects.title' | transloco }}</a
-                >
-                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <a
-                    [routerLink]="['/smart-enroll/projects', projectId]"
-                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ project()?.name || projectId }}</a
-                >
-                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <a
-                    [routerLink]="['/smart-enroll/projects', projectId, 'records']"
-                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ 'smartEnrollProjects.recordsTitle' | transloco }}</a
-                >
-                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                    'smartEnrollProjects.recordDetail.title' | transloco
-                }}</span>
+                @if (businessRecordId || backToBusinessRecord.observed) {
+                    <a
+                        routerLink="/smart-business/projects"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >SmartBusiness</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <a
+                        [routerLink]="['/smart-business/projects', projectId, 'records']"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >{{ 'smartBusiness.dossier.breadcrumbRecords' | transloco }}</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <button
+                        type="button"
+                        (click)="goBack()"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >{{ businessCompanyName || businessRecordId || 'Company Dossier' }}</button>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <span class="cursor-default font-semibold text-stone-900 dark:text-white">{{
+                        record() ? displayName(record()!) : ('smartEnrollProjects.recordDetail.title' | transloco)
+                    }}</span>
+                } @else {
+                    <a
+                        routerLink="/smart-enroll/projects"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >{{ 'smartEnrollProjects.title' | transloco }}</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <a
+                        [routerLink]="['/smart-enroll/projects', projectId]"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >{{ project()?.name || projectId }}</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <a
+                        [routerLink]="['/smart-enroll/projects', projectId, 'records']"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >{{ 'smartEnrollProjects.recordsTitle' | transloco }}</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{
+                        'smartEnrollProjects.recordDetail.title' | transloco
+                    }}</span>
+                }
             </div>
             <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
                 <div class="flex min-w-0 items-start gap-3">

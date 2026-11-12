@@ -391,6 +391,24 @@ describe('postman-endpoint-copy.util', () => {
             expect(result.title).toBe('车辆信息');
             expect(result.title).not.toContain('\\U0001');
         });
+
+        it('strips undefined prefix defensively in title, subtitle, and fullTitle', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'be_api_pep',
+                    country: undefined,
+                    label: 'undefined - Politically Exposed Persons (PEP)',
+                    description: 'undefined - Screen PEP entities in Belgium.',
+                },
+                catalogTitle: '',
+                catalogDescription: '',
+                locale: 'en',
+            });
+
+            expect(result.title).toBe('Politically Exposed Persons (PEP)');
+            expect(result.fullTitle).toBe('Politically Exposed Persons (PEP)');
+            expect(result.description).toBe('Screen PEP entities in Belgium.');
+        });
     });
 
     describe('sanitizePostmanCopyText', () => {
@@ -400,6 +418,15 @@ describe('postman-endpoint-copy.util', () => {
                     'Ecuador - \\U0001F1EA\\U0001F1E8 Ecuador - Vehicle Fines'
                 )
             ).toBe('Ecuador - Ecuador - Vehicle Fines');
+        });
+
+        it('defensively strips undefined prefix and bare undefined strings', () => {
+            expect(
+                sanitizePostmanCopyText('undefined - Politically Exposed Persons (PEP)')
+            ).toBe('Politically Exposed Persons (PEP)');
+            expect(sanitizePostmanCopyText('undefined : Endpoint')).toBe('Endpoint');
+            expect(sanitizePostmanCopyText('undefined')).toBe('');
+            expect(sanitizePostmanCopyText('   undefined   ')).toBe('');
         });
     });
 
@@ -547,6 +574,38 @@ describe('postman-endpoint-copy.util', () => {
 
             expect(result).toBe(catalogDescription);
             expect(result).not.toContain("Driver's License");
+        });
+
+        it('defensively strips leading ## Overview and ### Overview headings from markdown overview', () => {
+            const raw = '### Overview\n\nThe Israel Corporate Registry API provides automated verification.';
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'israel_api_company_lookup',
+                    docs: {
+                        en: { overview: raw },
+                    },
+                },
+                locale: 'en',
+            });
+
+            expect(result).toBe('The Israel Corporate Registry API provides automated verification.');
+            expect(result).not.toContain('### Overview');
+        });
+
+        it('defensively strips leading ## Descripción general heading in Spanish', () => {
+            const raw = '## Descripción general\n\nEl servicio permite verificar empresas registradas.';
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'israel_api_company_lookup',
+                    docs: {
+                        es: { overview: raw },
+                    },
+                },
+                locale: 'es',
+            });
+
+            expect(result).toBe('El servicio permite verificar empresas registradas.');
+            expect(result).not.toContain('## Descripción general');
         });
     });
 

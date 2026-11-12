@@ -45,17 +45,72 @@ export class DocumentTypeWizardComponent implements OnInit {
     private urlRewritten = false;
 
     readonly steps = ['details', 'sides', 'fields', 'smartCheck'] as const;
-    readonly categories = [
+    private readonly _personalCategories = [
         'government_id',
         'passport',
         'license',
         'criminal',
-        'bank_document',
-        'tax_document',
+    ];
+    private readonly _businessCategories = [
         'business_document',
-        'draft',
+        'tax_document',
+        'bank_document',
+        'proof_of_address',
     ];
     readonly fieldTypes = ['string', 'number', 'date', 'boolean'];
+    readonly availableCountries = [
+        'world',
+        'argentina',
+        'bolivia',
+        'brazil',
+        'canada',
+        'chile',
+        'colombia',
+        'costa_rica',
+        'dominican_republic',
+        'ecuador',
+        'el_salvador',
+        'france',
+        'germany',
+        'guatemala',
+        'honduras',
+        'mexico',
+        'panama',
+        'paraguay',
+        'peru',
+        'portugal',
+        'spain',
+        'united_kingdom',
+        'united_states',
+        'uruguay',
+        'venezuela',
+    ];
+
+    get isBusinessMode(): boolean {
+        return this._router.url.startsWith('/smart-business');
+    }
+
+    get isTemplatesCatalogRoute(): boolean {
+        return this._router.url.includes('/document-templates');
+    }
+
+    get scanTarget(): 'business' | 'personal' {
+        return this.isBusinessMode ? 'business' : 'personal';
+    }
+
+    get basePath(): string {
+        return this.isBusinessMode ? '/smart-business/smart-scan' : '/smart-enroll/smart-scan';
+    }
+
+    get templatesBasePath(): string {
+        return this.isBusinessMode
+            ? '/smart-business/document-templates'
+            : '/smart-enroll/document-templates';
+    }
+
+    get categories(): string[] {
+        return this.isBusinessMode ? this._businessCategories : this._personalCategories;
+    }
 
     country = '';
     stepIndex = 0;
@@ -86,6 +141,10 @@ export class DocumentTypeWizardComponent implements OnInit {
     extractionRows: Array<{ key: string; value: string }> = [];
 
     ngOnInit() {
+        if (this.isBusinessMode) {
+            this.category = 'business_document';
+            this.requiresBackSide = false;
+        }
         const id = this._route.snapshot.paramMap.get('id');
         if (id) {
             this.openedAsEdit = true;
@@ -102,8 +161,23 @@ export class DocumentTypeWizardComponent implements OnInit {
         }
         this.country = this._route.snapshot.queryParamMap.get('country') || '';
         if (!this.country) {
-            this._router.navigate(['/smart-enroll/smart-scan/new']);
-            return;
+            if (this.isTemplatesCatalogRoute) {
+                this.country = 'colombia';
+            } else {
+                this._router.navigate([`${this.basePath}/new`]);
+                return;
+            }
+        }
+        if (this.isBusinessMode && this.fields.length === 1 && !this.fields[0].name) {
+            this.fields = [
+                { page: 0, mapKey: 'legalName', name: 'Legal Corporate Name', type: 'string' },
+                { page: 0, mapKey: 'taxId', name: 'Tax ID (NIT / RFC / EIN / RUC)', type: 'string' },
+                { page: 0, mapKey: 'registrationNumber', name: 'Registration / Filing Number', type: 'string' },
+                { page: 0, mapKey: 'entityType', name: 'Legal Entity Type', type: 'string' },
+                { page: 0, mapKey: 'legalRepresentativeName', name: 'Legal Representative Name', type: 'string' },
+                { page: 0, mapKey: 'registeredAddress', name: 'Registered Fiscal Address', type: 'string' },
+                { page: 0, mapKey: 'issuanceDate', name: 'Issuance Date', type: 'date' },
+            ];
         }
         this.bindStepToUrl();
     }
@@ -149,11 +223,24 @@ export class DocumentTypeWizardComponent implements OnInit {
     }
 
     get countryLabel(): string {
-        const normalized = this.country.trim().toLowerCase().replace(/[\s-]+/g, '_');
+        return this.formatCountryOption(this.country);
+    }
+
+    formatCountryOption(countryKey: string): string {
+        const normalized = (countryKey || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+        if (!normalized) return '—';
+        if (normalized === 'world') {
+            return this._transloco.translate('smartEnrollProjects.setup.documents.category.world');
+        }
+        const i18nCountries = `countries.${normalized}`;
+        const translatedCountries = this._transloco.translate(i18nCountries);
+        if (translatedCountries && translatedCountries !== i18nCountries) {
+            return translatedCountries;
+        }
         const key = `smartScan.countries.${normalized}`;
         const translated = this._transloco.translate(key);
         if (translated === key) {
-            return this.country.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+            return normalized.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
         }
         return translated;
     }
@@ -168,7 +255,7 @@ export class DocumentTypeWizardComponent implements OnInit {
 
     canGoNext(): boolean {
         if (this.saving || this.loading) return false;
-        if (this.stepIndex === 0) return Boolean(this.name.trim() && this.code.trim() && this.category);
+        if (this.stepIndex === 0) return Boolean(this.name.trim() && this.code.trim() && this.category && this.country);
         if (this.stepIndex === 1) {
             if (!this.frontImage) return false;
             return !this.requiresBackSide || Boolean(this.backImage);
@@ -199,10 +286,16 @@ export class DocumentTypeWizardComponent implements OnInit {
     }
 
     backToScan() {
+        if (this.isTemplatesCatalogRoute) {
+            const queryParams: Record<string, string> = {};
+            if (this.country) queryParams['country'] = this.country;
+            this._router.navigate([this.templatesBasePath], { queryParams });
+            return;
+        }
         const queryParams: Record<string, string> = {};
         if (this.country) queryParams['country'] = this.country;
         if (this.documentTypeId && this.code.trim()) queryParams['documentType'] = this.code.trim();
-        this._router.navigate(['/smart-enroll/smart-scan/new'], { queryParams });
+        this._router.navigate([`${this.basePath}/new`], { queryParams });
     }
 
     private loadFork(id: string) {
@@ -212,7 +305,10 @@ export class DocumentTypeWizardComponent implements OnInit {
                 const documentType = response?.data;
                 if (!documentType || documentType.client) {
                     if (documentType?.client) {
-                        this._router.navigate(['/smart-enroll/smart-scan/document-type', documentType._id]);
+                        const editBase = this.isTemplatesCatalogRoute
+                            ? [this.templatesBasePath, documentType._id]
+                            : [`${this.basePath}/document-type`, documentType._id];
+                        this._router.navigate(editBase);
                         return;
                     }
                     this.backToScan();
@@ -240,11 +336,14 @@ export class DocumentTypeWizardComponent implements OnInit {
     }
 
     private openOwnedCopyOrStay(code: string) {
-        this._scanService.getDocumentTypes(this.country, true).subscribe({
+        this._scanService.getDocumentTypes(this.country, true, this.scanTarget).subscribe({
             next: () => {
                 const owned = this._scanService.documentTypes().find((type) => type.code === code && type.client);
                 if (owned) {
-                    this._router.navigate(['/smart-enroll/smart-scan/document-type', owned._id]);
+                    const editBase = this.isTemplatesCatalogRoute
+                        ? [this.templatesBasePath, owned._id]
+                        : [`${this.basePath}/document-type`, owned._id];
+                    this._router.navigate(editBase);
                     return;
                 }
                 this.loading = false;
@@ -585,8 +684,11 @@ export class DocumentTypeWizardComponent implements OnInit {
     }
 
     private documentUrl(step: string): string {
+        const commands = this.isTemplatesCatalogRoute
+            ? [this.templatesBasePath, this.documentTypeId]
+            : [`${this.basePath}/document-type`, this.documentTypeId];
         return this._router.serializeUrl(
-            this._router.createUrlTree(['/smart-enroll/smart-scan/document-type', this.documentTypeId], {
+            this._router.createUrlTree(commands, {
                 queryParams: { step },
             })
         );

@@ -87,15 +87,11 @@ export const enrollmentBlockers = (flow: FlowShape | null | undefined): Enrollme
     if (!flow) return [];
 
     const blockers: EnrollmentBlocker[] = [];
-    const extra = flow.signUpForm?.additionalFields;
 
-    if (flow.target === 'business') blockers.push('business');
-    if (flow.signUpForm?.allowAdditionalFields || (Array.isArray(extra) && extra.length > 0)) blockers.push('extraFields');
     if (flow.liveness?.kycType === 'zero_knowledge') blockers.push('zeroKnowledge');
-    if (hasCategory(flow.documents?.documentTypes, 'tax_document') || hasCategory(flow.business?.documentTypes, 'tax_document')) {
+    if (hasCategory(flow.documents?.documentTypes, 'tax_document')) {
         blockers.push('taxInformation');
     }
-    if (flow.steps?.legalRepresentative && flow.steps.legalRepresentative !== 'skip') blockers.push('representatives');
     if (flow.steps?.form && flow.steps.form !== 'skip') blockers.push('signature');
     if (flow.onboardingSettings?.requiresSignature) blockers.push('signature');
 
@@ -110,3 +106,4 @@ const hasCategory = (
         (type.configurations || []).some((config) => config.active !== false && config.documentCategory === category)
     );
 };
+

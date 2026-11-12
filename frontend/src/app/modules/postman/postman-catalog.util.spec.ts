@@ -37,9 +37,23 @@ describe('postman-catalog.util', () => {
         expect(extractFeatureRows([])).toEqual([]);
     });
 
-    it('extracts country index rows', () => {
+    it('extracts country index rows and deduplicates aliases under canonical country names', () => {
         expect(extractCountryRows({ data: [{ country: 'Colombia', count: 69 }] })).toEqual([
             { country: 'Colombia', count: 69 },
+        ]);
+        expect(
+            extractCountryRows({
+                data: [
+                    { country: 'Dominican Republic', count: 4 },
+                    { country: 'República Dominicana', count: 2 },
+                    { country: 'DO', count: 1 },
+                    { country: 'world', count: 5 },
+                    { country: 'World', count: 1 },
+                ],
+            }),
+        ).toEqual([
+            { country: 'Dominican Republic', count: 7 },
+            { country: 'world', count: 6 },
         ]);
     });
 
@@ -61,8 +75,11 @@ describe('postman-catalog.util', () => {
         expect(catalogCountryScopeForCountries([])).toEqual(['Colombia', 'world']);
     });
 
-    it('shows only the selected country in the sidebar', () => {
+    it('shows only the selected country in the sidebar, including aliases and ISO variants', () => {
         expect(endpointMatchesCountryFilter('Bolivia', 'Bolivia')).toBe(true);
+        expect(endpointMatchesCountryFilter('BO', 'Bolivia')).toBe(true);
+        expect(endpointMatchesCountryFilter('República Dominicana', 'Dominican Republic')).toBe(true);
+        expect(endpointMatchesCountryFilter('World', 'world')).toBe(true);
         expect(endpointMatchesCountryFilter('world', 'Bolivia')).toBe(false);
         expect(endpointMatchesCountryFilter('Chile', 'Colombia')).toBe(false);
         expect(endpointMatchesCountryFilter('world', 'world')).toBe(true);
