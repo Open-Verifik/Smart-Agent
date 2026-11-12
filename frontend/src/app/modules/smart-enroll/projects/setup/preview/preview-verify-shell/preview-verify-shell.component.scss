@@ -467,6 +467,109 @@ select:focus {
     border-bottom: 1px solid var(--style-line, #e8ebe6);
 }
 
+.kyc-prompt-view {
+    gap: 14px;
+}
+
+.kyc-optional-pill {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: rgba(127, 127, 127, 0.12);
+    color: var(--style-ink, var(--title));
+    border: 1px solid var(--style-line, rgba(127, 127, 127, 0.22));
+}
+
+.kyc-prompt-desc {
+    text-align: left;
+    width: 100%;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--body);
+}
+
+.kyc-prompt-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0;
+
+    li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 11px 13px;
+        border-radius: var(--style-radius-input, 12px);
+        border: 1px solid var(--style-line, rgba(127, 127, 127, 0.2));
+        background: var(--style-input-bg, rgba(127, 127, 127, 0.04));
+
+        svg {
+            width: 20px;
+            height: 20px;
+            flex: none;
+            margin-top: 2px;
+            color: var(--style-ink, var(--title));
+        }
+    }
+}
+
+.kyc-prompt-row-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+
+    strong {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--style-ink, var(--title));
+        line-height: 1.3;
+    }
+
+    span {
+        font-size: 12.5px;
+        line-height: 1.4;
+        color: var(--body);
+    }
+}
+
+.kyc-prompt-row-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kyc-step-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 10px !important;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: rgba(127, 127, 127, 0.14);
+    color: var(--style-ink, var(--title)) !important;
+    flex-shrink: 0;
+}
+
+.kyc-later-btn {
+    border: 1.5px solid var(--style-line, rgba(127, 127, 127, 0.35));
+    border-radius: var(--style-radius-button, 9999px);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 20px;
+}
+
 .sheet {
     position: absolute;
     left: 16px;

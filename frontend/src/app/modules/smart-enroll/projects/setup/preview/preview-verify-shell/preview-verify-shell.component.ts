@@ -25,6 +25,7 @@ import {
 } from './verify-style';
 
 export type VerifyPreviewScreen =
+    | 'kycPrompt'
     | 'consent'
     | 'decline'
     | 'contact'
@@ -109,7 +110,15 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
     private _cdr = inject(ChangeDetectorRef);
 
     get screens(): VerifyPreviewScreen[] {
-        return this.flowOrder === 'consent_first' ? CONSENT_FIRST_SCREENS : ORDERED_SCREENS;
+        const base = this.flowOrder === 'consent_first' ? CONSENT_FIRST_SCREENS : ORDERED_SCREENS;
+        if (!this.canSkipKyc) {
+            return base;
+        }
+        const consentIdx = base.indexOf('consent');
+        if (consentIdx < 0) {
+            return base;
+        }
+        return [...base.slice(0, consentIdx), 'kycPrompt', ...base.slice(consentIdx)];
     }
 
     readonly segments = ['contact', 'consent', 'document', 'selfie', 'done'];
@@ -239,6 +248,7 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
             case 'contact':
             case 'otp':
                 return 0;
+            case 'kycPrompt':
             case 'consent':
             case 'decline':
                 return 1;
@@ -353,6 +363,35 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
 
     get isDocumentOptional(): boolean {
         return this.form?.get('projectFlow.steps.document')?.value === 'optional';
+    }
+
+    get isLivenessOptional(): boolean {
+        const step =
+            this.form?.get('projectFlow.steps.liveness')?.value ??
+            this.form?.get('projectFlow.biometrics.livenessStep')?.value;
+        return step === 'optional';
+    }
+
+    get showDocumentRow(): boolean {
+        return this.form?.get('projectFlow.steps.document')?.value !== 'skip';
+    }
+
+    get canSkipKyc(): boolean {
+        if (!this.form) return false;
+        const docStep = this.form.get('projectFlow.steps.document')?.value || 'mandatory';
+        const livenessStep =
+            this.form.get('projectFlow.steps.liveness')?.value ??
+            this.form.get('projectFlow.biometrics.livenessStep')?.value ??
+            'mandatory';
+        return (
+            docStep !== 'mandatory' &&
+            livenessStep !== 'mandatory' &&
+            (docStep === 'optional' || livenessStep === 'optional')
+        );
+    }
+
+    skipKycForNow(): void {
+        this.selectScreen('submitted');
     }
 
     skipDocumentStep(): void {

@@ -75,6 +75,50 @@
                     {{ t('smart_enroll.verify.eyebrow') }}
                 </p>
 
+                <!-- 0. Optional KYC Pre-Verification Choice Screen -->
+                <div *ngSwitchCase="'kycPrompt'" class="center kyc-prompt-view">
+                    <span class="kyc-optional-pill">{{ t('smart_enroll.verify.optionalBadge') }}</span>
+                    <h1>{{ t('smart_enroll.verify.kycPromptTitle') }}</h1>
+                    <p class="kyc-prompt-desc">
+                        {{ t('smart_enroll.verify.kycPromptBody', { project: projectName }) }}
+                    </p>
+                    <ul class="rows consent-rows kyc-prompt-rows">
+                        <li *ngIf="showDocumentRow">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" /><circle cx="12" cy="12.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 6 9.6 4h4.8l1.1 2" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                            <div class="kyc-prompt-row-content">
+                                <div class="kyc-prompt-row-head">
+                                    <strong>{{ t('smart_enroll.verify.kycPromptDocTitle') }}</strong>
+                                    <span class="kyc-step-badge">{{ t('smart_enroll.verify.optionalBadge') }}</span>
+                                </div>
+                                <span>{{ t('smart_enroll.verify.kycPromptDocDesc') }}</span>
+                            </div>
+                        </li>
+                        <li *ngIf="showLivenessRow">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="12" cy="10.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7.8 16.5c.7-2 2.2-3 4.2-3s3.5 1 4.2 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                            <div class="kyc-prompt-row-content">
+                                <div class="kyc-prompt-row-head">
+                                    <strong>{{ t('smart_enroll.verify.kycPromptSelfieTitle') }}</strong>
+                                    <span class="kyc-step-badge">{{ t('smart_enroll.verify.optionalBadge') }}</span>
+                                </div>
+                                <span>{{ t('smart_enroll.verify.kycPromptSelfieDesc') }}</span>
+                            </div>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M12 7.5v4.8l3.2 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            <div class="kyc-prompt-row-content">
+                                <strong>{{ t('smart_enroll.verify.kycPromptLaterTitle') }}</strong>
+                                <span>{{ t('smart_enroll.verify.kycPromptLaterDesc') }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <button type="button" class="primary" (click)="selectScreen('consent')">
+                        {{ t('smart_enroll.verify.kycPromptVerifyNow') }}
+                    </button>
+                    <button type="button" class="secondary kyc-later-btn" (click)="skipKycForNow()">
+                        {{ t('smart_enroll.verify.kycPromptDoLater') }}
+                    </button>
+                </div>
+
                 <!-- 1. Identity Consent Screen -->
                 <div *ngSwitchCase="'consent'" class="center">
                     <h1>{{ t('smart_enroll.verify.consentTitle') }}</h1>
@@ -107,7 +151,10 @@
                     <button type="button" class="primary" (click)="nextScreen()">
                         {{ t('smart_enroll.verify.agree') }}
                     </button>
-                    <button type="button" class="secondary" (click)="selectScreen('decline')">
+                    <button *ngIf="canSkipKyc" type="button" class="secondary kyc-later-btn" (click)="skipKycForNow()">
+                        {{ t('smart_enroll.verify.kycPromptDoLater') }}
+                    </button>
+                    <button *ngIf="!canSkipKyc" type="button" class="secondary" (click)="selectScreen('decline')">
                         {{ t('smart_enroll.verify.decline') }}
                     </button>
                 </div>
