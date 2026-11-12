@@ -1,108 +1,211 @@
 <ng-container *transloco="let t">
-    <div [formGroup]="repsPolicyGroup" class="flex flex-col gap-6">
-        <!-- Step Header Banner -->
-        <div class="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white dark:border-gray-800">
-            <div class="flex items-start gap-4">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-400">
-                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:user-group"></mat-icon>
-                </div>
-                <div>
-                    <h3 class="text-base font-semibold">{{ t('smartBusiness.setup.reps.bannerTitle') }}</h3>
-                    <p class="mt-1 text-xs text-stone-300">
-                        {{ t('smartBusiness.setup.reps.bannerSubtitle') }}
-                    </p>
-                </div>
+    <div [formGroup]="repsPolicyGroup" class="kyb-journey">
+        <div class="kyb-intro">
+            <div class="kyb-intro__icon">
+                <mat-icon>groups</mat-icon>
+            </div>
+            <div>
+                <h2>{{ t('smartBusiness.setup.reps.bannerTitle') }}</h2>
+                <p>{{ t('smartBusiness.setup.reps.bannerSubtitle') }}</p>
             </div>
         </div>
 
-        <!-- Roster & Thresholds Card -->
-        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartBusiness.setup.reps.limitsTitle') }}
-                </h2>
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartBusiness.setup.reps.limitsSubtitle') }}
-                </p>
-            </header>
+        <ol class="kyb-timeline">
+            <!-- Stage 1: Representative Limits & UBO Threshold -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">1</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                            </span>
+                            <h3>{{ t('smartBusiness.setup.reps.limitsTitle') }}</h3>
+                            <p>{{ t('smartBusiness.setup.reps.limitsSubtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{ minReps }}–{{ maxReps }} · {{ uboThreshold }}% UBO
+                        </span>
+                    </header>
 
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.reps.minRepsLabel') }}</mat-label>
-                    <input matInput type="number" formControlName="minRepresentatives" min="1" max="10" />
-                    <mat-hint>{{ t('smartBusiness.setup.reps.minRepsHint') }}</mat-hint>
-                </mat-form-field>
+                    <div class="panel-body">
+                        <div class="field-grid field-grid--three">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.reps.minRepsLabel') }}</mat-label>
+                                <input matInput type="number" formControlName="minRepresentatives" min="1" max="10" />
+                            </mat-form-field>
 
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.reps.maxRepsLabel') }}</mat-label>
-                    <input matInput type="number" formControlName="maxRepresentatives" min="1" max="10" />
-                    <mat-hint>{{ t('smartBusiness.setup.reps.maxRepsHint') }}</mat-hint>
-                </mat-form-field>
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.reps.maxRepsLabel') }}</mat-label>
+                                <input matInput type="number" formControlName="maxRepresentatives" min="1" max="10" />
+                            </mat-form-field>
 
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.reps.uboThresholdLabel') }}</mat-label>
-                    <input matInput type="number" formControlName="uboOwnershipThreshold" min="1" max="100" />
-                    <mat-hint>{{ t('smartBusiness.setup.reps.uboThresholdHint') }}</mat-hint>
-                </mat-form-field>
-            </div>
-        </section>
-
-        <!-- Identity Verification Policy Card -->
-        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartBusiness.setup.reps.kycStandardTitle') }}
-                </h2>
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartBusiness.setup.reps.kycStandardSubtitle') }}
-                </p>
-            </header>
-
-            <div class="flex flex-col divide-y divide-stone-100 dark:divide-gray-800">
-                <!-- Document Scan Required -->
-                <div class="flex items-center justify-between py-3.5">
-                    <div>
-                        <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.reps.docScanTitle') }}</h4>
-                        <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.reps.docScanDesc') }}</p>
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.reps.uboThresholdLabel') }}</mat-label>
+                                <input
+                                    matInput
+                                    type="number"
+                                    formControlName="uboOwnershipThreshold"
+                                    min="1"
+                                    max="100"
+                                />
+                            </mat-form-field>
+                        </div>
                     </div>
-                    <mat-slide-toggle formControlName="requireDocumentScan"></mat-slide-toggle>
-                </div>
+                </section>
+            </li>
 
-                <!-- 3D Facial Liveness Required -->
-                <div class="flex items-center justify-between py-3.5">
-                    <div>
-                        <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.reps.livenessTitle') }}</h4>
-                        <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.reps.livenessDesc') }}</p>
+            <!-- Stage 2: Identity Verification Standard (KYC) -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">2</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                            </span>
+                            <h3>{{ t('smartBusiness.setup.reps.kycStandardTitle') }}</h3>
+                            <p>{{ t('smartBusiness.setup.reps.kycStandardSubtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{ enabledKycChecksCount }}/2
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="setting-row">
+                            <div>
+                                <strong>{{ t('smartBusiness.setup.reps.docScanTitle') }}</strong>
+                                <p>{{ t('smartBusiness.setup.reps.docScanDesc') }}</p>
+                            </div>
+                            <mat-slide-toggle formControlName="requireDocumentScan"></mat-slide-toggle>
+                        </div>
+
+                        <div class="setting-row">
+                            <div>
+                                <strong>{{ t('smartBusiness.setup.reps.livenessTitle') }}</strong>
+                                <p>{{ t('smartBusiness.setup.reps.livenessDesc') }}</p>
+                            </div>
+                            <mat-slide-toggle formControlName="requireLiveness"></mat-slide-toggle>
+                        </div>
                     </div>
-                    <mat-slide-toggle formControlName="requireLiveness"></mat-slide-toggle>
-                </div>
+                </section>
+            </li>
 
-                <!-- Score Thresholds -->
-                <div class="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>{{ t('smartBusiness.setup.reps.livenessMinScoreLabel') }}</mat-label>
-                        <input matInput type="number" step="0.01" formControlName="livenessMinScore" />
-                        <mat-hint>{{ t('smartBusiness.setup.reps.recommendedScoreHint') }}</mat-hint>
-                    </mat-form-field>
+            <!-- Stage 3: Biometric Scoring Thresholds -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">3</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.liveness.thresholds.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.liveness.thresholds.subtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{ livenessMinScoreDisplay }} · {{ compareMinScoreDisplay }}
+                        </span>
+                    </header>
 
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>{{ t('smartBusiness.setup.reps.compareMinScoreLabel') }}</mat-label>
-                        <input matInput type="number" step="0.01" formControlName="compareMinScore" />
-                        <mat-hint>{{ t('smartBusiness.setup.reps.recommendedScoreHint') }}</mat-hint>
-                    </mat-form-field>
-                </div>
+                    <div class="panel-body">
+                        <div class="threshold-card">
+                            <div class="threshold-card__top">
+                                <div>
+                                    <strong class="block text-sm font-semibold text-stone-900">
+                                        {{ t('smartEnrollProjects.setup.liveness.thresholds.minScore') }}
+                                    </strong>
+                                    <span class="text-xs text-stone-500">
+                                        {{ t('smartEnrollProjects.setup.liveness.thresholds.minScoreSubtitle') }}
+                                    </span>
+                                </div>
+                                <div class="threshold-card__value">
+                                    <strong>{{ livenessMinScoreDisplay }}</strong>
+                                    <span>{{ t('smartEnrollProjects.setup.liveness.actualScore') }}</span>
+                                </div>
+                            </div>
 
-                <!-- Remote Dispatch Channel -->
-                <div class="flex flex-col gap-2 pt-4">
-                    <h4 class="text-sm font-medium text-stone-900 dark:text-white">{{ t('smartBusiness.setup.reps.notificationChannelTitle') }}</h4>
-                    <p class="text-xs text-stone-500">{{ t('smartBusiness.setup.reps.notificationChannelDesc') }}</p>
-                    <mat-radio-group formControlName="notificationChannel" class="mt-2 flex flex-wrap gap-6">
-                        <mat-radio-button value="whatsapp">{{ t('smartBusiness.setup.reps.whatsappDirect') }}</mat-radio-button>
-                        <mat-radio-button value="email">{{ t('smartBusiness.setup.reps.emailChannel') }}</mat-radio-button>
-                        <mat-radio-button value="both">{{ t('smartBusiness.setup.reps.whatsappAndEmailRecommended') }}</mat-radio-button>
-                    </mat-radio-group>
-                </div>
-            </div>
-        </section>
+                            <mat-slider min="0.52" max="0.95" step="0.01" discrete class="threshold-card__slider">
+                                <input matSliderThumb formControlName="livenessMinScore" />
+                            </mat-slider>
+
+                            <p class="threshold-card__help">
+                                {{ t('smartEnrollProjects.setup.liveness.thresholds.minScoreHelp') }}
+                            </p>
+                        </div>
+
+                        <div class="threshold-card">
+                            <div class="threshold-card__top">
+                                <div>
+                                    <strong class="block text-sm font-semibold text-stone-900">
+                                        {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore') }}
+                                    </strong>
+                                    <span class="text-xs text-stone-500">
+                                        {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreSubtitle') }}
+                                    </span>
+                                </div>
+                                <div class="threshold-card__value">
+                                    <strong>{{ compareMinScoreDisplay }}</strong>
+                                    <span>{{ t('smartEnrollProjects.setup.liveness.actualScore') }}</span>
+                                </div>
+                            </div>
+
+                            <mat-slider min="0.65" max="0.95" step="0.01" discrete class="threshold-card__slider">
+                                <input matSliderThumb formControlName="compareMinScore" />
+                            </mat-slider>
+
+                            <p class="threshold-card__help">
+                                {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreHelp') }}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 4: Notification / Remote Link Channel -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">4</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 4 }) }}
+                            </span>
+                            <h3>{{ t('smartBusiness.setup.reps.notificationChannelTitle') }}</h3>
+                            <p>{{ t('smartBusiness.setup.reps.notificationChannelDesc') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{ (repsPolicyGroup.get('notificationChannel')?.value || 'both') | uppercase }}
+                        </span>
+                    </header>
+
+                    <mat-button-toggle-group
+                        formControlName="notificationChannel"
+                        class="requirement-options"
+                        [hideSingleSelectionIndicator]="true"
+                    >
+                        <mat-button-toggle value="both">
+                            <span class="requirement-option">
+                                <strong>{{ t('smartBusiness.setup.reps.whatsappAndEmailRecommended') }}</strong>
+                                <small>{{ t('smartEnrollProjects.setup.signupForm.phone.both') }}</small>
+                            </span>
+                        </mat-button-toggle>
+                        <mat-button-toggle value="whatsapp">
+                            <span class="requirement-option">
+                                <strong>{{ t('smartBusiness.setup.reps.whatsappDirect') }}</strong>
+                                <small>{{ t('smartEnrollProjects.setup.signupForm.phone.whatsapp') }}</small>
+                            </span>
+                        </mat-button-toggle>
+                        <mat-button-toggle value="email">
+                            <span class="requirement-option">
+                                <strong>{{ t('smartBusiness.setup.reps.emailChannel') }}</strong>
+                                <small>{{ t('smartEnrollProjects.setup.signupForm.email.mailgun') }}</small>
+                            </span>
+                        </mat-button-toggle>
+                    </mat-button-toggle-group>
+                </section>
+            </li>
+        </ol>
     </div>
 </ng-container>

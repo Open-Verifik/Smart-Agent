@@ -53,7 +53,9 @@ export type PreviewView =
     | 'document-upload'
     | 'document-result'
     | 'liveness'
-    | 'liveness-result';
+    | 'liveness-result'
+    | 'human-id-result'
+    | 'human-id-access';
 
 @Injectable({ providedIn: 'root' })
 export class SetupService {

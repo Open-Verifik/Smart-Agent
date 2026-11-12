@@ -1,183 +1,270 @@
-<ng-container *transloco="let t">
-    <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
-        <!-- 1. Step requirement (hidden when used as a representative sub-form) -->
-        @if (!subForm && livenessStepFormGroup) {
-            <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-                [formGroup]="livenessStepFormGroup"
-            >
-                <header class="mb-4">
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.liveness.title') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.subtitle') }}
-                    </p>
+<div *ngIf="isFormReady" class="liveness-journey">
+    <div *ngIf="!subForm" class="liveness-intro">
+        <div class="liveness-intro__icon">
+            <mat-icon>face_retouching_natural</mat-icon>
+        </div>
+        <div>
+            <h2>{{ 'smartEnrollProjects.setup.liveness.journey.title' | transloco }}</h2>
+            <p>{{ 'smartEnrollProjects.setup.liveness.journey.subtitle' | transloco }}</p>
+        </div>
+    </div>
+
+    <ol class="liveness-timeline">
+        <!-- Stage 1: Liveness requirement -->
+        <li *ngIf="!subForm && livenessStepFormGroup" class="liveness-stage" [formGroup]="livenessStepFormGroup">
+            <div class="liveness-stage__marker">1</div>
+            <section class="liveness-panel">
+                <header class="liveness-panel__header">
+                    <div>
+                        <span class="liveness-panel__eyebrow">
+                            {{ 'smartEnrollProjects.setup.documents.journey.stage' | transloco: { number: 1 } }}
+                        </span>
+                        <h3>{{ 'smartEnrollProjects.setup.liveness.title' | transloco }}</h3>
+                        <p>{{ 'smartEnrollProjects.setup.liveness.subtitle' | transloco }}</p>
+                    </div>
+                    <span class="liveness-panel__status">
+                        {{ ('smartEnrollProjects.setup.documents.journey.requirement.' + requirementValue) | transloco }}
+                    </span>
                 </header>
+
                 <mat-button-toggle-group
                     [formControlName]="stepFormControlName"
-                    class="!rounded-xl"
+                    class="requirement-options"
                     [hideSingleSelectionIndicator]="true"
                 >
-                    <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
-                    <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
-                    <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
+                    <mat-button-toggle value="skip">
+                        <span class="requirement-option">
+                            <strong>{{ 'smartEnrollProjects.setup.documents.skip' | transloco }}</strong>
+                            <small>{{ 'smartEnrollProjects.setup.liveness.journey.requirementHelp.skip' | transloco }}</small>
+                        </span>
+                    </mat-button-toggle>
+                    <mat-button-toggle value="optional">
+                        <span class="requirement-option">
+                            <strong>{{ 'smartEnrollProjects.setup.documents.optional' | transloco }}</strong>
+                            <small>{{ 'smartEnrollProjects.setup.liveness.journey.requirementHelp.optional' | transloco }}</small>
+                        </span>
+                    </mat-button-toggle>
+                    <mat-button-toggle value="mandatory">
+                        <span class="requirement-option">
+                            <strong>{{ 'smartEnrollProjects.setup.documents.required' | transloco }}</strong>
+                            <small>{{ 'smartEnrollProjects.setup.liveness.journey.requirementHelp.mandatory' | transloco }}</small>
+                        </span>
+                    </mat-button-toggle>
                 </mat-button-toggle-group>
-                <p class="mt-3 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.liveness.requirementHelp') }}
-                </p>
             </section>
-        }
+        </li>
 
         <ng-container [formGroup]="livenessFormGroup!">
-            <!-- 3. Liveness score -->
-            <section
-                class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                [class.border-stone-200]="isNotRequired || !livenessFormGroup?.get('minScore')?.errors"
-                [class.dark:border-gray-700]="isNotRequired || !livenessFormGroup?.get('minScore')?.errors"
-                [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('minScore')?.errors"
-                [class.opacity-50]="isNotRequired"
-                [class.pointer-events-none]="isNotRequired"
-            >
-                <header>
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.minScore') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.minScoreSubtitle') }}
-                    </p>
-                </header>
+            <!-- Stage 2: Liveness minimum score -->
+            <li class="liveness-stage">
+                <div class="liveness-stage__marker">{{ stageNumber(2) }}</div>
+                <section
+                    class="liveness-panel"
+                    [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('minScore')?.errors"
+                >
+                    <header class="liveness-panel__header">
+                        <div>
+                            <span class="liveness-panel__eyebrow">
+                                {{
+                                    'smartEnrollProjects.setup.documents.journey.stage'
+                                        | transloco: { number: stageNumber(2) }
+                                }}
+                            </span>
+                            <h3>{{ 'smartEnrollProjects.setup.liveness.thresholds.minScore' | transloco }}</h3>
+                            <p>{{ 'smartEnrollProjects.setup.liveness.thresholds.minScoreSubtitle' | transloco }}</p>
+                        </div>
+                        <span class="liveness-panel__status">
+                            {{ minScoreDisplayValue }}
+                        </span>
+                    </header>
 
-                <div class="flex items-end justify-center gap-2">
-                    <span class="text-4xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ minScoreDisplayValue }}
-                    </span>
-                    <span class="pb-1 text-sm text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.actualScore') }}
-                    </span>
-                </div>
-
-                <mat-slider min="0.52" max="0.9" step="0.01" discrete class="!w-full">
-                    <input matSliderThumb formControlName="minScore" />
-                </mat-slider>
-
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.liveness.thresholds.minScoreHelp') }}
-                </p>
-            </section>
-
-            <!-- 4. Compare score -->
-            <section
-                class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                [class.border-stone-200]="isNotRequired || !livenessFormGroup?.get('compareMinScore')?.errors"
-                [class.dark:border-gray-700]="isNotRequired || !livenessFormGroup?.get('compareMinScore')?.errors"
-                [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('compareMinScore')?.errors"
-                [class.opacity-50]="isNotRequired"
-                [class.pointer-events-none]="isNotRequired"
-            >
-                <header>
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreSubtitle') }}
-                    </p>
-                </header>
-
-                <div class="flex items-end justify-center gap-2">
-                    <span class="text-4xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ compareMinScoreDisplayValue }}
-                    </span>
-                    <span class="pb-1 text-sm text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.actualScore') }}
-                    </span>
-                </div>
-
-                <mat-slider min="0.65" max="0.95" step="0.01" discrete class="!w-full">
-                    <input matSliderThumb formControlName="compareMinScore" />
-                </mat-slider>
-
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreHelp') }}
-                </p>
-            </section>
-
-            <!-- 5. Search score -->
-            <section
-                class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                [class.border-stone-200]="isNotRequired || !livenessFormGroup?.get('searchMinScore')?.errors"
-                [class.dark:border-gray-700]="isNotRequired || !livenessFormGroup?.get('searchMinScore')?.errors"
-                [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('searchMinScore')?.errors"
-                [class.opacity-50]="isNotRequired"
-                [class.pointer-events-none]="isNotRequired"
-            >
-                <header>
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScore') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScoreSubtitle') }}
-                    </p>
-                </header>
-
-                <div class="flex items-end justify-center gap-2">
-                    <span class="text-4xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ searchMinScoreDisplayValue }}
-                    </span>
-                    <span class="pb-1 text-sm text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.actualScore') }}
-                    </span>
-                </div>
-
-                <mat-slider min="0.81" max="0.95" step="0.01" discrete class="!w-full">
-                    <input matSliderThumb formControlName="searchMinScore" />
-                </mat-slider>
-
-                @if (isSearchMinScoreWarn) {
-                    <div
-                        class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
-                    >
-                        <mat-icon class="!h-4 !w-4">warning</mat-icon>
-                        <span>{{ t('smartEnrollProjects.setup.liveness.thresholds.searchWarn') }}</span>
+                    <div *ngIf="isNotRequired" class="disabled-stage">
+                        <mat-icon>lock_outline</mat-icon>
+                        <span>{{ 'smartEnrollProjects.setup.liveness.journey.enableToConfigure' | transloco }}</span>
                     </div>
-                }
 
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScoreHelp') }}
-                </p>
-            </section>
+                    <div *ngIf="!isNotRequired" class="threshold-card">
+                        <div class="threshold-card__top">
+                            <div class="threshold-card__value">
+                                <strong>{{ minScoreDisplayValue }}</strong>
+                                <span>{{ 'smartEnrollProjects.setup.liveness.actualScore' | transloco }}</span>
+                            </div>
+                            <div class="threshold-card__bounds">
+                                <span>52%</span>
+                                <span>–</span>
+                                <span>90%</span>
+                            </div>
+                        </div>
 
-            <!-- 6. Attempt limit -->
-            <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-                [class.opacity-50]="isNotRequired"
-                [class.pointer-events-none]="isNotRequired"
-            >
-                <header class="mb-4 flex items-start justify-between gap-4">
-                    <div>
-                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{ t('smartEnrollProjects.setup.documents.attempts.title') }}
-                        </h2>
-                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartEnrollProjects.setup.documents.attempts.subtitle') }}
+                        <mat-slider min="0.52" max="0.9" step="0.01" discrete class="threshold-card__slider">
+                            <input matSliderThumb formControlName="minScore" />
+                        </mat-slider>
+
+                        <p class="threshold-card__help">
+                            {{ 'smartEnrollProjects.setup.liveness.thresholds.minScoreHelp' | transloco }}
                         </p>
                     </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-[12rem]">
-                        <mat-label>{{ t('smartEnrollProjects.setup.documents.attempts.limit') }}</mat-label>
-                        <mat-select formControlName="attemptLimit" required>
-                            @for (n of [1, 2, 3, 4, 5]; track n) {
-                                <mat-option [value]="n">
+                </section>
+            </li>
+
+            <!-- Stage 3: Face compare minimum score -->
+            <li class="liveness-stage">
+                <div class="liveness-stage__marker">{{ stageNumber(3) }}</div>
+                <section
+                    class="liveness-panel"
+                    [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('compareMinScore')?.errors"
+                >
+                    <header class="liveness-panel__header">
+                        <div>
+                            <span class="liveness-panel__eyebrow">
+                                {{
+                                    'smartEnrollProjects.setup.documents.journey.stage'
+                                        | transloco: { number: stageNumber(3) }
+                                }}
+                            </span>
+                            <h3>{{ 'smartEnrollProjects.setup.liveness.thresholds.compareMinScore' | transloco }}</h3>
+                            <p>{{ 'smartEnrollProjects.setup.liveness.thresholds.compareMinScoreSubtitle' | transloco }}</p>
+                        </div>
+                        <span class="liveness-panel__status">
+                            {{ compareMinScoreDisplayValue }}
+                        </span>
+                    </header>
+
+                    <div *ngIf="isNotRequired" class="disabled-stage">
+                        <mat-icon>lock_outline</mat-icon>
+                        <span>{{ 'smartEnrollProjects.setup.liveness.journey.enableToConfigure' | transloco }}</span>
+                    </div>
+
+                    <div *ngIf="!isNotRequired" class="threshold-card">
+                        <div class="threshold-card__top">
+                            <div class="threshold-card__value">
+                                <strong>{{ compareMinScoreDisplayValue }}</strong>
+                                <span>{{ 'smartEnrollProjects.setup.liveness.actualScore' | transloco }}</span>
+                            </div>
+                            <div class="threshold-card__bounds">
+                                <span>65%</span>
+                                <span>–</span>
+                                <span>95%</span>
+                            </div>
+                        </div>
+
+                        <mat-slider min="0.65" max="0.95" step="0.01" discrete class="threshold-card__slider">
+                            <input matSliderThumb formControlName="compareMinScore" />
+                        </mat-slider>
+
+                        <p class="threshold-card__help">
+                            {{ 'smartEnrollProjects.setup.liveness.thresholds.compareMinScoreHelp' | transloco }}
+                        </p>
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 4: Search minimum score -->
+            <li class="liveness-stage">
+                <div class="liveness-stage__marker">{{ stageNumber(4) }}</div>
+                <section
+                    class="liveness-panel"
+                    [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('searchMinScore')?.errors"
+                >
+                    <header class="liveness-panel__header">
+                        <div>
+                            <span class="liveness-panel__eyebrow">
+                                {{
+                                    'smartEnrollProjects.setup.documents.journey.stage'
+                                        | transloco: { number: stageNumber(4) }
+                                }}
+                            </span>
+                            <h3>{{ 'smartEnrollProjects.setup.liveness.thresholds.searchMinScore' | transloco }}</h3>
+                            <p>{{ 'smartEnrollProjects.setup.liveness.thresholds.searchMinScoreSubtitle' | transloco }}</p>
+                        </div>
+                        <span class="liveness-panel__status">
+                            {{ searchMinScoreDisplayValue }}
+                        </span>
+                    </header>
+
+                    <div *ngIf="isNotRequired" class="disabled-stage">
+                        <mat-icon>lock_outline</mat-icon>
+                        <span>{{ 'smartEnrollProjects.setup.liveness.journey.enableToConfigure' | transloco }}</span>
+                    </div>
+
+                    <div *ngIf="!isNotRequired" class="threshold-card">
+                        <div class="threshold-card__top">
+                            <div class="threshold-card__value">
+                                <strong>{{ searchMinScoreDisplayValue }}</strong>
+                                <span>{{ 'smartEnrollProjects.setup.liveness.actualScore' | transloco }}</span>
+                            </div>
+                            <div class="threshold-card__bounds">
+                                <span>81%</span>
+                                <span>–</span>
+                                <span>95%</span>
+                            </div>
+                        </div>
+
+                        <mat-slider min="0.81" max="0.95" step="0.01" discrete class="threshold-card__slider">
+                            <input matSliderThumb formControlName="searchMinScore" />
+                        </mat-slider>
+
+                        <div *ngIf="isSearchMinScoreWarn" class="threshold-card__warning">
+                            <mat-icon>warning</mat-icon>
+                            <span>{{ 'smartEnrollProjects.setup.liveness.thresholds.searchWarn' | transloco }}</span>
+                        </div>
+
+                        <p class="threshold-card__help">
+                            {{ 'smartEnrollProjects.setup.liveness.thresholds.searchMinScoreHelp' | transloco }}
+                        </p>
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 5: Attempt limit -->
+            <li class="liveness-stage">
+                <div class="liveness-stage__marker">{{ stageNumber(5) }}</div>
+                <section class="liveness-panel">
+                    <header class="liveness-panel__header">
+                        <div>
+                            <span class="liveness-panel__eyebrow">
+                                {{
+                                    'smartEnrollProjects.setup.documents.journey.stage'
+                                        | transloco: { number: stageNumber(5) }
+                                }}
+                            </span>
+                            <h3>{{ 'smartEnrollProjects.setup.documents.attempts.title' | transloco }}</h3>
+                            <p>{{ 'smartEnrollProjects.setup.documents.attempts.subtitle' | transloco }}</p>
+                        </div>
+                        <span class="liveness-panel__status">
+                            {{
+                                'smartEnrollProjects.setup.documents.journey.attemptSummary'
+                                    | transloco: { attempts: attemptLimit }
+                            }}
+                        </span>
+                    </header>
+
+                    <div *ngIf="isNotRequired" class="disabled-stage">
+                        <mat-icon>lock_outline</mat-icon>
+                        <span>{{ 'smartEnrollProjects.setup.liveness.journey.enableToConfigure' | transloco }}</span>
+                    </div>
+
+                    <div *ngIf="!isNotRequired" class="setting-row">
+                        <div>
+                            <strong>{{ 'smartEnrollProjects.setup.documents.attempts.limit' | transloco }}</strong>
+                            <p>{{ 'smartEnrollProjects.setup.documents.attempts.subtitle' | transloco }}</p>
+                        </div>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="attempt-field">
+                            <mat-label>{{ 'smartEnrollProjects.setup.documents.attempts.limit' | transloco }}</mat-label>
+                            <mat-select formControlName="attemptLimit" required>
+                                <mat-option *ngFor="let n of attemptOptions" [value]="n">
                                     {{
                                         n === 1
-                                            ? t('smartEnrollProjects.setup.documents.attempts.one')
-                                            : t('smartEnrollProjects.setup.documents.attempts.many', { count: n })
+                                            ? ('smartEnrollProjects.setup.documents.attempts.one' | transloco)
+                                            : ('smartEnrollProjects.setup.documents.attempts.many'
+                                                  | transloco: { count: n })
                                     }}
                                 </mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
-                </header>
-            </section>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </section>
+            </li>
         </ng-container>
-    </div>
-</ng-container>
+    </ol>
+</div>
