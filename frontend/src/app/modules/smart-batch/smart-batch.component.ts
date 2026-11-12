@@ -755,6 +755,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     templateTitle(template: SmartReportTemplate): string {
+        if (template.type !== 'System' && template.name?.trim()) return template.name.trim();
         if (template.nameKey) {
             return this._transloco.translate(template.nameKey);
         }

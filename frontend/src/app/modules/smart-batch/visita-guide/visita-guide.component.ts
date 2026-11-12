@@ -1222,6 +1222,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     );
 
     templateCardTitle(template: SmartReportTemplate): string {
+        if (template.type !== 'System' && template.name?.trim()) return template.name.trim();
         if (template.nameKey) return this._transloco.translate(template.nameKey);
         return template.name;
     }
@@ -6128,7 +6129,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     setLayoutTitle(value: string): void {
-        this._state.reportTitle.set(value);
+        const previous = this.reportTitle();
+        const next = value.slice(0, 150);
+        if (next === previous) return;
+        this._state.reportTitle.set(next);
+        this._applyTemplateNameToTitle(next, previous);
     }
 
     setLayoutPrimaryColor(value: string): void {
@@ -7019,6 +7024,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     setSelectedLayoutLabel(value: string): void {
         const id = this.selectedLayoutSectionId();
         if (!id) return;
+        const current = this.layoutSections().find((section) => section.id === id);
         this.layoutSections.update((list) =>
             list.map((section) => {
                 if (section.id !== id) return section;
@@ -7032,11 +7038,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return next;
             })
         );
+        if (current) this._rememberTitleFromSection(current, value);
     }
 
     setSelectedLayoutBody(value: string): void {
         const id = this.selectedLayoutSectionId();
         if (!id) return;
+        const current = this.layoutSections().find((section) => section.id === id);
         this.layoutSections.update((list) =>
             list.map((section) => {
                 if (section.id !== id) return section;
@@ -7045,6 +7053,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return next;
             })
         );
+        if (current) this._rememberTitleFromSection(current, value);
     }
 
     selectedLayoutHasPastedTable(): boolean {
@@ -10218,6 +10227,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
         const next: SampleReportData = {
             ...cloneReportValue(base),
+            batchName: this.reportTitle().trim() || base.batchName,
             consultedAt: live.consultedAt || base.consultedAt,
             generatedAt: this.reportGeneratedAt() || live.generatedAt || base.generatedAt,
         };
@@ -10229,8 +10239,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const draft = this.previewTemplate();
         if (!draft) return null;
         const configId = this._state.configId();
+        const name = (this.reportTitle().trim() || draft.name || '').slice(0, 150);
+        if (name) this._applyTemplateNameToTitle(name, this.reportTitle());
         const payload: Partial<SmartReportTemplate> = {
-            name: (this.reportTitle() || draft.name || '').slice(0, 150),
+            name,
             description: draft.description,
             primaryColor: this.primaryColor() || draft.primaryColor,
             identityColor: this.identityColor() || draft.identityColor || '#000000',
@@ -10284,12 +10296,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const isSystemTemplate = draft.type === 'System';
         if (draft._id && !isSystemTemplate) {
             const updated = await firstValueFrom(this._reports.updateTemplate(draft._id, payload));
-            this._state.selectedTemplate.set({
+            const saved = {
                 ...updated,
+                name: name || updated.name,
                 sampleData: updated.sampleData ?? payload.sampleData,
-            });
+            };
+            this._reports.retainTemplate(saved);
+            this._state.selectedTemplate.set(saved);
             clearScratchDraft();
-            return updated;
+            return saved;
         }
 
         const created = await firstValueFrom(
@@ -10299,14 +10314,55 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 country: this.countryNames()[0] || draft.country,
             })
         );
-        this._state.selectedTemplate.set({
+        const saved = {
             ...created,
+            name: name || created.name,
             sampleData: created.sampleData ?? payload.sampleData,
-        });
-        if (created?._id) clearScratchDraft();
-        this._state.clonedTemplate.set(created);
+        };
+        this._reports.retainTemplate(saved);
+        this._state.selectedTemplate.set(saved);
+        if (saved?._id) clearScratchDraft();
+        this._state.clonedTemplate.set(saved);
         this._state.templateChoice.set('mine');
-        return created;
+        return saved;
+    }
+
+    /** The sheet title that represents the template name. */
+    private _templateTitleSection(title = this.reportTitle()): ReportSection | undefined {
+        const headers = this.layoutSections().filter(
+            (section) => section.type === 'header' && !isReportPageAnchor(section)
+        );
+        const seeded = headers.find((section) => section.id?.startsWith('titulo-'));
+        if (seeded) return seeded;
+        const needle = title.trim();
+        if (!needle) return undefined;
+        return headers.find((section) => (section.staticContent || section.label || '').trim() === needle);
+    }
+
+    private _applyTemplateNameToTitle(name: string, previous = this.reportTitle()): void {
+        const block = this._templateTitleSection(previous);
+        if (!block?.id) return;
+        const shown = (block.staticContent || block.label || '').trim();
+        const prior = previous.trim();
+        if (!block.id.startsWith('titulo-') && shown && shown !== prior && shown !== name.trim()) return;
+        if (shown === name) return;
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === block.id ? { ...section, label: name, staticContent: name } : section
+            )
+        );
+    }
+
+    private _rememberTitleFromSection(section: ReportSection, value: string): void {
+        const title = this._templateTitleSection();
+        if (!title || section.id !== title.id) return;
+        const plain = value
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 150);
+        if (!plain || plain === this.reportTitle()) return;
+        this._state.reportTitle.set(plain);
     }
 
     private _refreshTemplates(): void {
