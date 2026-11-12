@@ -69,6 +69,8 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
     @Input() branding: Branding | null = null;
     @Input() form!: FormGroup;
     @Input() view: PreviewView[] = ['signup'];
+    /** `humanAuthn` swaps the final screen for the HumanID result and ignores SmartEnroll's representative step. */
+    @Input() flavor: 'enroll' | 'humanAuthn' = 'enroll';
 
     @ViewChild('fullscreenDialog') fullscreenDialogTpl?: TemplateRef<unknown>;
 
@@ -175,18 +177,18 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
     get subFormGroup(): FormGroup | null {
         switch (this.currentView) {
             case 'signup':
-                return (this.stepIndex === 3
+                return (this.stepIndex === 3 && this.flavor === 'enroll'
                     ? this.form?.get('projectFlow.representatives.information')
                     : this.form?.get('projectFlow.signUpForm')) as FormGroup | null;
             case 'document-scan':
             case 'document-upload':
             case 'document-result':
-                return (this.stepIndex === 3
+                return (this.stepIndex === 3 && this.flavor === 'enroll'
                     ? this.form?.get('projectFlow.representatives.documents')
                     : this.form?.get('projectFlow.documents')) as FormGroup | null;
             case 'liveness':
             case 'liveness-result':
-                return (this.stepIndex === 3
+                return (this.stepIndex === 3 && this.flavor === 'enroll'
                     ? this.form?.get('projectFlow.representatives.liveness')
                     : this.form?.get('projectFlow.liveness')) as FormGroup | null;
             default:
@@ -196,7 +198,7 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
 
     /** `personal` for representative sub-flow, otherwise the project's target. */
     get formType(): 'business' | 'personal' {
-        if (this.stepIndex === 3) return 'personal';
+        if (this.flavor === 'humanAuthn' || this.stepIndex === 3) return 'personal';
         const t = this.form?.get('target')?.value as 'business' | 'personal' | undefined;
         return t === 'business' ? 'business' : 'personal';
     }

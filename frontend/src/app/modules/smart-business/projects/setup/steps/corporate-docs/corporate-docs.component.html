@@ -1,200 +1,265 @@
 <ng-container *transloco="let t">
-    <div [formGroup]="docsGroup" class="flex flex-col gap-6">
-        <!-- Step Header Banner -->
-        <div
-            class="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white dark:border-gray-800"
-        >
-            <div class="flex items-start gap-4">
-                <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-400"
-                >
-                    <mat-icon
-                        class="icon-size-5"
-                        svgIcon="heroicons_outline:document-duplicate"
-                    ></mat-icon>
-                </div>
-                <div>
-                    <h3 class="text-base font-semibold">
-                        {{ t('smartBusiness.setup.docs.bannerTitle') }}
-                    </h3>
-                    <p class="mt-1 text-xs text-stone-300">
-                        {{ t('smartBusiness.setup.docs.bannerSubtitle') }}
-                    </p>
-                </div>
+    <div [formGroup]="businessGroup" class="kyb-journey">
+        <div class="kyb-intro">
+            <div class="kyb-intro__icon">
+                <mat-icon>description</mat-icon>
+            </div>
+            <div>
+                <h2>{{ t('smartBusiness.setup.docs.bannerTitle') }}</h2>
+                <p>{{ t('smartBusiness.setup.docs.bannerSubtitle') }}</p>
             </div>
         </div>
 
-        <!-- Official Registry Checks Card -->
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40"
-        >
-            <header class="mb-4">
-                <div class="flex items-center gap-2">
-                    <div
-                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
-                    >
-                        <mat-icon
-                            class="icon-size-4"
-                            svgIcon="heroicons_outline:check-badge"
-                        ></mat-icon>
+        <ol class="kyb-timeline">
+            <!-- Stage 1: Accepted corporate documents -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">1</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                            </span>
+                            <h3>{{ t('smartBusiness.setup.docs.journey.docsTitle') }}</h3>
+                            <p>{{ t('smartBusiness.setup.docs.journey.docsHelp') }}</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-end gap-2 shrink-0">
+                            <span class="kyb-panel__status">
+                                {{
+                                    t('smartEnrollProjects.setup.documents.journey.documentSummary', {
+                                        countries: configuredCountriesCount,
+                                        documents: selectedDocumentsCount
+                                    })
+                                }}
+                            </span>
+                            <a routerLink="/smart-business/document-templates" class="world-pill-btn">
+                                <mat-icon>add_circle_outline</mat-icon>
+                                <span>{{ t('smartBusiness.setup.docs.manageTemplatesBtn') }}</span>
+                            </a>
+                        </div>
+                    </header>
+
+                    <div class="panel-body">
+                        @if (businessDocumentTypes) {
+                            <document-verification-type-list
+                                [form]="form"
+                                [documentTypes]="businessDocumentTypes"
+                                [target]="'business'"
+                            ></document-verification-type-list>
+                        }
                     </div>
-                    <div>
-                        <h2
-                            class="text-base font-semibold tracking-tight text-stone-900 dark:text-white"
-                        >
-                            {{ t('smartBusiness.setup.docs.officialChecksTitle') }}
-                        </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartBusiness.setup.docs.officialChecksSubtitle') }}
-                        </p>
+                </section>
+            </li>
+
+            <!-- Stage 2: Collection policy -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">2</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.documents.journey.collectionTitle') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.documents.journey.collectionHelp') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{
+                                t('smartEnrollProjects.setup.documents.journey.attemptSummary', {
+                                    attempts: attemptLimit
+                                })
+                            }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="setting-row">
+                            <div>
+                                <strong>{{ t('smartBusiness.setup.docs.attemptLimitLabel') }}</strong>
+                                <p>{{ t('smartEnrollProjects.setup.documents.attempts.subtitle') }}</p>
+                            </div>
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-48 shrink-0">
+                                <mat-label>{{ t('smartEnrollProjects.setup.documents.attempts.limit') }}</mat-label>
+                                <mat-select formControlName="attemptLimit">
+                                    <mat-option [value]="1">{{ t('smartBusiness.setup.docs.attempt1') }}</mat-option>
+                                    <mat-option [value]="2">{{ t('smartBusiness.setup.docs.attempt2') }}</mat-option>
+                                    <mat-option [value]="3">
+                                        {{ t('smartBusiness.setup.docs.attempt3Recommended') }}
+                                    </mat-option>
+                                    <mat-option [value]="5">{{ t('smartBusiness.setup.docs.attempt5') }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
                     </div>
-                </div>
-            </header>
+                </section>
+            </li>
 
-            <div
-                [formGroup]="officialRegistryChecksGroup"
-                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
-            >
-                <!-- Tax Registry -->
-                <div
-                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
-                >
-                    <div>
-                        <span class="font-medium text-stone-900 dark:text-white">{{
-                            t('smartBusiness.setup.docs.colombiaTaxTitle')
-                        }}</span>
-                        <p class="text-xs text-stone-500">
-                            {{ t('smartBusiness.setup.docs.colombiaTaxDesc') }}
-                        </p>
+            <!-- Stage 3: Verification checks -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">3</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.documents.journey.screeningTitle') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.documents.journey.screeningHelp') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{
+                                screeningEnabled
+                                    ? t('smartEnrollProjects.setup.documents.journey.screeningSummary', {
+                                          count: screeningChecksCount
+                                      })
+                                    : t('smartEnrollProjects.setup.documents.journey.screeningOff')
+                            }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="setting-row">
+                            <div>
+                                <strong>{{ t('smartBusiness.setup.docs.journey.screeningToggleTitle') }}</strong>
+                                <p>{{ t('smartBusiness.setup.docs.journey.screeningToggleDesc') }}</p>
+                            </div>
+                            <mat-slide-toggle formControlName="screening"></mat-slide-toggle>
+                        </div>
+
+                        @if (screeningEnabled) {
+                            @if (businessGroup.errors?.['screeningRequiresVerification']) {
+                                <p class="field-error">
+                                    {{ t('smartBusiness.setup.docs.journey.requiresVerification') }}
+                                </p>
+                            }
+
+                            <div class="screening-options">
+                                <label class="screening-option">
+                                    <mat-checkbox formControlName="informationVerification"></mat-checkbox>
+                                    <mat-icon>account_balance</mat-icon>
+                                    <span>
+                                        <strong>{{ t('smartBusiness.setup.docs.journey.infoTitle') }}</strong>
+                                        <small>{{ t('smartBusiness.setup.docs.journey.infoDesc') }}</small>
+                                    </span>
+                                </label>
+
+                                <label class="screening-option">
+                                    <mat-checkbox formControlName="criminalHistoryVerification"></mat-checkbox>
+                                    <mat-icon>security</mat-icon>
+                                    <span>
+                                        <strong>{{ t('smartBusiness.setup.docs.journey.complianceTitle') }}</strong>
+                                        <small>{{ t('smartBusiness.setup.docs.journey.complianceDesc') }}</small>
+                                    </span>
+                                </label>
+                            </div>
+
+                            @if (businessGroup.get('criminalHistoryVerification')?.value) {
+                                <div class="criminal-check-catalog">
+                                    <div class="criminal-check-catalog__intro">
+                                        <div>
+                                            <span>{{ t('smartEnrollProjects.setup.documents.screening.catalogEyebrow') }}</span>
+                                            <h4>{{ t('smartEnrollProjects.setup.documents.screening.catalogTitle') }}</h4>
+                                        </div>
+                                        <p>{{ t('smartBusiness.setup.docs.journey.catalogDescription') }}</p>
+                                    </div>
+
+                                    @for (section of countryCheckSections; track section.country) {
+                                        <section class="check-scope">
+                                            <header class="check-scope__header">
+                                                <div>
+                                                    <span class="check-scope__badge">
+                                                        {{ t('smartEnrollProjects.setup.documents.screening.countryChecks') }}
+                                                    </span>
+                                                    <h5>{{ section.country }}</h5>
+                                                </div>
+                                                <p>
+                                                    {{
+                                                        t('smartBusiness.setup.docs.journey.countryDescription', {
+                                                            country: section.country
+                                                        })
+                                                    }}
+                                                </p>
+                                            </header>
+
+                                            @if (section.checks.length) {
+                                                <div class="check-card-grid">
+                                                    @for (check of section.checks; track check.value) {
+                                                        <label
+                                                            class="check-card"
+                                                            [class.check-card--selected]="isEndpointSelected(check.value)"
+                                                        >
+                                                            <mat-checkbox
+                                                                [checked]="isEndpointSelected(check.value)"
+                                                                (change)="toggleEndpoint(check.value)"
+                                                            ></mat-checkbox>
+                                                            <span class="check-card__copy">
+                                                                <strong>{{ t(check.titleKey) }}</strong>
+                                                                <small>{{ t(check.descriptionKey) }}</small>
+                                                                <button
+                                                                    type="button"
+                                                                    class="check-card__source"
+                                                                    [matTooltip]="t('smartEnrollProjects.setup.documents.screening.aboutTooltip')"
+                                                                    matTooltipPosition="above"
+                                                                    (click)="openCheckDetails($event, check)"
+                                                                >
+                                                                    {{ t(check.sourceKey) }}
+                                                                </button>
+                                                            </span>
+                                                        </label>
+                                                    }
+                                                </div>
+                                            } @else {
+                                                <div class="check-scope__empty">
+                                                    <mat-icon>info_outline</mat-icon>
+                                                    <span>{{ t('smartBusiness.setup.docs.journey.noCountryChecks') }}</span>
+                                                </div>
+                                            }
+                                        </section>
+                                    }
+
+                                    <section class="check-scope check-scope--international">
+                                        <span class="check-scope__badge check-scope__badge--floating">
+                                            {{ t('smartEnrollProjects.setup.documents.screening.globalChecks') }}
+                                        </span>
+                                        <header class="check-scope__header">
+                                            <div>
+                                                <h5>{{ t('smartEnrollProjects.setup.documents.screening.internationalTitle') }}</h5>
+                                            </div>
+                                            <p>{{ t('smartBusiness.setup.docs.journey.globalDescription') }}</p>
+                                        </header>
+                                        <div class="check-card-grid">
+                                            @for (check of internationalChecks; track check.value) {
+                                                <label
+                                                    class="check-card"
+                                                    [class.check-card--selected]="isEndpointSelected(check.value)"
+                                                >
+                                                    <mat-checkbox
+                                                        [checked]="isEndpointSelected(check.value)"
+                                                        (change)="toggleEndpoint(check.value)"
+                                                    ></mat-checkbox>
+                                                    <span class="check-card__copy">
+                                                        <strong>{{ t(check.titleKey) }}</strong>
+                                                        <small>{{ t(check.descriptionKey) }}</small>
+                                                        <button
+                                                            type="button"
+                                                            class="check-card__source"
+                                                            [matTooltip]="t('smartEnrollProjects.setup.documents.screening.aboutTooltip')"
+                                                            matTooltipPosition="above"
+                                                            (click)="openCheckDetails($event, check)"
+                                                        >
+                                                            {{ t(check.sourceKey) }}
+                                                        </button>
+                                                    </span>
+                                                </label>
+                                            }
+                                        </div>
+                                    </section>
+                                </div>
+                            }
+                        }
                     </div>
-                    <mat-slide-toggle formControlName="dian"></mat-slide-toggle>
-                </div>
-
-                <!-- Mercantile Registry -->
-                <div
-                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
-                >
-                    <div>
-                        <span class="font-medium text-stone-900 dark:text-white">{{
-                            t('smartBusiness.setup.docs.colombiaMercantileTitle')
-                        }}</span>
-                        <p class="text-xs text-stone-500">
-                            {{ t('smartBusiness.setup.docs.colombiaMercantileDesc') }}
-                        </p>
-                    </div>
-                    <mat-slide-toggle formControlName="rues"></mat-slide-toggle>
-                </div>
-
-                <!-- Fiscal Registry -->
-                <div
-                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
-                >
-                    <div>
-                        <span class="font-medium text-stone-900 dark:text-white">{{
-                            t('smartBusiness.setup.docs.mexicoTaxTitle')
-                        }}</span>
-                        <p class="text-xs text-stone-500">
-                            {{ t('smartBusiness.setup.docs.mexicoTaxDesc') }}
-                        </p>
-                    </div>
-                    <mat-slide-toggle formControlName="sat"></mat-slide-toggle>
-                </div>
-
-                <!-- OFAC / PEPs / Sanctions Screening -->
-                <div
-                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
-                >
-                    <div>
-                        <span class="font-medium text-stone-900 dark:text-white">{{
-                            t('smartBusiness.setup.docs.sanctionsTitle')
-                        }}</span>
-                        <p class="text-xs text-stone-500">
-                            {{ t('smartBusiness.setup.docs.sanctionsDesc') }}
-                        </p>
-                    </div>
-                    <mat-slide-toggle formControlName="sanctionsList"></mat-slide-toggle>
-                </div>
-            </div>
-        </section>
-
-        <!-- Required Corporate Documents (Multi-Country DocumentType + GPTPromptTemplate Selector) -->
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40"
-        >
-            <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
-                <div>
-                    <h2
-                        class="text-base font-semibold tracking-tight text-stone-900 dark:text-white"
-                    >
-                        {{ t('smartBusiness.setup.docs.requiredDocsTitle') }}
-                    </h2>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartBusiness.setup.docs.requiredDocsSubtitle') }}
-                    </p>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
-                    >
-                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px] !leading-none"
-                            >auto_awesome</mat-icon
-                        >
-                        {{ t('smartBusiness.setup.docs.smartOcrActive') }}
-                    </span>
-                    <a
-                        routerLink="/smart-business/document-templates"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1 text-[11px] font-semibold text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200 dark:hover:bg-gray-700"
-                    >
-                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px] !leading-none">add_circle_outline</mat-icon>
-                        {{ t('smartBusiness.setup.docs.manageTemplatesBtn') }}
-                    </a>
-                </div>
-            </header>
-
-            @if (businessDocumentTypes) {
-                <document-verification-type-list
-                    [form]="form"
-                    [documentTypes]="businessDocumentTypes"
-                    [target]="'business'"
-                ></document-verification-type-list>
-            }
-
-            <!-- Upload Parameters -->
-            <div
-                class="mt-6 grid grid-cols-1 gap-4 border-t border-stone-100 pt-6 sm:grid-cols-2 dark:border-gray-800"
-            >
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.docs.attemptLimitLabel') }}</mat-label>
-                    <mat-select formControlName="attemptLimit">
-                        <mat-option [value]="1">{{
-                            t('smartBusiness.setup.docs.attempt1')
-                        }}</mat-option>
-                        <mat-option [value]="2">{{
-                            t('smartBusiness.setup.docs.attempt2')
-                        }}</mat-option>
-                        <mat-option [value]="3">{{
-                            t('smartBusiness.setup.docs.attempt3Recommended')
-                        }}</mat-option>
-                        <mat-option [value]="5">{{
-                            t('smartBusiness.setup.docs.attempt5')
-                        }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <div
-                    class="flex items-center justify-between rounded-xl border border-stone-200 p-4 dark:border-gray-800"
-                >
-                    <div>
-                        <span class="text-sm font-medium text-stone-900 dark:text-white">{{
-                            t('smartBusiness.setup.docs.generalScreeningTitle')
-                        }}</span>
-                        <p class="text-xs text-stone-500">
-                            {{ t('smartBusiness.setup.docs.generalScreeningDesc') }}
-                        </p>
-                    </div>
-                    <mat-slide-toggle formControlName="screening"></mat-slide-toggle>
-                </div>
-            </div>
-        </section>
+                </section>
+            </li>
+        </ol>
     </div>
 </ng-container>

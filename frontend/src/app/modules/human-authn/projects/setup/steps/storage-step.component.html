@@ -1,201 +1,171 @@
 <ng-container *transloco="let t">
-    <div class="storage-screen">
-        <header class="storage-hero">
+    <div class="journey-root">
+        <div class="journey-intro">
+            <div class="journey-intro__icon">
+                <mat-icon>hub</mat-icon>
+            </div>
             <div>
-                <span class="storage-hero__eyebrow">{{ t('humanAuthnProjects.setup.storage.eyebrow') }}</span>
                 <h2>{{ t('humanAuthnProjects.setup.storage.title') }}</h2>
                 <p>{{ t('humanAuthnProjects.setup.storage.subtitle') }}</p>
             </div>
-            <div class="storage-hero__choice">
-                <span>{{ t('humanAuthnProjects.setup.storage.currentChoice') }}</span>
-                <strong>{{ t(selectedProvider.titleKey) }}</strong>
-            </div>
-        </header>
-
-        <div class="storage-decision">
-            <section class="provider-section">
-                <div class="section-heading">
-                    <span>01</span>
-                    <div>
-                        <h3>{{ t('humanAuthnProjects.setup.storage.chooseTitle') }}</h3>
-                        <p>{{ t('humanAuthnProjects.setup.storage.chooseHelp') }}</p>
-                    </div>
-                </div>
-
-                <div class="provider-options" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.storage.chooseTitle')">
-                    @for (option of providers; track option.value) {
-                        <button
-                            type="button"
-                            role="radio"
-                            class="provider-option"
-                            [class.provider-option--selected]="provider === option.value"
-                            [attr.aria-checked]="provider === option.value"
-                            [attr.aria-label]="
-                                t('humanAuthnProjects.setup.storage.selectProvider', {
-                                    provider: t(option.titleKey),
-                                })
-                            "
-                            (click)="setProvider(option.value)"
-                        >
-                            <span class="provider-option__icon">
-                                <mat-icon>{{ option.icon }}</mat-icon>
-                            </span>
-                            <span class="provider-option__content">
-                                <span class="provider-option__title">
-                                    <strong>{{ t(option.titleKey) }}</strong>
-                                    @if (option.value === 'ipfs') {
-                                        <small>{{ t('humanAuthnProjects.setup.storage.default') }}</small>
-                                    }
-                                </span>
-                                <span class="provider-option__body">{{ t(option.bodyKey) }}</span>
-                                <span class="provider-option__benefits">
-                                    @for (benefitKey of option.benefitKeys; track benefitKey) {
-                                        <span>
-                                            <mat-icon>check</mat-icon>
-                                            {{ t(benefitKey) }}
-                                        </span>
-                                    }
-                                </span>
-                            </span>
-                            <mat-icon class="provider-option__check">
-                                {{ provider === option.value ? 'check_circle' : 'radio_button_unchecked' }}
-                            </mat-icon>
-                        </button>
-                    }
-                </div>
-            </section>
-
-            <aside class="storage-explainer" aria-live="polite">
-                <div class="section-heading section-heading--light">
-                    <span>02</span>
-                    <div>
-                        <h3>{{ t('humanAuthnProjects.setup.storage.howTitle') }}</h3>
-                        <p>{{ t('humanAuthnProjects.setup.storage.howHelp') }}</p>
-                    </div>
-                </div>
-
-                <div class="storage-flow">
-                    <div class="storage-flow__node">
-                        <mat-icon>fingerprint</mat-icon>
-                        <span>{{ t('humanAuthnProjects.setup.storage.flowHumanId') }}</span>
-                    </div>
-                    <span class="storage-flow__line"><mat-icon>arrow_forward</mat-icon></span>
-                    <div class="storage-flow__node storage-flow__node--secure">
-                        <mat-icon>enhanced_encryption</mat-icon>
-                        <span>{{ t('humanAuthnProjects.setup.storage.flowEncrypted') }}</span>
-                    </div>
-                    <span class="storage-flow__line"><mat-icon>arrow_forward</mat-icon></span>
-                    <div class="storage-flow__node storage-flow__node--provider">
-                        <mat-icon>{{ selectedProvider.icon }}</mat-icon>
-                        <span>
-                            {{
-                                provider === 'none'
-                                    ? t('humanAuthnProjects.setup.storage.flowApiResponse')
-                                    : t(selectedProvider.titleKey)
-                            }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="selected-provider">
-                    <span class="selected-provider__label">{{ t('humanAuthnProjects.setup.storage.selectedPath') }}</span>
-                    <h4>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Title') }}</h4>
-                    <p>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Body') }}</p>
-                    <div class="selected-provider__result">
-                        <mat-icon>{{ selectedProvider.resultIcon }}</mat-icon>
-                        <span>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Result') }}</span>
-                    </div>
-                </div>
-            </aside>
         </div>
 
-        <section class="storage-trust">
-            <div class="section-heading">
-                <span>03</span>
-                <div>
-                    <h3>
-                        {{
-                            t(
-                                provider === 'none'
-                                    ? 'humanAuthnProjects.setup.storage.noneTrustTitle'
-                                    : 'humanAuthnProjects.setup.storage.trustTitle'
-                            )
-                        }}
-                    </h3>
-                    <p>
-                        {{
-                            t(
-                                provider === 'none'
-                                    ? 'humanAuthnProjects.setup.storage.noneTrustHelp'
-                                    : 'humanAuthnProjects.setup.storage.trustHelp'
-                            )
-                        }}
-                    </p>
-                </div>
-            </div>
+        <ol class="journey-timeline">
+            <!-- Stage 1: where the HumanID string lives -->
+            <li class="journey-stage">
+                <span class="journey-stage__marker" aria-hidden="true">1</span>
+                <article class="journey-panel">
+                    <header class="journey-panel__header">
+                        <div>
+                            <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 1 }) }}</span>
+                            <h3>{{ t('humanAuthnProjects.setup.storage.chooseTitle') }}</h3>
+                            <p>{{ t('humanAuthnProjects.setup.storage.chooseHelp') }}</p>
+                        </div>
+                        <span class="journey-panel__status">{{ t(selectedProvider.titleKey) }}</span>
+                    </header>
 
-            <div class="trust-items">
-                <article>
-                    <span class="trust-items__icon trust-items__icon--stored"><mat-icon>enhanced_encryption</mat-icon></span>
-                    <div>
-                        <strong>{{ t('humanAuthnProjects.setup.storage.encryptedProofTitle') }}</strong>
-                        <p>{{ t('humanAuthnProjects.setup.storage.encryptedProofBody') }}</p>
+                    <div class="provider-options panel-body" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.storage.chooseTitle')">
+                        @for (option of providers; track option.value) {
+                            <button
+                                type="button"
+                                role="radio"
+                                class="provider-option"
+                                [class.provider-option--selected]="provider === option.value"
+                                [attr.aria-checked]="provider === option.value"
+                                [attr.aria-label]="t('humanAuthnProjects.setup.storage.selectProvider', { provider: t(option.titleKey) })"
+                                (click)="setProvider(option.value)"
+                            >
+                                <span class="provider-option__icon">
+                                    <mat-icon>{{ option.icon }}</mat-icon>
+                                </span>
+                                <span class="provider-option__content">
+                                    <span class="provider-option__title">
+                                        <strong>{{ t(option.titleKey) }}</strong>
+                                        @if (option.value === 'ipfs') {
+                                            <small>{{ t('humanAuthnProjects.setup.storage.default') }}</small>
+                                        }
+                                    </span>
+                                    <span class="provider-option__body">{{ t(option.bodyKey) }}</span>
+                                    <span class="provider-option__benefits">
+                                        @for (benefitKey of option.benefitKeys; track benefitKey) {
+                                            <span>
+                                                <mat-icon>check</mat-icon>
+                                                {{ t(benefitKey) }}
+                                            </span>
+                                        }
+                                    </span>
+                                </span>
+                                <mat-icon class="provider-option__check">
+                                    {{ provider === option.value ? 'check_circle' : 'radio_button_unchecked' }}
+                                </mat-icon>
+                            </button>
+                        }
                     </div>
                 </article>
-                <article>
-                    <span class="trust-items__icon trust-items__icon--stored"><mat-icon>visibility</mat-icon></span>
-                    <div>
-                        <strong>{{ t('humanAuthnProjects.setup.storage.publicFieldsTitle') }}</strong>
-                        <p>{{ t('humanAuthnProjects.setup.storage.publicFieldsBody') }}</p>
-                    </div>
-                </article>
-                <article>
-                    <span class="trust-items__icon trust-items__icon--private"><mat-icon>face_retouching_off</mat-icon></span>
-                    <div>
-                        <strong>{{ t('humanAuthnProjects.setup.storage.faceTemplateTitle') }}</strong>
-                        <p>{{ t('humanAuthnProjects.setup.storage.faceTemplateBody') }}</p>
-                    </div>
-                </article>
-            </div>
-        </section>
+            </li>
 
-        <!-- Section 04: Data Retention & Privacy Policy -->
-        <section class="storage-retention">
-            <div class="section-heading">
-                <span>04</span>
-                <div class="section-heading__content">
-                    <div class="section-heading__title-row">
-                        <h3>{{ t('smartEnrollProjects.detail.retention.title') }}</h3>
-                        <mat-slide-toggle
-                            color="primary"
-                            [checked]="retentionOverride"
-                            (change)="onRetentionToggle($event.checked)"
-                        >
+            <!-- Stage 2: how the HumanID is saved -->
+            <li class="journey-stage">
+                <span class="journey-stage__marker" aria-hidden="true">2</span>
+                <article class="journey-panel">
+                    <header class="journey-panel__header">
+                        <div>
+                            <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 2 }) }}</span>
+                            <h3>{{ t('humanAuthnProjects.setup.storage.howTitle') }}</h3>
+                            <p>{{ t('humanAuthnProjects.setup.storage.howHelp') }}</p>
+                        </div>
+                    </header>
+
+                    <div class="panel-body" aria-live="polite">
+                        <div class="storage-flow">
+                            <div class="storage-flow__node">
+                                <mat-icon>fingerprint</mat-icon>
+                                <span>{{ t('humanAuthnProjects.setup.storage.flowHumanId') }}</span>
+                            </div>
+                            <span class="storage-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                            <div class="storage-flow__node storage-flow__node--secure">
+                                <mat-icon>enhanced_encryption</mat-icon>
+                                <span>{{ t('humanAuthnProjects.setup.storage.flowEncrypted') }}</span>
+                            </div>
+                            <span class="storage-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                            <div class="storage-flow__node storage-flow__node--provider">
+                                <mat-icon>{{ selectedProvider.icon }}</mat-icon>
+                                <span>
+                                    {{ provider === 'none' ? t('humanAuthnProjects.setup.storage.flowApiResponse') : t(selectedProvider.titleKey) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="selected-provider">
+                            <h4>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Title') }}</h4>
+                            <p>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Body') }}</p>
+                            <div class="selected-provider__result">
+                                <mat-icon>{{ selectedProvider.resultIcon }}</mat-icon>
+                                <span>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Result') }}</span>
+                            </div>
+                        </div>
+
+                        <ul class="fact-list">
+                            <li>
+                                <mat-icon>enhanced_encryption</mat-icon>
+                                <div>
+                                    <strong>{{ t('humanAuthnProjects.setup.storage.encryptedProofTitle') }}</strong>
+                                    <p>{{ t('humanAuthnProjects.setup.storage.encryptedProofBody') }}</p>
+                                </div>
+                            </li>
+                            <li>
+                                <mat-icon>visibility</mat-icon>
+                                <div>
+                                    <strong>{{ t('humanAuthnProjects.setup.storage.publicFieldsTitle') }}</strong>
+                                    <p>{{ t('humanAuthnProjects.setup.storage.publicFieldsBody') }}</p>
+                                </div>
+                            </li>
+                            <li>
+                                <mat-icon>face_retouching_off</mat-icon>
+                                <div>
+                                    <strong>{{ t('humanAuthnProjects.setup.storage.faceTemplateTitle') }}</strong>
+                                    <p>{{ t('humanAuthnProjects.setup.storage.faceTemplateBody') }}</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </article>
+            </li>
+
+            <!-- Stage 3: data retention -->
+            <li class="journey-stage">
+                <span class="journey-stage__marker" aria-hidden="true">3</span>
+                <article class="journey-panel">
+                    <header class="journey-panel__header">
+                        <div>
+                            <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 3 }) }}</span>
+                            <h3>{{ t('smartEnrollProjects.detail.retention.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.detail.retention.subtitle') }}</p>
+                        </div>
+                        <mat-slide-toggle color="primary" [checked]="retentionOverride" (change)="onRetentionToggle($event.checked)">
                             <span class="storage-retention__toggle-label">
                                 {{ retentionOverride ? t('smartEnrollProjects.detail.retention.projectOverride') : t('smartEnrollProjects.detail.retention.accountDefault') }}
                             </span>
                         </mat-slide-toggle>
-                    </div>
-                    <p>{{ t('smartEnrollProjects.detail.retention.subtitle') }}</p>
-                </div>
-            </div>
+                    </header>
 
-            @if (retentionOverride) {
-                <app-retention-policy-form
-                    [policy]="retentionPolicy"
-                    (policyChange)="onRetentionPolicyChange($event)"
-                ></app-retention-policy-form>
-            } @else {
-                <div class="retention-inherited-card">
-                    <div class="retention-inherited-card__icon">
-                        <mat-icon>corporate_fare</mat-icon>
+                    <div class="panel-body">
+                        @if (retentionOverride) {
+                            <app-retention-policy-form [policy]="retentionPolicy" (policyChange)="onRetentionPolicyChange($event)"></app-retention-policy-form>
+                        } @else {
+                            <div class="retention-inherited-card">
+                                <div class="retention-inherited-card__icon">
+                                    <mat-icon>corporate_fare</mat-icon>
+                                </div>
+                                <div>
+                                    <strong>{{ t('smartEnrollProjects.detail.retention.accountDefault') }}</strong>
+                                    <p>{{ t('smartEnrollProjects.detail.retention.accountDefaultDesc') }}</p>
+                                </div>
+                            </div>
+                        }
                     </div>
-                    <div>
-                        <strong>{{ t('smartEnrollProjects.detail.retention.accountDefault') }}</strong>
-                        <p>{{ t('smartEnrollProjects.detail.retention.accountDefaultDesc') }}</p>
-                    </div>
-                </div>
-            }
-        </section>
+                </article>
+            </li>
+        </ol>
     </div>
 </ng-container>

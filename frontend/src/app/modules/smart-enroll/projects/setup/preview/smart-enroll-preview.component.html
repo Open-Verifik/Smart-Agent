@@ -132,6 +132,7 @@
                         [styleId]="effectiveVerifyStyle"
                         [flowOrder]="effectiveFlowOrder"
                         [view]="currentView"
+                        [humanAuthn]="flavor === 'humanAuthn'"
                     ></preview-verify-shell>
                 } @else {
                     <div [class]="'flex flex-1 flex-col items-center justify-start py-8 px-4 ' + contentDeviceClasses()">

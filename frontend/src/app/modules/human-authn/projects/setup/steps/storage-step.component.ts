@@ -41,7 +41,7 @@ type StorageProviderOption = {
         RetentionPolicyFormComponent,
     ],
     templateUrl: './storage-step.component.html',
-    styleUrl: './storage-step.component.scss',
+    styleUrls: ['../../../../../shared/setup-journey/_setup-journey.scss', './storage-step.component.scss'],
 })
 export class HumanAuthnStorageStepComponent implements OnInit {
     @Input() form!: FormGroup;
