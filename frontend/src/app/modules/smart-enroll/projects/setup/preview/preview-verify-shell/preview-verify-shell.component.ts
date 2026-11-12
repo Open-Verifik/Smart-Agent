@@ -34,7 +34,8 @@ export type VerifyPreviewScreen =
     | 'front'
     | 'reviewFront'
     | 'selfie'
-    | 'submitted';
+    | 'submitted'
+    | 'humanId';
 
 export type VerifySheetType = 'acceptedIds' | 'language' | 'document' | 'trouble' | null;
 
@@ -106,11 +107,16 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
     @Input() styleId: VerifyStyleId = 'a';
     @Input() view: PreviewView = 'signup';
     @Input() flowOrder: PreviewFlowOrder = 'contact_first';
+    /** HumanAuthn flavor: the journey ends on the HumanID screen instead of the verification summary. */
+    @Input() humanAuthn = false;
 
     private _cdr = inject(ChangeDetectorRef);
 
     get screens(): VerifyPreviewScreen[] {
-        const base = this.flowOrder === 'consent_first' ? CONSENT_FIRST_SCREENS : ORDERED_SCREENS;
+        const raw = this.flowOrder === 'consent_first' ? CONSENT_FIRST_SCREENS : ORDERED_SCREENS;
+        const base = this.humanAuthn
+            ? raw.map((screen) => (screen === 'submitted' ? ('humanId' as const) : screen))
+            : raw;
         if (!this.canSkipKyc) {
             return base;
         }
@@ -259,11 +265,37 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
             case 'selfie':
                 return 3;
             case 'submitted':
+            case 'humanId':
                 return 4;
             default:
                 return 0;
         }
     }
+
+    /** HumanID preview data, read live from the HumanAuthn flow. */
+    get humanIdOutputIsQr(): boolean {
+        return this.form?.get('projectFlow.humanAuthn.outputFormat')?.value === 'qrCode';
+    }
+
+    get humanIdPublicKeys(): string[] {
+        const keys = this.form?.get('projectFlow.humanAuthn.publicDataKeys')?.value;
+        return Array.isArray(keys) ? keys : [];
+    }
+
+    get humanIdStorageProvider(): string {
+        return (this.form?.get('projectFlow.storage.provider')?.value as string) || 'ipfs';
+    }
+
+    /** Stable sample key; never derived from real biometrics. */
+    readonly humanIdSample = 'hid_8f3a…c71e9b04d2';
+
+    /** Deterministic 7x7 pseudo-QR so the preview reads as a QR without a library. */
+    readonly qrCells: boolean[] = Array.from({ length: 49 }, (_, i) => {
+        const row = Math.floor(i / 7);
+        const col = i % 7;
+        const finder = (row < 3 && col < 3) || (row < 3 && col > 3) || (row > 3 && col < 3);
+        return finder || (row * 5 + col * 3 + ((row * col) % 4)) % 3 === 0;
+    });
 
     get signUpGroup(): FormGroup | null {
         return (this.form?.get('projectFlow.signUpForm') as FormGroup) || null;
@@ -391,14 +423,14 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
     }
 
     skipKycForNow(): void {
-        this.selectScreen('submitted');
+        this.selectScreen(this.humanAuthn ? 'humanId' : 'submitted');
     }
 
     skipDocumentStep(): void {
         if (this.showLivenessRow) {
             this.activeScreen = 'selfie';
         } else {
-            this.activeScreen = 'submitted';
+            this.activeScreen = this.humanAuthn ? 'humanId' : 'submitted';
         }
         this.sheet = null;
         this._cdr.markForCheck();
@@ -467,7 +499,11 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
             case 'liveness':
                 return 'selfie';
             case 'liveness-result':
-                return 'submitted';
+                return this.humanAuthn ? 'humanId' : 'submitted';
+            case 'human-id-result':
+                return 'humanId';
+            case 'human-id-access':
+                return 'selfie';
             default:
                 return 'contact';
         }

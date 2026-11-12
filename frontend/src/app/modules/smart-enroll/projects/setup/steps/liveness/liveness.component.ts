@@ -1,5 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    DestroyRef,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +41,7 @@ import { TranslocoModule } from '@jsverse/transloco';
         TranslocoModule,
     ],
     templateUrl: './liveness.component.html',
+    styleUrl: './liveness.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetupLivenessComponent implements OnInit, OnChanges {
@@ -40,17 +52,40 @@ export class SetupLivenessComponent implements OnInit, OnChanges {
     @Input() subForm = false;
     @Input() stepFormControlName: 'liveness' | 'legalRepresentative' = 'liveness';
 
+    readonly attemptOptions: number[] = [1, 2, 3, 4, 5];
+
+    private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
     private _kycEnsured = false;
+    private _subscriptionsBound = false;
 
     ngOnInit(): void {
-        if (this.isFormReady) this._ensureKycTypeControl();
+        if (this.isFormReady) {
+            this._ensureKycTypeControl();
+            this._bindFormSubscriptions();
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if ((changes['form'] || changes['formGroup'] || changes['loading']) && this.isFormReady) {
-            if (changes['form'] || changes['formGroup']) this._kycEnsured = false;
+            if (changes['form'] || changes['formGroup']) {
+                this._kycEnsured = false;
+                this._subscriptionsBound = false;
+            }
             this._ensureKycTypeControl();
+            this._bindFormSubscriptions();
         }
+    }
+
+    private _bindFormSubscriptions(): void {
+        if (this._subscriptionsBound) return;
+        this._subscriptionsBound = true;
+        this.livenessStepFormGroup?.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
+        this.livenessFormGroup?.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
     }
 
     private _ensureKycTypeControl(): void {
@@ -89,7 +124,19 @@ export class SetupLivenessComponent implements OnInit, OnChanges {
     }
 
     get isNotRequired(): boolean {
-        return this.livenessStepValue === 'skip';
+        return !this.subForm && this.livenessStepValue === 'skip';
+    }
+
+    get requirementValue(): string {
+        return this.livenessStepValue || 'skip';
+    }
+
+    get attemptLimit(): number {
+        return Number(this.livenessFormGroup?.get('attemptLimit')?.value || 1);
+    }
+
+    stageNumber(stage: number): number {
+        return !this.subForm ? stage : stage - 1;
     }
 
     get isSearchMinScoreWarn(): boolean {

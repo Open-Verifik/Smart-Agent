@@ -32,6 +32,10 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SmartBusinessService } from '../../smart-business.service';
 import type { BusinessProject, BusinessProjectFlow } from '../../smart-business.types';
+import {
+    KYB_COUNTRY_CHECKS,
+    KYB_INTERNATIONAL_CHECKS,
+} from '../setup/steps/corporate-docs/kyb-check-catalog.util';
 import { BUSINESS_VERIFY_STYLES, StyleOption } from '../setup/business-setup.types';
 
 interface SwatchEntry {
@@ -285,8 +289,17 @@ export class BusinessProjectDetailComponent implements OnInit, OnDestroy {
                 sanctionsList: true,
             },
             requiredDocuments: docs?.requiredDocuments || [],
+            checkTitleKeys: this._selectedCheckTitleKeys(f?.business?.criminalHistoryVerificationEndpoints),
         };
     });
+
+    private _selectedCheckTitleKeys(endpoints?: string[]): { code: string; titleKey: string }[] {
+        const catalog = [...Object.values(KYB_COUNTRY_CHECKS).flat(), ...KYB_INTERNATIONAL_CHECKS];
+        return (endpoints || []).map((code) => ({
+            code,
+            titleKey: catalog.find((c) => c.value === code)?.titleKey || '',
+        }));
+    }
 
     repsPreview = computed(() => {
         const f = this.flow();

@@ -520,6 +520,39 @@
                     </button>
                 </div>
 
+                <!-- 8b. HumanAuthn: the person receives a HumanID key (no biometric data is stored) -->
+                <div *ngSwitchCase="'humanId'" class="center human-id-screen">
+                    <span class="human-id-badge" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
+                    <h1>{{ t('smart_enroll.verify.humanIdTitle') }}</h1>
+                    <p>{{ t('smart_enroll.verify.humanIdBody') }}</p>
+
+                    <div class="human-id-card">
+                        <span class="human-id-card__label">{{ t('smart_enroll.verify.humanIdKeyLabel') }}</span>
+                        @if (humanIdOutputIsQr) {
+                            <div class="human-id-qr" role="img" [attr.aria-label]="t('smart_enroll.verify.humanIdQrAlt')">
+                                @for (cell of qrCells; track $index) {
+                                    <span [class.on]="cell"></span>
+                                }
+                            </div>
+                        } @else {
+                            <code class="human-id-key">{{ humanIdSample }}</code>
+                        }
+                        @if (humanIdPublicKeys.length) {
+                            <ul class="human-id-chips" [attr.aria-label]="t('smart_enroll.verify.humanIdPublicData')">
+                                @for (key of humanIdPublicKeys; track key) {
+                                    <li>{{ t('humanAuthnProjects.setup.humanAuthn.publicData.' + key) }}</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                    <p class="human-id-note">
+                        {{ t('smart_enroll.verify.humanIdNote', { provider: humanIdStorageProvider === 'none' ? t('smart_enroll.verify.humanIdNoStorage') : (humanIdStorageProvider | uppercase) }) }}
+                    </p>
+                </div>
+
                 <!-- 8. Verification Submitted Screen -->
                 <div *ngSwitchCase="'submitted'" class="submitted-screen center">
                     <!-- User portrait cluster: selfie face + overlapping miniature ID + green verified checkmark -->

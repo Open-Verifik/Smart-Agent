@@ -1,177 +1,298 @@
 <ng-container *transloco="let t">
-    <form [formGroup]="form" class="flex flex-col gap-6">
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.basicSetup.identity.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.basicSetup.identity.subtitle') }}
-                </p>
-            </header>
-
-            <div class="flex flex-col gap-4">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.identity.name') }}</mat-label>
-                    <input matInput formControlName="name" [maxlength]="MAX_NAME_LENGTH + 1" autocomplete="off" />
-                    <mat-hint align="end">
-                        <span
-                            [class.text-amber-700]="nameLengthStatus === 'warning'"
-                            [class.text-red-700]="nameLengthStatus === 'danger'"
-                            [class.dark:text-amber-300]="nameLengthStatus === 'warning'"
-                            [class.dark:text-red-300]="nameLengthStatus === 'danger'"
-                        >
-                            {{ nameLength }}/{{ MAX_NAME_LENGTH }}
-                        </span>
-                    </mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.identity.contactEmail') }}</mat-label>
-                    <input matInput formControlName="contactEmail" type="email" autocomplete="email" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguage') }}</mat-label>
-                    <mat-select formControlName="defaultLanguage">
-                        @for (lang of defaultLanguages; track lang.code) {
-                            <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
-                        }
-                    </mat-select>
-                    <mat-hint>{{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguageHint') }}</mat-hint>
-                </mat-form-field>
+    <form [formGroup]="form" class="basic-setup-journey">
+        <div class="basic-setup-intro">
+            <div class="basic-setup-intro__icon">
+                <mat-icon>tune</mat-icon>
             </div>
-        </section>
+            <div>
+                <h2>{{ t('smartEnrollProjects.setup.basicSetup.journey.title') }}</h2>
+                <p>{{ t('smartEnrollProjects.setup.basicSetup.journey.subtitle') }}</p>
+            </div>
+        </div>
 
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.basicSetup.allowed.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.basicSetup.allowed.subtitle') }}
-                </p>
-            </header>
-
-            <div class="flex flex-col gap-3">
-                @if (allowedCountries.length) {
-                    <div class="flex flex-wrap gap-2">
-                        @for (c of allowedCountries; track c) {
-                            <span
-                                class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700 dark:bg-gray-800 dark:text-stone-200"
-                            >
-                                {{ countryLabel(c) }}
-                                <button
-                                    type="button"
-                                    class="rounded-full p-0.5 hover:bg-stone-200 dark:hover:bg-gray-700"
-                                    (click)="removeCountry(c)"
-                                    [attr.aria-label]="t('smartEnrollProjects.setup.basicSetup.allowed.remove')"
-                                >
-                                    <mat-icon class="!h-3.5 !w-3.5 !text-base">close</mat-icon>
-                                </button>
+        <ol class="basic-setup-timeline">
+            <!-- Stage 1: Project identity -->
+            <li class="basic-setup-stage">
+                <div class="basic-setup-stage__marker">1</div>
+                <section class="basic-setup-panel">
+                    <header class="basic-setup-panel__header">
+                        <div>
+                            <span class="basic-setup-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
                             </span>
-                        }
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.identity.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.identity.subtitle') }}</p>
+                        </div>
+                        <span class="basic-setup-panel__status">
+                            {{ defaultLanguageLabel }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="name-field-wrapper">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.identity.name') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="name"
+                                    [maxlength]="MAX_NAME_LENGTH + 1"
+                                    autocomplete="off"
+                                />
+                            </mat-form-field>
+                            <span
+                                class="char-counter"
+                                [class.char-counter--warning]="nameLengthStatus === 'warning'"
+                                [class.char-counter--danger]="nameLengthStatus === 'danger'"
+                            >
+                                {{ nameLength }}/{{ MAX_NAME_LENGTH }}
+                            </span>
+                        </div>
+
+                        <div class="field-grid">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>
+                                    {{ t('smartEnrollProjects.setup.basicSetup.identity.contactEmail') }}
+                                </mat-label>
+                                <input
+                                    matInput
+                                    formControlName="contactEmail"
+                                    type="email"
+                                    autocomplete="email"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>
+                                    {{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguage') }}
+                                </mat-label>
+                                <mat-select formControlName="defaultLanguage">
+                                    @for (lang of defaultLanguages; track lang.code) {
+                                        <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="language-note">
+                            <mat-icon>translate</mat-icon>
+                            <span>{{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguageHint') }}</span>
+                        </div>
                     </div>
-                }
+                </section>
+            </li>
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.allowed.add') }}</mat-label>
-                    <input
-                        matInput
-                        type="text"
-                        autocomplete="off"
-                        [formControl]="allowedCountryFilterCtrl"
-                        [placeholder]="t('smartEnrollProjects.setup.basicSetup.allowed.search')"
-                        [matAutocomplete]="allowedCountriesAuto"
-                    />
-                    <mat-autocomplete
-                        #allowedCountriesAuto="matAutocomplete"
-                        (optionSelected)="onAllowedCountryPicked($event)"
-                    >
-                        @for (c of filteredAllowedCountries; track c.country) {
-                            <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
+            <!-- Stage 2: Allowed countries -->
+            <li class="basic-setup-stage">
+                <div class="basic-setup-stage__marker">2</div>
+                <section class="basic-setup-panel">
+                    <header class="basic-setup-panel__header">
+                        <div>
+                            <span class="basic-setup-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.allowed.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.allowed.subtitle') }}</p>
+                        </div>
+                        <span class="basic-setup-panel__status">
+                            @if (hasWorldAllowed) {
+                                {{ t('country_name.world') }}
+                            } @else {
+                                {{
+                                    t('smartEnrollProjects.setup.basicSetup.journey.countriesCount', {
+                                        count: allowedCountries.length
+                                    })
+                                }}
+                            }
+                        </span>
+                    </header>
+
+                    <div class="countries-box">
+                        <div class="countries-box__top">
+                            <span class="countries-box__label">
+                                {{ t('smartEnrollProjects.setup.basicSetup.journey.selectedCountriesLabel') }}
+                            </span>
+                            @if (!hasWorldAllowed) {
+                                <button type="button" class="world-pill-btn" (click)="allowWorld()">
+                                    <mat-icon>public</mat-icon>
+                                    <span>{{ t('smartEnrollProjects.setup.basicSetup.journey.allowWorldCta') }}</span>
+                                </button>
+                            }
+                        </div>
+
+                        @if (allowedCountries.length) {
+                            <div class="country-chips">
+                                @for (c of allowedCountries; track c) {
+                                    <span class="country-chip">
+                                        <span>{{ countryLabel(c) }}</span>
+                                        <button
+                                            type="button"
+                                            class="country-chip__remove"
+                                            (click)="removeCountry(c)"
+                                            [attr.aria-label]="t('smartEnrollProjects.setup.basicSetup.allowed.remove')"
+                                        >
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                    </span>
+                                }
+                            </div>
                         }
-                    </mat-autocomplete>
-                </mat-form-field>
-            </div>
-        </section>
 
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.basicSetup.compliance.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.basicSetup.compliance.subtitle') }}
-                </p>
-            </header>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.allowed.add') }}</mat-label>
+                            <input
+                                matInput
+                                type="text"
+                                autocomplete="off"
+                                [formControl]="allowedCountryFilterCtrl"
+                                [placeholder]="t('smartEnrollProjects.setup.basicSetup.allowed.search')"
+                                [matAutocomplete]="allowedCountriesAuto"
+                            />
+                            <mat-autocomplete
+                                #allowedCountriesAuto="matAutocomplete"
+                                (optionSelected)="onAllowedCountryPicked($event)"
+                            >
+                                @for (c of filteredAllowedCountries; track c.country) {
+                                    <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
+                                }
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </section>
+            </li>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.compliance.privacyUrl') }}</mat-label>
-                    <input matInput formControlName="privacyUrl" type="url" placeholder="https://" />
-                </mat-form-field>
+            <!-- Stage 3: Compliance URLs -->
+            <li class="basic-setup-stage">
+                <div class="basic-setup-stage__marker">3</div>
+                <section class="basic-setup-panel">
+                    <header class="basic-setup-panel__header">
+                        <div>
+                            <span class="basic-setup-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.compliance.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.compliance.subtitle') }}</p>
+                        </div>
+                        <span class="basic-setup-panel__status">
+                            {{
+                                t('smartEnrollProjects.setup.basicSetup.journey.urlsConfigured', {
+                                    count: complianceUrlsCount
+                                })
+                            }}
+                        </span>
+                    </header>
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.compliance.termsUrl') }}</mat-label>
-                    <input matInput formControlName="termsAndConditionsUrl" type="url" placeholder="https://" />
-                </mat-form-field>
-            </div>
-        </section>
+                    <div class="panel-body">
+                        <div class="field-grid">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>
+                                    {{ t('smartEnrollProjects.setup.basicSetup.compliance.privacyUrl') }}
+                                </mat-label>
+                                <input
+                                    matInput
+                                    formControlName="privacyUrl"
+                                    type="url"
+                                    placeholder="https://"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
 
-        <section
-            formGroupName="dataProtection"
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.basicSetup.dpo.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.basicSetup.dpo.subtitle') }}
-                </p>
-            </header>
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>
+                                    {{ t('smartEnrollProjects.setup.basicSetup.compliance.termsUrl') }}
+                                </mat-label>
+                                <input
+                                    matInput
+                                    formControlName="termsAndConditionsUrl"
+                                    type="url"
+                                    placeholder="https://"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </section>
+            </li>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.name') }}</mat-label>
-                    <input matInput formControlName="name" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.email') }}</mat-label>
-                    <input matInput formControlName="email" type="email" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.address') }}</mat-label>
-                    <input matInput formControlName="address" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.address2') }}</mat-label>
-                    <input matInput formControlName="address2" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.city') }}</mat-label>
-                    <input matInput formControlName="city" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.postalCode') }}</mat-label>
-                    <input matInput formControlName="postalCode" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.country') }}</mat-label>
-                    <mat-select formControlName="country">
-                        @for (c of filteredDataProtectionCountries; track c.country) {
-                            <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-            </div>
-        </section>
+            <!-- Stage 4: Data protection officer -->
+            <li class="basic-setup-stage" formGroupName="dataProtection">
+                <div class="basic-setup-stage__marker">4</div>
+                <section class="basic-setup-panel">
+                    <header class="basic-setup-panel__header">
+                        <div>
+                            <span class="basic-setup-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 4 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.dpo.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.dpo.subtitle') }}</p>
+                        </div>
+                        <span class="basic-setup-panel__status">
+                            {{
+                                isDpoConfigured
+                                    ? t('smartEnrollProjects.setup.basicSetup.journey.configured')
+                                    : t('smartEnrollProjects.setup.basicSetup.journey.notConfigured')
+                            }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="field-grid">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.name') }}</mat-label>
+                                <input matInput formControlName="name" autocomplete="name" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.email') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="email"
+                                    type="email"
+                                    autocomplete="email"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-grid__full">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.address') }}</mat-label>
+                                <input matInput formControlName="address" autocomplete="address-line1" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-grid__full">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.address2') }}</mat-label>
+                                <input matInput formControlName="address2" autocomplete="address-line2" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.city') }}</mat-label>
+                                <input matInput formControlName="city" autocomplete="address-level2" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.postalCode') }}</mat-label>
+                                <input matInput formControlName="postalCode" autocomplete="postal-code" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-grid__full">
+                                <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.dpo.country') }}</mat-label>
+                                <mat-select formControlName="country">
+                                    @for (c of filteredDataProtectionCountries; track c.country) {
+                                        <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </section>
+            </li>
+        </ol>
     </form>
 </ng-container>

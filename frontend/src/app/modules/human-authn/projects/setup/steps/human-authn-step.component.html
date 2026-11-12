@@ -1,45 +1,19 @@
 <ng-container *transloco="let t">
-    <div class="ha-screen" [formGroup]="form">
-        <header class="ha-hero">
+    <div class="journey-root" [formGroup]="form">
+        <div class="journey-intro">
+            <div class="journey-intro__icon">
+                <mat-icon>fingerprint</mat-icon>
+            </div>
             <div>
-                <span class="ha-hero__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.eyebrow') }}</span>
                 <h2>{{ t('humanAuthnProjects.setup.humanAuthn.journeyTitle') }}</h2>
                 <p>{{ t('humanAuthnProjects.setup.humanAuthn.privacy') }}</p>
             </div>
-            <div class="ha-hero__choice">
-                <span>{{ t('humanAuthnProjects.setup.humanAuthn.currentChoice') }}</span>
-                <strong>
-                    {{
-                        t(
-                            requireLiveness
-                                ? 'humanAuthnProjects.setup.humanAuthn.accessActive'
-                                : 'humanAuthnProjects.setup.humanAuthn.accessStandard'
-                        )
-                    }}
-                </strong>
-                <em>
-                    {{
-                        t(
-                            humanAuthnGroup.get('outputFormat')?.value === 'qrCode'
-                                ? 'humanAuthnProjects.setup.humanAuthn.outputQr'
-                                : 'humanAuthnProjects.setup.humanAuthn.outputString'
-                        )
-                    }}
-                </em>
-            </div>
-        </header>
+        </div>
 
-        <div class="ha-decision">
-            <section class="ha-record" formGroupName="projectFlow">
-                <div class="section-heading">
-                    <span>01</span>
-                    <div>
-                        <h3>{{ t('humanAuthnProjects.setup.humanAuthn.recordTitle') }}</h3>
-                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.recordHelp') }}</p>
-                    </div>
-                </div>
-                <ng-container formGroupName="humanAuthn">
+        <section formGroupName="projectFlow">
+            <ng-container formGroupName="humanAuthn">
                 <ol class="journey-timeline">
+                    <!-- Stage 1: access mode -->
                     <li class="journey-stage">
                         <span class="journey-stage__marker" aria-hidden="true">1</span>
                         <article class="journey-panel">
@@ -50,69 +24,79 @@
                                     <p>{{ t('humanAuthnProjects.setup.humanAuthn.verifyStageHelp') }}</p>
                                 </div>
                                 <span class="journey-panel__status">
-                                    {{
-                                        t(
-                                            livenessEnabled
-                                                ? 'humanAuthnProjects.setup.humanAuthn.verificationActive'
-                                                : 'humanAuthnProjects.setup.humanAuthn.verificationStandard'
-                                        )
-                                    }}
+                                    {{ t(requireLiveness ? 'humanAuthnProjects.setup.humanAuthn.accessActive' : 'humanAuthnProjects.setup.humanAuthn.accessStandard') }}
                                 </span>
                             </header>
 
-                            <div class="setting-row">
-                                <div class="setting-row__copy">
-                                    <mat-icon>camera_front</mat-icon>
+                            <div class="requirement-options requirement-options--two" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.verifyStageTitle')">
+                                <button type="button" role="radio" class="choice-card" [class.choice-card--active]="!requireLiveness" [attr.aria-checked]="!requireLiveness" (click)="selectAccessMode(false)">
+                                    <span>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.standardTitle') }}</strong>
+                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.standardBody') }}</small>
+                                    </span>
+                                </button>
+                                <button type="button" role="radio" class="choice-card" [class.choice-card--active]="requireLiveness" [attr.aria-checked]="requireLiveness" (click)="selectAccessMode(true)">
+                                    <span>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.activeTitle') }}</strong>
+                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.activeBody') }}</small>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <div class="panel-body">
+                                <div class="setting-row">
                                     <div>
                                         <strong>{{ t('humanAuthnProjects.setup.humanAuthn.livenessAtCreation') }}</strong>
-                                        <span>{{ t('humanAuthnProjects.setup.humanAuthn.livenessAtCreationHelp') }}</span>
+                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.livenessAtCreationHelp') }}</p>
                                     </div>
+                                    <mat-slide-toggle formControlName="livenessAtCreation"></mat-slide-toggle>
                                 </div>
-                                <mat-slide-toggle formControlName="livenessAtCreation"></mat-slide-toggle>
-                            </div>
 
-                            <div class="setting-block" [class.setting-block--disabled]="!livenessEnabled">
-                                <div class="setting-block__copy">
-                                    <strong>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceTitle') }}</strong>
-                                    <span>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceHelp') }}</span>
-                                </div>
-                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                                    <mat-label>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceTitle') }}</mat-label>
-                                    <mat-select formControlName="tolerance" [disabled]="!livenessEnabled">
-                                        @for (value of tolerances; track value) {
-                                            <mat-option [value]="value">
-                                                {{ t('humanAuthnProjects.setup.humanAuthn.tolerance.' + value) }}
-                                            </mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-
-                            @if (documentEnabled) {
-                                <div class="score-block">
-                                    <div class="score-block__header">
-                                        <div>
-                                            <strong>{{ t('humanAuthnProjects.setup.humanAuthn.compareTitle') }}</strong>
-                                            <span>{{ t('humanAuthnProjects.setup.humanAuthn.compareHelp') }}</span>
-                                        </div>
-                                        <span class="score-block__value">{{ compareMinScoreDisplayValue }}</span>
-                                    </div>
-                                    <mat-slider min="0.7" max="0.95" step="0.01" discrete>
-                                        <input matSliderThumb formControlName="compareMinScore" />
-                                    </mat-slider>
-                                </div>
-                            } @else {
-                                <div class="unavailable-note">
-                                    <mat-icon>description</mat-icon>
+                                <div class="setting-row" [class.setting-row--disabled]="!livenessEnabled">
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.compareTitle') }}</strong>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceTitle') }}</strong>
+                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceHelp') }}</p>
+                                    </div>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-56 shrink-0">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceTitle') }}</mat-label>
+                                        <mat-select formControlName="tolerance" [disabled]="!livenessEnabled">
+                                            @for (value of tolerances; track value) {
+                                                <mat-option [value]="value">
+                                                    {{ t('humanAuthnProjects.setup.humanAuthn.tolerance.' + value) }}
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+
+                                @if (documentEnabled) {
+                                    <div class="threshold-card">
+                                        <div class="threshold-card__top">
+                                            <div>
+                                                <strong class="block text-sm font-semibold text-stone-900">
+                                                    {{ t('humanAuthnProjects.setup.humanAuthn.compareTitle') }}
+                                                </strong>
+                                                <span class="text-xs text-stone-500">{{ t('humanAuthnProjects.setup.humanAuthn.compareHelp') }}</span>
+                                            </div>
+                                            <div class="threshold-card__value">
+                                                <strong>{{ compareMinScoreDisplayValue }}</strong>
+                                            </div>
+                                        </div>
+                                        <mat-slider min="0.7" max="0.95" step="0.01" discrete class="threshold-card__slider">
+                                            <input matSliderThumb formControlName="compareMinScore" />
+                                        </mat-slider>
+                                    </div>
+                                } @else {
+                                    <div class="info-note">
+                                        <mat-icon>description</mat-icon>
                                         <span>{{ t('humanAuthnProjects.setup.humanAuthn.compareUnavailable') }}</span>
                                     </div>
-                                </div>
-                            }
+                                }
+                            </div>
                         </article>
                     </li>
 
+                    <!-- Stage 2: public data -->
                     <li class="journey-stage">
                         <span class="journey-stage__marker" aria-hidden="true">2</span>
                         <article class="journey-panel">
@@ -123,33 +107,23 @@
                                     <p>{{ t('humanAuthnProjects.setup.humanAuthn.publicDataHelp') }}</p>
                                 </div>
                                 <span class="journey-panel__status">
-                                    {{
-                                        t('humanAuthnProjects.setup.humanAuthn.publicDataCount', {
-                                            selected: selectedPublicDataCount,
-                                            total: publicDataOptions.length,
-                                        })
-                                    }}
+                                    {{ t('humanAuthnProjects.setup.humanAuthn.publicDataCount', { selected: selectedPublicDataCount, total: publicDataOptions.length }) }}
                                 </span>
                             </header>
 
-                            <div class="public-fields">
+                            <div class="check-card-grid panel-body">
                                 @for (option of publicDataOptions; track option.key) {
-                                    <label class="public-field" [class.public-field--disabled]="!option.available">
+                                    <label class="check-card" [class.check-card--selected]="isPublicKeySelected(option.key) && option.available" [class.check-card--disabled]="!option.available">
                                         <mat-checkbox
                                             [checked]="isPublicKeySelected(option.key)"
                                             [disabled]="!option.available"
                                             (change)="togglePublicKey(option.key, $event.checked)"
-                                        >
-                                            {{ t('humanAuthnProjects.setup.humanAuthn.publicData.' + option.key) }}
-                                        </mat-checkbox>
-                                        <span class="public-field__source">
-                                            {{
-                                                t(
-                                                    option.available
-                                                        ? 'humanAuthnProjects.setup.humanAuthn.source.' + option.source
-                                                        : 'humanAuthnProjects.setup.humanAuthn.enableSource.' + option.source
-                                                )
-                                            }}
+                                        ></mat-checkbox>
+                                        <span class="check-card__copy">
+                                            <strong>{{ t('humanAuthnProjects.setup.humanAuthn.publicData.' + option.key) }}</strong>
+                                            <small>
+                                                {{ t(option.available ? 'humanAuthnProjects.setup.humanAuthn.source.' + option.source : 'humanAuthnProjects.setup.humanAuthn.enableSource.' + option.source) }}
+                                            </small>
                                         </span>
                                     </label>
                                 }
@@ -157,6 +131,7 @@
                         </article>
                     </li>
 
+                    <!-- Stage 3: verifier key -->
                     <li class="journey-stage">
                         <span class="journey-stage__marker" aria-hidden="true">3</span>
                         <article class="journey-panel">
@@ -166,56 +141,39 @@
                                     <h3>{{ t('humanAuthnProjects.setup.humanAuthn.protectStageTitle') }}</h3>
                                     <p>{{ t('humanAuthnProjects.setup.humanAuthn.protectStageHelp') }}</p>
                                 </div>
-                                <span class="journey-panel__status">
-                                    {{
-                                        t(
-                                            requireLiveness
-                                                ? 'humanAuthnProjects.setup.humanAuthn.accessActive'
-                                                : 'humanAuthnProjects.setup.humanAuthn.accessStandard'
-                                        )
-                                    }}
-                                </span>
                             </header>
 
-                            <div class="setting-row">
-                                <div class="setting-row__copy">
-                                    <mat-icon>face_retouching_natural</mat-icon>
+                            <div class="panel-body">
+                                <div class="setting-row">
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.requireLiveness') }}</strong>
-                                        <span>{{ t('humanAuthnProjects.setup.humanAuthn.requireLivenessHelp') }}</span>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyTitle') }}</strong>
+                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyHelp') }}</p>
                                     </div>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-72 shrink-0">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyLabel') }}</mat-label>
+                                        <input
+                                            matInput
+                                            formControlName="verifierKey"
+                                            [type]="hideVerifierKey ? 'password' : 'text'"
+                                            autocomplete="new-password"
+                                            maxlength="128"
+                                        />
+                                        <button
+                                            mat-icon-button
+                                            matSuffix
+                                            type="button"
+                                            (click)="hideVerifierKey = !hideVerifierKey"
+                                            [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.verifierKeyToggle')"
+                                        >
+                                            <mat-icon>{{ hideVerifierKey ? 'visibility' : 'visibility_off' }}</mat-icon>
+                                        </button>
+                                    </mat-form-field>
                                 </div>
-                                <mat-slide-toggle [checked]="requireLiveness" (change)="onRequireLivenessChange($event)"></mat-slide-toggle>
-                            </div>
-
-                            <div class="setting-block">
-                                <div class="setting-block__copy">
-                                    <strong>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyTitle') }}</strong>
-                                    <span>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyHelp') }}</span>
-                                </div>
-                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                                    <mat-label>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyLabel') }}</mat-label>
-                                    <input
-                                        matInput
-                                        formControlName="verifierKey"
-                                        [type]="hideVerifierKey ? 'password' : 'text'"
-                                        autocomplete="new-password"
-                                        maxlength="128"
-                                    />
-                                    <button
-                                        mat-icon-button
-                                        matSuffix
-                                        type="button"
-                                        (click)="hideVerifierKey = !hideVerifierKey"
-                                        [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.verifierKeyToggle')"
-                                    >
-                                        <mat-icon>{{ hideVerifierKey ? 'visibility' : 'visibility_off' }}</mat-icon>
-                                    </button>
-                                </mat-form-field>
                             </div>
                         </article>
                     </li>
 
+                    <!-- Stage 4: output format -->
                     <li class="journey-stage">
                         <span class="journey-stage__marker" aria-hidden="true">4</span>
                         <article class="journey-panel">
@@ -226,173 +184,71 @@
                                     <p>{{ t('humanAuthnProjects.setup.humanAuthn.outputFormatHelp') }}</p>
                                 </div>
                                 <span class="journey-panel__status">
-                                    {{
-                                        t(
-                                            humanAuthnGroup.get('outputFormat')?.value === 'qrCode'
-                                                ? 'humanAuthnProjects.setup.humanAuthn.outputQr'
-                                                : 'humanAuthnProjects.setup.humanAuthn.outputString'
-                                        )
-                                    }}
+                                    {{ t(humanAuthnGroup.get('outputFormat')?.value === 'qrCode' ? 'humanAuthnProjects.setup.humanAuthn.outputQr' : 'humanAuthnProjects.setup.humanAuthn.outputString') }}
                                 </span>
                             </header>
 
                             <mat-button-toggle-group
                                 formControlName="outputFormat"
-                                class="output-options"
+                                class="requirement-options requirement-options--two"
                                 [hideSingleSelectionIndicator]="true"
-                                aria-label="HumanID output format"
+                                [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.outputFormatTitle')"
                             >
                                 <mat-button-toggle value="string">
-                                    <span class="output-option">
-                                        <mat-icon>data_object</mat-icon>
-                                        <span>
-                                            <strong>{{ t('humanAuthnProjects.setup.humanAuthn.outputString') }}</strong>
-                                            <small>{{ t('humanAuthnProjects.setup.humanAuthn.outputStringHelp') }}</small>
-                                        </span>
+                                    <span class="requirement-option">
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.outputString') }}</strong>
+                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.outputStringHelp') }}</small>
                                     </span>
                                 </mat-button-toggle>
                                 <mat-button-toggle value="qrCode">
-                                    <span class="output-option">
-                                        <mat-icon>qr_code_2</mat-icon>
-                                        <span>
-                                            <strong>{{ t('humanAuthnProjects.setup.humanAuthn.outputQr') }}</strong>
-                                            <small>{{ t('humanAuthnProjects.setup.humanAuthn.outputQrHelp') }}</small>
-                                        </span>
+                                    <span class="requirement-option">
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.outputQr') }}</strong>
+                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.outputQrHelp') }}</small>
                                     </span>
                                 </mat-button-toggle>
                             </mat-button-toggle-group>
+                        </article>
+                    </li>
 
-                            <div class="journey-complete">
-                                <mat-icon>check_circle</mat-icon>
-                                <span>{{ t('humanAuthnProjects.setup.humanAuthn.readySummary') }}</span>
-                            </div>
+                    <!-- Stage 5: what is (never) stored -->
+                    <li class="journey-stage">
+                        <span class="journey-stage__marker" aria-hidden="true">5</span>
+                        <article class="journey-panel">
+                            <header class="journey-panel__header">
+                                <div>
+                                    <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 5 }) }}</span>
+                                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.factsTitle') }}</h3>
+                                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.factsHelp') }}</p>
+                                </div>
+                            </header>
+
+                            <ul class="fact-list panel-body">
+                                <li>
+                                    <mat-icon>face_retouching_off</mat-icon>
+                                    <div>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateTitle') }}</strong>
+                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateBody') }}</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <mat-icon>visibility</mat-icon>
+                                    <div>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicTitle') }}</strong>
+                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicBody') }}</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <mat-icon>verified_user</mat-icon>
+                                    <div>
+                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveTitle') }}</strong>
+                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveBody') }}</p>
+                                    </div>
+                                </li>
+                            </ul>
                         </article>
                     </li>
                 </ol>
-                </ng-container>
-            </section>
-
-            <aside class="ha-explainer" aria-live="polite">
-                <div class="section-heading section-heading--light">
-                    <span>02</span>
-                    <div>
-                        <h3>{{ t('humanAuthnProjects.setup.humanAuthn.howTitle') }}</h3>
-                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.howHelp') }}</p>
-                    </div>
-                </div>
-
-                <ol class="ha-flow">
-                    <li>
-                        <mat-icon>fingerprint</mat-icon>
-                        <span>{{ t('humanAuthnProjects.setup.humanAuthn.flowChecked') }}</span>
-                    </li>
-                    <li>
-                        <mat-icon>visibility</mat-icon>
-                        <span>
-                            {{ t('humanAuthnProjects.setup.humanAuthn.flowPublic') }}
-                            <small>
-                                {{
-                                    t('humanAuthnProjects.setup.humanAuthn.publicDataCount', {
-                                        selected: selectedPublicDataCount,
-                                        total: publicDataOptions.length,
-                                    })
-                                }}
-                            </small>
-                        </span>
-                    </li>
-                    <li>
-                        <mat-icon>{{ requireLiveness ? 'face' : 'lock' }}</mat-icon>
-                        <span>
-                            {{
-                                t(
-                                    requireLiveness
-                                        ? 'humanAuthnProjects.setup.humanAuthn.accessActive'
-                                        : 'humanAuthnProjects.setup.humanAuthn.accessStandard'
-                                )
-                            }}
-                        </span>
-                    </li>
-                    <li class="ha-flow__result">
-                        <mat-icon>{{ humanAuthnGroup.get('outputFormat')?.value === 'qrCode' ? 'qr_code_2' : 'data_object' }}</mat-icon>
-                        <span>
-                            {{
-                                t(
-                                    humanAuthnGroup.get('outputFormat')?.value === 'qrCode'
-                                        ? 'humanAuthnProjects.setup.humanAuthn.outputQr'
-                                        : 'humanAuthnProjects.setup.humanAuthn.outputString'
-                                )
-                            }}
-                        </span>
-                    </li>
-                </ol>
-
-                <div class="ha-path">
-                    <span class="ha-path__label">{{ t('humanAuthnProjects.setup.humanAuthn.selectedPath') }}</span>
-                    <h4>
-                        {{
-                            t(
-                                requireLiveness
-                                    ? 'humanAuthnProjects.setup.humanAuthn.activeTitle'
-                                    : 'humanAuthnProjects.setup.humanAuthn.standardTitle'
-                            )
-                        }}
-                    </h4>
-                    <p>
-                        {{
-                            t(
-                                requireLiveness
-                                    ? 'humanAuthnProjects.setup.humanAuthn.activeBody'
-                                    : 'humanAuthnProjects.setup.humanAuthn.standardBody'
-                            )
-                        }}
-                    </p>
-                    <div class="ha-path__result">
-                        <mat-icon>{{ documentEnabled ? 'face' : 'description' }}</mat-icon>
-                        <span>
-                            {{
-                                t(
-                                    documentEnabled
-                                        ? 'humanAuthnProjects.setup.humanAuthn.compareOn'
-                                        : 'humanAuthnProjects.setup.humanAuthn.compareOff'
-                                )
-                            }}
-                        </span>
-                    </div>
-                </div>
-            </aside>
-        </div>
-
-        <section class="ha-facts">
-            <div class="section-heading">
-                <span>03</span>
-                <div>
-                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.factsTitle') }}</h3>
-                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.factsHelp') }}</p>
-                </div>
-            </div>
-            <div class="fact-items">
-                <article>
-                    <span class="fact-items__icon fact-items__icon--private"><mat-icon>face_retouching_off</mat-icon></span>
-                    <div>
-                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateTitle') }}</strong>
-                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateBody') }}</p>
-                    </div>
-                </article>
-                <article>
-                    <span class="fact-items__icon fact-items__icon--public"><mat-icon>visibility</mat-icon></span>
-                    <div>
-                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicTitle') }}</strong>
-                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicBody') }}</p>
-                    </div>
-                </article>
-                <article>
-                    <span class="fact-items__icon fact-items__icon--active"><mat-icon>verified_user</mat-icon></span>
-                    <div>
-                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveTitle') }}</strong>
-                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveBody') }}</p>
-                    </div>
-                </article>
-            </div>
+            </ng-container>
         </section>
     </div>
 </ng-container>
