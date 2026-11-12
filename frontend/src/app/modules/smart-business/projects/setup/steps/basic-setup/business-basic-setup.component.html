@@ -1,123 +1,287 @@
 <ng-container *transloco="let t">
-    <div [formGroup]="form" class="flex flex-col gap-6">
-        <!-- Project Identity Card -->
-        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
-            <header class="mb-4">
-                <div class="flex items-center gap-2">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
-                        <mat-icon class="icon-size-4" svgIcon="heroicons_outline:briefcase"></mat-icon>
-                    </div>
-                    <div>
-                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{ t('smartBusiness.setup.basic.title') }}
-                        </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartBusiness.setup.basic.subtitle') }}
-                        </p>
-                    </div>
-                </div>
-            </header>
-
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.projectName') }}</mat-label>
-                    <input matInput formControlName="name" [placeholder]="t('smartBusiness.setup.basic.projectNamePlaceholder')" />
-                    <mat-icon matSuffix class="text-stone-400">badge</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.contactEmail') }}</mat-label>
-                    <input matInput type="email" formControlName="contactEmail" [placeholder]="t('smartBusiness.setup.basic.contactEmailPlaceholder')" />
-                    <mat-icon matSuffix class="text-stone-400">email</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.allowedCountries') }}</mat-label>
-                    <mat-select formControlName="allowedCountries" multiple>
-                        @for (country of availableCountries; track country.value) {
-                            <mat-option [value]="country.value">{{ country.name }} ({{ country.code }})</mat-option>
-                        }
-                    </mat-select>
-                    <mat-icon matSuffix class="text-stone-400">public</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.defaultLanguage') }}</mat-label>
-                    <mat-select formControlName="defaultLanguage">
-                        @for (lang of languages; track lang.code) {
-                            <mat-option [value]="lang.code">{{ lang.name }}</mat-option>
-                        }
-                    </mat-select>
-                    <mat-icon matSuffix class="text-stone-400">language</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.termsUrl') }}</mat-label>
-                    <input matInput type="url" formControlName="termsAndConditionsUrl" [placeholder]="t('smartBusiness.setup.basic.termsUrlPlaceholder')" />
-                    <mat-icon matSuffix class="text-stone-400">gavel</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.privacyUrl') }}</mat-label>
-                    <input matInput type="url" formControlName="privacyUrl" [placeholder]="t('smartBusiness.setup.basic.privacyUrlPlaceholder')" />
-                    <mat-icon matSuffix class="text-stone-400">privacy_tip</mat-icon>
-                </mat-form-field>
+    <form [formGroup]="form" class="kyb-journey">
+        <div class="kyb-intro">
+            <div class="kyb-intro__icon">
+                <mat-icon>tune</mat-icon>
             </div>
-        </section>
-
-        <!-- Compliance & Data Protection Card -->
-        <section [formGroup]="dataProtectionGroup" class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40">
-            <header class="mb-4">
-                <div class="flex items-center gap-2">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
-                        <mat-icon class="icon-size-4" svgIcon="heroicons_outline:shield-check"></mat-icon>
-                    </div>
-                    <div>
-                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{ t('smartBusiness.setup.basic.dpoTitle') }}
-                        </h2>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartBusiness.setup.basic.dpoSubtitle') }}
-                        </p>
-                    </div>
-                </div>
-            </header>
-
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.dpoName') }}</mat-label>
-                    <input matInput formControlName="name" [placeholder]="t('smartBusiness.setup.basic.dpoNamePlaceholder')" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.dpoEmail') }}</mat-label>
-                    <input matInput type="email" formControlName="email" [placeholder]="t('smartBusiness.setup.basic.dpoEmailPlaceholder')" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.dpoAddress') }}</mat-label>
-                    <input matInput formControlName="address" [placeholder]="t('smartBusiness.setup.basic.dpoAddressPlaceholder')" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.dpoCity') }}</mat-label>
-                    <input matInput formControlName="city" [placeholder]="t('smartBusiness.setup.basic.dpoCityPlaceholder')" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.dpoPostalCode') }}</mat-label>
-                    <input matInput formControlName="postalCode" placeholder="110111" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>{{ t('smartBusiness.setup.basic.dpoCountry') }}</mat-label>
-                    <mat-select formControlName="country">
-                        @for (country of availableCountries; track country.value) {
-                            <mat-option [value]="country.value">{{ country.name }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+            <div>
+                <h2>{{ t('smartBusiness.setup.basic.title') }}</h2>
+                <p>{{ t('smartBusiness.setup.basic.subtitle') }}</p>
             </div>
-        </section>
-    </div>
+        </div>
+
+        <ol class="kyb-timeline">
+            <!-- Stage 1: Project identity -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">1</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.identity.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.identity.subtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{ defaultLanguageLabel }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="name-field-wrapper">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.projectName') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="name"
+                                    [maxlength]="MAX_NAME_LENGTH + 1"
+                                    [placeholder]="t('smartBusiness.setup.basic.projectNamePlaceholder')"
+                                    autocomplete="off"
+                                />
+                            </mat-form-field>
+                            <span
+                                class="char-counter"
+                                [class.char-counter--warning]="nameLengthStatus === 'warning'"
+                                [class.char-counter--danger]="nameLengthStatus === 'danger'"
+                            >
+                                {{ nameLength }}/{{ MAX_NAME_LENGTH }}
+                            </span>
+                        </div>
+
+                        <div class="field-grid">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.contactEmail') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="contactEmail"
+                                    type="email"
+                                    autocomplete="email"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    [placeholder]="t('smartBusiness.setup.basic.contactEmailPlaceholder')"
+                                />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.defaultLanguage') }}</mat-label>
+                                <mat-select formControlName="defaultLanguage">
+                                    @for (lang of defaultLanguages; track lang.code) {
+                                        <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="info-note">
+                            <mat-icon>translate</mat-icon>
+                            <span>{{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguageHint') }}</span>
+                        </div>
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 2: Allowed countries -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">2</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.allowed.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.allowed.subtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            @if (hasWorldAllowed) {
+                                {{ t('country_name.world') }}
+                            } @else {
+                                {{
+                                    t('smartEnrollProjects.setup.basicSetup.journey.countriesCount', {
+                                        count: allowedCountries.length
+                                    })
+                                }}
+                            }
+                        </span>
+                    </header>
+
+                    <div class="countries-box">
+                        <div class="countries-box__top">
+                            <span class="countries-box__label">
+                                {{ t('smartEnrollProjects.setup.basicSetup.journey.selectedCountriesLabel') }}
+                            </span>
+                            @if (!hasWorldAllowed) {
+                                <button type="button" class="world-pill-btn" (click)="allowWorld()">
+                                    <mat-icon>public</mat-icon>
+                                    <span>{{ t('smartEnrollProjects.setup.basicSetup.journey.allowWorldCta') }}</span>
+                                </button>
+                            }
+                        </div>
+
+                        @if (allowedCountries.length) {
+                            <div class="country-chips">
+                                @for (c of allowedCountries; track c) {
+                                    <span class="country-chip">
+                                        <span>{{ countryLabel(c) }}</span>
+                                        <button
+                                            type="button"
+                                            class="country-chip__remove"
+                                            (click)="removeCountry(c)"
+                                            [attr.aria-label]="t('smartEnrollProjects.setup.basicSetup.allowed.remove')"
+                                        >
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                    </span>
+                                }
+                            </div>
+                        }
+
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.allowed.add') }}</mat-label>
+                            <input
+                                matInput
+                                type="text"
+                                autocomplete="off"
+                                [formControl]="allowedCountryFilterCtrl"
+                                [placeholder]="t('smartEnrollProjects.setup.basicSetup.allowed.search')"
+                                [matAutocomplete]="allowedCountriesAuto"
+                            />
+                            <mat-autocomplete
+                                #allowedCountriesAuto="matAutocomplete"
+                                (optionSelected)="onAllowedCountryPicked($event)"
+                            >
+                                @for (c of filteredAllowedCountries; track c.country) {
+                                    <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
+                                }
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 3: Compliance URLs -->
+            <li class="kyb-stage">
+                <div class="kyb-stage__marker">3</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.basicSetup.compliance.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.basicSetup.compliance.subtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{
+                                t('smartEnrollProjects.setup.basicSetup.journey.urlsConfigured', {
+                                    count: complianceUrlsCount
+                                })
+                            }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="field-grid">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.privacyUrl') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="privacyUrl"
+                                    type="url"
+                                    placeholder="https://"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.termsUrl') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="termsAndConditionsUrl"
+                                    type="url"
+                                    placeholder="https://"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 4: Data protection officer -->
+            <li class="kyb-stage" formGroupName="dataProtection">
+                <div class="kyb-stage__marker">4</div>
+                <section class="kyb-panel">
+                    <header class="kyb-panel__header">
+                        <div>
+                            <span class="kyb-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 4 }) }}
+                            </span>
+                            <h3>{{ t('smartBusiness.setup.basic.dpoTitle') }}</h3>
+                            <p>{{ t('smartBusiness.setup.basic.dpoSubtitle') }}</p>
+                        </div>
+                        <span class="kyb-panel__status">
+                            {{
+                                isDpoConfigured
+                                    ? t('smartEnrollProjects.setup.basicSetup.journey.configured')
+                                    : t('smartEnrollProjects.setup.basicSetup.journey.notConfigured')
+                            }}
+                        </span>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="field-grid">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.dpoName') }}</mat-label>
+                                <input matInput formControlName="name" autocomplete="name" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.dpoEmail') }}</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="email"
+                                    type="email"
+                                    autocomplete="email"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-grid__full">
+                                <mat-label>{{ t('smartBusiness.setup.basic.dpoAddress') }}</mat-label>
+                                <input matInput formControlName="address" autocomplete="address-line1" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.dpoCity') }}</mat-label>
+                                <input matInput formControlName="city" autocomplete="address-level2" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartBusiness.setup.basic.dpoPostalCode') }}</mat-label>
+                                <input matInput formControlName="postalCode" autocomplete="postal-code" />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-grid__full">
+                                <mat-label>{{ t('smartBusiness.setup.basic.dpoCountry') }}</mat-label>
+                                <mat-select formControlName="country">
+                                    @for (c of filteredDataProtectionCountries; track c.country) {
+                                        <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </section>
+            </li>
+        </ol>
+    </form>
 </ng-container>

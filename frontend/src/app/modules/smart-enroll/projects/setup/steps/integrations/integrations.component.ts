@@ -1,7 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    DestroyRef,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -25,6 +37,7 @@ import { SetupService } from '../../setup.service';
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
+        MatButtonToggleModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -35,17 +48,20 @@ import { SetupService } from '../../setup.service';
         TranslocoModule,
     ],
     templateUrl: './integrations.component.html',
+    styleUrl: './integrations.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetupIntegrationsComponent implements OnInit {
+export class SetupIntegrationsComponent implements OnInit, OnChanges {
     @Input() form!: FormGroup;
     @Input() loading = false;
     @Input() saving = false;
 
     private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
     private _snack = inject(MatSnackBar);
     private _setup = inject(SetupService);
     private _transloco = inject(TranslocoService);
+    private _subscriptionsBound = false;
 
     receivedResponse: any = {};
     refreshingWebhooks = false;
@@ -60,10 +76,48 @@ export class SetupIntegrationsComponent implements OnInit {
 
     ngOnInit(): void {
         this._requestWebhooks();
+        this._bindFormSubscriptions();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['form'] || changes['loading']) {
+            if (changes['form']) this._subscriptionsBound = false;
+            this._bindFormSubscriptions();
+        }
+    }
+
+    private _bindFormSubscriptions(): void {
+        if (this._subscriptionsBound || !this.integrationsFormGroup) return;
+        this._subscriptionsBound = true;
+        this.integrationsFormGroup.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
     }
 
     get exampleRedirectUrl(): string {
         return `${this.form?.get('projectFlow.integrations.redirectUrl')?.value || ''}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`;
+    }
+
+    get redirectStatusLabel(): string | null {
+        const raw = String(this.integrationsFormGroup?.get('redirectUrl')?.value || '').trim();
+        if (!raw) return null;
+        try {
+            const parsed = new URL(raw);
+            return parsed.host || raw;
+        } catch {
+            return raw;
+        }
+    }
+
+    get selectedWebhookName(): string | null {
+        const id = this.integrationsFormGroup?.get('webhook')?.value;
+        if (!id) return null;
+        const found = this.webhooks.find((w) => w._id === id);
+        return found?.name || found?._id || String(id);
+    }
+
+    get sourceValue(): 'NONE' | 'API' {
+        return (this.integrationsFormGroup?.get('source')?.value as 'NONE' | 'API') || 'NONE';
     }
 
     get integrationsFormGroup(): FormGroup | null {

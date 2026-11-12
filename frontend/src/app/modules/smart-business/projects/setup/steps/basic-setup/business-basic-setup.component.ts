@@ -1,11 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    DestroyRef,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+
+import { CountryOption, CountryService } from 'app/core/services/country.service';
+import { PROJECT_DEFAULT_LANGUAGES } from 'app/modules/smart-enroll/projects/setup/steps/basic-setup/basic-setup.component';
 
 @Component({
     selector: 'business-basic-setup',
@@ -13,6 +30,9 @@ import { TranslocoModule } from '@jsverse/transloco';
     imports: [
         CommonModule,
         ReactiveFormsModule,
+        MatButtonModule,
+        MatAutocompleteModule,
+        MatChipsModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -20,38 +40,154 @@ import { TranslocoModule } from '@jsverse/transloco';
         TranslocoModule,
     ],
     templateUrl: './business-basic-setup.component.html',
+    styleUrl: '../_kyb-journey.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BusinessBasicSetupComponent {
+export class BusinessBasicSetupComponent implements OnInit, OnChanges {
     @Input() form!: FormGroup;
     @Input() loading = false;
     @Input() saving = false;
 
-    readonly availableCountries = [
-        { code: 'CO', value: 'Colombia', name: 'Colombia' },
-        { code: 'MX', value: 'Mexico', name: 'México' },
-        { code: 'US', value: 'United States', name: 'United States' },
-        { code: 'CL', value: 'Chile', name: 'Chile' },
-        { code: 'PE', value: 'Peru', name: 'Perú' },
-        { code: 'PA', value: 'Panama', name: 'Panamá' },
-        { code: 'EC', value: 'Ecuador', name: 'Ecuador' },
-        { code: 'ES', value: 'Spain', name: 'España' },
-        { code: 'BR', value: 'Brazil', name: 'Brasil' },
-        { code: 'AR', value: 'Argentina', name: 'Argentina' },
-        { code: 'CA', value: 'Canada', name: 'Canada' },
-        { code: 'IN', value: 'India', name: 'India' },
-        { code: 'CN', value: 'China', name: 'China' },
-        { code: 'ID', value: 'Indonesia', name: 'Indonesia' },
-    ];
+    private _countryService = inject(CountryService);
+    private _transloco = inject(TranslocoService);
+    private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
+    private _formSubBound = false;
 
-    readonly languages = [
-        { code: 'es', name: 'Español' },
-        { code: 'en', name: 'English' },
-        { code: 'pt', name: 'Português' },
-        { code: 'fr', name: 'Français' },
-    ];
+    countries: CountryOption[] = this._countryService.countries;
+    ipCountries: CountryOption[] = this._countryService.ipCountries;
+
+    readonly defaultLanguages = PROJECT_DEFAULT_LANGUAGES;
+    readonly allowedCountryFilterCtrl = new FormControl('', { nonNullable: true });
+    readonly MAX_NAME_LENGTH = 80;
+
+    dataProtectionCountrySearch = '';
+
+    constructor() {
+        this.allowedCountryFilterCtrl.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
+    }
+
+    ngOnInit(): void {
+        this._bindFormChanges();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['form']) {
+            this._formSubBound = false;
+            this._bindFormChanges();
+        }
+    }
+
+    private _bindFormChanges(): void {
+        if (this._formSubBound || !this.form) return;
+        this._formSubBound = true;
+        this.form.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
+    }
 
     get dataProtectionGroup(): FormGroup {
         return this.form.get('dataProtection') as FormGroup;
+    }
+
+    get nameLength(): number {
+        return this.form?.get('name')?.value?.length || 0;
+    }
+
+    get nameLengthStatus(): 'safe' | 'warning' | 'danger' {
+        const length = this.nameLength;
+        if (length > this.MAX_NAME_LENGTH) return 'danger';
+        if (length > this.MAX_NAME_LENGTH * 0.8) return 'warning';
+        return 'safe';
+    }
+
+    get defaultLanguageLabel(): string {
+        const code = this.form?.get('defaultLanguage')?.value || 'es';
+        return this.defaultLanguages.find((l) => l.code === code)?.label || 'Español';
+    }
+
+    get allowedCountries(): string[] {
+        return (this.form?.get('allowedCountries')?.value as string[]) || [];
+    }
+
+    get hasWorldAllowed(): boolean {
+        return this.allowedCountries.includes('All');
+    }
+
+    get complianceUrlsCount(): number {
+        const privacy = String(this.form?.get('privacyUrl')?.value || '').trim();
+        const terms = String(this.form?.get('termsAndConditionsUrl')?.value || '').trim();
+        return (privacy ? 1 : 0) + (terms ? 1 : 0);
+    }
+
+    get isDpoConfigured(): boolean {
+        const dpo = this.form?.get('dataProtection')?.value || {};
+        return Boolean(String(dpo.name || '').trim() || String(dpo.email || '').trim());
+    }
+
+    get filteredAllowedCountries(): CountryOption[] {
+        const term = this.allowedCountryFilterCtrl.value.trim().toLowerCase();
+        const selected = new Set(this.allowedCountries);
+        return this.ipCountries.filter((c) => {
+            if (selected.has(c.country)) return false;
+            const label = this._transloco.translate(c.name).toLowerCase();
+            const code = (c.code || '').toLowerCase();
+            const countryKey = (c.country || '').toLowerCase();
+            if (!term) return true;
+            return label.includes(term) || code.includes(term) || countryKey.includes(term);
+        });
+    }
+
+    get filteredDataProtectionCountries(): CountryOption[] {
+        const term = this.dataProtectionCountrySearch.toLowerCase();
+        return this.countries.filter(
+            (c) => c.country.toLowerCase() !== 'all' && this._transloco.translate(c.name).toLowerCase().includes(term)
+        );
+    }
+
+    allowWorld(): void {
+        this._setAllowedCountries(['All']);
+        this._cdr.markForCheck();
+    }
+
+    addCountry(country: CountryOption): void {
+        const values = new Set(this.allowedCountries);
+        if (country.country === 'All') {
+            this._setAllowedCountries(['All']);
+            return;
+        }
+        if (values.has('All')) values.delete('All');
+        values.add(country.country);
+        this._setAllowedCountries(Array.from(values));
+    }
+
+    onAllowedCountryPicked(event: MatAutocompleteSelectedEvent): void {
+        const code = event.option.value as string;
+        const option = this.ipCountries.find((c) => c.country === code);
+        this.allowedCountryFilterCtrl.setValue('', { emitEvent: false });
+        this._cdr.markForCheck();
+        if (option) this.addCountry(option);
+    }
+
+    removeCountry(country: string): void {
+        const values = new Set(this.allowedCountries);
+        values.delete(country);
+        this._setAllowedCountries(Array.from(values));
+    }
+
+    private _setAllowedCountries(countries: string[]): void {
+        const control = this.form?.get('allowedCountries');
+        control?.setValue(countries);
+        control?.markAsDirty();
+    }
+
+    countryLabel(country: string): string {
+        if (country === 'All') {
+            return this._transloco.translate('country_name.world');
+        }
+        const found = this.countries.find((c) => c.country === country || c.code === country);
+        return found ? this._transloco.translate(found.name) : country;
     }
 }

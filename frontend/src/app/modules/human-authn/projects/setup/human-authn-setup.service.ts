@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
 import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
+import type { PreviewView } from 'app/modules/smart-enroll/projects/setup/setup.service';
 
 export interface HumanAuthnProject {
     _id?: string;
@@ -41,6 +42,17 @@ export class HumanAuthnSetupService {
         'humanAuthnProjects.setup.steps.integrations',
         'humanAuthnProjects.setup.steps.ui',
     ];
+
+    /** Preview screens per step; the journey always ends on the HumanID. */
+    readonly previewViews: Record<number, PreviewView[]> = {
+        0: [],
+        1: ['signup'],
+        2: ['document-scan', 'document-upload', 'document-result'],
+        3: ['liveness', 'human-id-result'],
+        4: ['human-id-result'],
+        5: [],
+        6: ['signup', 'document-scan', 'document-upload', 'document-result', 'liveness', 'human-id-result'],
+    };
 
     readonly formKeys: Record<number, string[]> = {
         0: [

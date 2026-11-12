@@ -21,12 +21,16 @@ import {
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { DEFAULT_PHONE_COUNTRY_CODE } from 'app/core/constants/phone-country-codes.constant';
 import { SetupFormFactory } from 'app/modules/smart-enroll/projects/setup/setup-form.factory';
-import { HumanAuthnDetailsStepComponent } from './steps/details-step.component';
-import { HumanAuthnDocumentsStepComponent } from './steps/documents-step.component';
+import { SetupBreadcrumbsComponent } from 'app/modules/smart-enroll/projects/setup/breadcrumbs/breadcrumbs.component';
+import { savedVerifyStyle } from 'app/modules/smart-enroll/projects/enrollment-client.util';
+import { SmartEnrollPreviewComponent } from 'app/modules/smart-enroll/projects/setup/preview/smart-enroll-preview.component';
+import { SetupBasicSetupComponent } from 'app/modules/smart-enroll/projects/setup/steps/basic-setup/basic-setup.component';
+import { SetupDocumentsComponent } from 'app/modules/smart-enroll/projects/setup/steps/documents/documents.component';
+import { SetupIntegrationsComponent } from 'app/modules/smart-enroll/projects/setup/steps/integrations/integrations.component';
+import { SetupSignUpFormComponent } from 'app/modules/smart-enroll/projects/setup/steps/sign-up-form/sign-up-form.component';
+import { SetupUserInterfaceComponent } from 'app/modules/smart-enroll/projects/setup/steps/user-interface/user-interface.component';
+import type { PreviewView } from 'app/modules/smart-enroll/projects/setup/setup.service';
 import { HumanAuthnSetupService } from './human-authn-setup.service';
-import { HumanAuthnIntegrationsStepComponent } from './steps/integrations-step.component';
-import { HumanAuthnSignupStepComponent } from './steps/signup-step.component';
-import { HumanAuthnUiStepComponent } from './steps/ui-step.component';
 import { HumanAuthnModeStepComponent } from './steps/human-authn-step.component';
 import { HumanAuthnStorageStepComponent } from './steps/storage-step.component';
 
@@ -42,13 +46,15 @@ import { HumanAuthnStorageStepComponent } from './steps/storage-step.component';
         MatProgressSpinnerModule,
         MatSnackBarModule,
         TranslocoModule,
-        HumanAuthnDocumentsStepComponent,
-        HumanAuthnDetailsStepComponent,
-        HumanAuthnSignupStepComponent,
+        SetupBreadcrumbsComponent,
+        SmartEnrollPreviewComponent,
+        SetupBasicSetupComponent,
+        SetupSignUpFormComponent,
+        SetupDocumentsComponent,
+        SetupIntegrationsComponent,
+        SetupUserInterfaceComponent,
         HumanAuthnModeStepComponent,
-        HumanAuthnUiStepComponent,
         HumanAuthnStorageStepComponent,
-        HumanAuthnIntegrationsStepComponent,
     ],
     templateUrl: './human-authn-setup-host.component.html',
     host: {
@@ -167,6 +173,11 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                 target: ['personal'],
                 status: [flow.status || 'draft'],
                 version: [3],
+                onboardingSettings: this._fb.group({
+                    enrollmentClient: ['v2'],
+                    verifyStyle: [savedVerifyStyle(flow.onboardingSettings?.verifyStyle) || 'a'],
+                    flowOrder: [flow.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : ''],
+                }),
                 humanAuthn: this._fb.group({
                     mode: [flow.humanAuthn?.mode || 'standard', Validators.required],
                     livenessAtCreation: [!!flow.humanAuthn?.livenessAtCreation],
@@ -183,11 +194,17 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                     provider: [flow.storage?.provider || 'ipfs', Validators.required],
                 }),
                 integrations: this._fb.group({
+                    apiTestType: [flow.integrations?.apiTestType || 'email'],
+                    apiTestValue: [flow.integrations?.apiTestValue || ''],
+                    apiUrl: [flow.integrations?.apiUrl || '', [Validators.pattern(STRICT_URL_PATTERN)]],
                     redirectUrl: [flow.integrations?.redirectUrl || '', [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]],
+                    source: [flow.integrations?.source || 'NONE'],
+                    strategy: [flow.integrations?.strategy || 'none'],
                     webhook: [flow.integrations?.webhook || null],
                 }),
                 signUpForm: this._fb.group({
                     additionalFields: [flow.signUpForm?.additionalFields || []],
+                    address: [!!flow.signUpForm?.address],
                     allowAdditionalFields: [!!flow.signUpForm?.allowAdditionalFields],
                     countryCode: [flow.signUpForm?.countryCode || DEFAULT_PHONE_COUNTRY_CODE],
                     email: [!!flow.signUpForm?.email],
@@ -201,12 +218,13 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                 }),
                 documents: this._fb.group({
                     attemptLimit: [flow.documents?.attemptLimit || 3],
+                    colombianBarcodeValidation: [!!flow.documents?.colombianBarcodeValidation],
                     criminalHistoryVerification: [!!flow.documents?.criminalHistoryVerification],
                     criminalHistoryVerificationEndpoints: [flow.documents?.criminalHistoryVerificationEndpoints || []],
                     documentTypes: this._factory.createDocumentTypesWithDefaults(flow.documents?.documentTypes || [], 'personal'),
                     informationVerification: [!!flow.documents?.informationVerification],
                     screening: [!!flow.documents?.screening],
-                    verificationMethods: [flow.documents?.verificationMethods || []],
+                    verificationMethods: [flow.documents?.verificationMethods?.length ? flow.documents.verificationMethods : ['upload', 'scan']],
                 }),
                 steps: this._fb.group({
                     document: [flow.steps?.document || 'skip'],
@@ -215,6 +233,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             }),
         });
         this._bindPublicDataKeyAvailability(flow);
+        this._bindIntegrationSource();
         this.loading.set(false);
         this._cdr.markForCheck();
     }
@@ -306,6 +325,50 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
         this._setup.setProjectId(id);
     }
 
+    signUpFormGroup(): FormGroup {
+        return this.form.get('projectFlow.signUpForm') as FormGroup;
+    }
+
+    /** Live branding for the preview pane. */
+    brandingValue(): any {
+        return this.form?.get('branding')?.value;
+    }
+
+    /** Preview screens to show for the current step (empty hides the pane). */
+    previewViews(): PreviewView[] {
+        return this._setup.previewViews[this.stepIndex] ?? [];
+    }
+
+    readonly goToStepFn = (step: number): void => this.goToStep(step);
+
+    private _bindIntegrationSource(): void {
+        const apply = (source: string | undefined): void => {
+            const strategy = this.form.get('projectFlow.integrations.strategy');
+            const apiUrl = this.form.get('projectFlow.integrations.apiUrl');
+            const apiTestType = this.form.get('projectFlow.integrations.apiTestType');
+            const apiTestValue = this.form.get('projectFlow.integrations.apiTestValue');
+            if (!source) return;
+            strategy?.setValue(source === 'NONE' ? 'none' : 'blacklist', { emitEvent: false });
+            if (source === 'API') {
+                apiTestType?.setValidators([Validators.required]);
+                apiTestValue?.setValidators([Validators.required]);
+                apiUrl?.setValidators([Validators.required, Validators.pattern(STRICT_URL_PATTERN)]);
+            } else {
+                apiTestType?.clearValidators();
+                apiTestValue?.clearValidators();
+                apiUrl?.setValidators([Validators.pattern(STRICT_URL_PATTERN)]);
+            }
+            [apiTestType, apiTestValue, apiUrl].forEach((c) => c?.updateValueAndValidity({ emitEvent: false }));
+        };
+        this.form
+            .get('projectFlow.integrations.source')
+            ?.valueChanges.pipe(takeUntil(this._unsub$))
+            .subscribe((source) => {
+                apply(source);
+                this._cdr.markForCheck();
+            });
+    }
+
     documentsFormGroup(): FormGroup {
         return this.form.get('projectFlow.documents') as FormGroup;
     }
@@ -388,8 +451,33 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                 ...(value.dataRetention !== undefined ? { dataRetention: value.dataRetention } : {}),
             };
         }
-        if (this.stepIndex === 5) return { projectFlow: { ...flow, integrations: projectFlow.integrations } };
-        return { branding };
+        if (this.stepIndex === 5) {
+            const integrations = projectFlow.integrations || {};
+            return {
+                projectFlow: {
+                    ...flow,
+                    integrations: {
+                        redirectUrl: integrations.redirectUrl,
+                        webhook: integrations.webhook,
+                        source: integrations.source || 'NONE',
+                        strategy: integrations.strategy || 'none',
+                        ...(integrations.source === 'API' ? { apiUrl: integrations.apiUrl } : {}),
+                    },
+                },
+            };
+        }
+        const style = savedVerifyStyle(projectFlow?.onboardingSettings?.verifyStyle);
+        return {
+            branding,
+            projectFlow: {
+                ...flow,
+                onboardingSettings: {
+                    enrollmentClient: 'v2',
+                    ...(style ? { verifyStyle: style } : {}),
+                    ...(projectFlow?.onboardingSettings?.flowOrder === 'consent_first' ? { flowOrder: 'consent_first' } : {}),
+                },
+            },
+        };
     }
 
     private _defaultPublicDataKeys(flow: any): string[] {

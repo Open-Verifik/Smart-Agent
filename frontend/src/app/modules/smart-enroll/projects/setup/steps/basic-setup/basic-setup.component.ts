@@ -5,6 +5,9 @@ import {
     Component,
     DestroyRef,
     Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
     inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -52,9 +55,10 @@ export const PROJECT_DEFAULT_LANGUAGES = [
         TranslocoModule,
     ],
     templateUrl: './basic-setup.component.html',
+    styleUrl: './basic-setup.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetupBasicSetupComponent {
+export class SetupBasicSetupComponent implements OnInit, OnChanges {
     @Input() form!: FormGroup;
     @Input() loading = false;
     @Input() saving = false;
@@ -63,6 +67,7 @@ export class SetupBasicSetupComponent {
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
+    private _formSubBound = false;
 
     countries: CountryOption[] = this._countryService.countries;
     ipCountries: CountryOption[] = this._countryService.ipCountries;
@@ -81,6 +86,25 @@ export class SetupBasicSetupComponent {
             .subscribe(() => this._cdr.markForCheck());
     }
 
+    ngOnInit(): void {
+        this._bindFormChanges();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['form']) {
+            this._formSubBound = false;
+            this._bindFormChanges();
+        }
+    }
+
+    private _bindFormChanges(): void {
+        if (this._formSubBound || !this.form) return;
+        this._formSubBound = true;
+        this.form.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
+    }
+
     readonly MAX_NAME_LENGTH = 60;
 
     get nameLength(): number {
@@ -92,6 +116,31 @@ export class SetupBasicSetupComponent {
         if (length > this.MAX_NAME_LENGTH) return 'danger';
         if (length > this.MAX_NAME_LENGTH * 0.8) return 'warning';
         return 'safe';
+    }
+
+    get defaultLanguageLabel(): string {
+        const code = this.form?.get('defaultLanguage')?.value || 'en';
+        return this.defaultLanguages.find((l) => l.code === code)?.label || 'English';
+    }
+
+    get hasWorldAllowed(): boolean {
+        return this.allowedCountries.includes('All');
+    }
+
+    get complianceUrlsCount(): number {
+        const privacy = String(this.form?.get('privacyUrl')?.value || '').trim();
+        const terms = String(this.form?.get('termsAndConditionsUrl')?.value || '').trim();
+        return (privacy ? 1 : 0) + (terms ? 1 : 0);
+    }
+
+    get isDpoConfigured(): boolean {
+        const dpo = this.form?.get('dataProtection')?.value || {};
+        return Boolean(String(dpo.name || '').trim() || String(dpo.email || '').trim());
+    }
+
+    allowWorld(): void {
+        this._setAllowedCountries(['All']);
+        this._cdr.markForCheck();
     }
 
     get filteredAllowedCountries(): CountryOption[] {

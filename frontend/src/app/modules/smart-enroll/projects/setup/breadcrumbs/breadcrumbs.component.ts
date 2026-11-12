@@ -36,6 +36,10 @@ export class SetupBreadcrumbsComponent implements OnChanges, OnDestroy, AfterVie
     @Input() loading = false;
     @Input() saving = false;
     @Input() isStepValid!: (step: number) => boolean;
+    /** Optional overrides so other wizards (e.g. HumanAuthn) can reuse the stepper without SmartEnroll's service. */
+    @Input() stepsOverride: string[] | null = null;
+    @Input() stepIndexOverride: number | null = null;
+    @Input() navigateTo: ((step: number) => void) | null = null;
 
     private _cdr = inject(ChangeDetectorRef);
     private _setup = inject(SetupService);
@@ -58,6 +62,8 @@ export class SetupBreadcrumbsComponent implements OnChanges, OnDestroy, AfterVie
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['form'] && this.form) this._initFormSubscribers();
+        if (changes['stepsOverride'] && this.stepsOverride) this.steps = this.stepsOverride;
+        if (changes['stepIndexOverride'] && this.stepIndexOverride !== null) this.stepIndex = this.stepIndexOverride;
     }
 
     ngOnDestroy(): void {
@@ -79,6 +85,10 @@ export class SetupBreadcrumbsComponent implements OnChanges, OnDestroy, AfterVie
     onStepClick(target: number): void {
         if (!this.canNavigate || target === this.stepIndex) return;
         if (!this._areAllPreviousStepsValid(target)) return;
+        if (this.navigateTo) {
+            this.navigateTo(target);
+            return;
+        }
         this._router.navigate(['/smart-enroll/projects', this.projectId, 'setup', target]);
     }
 
@@ -101,6 +111,7 @@ export class SetupBreadcrumbsComponent implements OnChanges, OnDestroy, AfterVie
 
     private _initSubscribers(): void {
         this._setup.stepIndex$.pipe(takeUntil(this._unsub$)).subscribe((step) => {
+            if (this.stepIndexOverride !== null) return;
             this.stepIndex = step;
             this._cdr.markForCheck();
         });
@@ -111,7 +122,7 @@ export class SetupBreadcrumbsComponent implements OnChanges, OnDestroy, AfterVie
     }
 
     private _setSteps(_target?: string): void {
-        this.steps = this._setup.personalSteps;
+        this.steps = this.stepsOverride ?? this._setup.personalSteps;
         this._cdr.markForCheck();
     }
 }

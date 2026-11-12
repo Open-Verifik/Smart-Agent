@@ -20,6 +20,11 @@ import { Subject, takeUntil } from 'rxjs';
 import type { BusinessProject, VerifyStyleId } from '../../smart-business.types';
 import { BusinessBreadcrumbsComponent } from './business-breadcrumbs.component';
 import { BusinessSetupService } from './business-setup.service';
+import {
+    endpointsToLegacyRegistryChecks,
+    KYB_DEFAULT_CHECK_ENDPOINTS,
+    legacyRegistryChecksToEndpoints,
+} from './steps/corporate-docs/kyb-check-catalog.util';
 import { BusinessPreviewComponent } from './preview/business-preview.component';
 import { BusinessBasicSetupComponent } from './steps/basic-setup/business-basic-setup.component';
 import { CompanyIntakeComponent } from './steps/company-intake/company-intake.component';
@@ -258,41 +263,47 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
                         ],
                     }),
                 }),
-                business: this._fb.group({
-                    attemptLimit: [defaultFlow.corporateDocs?.attemptLimit || 3],
-                    criminalHistoryVerification: [true],
-                    criminalHistoryVerificationEndpoints: [[] as string[]],
-                    informationVerification: [true],
-                    screening: [defaultFlow.corporateDocs?.screening ?? true],
-                    documentTypes: this._factory.createDocumentTypesFormArray(
-                        ['Colombia', 'Mexico', 'United States'].map((country) => ({
-                            country,
-                            configurations: [
-                                {
-                                    documentCategory: 'business_document',
-                                    active: true,
-                                    documentTemplates: [],
-                                },
-                                {
-                                    documentCategory: 'tax_document',
-                                    active: true,
-                                    documentTemplates: [],
-                                },
-                                {
-                                    documentCategory: 'bank_document',
-                                    active: true,
-                                    documentTemplates: [],
-                                },
-                                {
-                                    documentCategory: 'proof_of_address',
-                                    active: false,
-                                    documentTemplates: [],
-                                },
-                            ],
-                        })),
-                        'business'
-                    ),
-                }),
+                business: this._fb.group(
+                    {
+                        attemptLimit: [
+                            defaultFlow.corporateDocs?.attemptLimit || 3,
+                            [Validators.required, Validators.min(1), Validators.max(5)],
+                        ],
+                        criminalHistoryVerification: [true],
+                        criminalHistoryVerificationEndpoints: [[...KYB_DEFAULT_CHECK_ENDPOINTS] as string[]],
+                        informationVerification: [true],
+                        screening: [defaultFlow.corporateDocs?.screening ?? true],
+                        documentTypes: this._factory.createDocumentTypesFormArray(
+                            ['Colombia', 'Mexico', 'United States'].map((country) => ({
+                                country,
+                                configurations: [
+                                    {
+                                        documentCategory: 'business_document',
+                                        active: true,
+                                        documentTemplates: [],
+                                    },
+                                    {
+                                        documentCategory: 'tax_document',
+                                        active: true,
+                                        documentTemplates: [],
+                                    },
+                                    {
+                                        documentCategory: 'bank_document',
+                                        active: true,
+                                        documentTemplates: [],
+                                    },
+                                    {
+                                        documentCategory: 'proof_of_address',
+                                        active: false,
+                                        documentTemplates: [],
+                                    },
+                                ],
+                            })),
+                            'business'
+                        ),
+                    },
+                    { validators: SetupFormFactory.validators.documentsScreening() }
+                ),
                 representativesPolicy: this._fb.group({
                     minRepresentatives: [
                         defaultFlow.representativesPolicy?.minRepresentatives || 1,
@@ -398,6 +409,24 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
                                 verifyStyle: activeStyleId,
                             },
                         });
+
+                        const bizGroup = this.form.get('projectFlow.business');
+                        const savedEndpoints = bizGroup?.get('criminalHistoryVerificationEndpoints')?.value;
+                        if (
+                            bizGroup &&
+                            (!Array.isArray(savedEndpoints) || savedEndpoints.length === 0) &&
+                            !flow.business?.criminalHistoryVerificationEndpoints?.length
+                        ) {
+                            bizGroup.patchValue({
+                                criminalHistoryVerificationEndpoints: legacyRegistryChecksToEndpoints(
+                                    flow.corporateDocs?.officialRegistryChecks
+                                ),
+                                criminalHistoryVerification: true,
+                                informationVerification: true,
+                                screening: flow.corporateDocs?.screening ?? true,
+                                attemptLimit: flow.corporateDocs?.attemptLimit ?? flow.business?.attemptLimit ?? 3,
+                            });
+                        }
 
                         const bizDocTypesCtrl = this.form.get(
                             'projectFlow.business.documentTypes'
@@ -596,6 +625,12 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
                   )
                 : this._normalizeCountries(rawValue.allowedCountries);
 
+        const bizEndpoints: string[] = Array.isArray(
+            rawValue.projectFlow?.business?.criminalHistoryVerificationEndpoints
+        )
+            ? rawValue.projectFlow.business.criminalHistoryVerificationEndpoints
+            : [];
+
         const projectFlowPayload = {
             ...(rawValue.projectFlow || {}),
             target: 'business' as const,
@@ -604,15 +639,23 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
             version: 3,
             business: {
                 attemptLimit: Number(
-                    rawValue.projectFlow?.corporateDocs?.attemptLimit ||
-                        rawValue.projectFlow?.business?.attemptLimit ||
+                    rawValue.projectFlow?.business?.attemptLimit ||
+                        rawValue.projectFlow?.corporateDocs?.attemptLimit ||
                         3
                 ),
-                criminalHistoryVerification: true,
-                criminalHistoryVerificationEndpoints: [],
-                informationVerification: true,
-                screening: Boolean(rawValue.projectFlow?.corporateDocs?.screening ?? true),
+                criminalHistoryVerification: Boolean(
+                    rawValue.projectFlow?.business?.criminalHistoryVerification ?? true
+                ),
+                criminalHistoryVerificationEndpoints: bizEndpoints,
+                informationVerification: Boolean(rawValue.projectFlow?.business?.informationVerification ?? true),
+                screening: Boolean(rawValue.projectFlow?.business?.screening ?? true),
                 documentTypes: sanitizedBizDocTypes,
+            },
+            corporateDocs: {
+                ...(rawValue.projectFlow?.corporateDocs || {}),
+                attemptLimit: Number(rawValue.projectFlow?.business?.attemptLimit || 3),
+                screening: Boolean(rawValue.projectFlow?.business?.screening ?? true),
+                officialRegistryChecks: endpointsToLegacyRegistryChecks(bizEndpoints),
             },
             onboardingSettings: {
                 ...(rawValue.projectFlow?.onboardingSettings || {}),

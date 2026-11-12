@@ -1,234 +1,288 @@
 <ng-container *transloco="let t">
-    <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+    <div *ngIf="isFormReady" class="integrations-journey">
         @let redirectCtrl = integrationsFormGroup?.get('redirectUrl');
         @let sourceCtrl = integrationsFormGroup?.get('source');
         @let apiUrlCtrl = integrationsFormGroup?.get('apiUrl');
 
-        <!-- 1. Redirect URL -->
-        <section
-            class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-            [class.border-stone-200]="!(redirectCtrl?.invalid && redirectCtrl?.touched)"
-            [class.dark:border-gray-700]="!(redirectCtrl?.invalid && redirectCtrl?.touched)"
-            [class.border-red-500]="redirectCtrl?.invalid && redirectCtrl?.touched"
-            [formGroup]="integrationsFormGroup!"
-        >
-            <header>
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.integrations.redirect.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.integrations.redirect.subtitle') }}
-                </p>
-            </header>
+        <div class="integrations-intro">
+            <div class="integrations-intro__icon">
+                <mat-icon>hub</mat-icon>
+            </div>
+            <div>
+                <h2>{{ t('smartEnrollProjects.setup.integrations.journey.title') }}</h2>
+                <p>{{ t('smartEnrollProjects.setup.integrations.journey.subtitle') }}</p>
+            </div>
+        </div>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>{{ t('smartEnrollProjects.setup.integrations.redirect.url') }}</mat-label>
-                <input matInput type="url" formControlName="redirectUrl" placeholder="https://" required />
-            </mat-form-field>
-
-            @if (redirectCtrl?.value) {
-                <div
-                    class="flex items-start gap-2 rounded-xl border p-3 text-sm"
-                    [ngClass]="
-                        (redirectCtrl?.invalid && redirectCtrl?.touched)
-                            ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200'
-                            : 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200'
-                    "
+        <ol class="integrations-timeline" [formGroup]="integrationsFormGroup!">
+            <!-- Stage 1: Redirect URL -->
+            <li class="integrations-stage">
+                <div class="integrations-stage__marker">1</div>
+                <section
+                    class="integrations-panel"
+                    [class.border-red-500]="redirectCtrl?.invalid && redirectCtrl?.touched"
                 >
-                    <mat-icon class="!h-4 !w-4">info</mat-icon>
-                    <span
-                        class="break-all"
-                        [innerHTML]="t('smartEnrollProjects.setup.integrations.redirect.exampleUrl', { url: exampleRedirectUrl })"
-                    ></span>
-                </div>
-            }
+                    <header class="integrations-panel__header">
+                        <div>
+                            <span class="integrations-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.integrations.redirect.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.integrations.redirect.subtitle') }}</p>
+                        </div>
+                        <span class="integrations-panel__status" [title]="redirectStatusLabel || ''">
+                            {{ redirectStatusLabel || t('smartEnrollProjects.setup.integrations.journey.notConfigured') }}
+                        </span>
+                    </header>
 
-            @if (redirectCtrl?.invalid && redirectCtrl?.touched) {
-                <p class="text-sm text-red-600 dark:text-red-400">
-                    @if (redirectCtrl?.hasError('required')) {
-                        {{ t('smartEnrollProjects.setup.integrations.redirect.required') }}
-                    } @else if (redirectCtrl?.hasError('pattern')) {
-                        {{ t('smartEnrollProjects.setup.integrations.redirect.invalid') }}
-                    }
-                </p>
-            }
-        </section>
+                    <div class="panel-body">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ t('smartEnrollProjects.setup.integrations.redirect.url') }}</mat-label>
+                            <input
+                                matInput
+                                type="url"
+                                formControlName="redirectUrl"
+                                placeholder="https://"
+                                autocorrect="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                required
+                            />
+                        </mat-form-field>
 
-        <!-- 2. Webhook -->
-        <section
-            class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-            [formGroup]="integrationsFormGroup!"
-        >
-            <header>
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.integrations.webhook.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.integrations.webhook.subtitle') }}
-                </p>
-            </header>
-
-            <div class="flex flex-wrap items-start gap-3">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-[18rem] flex-1">
-                    <mat-label>{{ t('smartEnrollProjects.setup.integrations.webhook.select') }}</mat-label>
-                    <mat-select formControlName="webhook">
-                        <mat-option [value]="null">{{ t('smartEnrollProjects.setup.integrations.webhook.none') }}</mat-option>
-                        @for (w of webhooks; track w._id) {
-                            <mat-option [value]="w._id">{{ w.name || w._id }}</mat-option>
+                        @if (redirectCtrl?.value) {
+                            <div
+                                class="url-preview-card"
+                                [class.url-preview-card--error]="redirectCtrl?.invalid && redirectCtrl?.touched"
+                            >
+                                <mat-icon>link</mat-icon>
+                                <span
+                                    class="break-all"
+                                    [innerHTML]="
+                                        t('smartEnrollProjects.setup.integrations.redirect.exampleUrl', {
+                                            url: exampleRedirectUrl
+                                        })
+                                    "
+                                ></span>
+                            </div>
                         }
-                    </mat-select>
-                    @if (refreshingWebhooks) {
-                        <mat-spinner matSuffix diameter="16"></mat-spinner>
-                    }
-                </mat-form-field>
 
-                <button
-                    mat-stroked-button
-                    type="button"
-                    class="!h-14 rounded-xl"
-                    (click)="refreshWebhooks()"
-                    [disabled]="refreshingWebhooks"
-                >
-                    <mat-icon class="!h-4 !w-4" [class.animate-spin]="refreshingWebhooks">refresh</mat-icon>
-                    {{ t('smartEnrollProjects.setup.integrations.webhook.refresh') }}
-                </button>
-                <button
-                    mat-stroked-button
-                    type="button"
-                    class="!h-14 rounded-xl"
-                    (click)="openWebhookSettings()"
-                >
-                    <mat-icon class="!h-4 !w-4">open_in_new</mat-icon>
-                    {{ t('smartEnrollProjects.setup.integrations.webhook.manage') }}
-                </button>
-            </div>
+                        @if (redirectCtrl?.invalid && redirectCtrl?.touched) {
+                            <p class="field-error" role="alert">
+                                @if (redirectCtrl?.hasError('required')) {
+                                    {{ t('smartEnrollProjects.setup.integrations.redirect.required') }}
+                                } @else if (redirectCtrl?.hasError('pattern')) {
+                                    {{ t('smartEnrollProjects.setup.integrations.redirect.invalid') }}
+                                }
+                            </p>
+                        }
+                    </div>
+                </section>
+            </li>
 
-            @if (!refreshingWebhooks && webhooks.length === 0) {
-                <div
-                    class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
-                >
-                    <mat-icon class="!h-4 !w-4">info</mat-icon>
-                    <span class="flex-1">
-                        {{ t('smartEnrollProjects.setup.integrations.webhook.noWebhooksMessage') }}
-                        <button
-                            type="button"
-                            class="ml-1 font-semibold underline underline-offset-2 hover:text-blue-800 dark:hover:text-blue-100"
-                            (click)="openWebhookSettings()"
-                        >
-                            {{ t('smartEnrollProjects.setup.integrations.webhook.createWebhook') }}
-                        </button>
-                    </span>
-                </div>
-            }
-        </section>
+            <!-- Stage 2: Webhook -->
+            <li class="integrations-stage">
+                <div class="integrations-stage__marker">2</div>
+                <section class="integrations-panel">
+                    <header class="integrations-panel__header">
+                        <div>
+                            <span class="integrations-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.integrations.webhook.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.integrations.webhook.subtitle') }}</p>
+                        </div>
+                        <span class="integrations-panel__status" [title]="selectedWebhookName || ''">
+                            {{ selectedWebhookName || t('smartEnrollProjects.setup.integrations.webhook.none') }}
+                        </span>
+                    </header>
 
-        <!-- 3. Source (allow / deny list) -->
-        <section
-            class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-            [class.border-stone-200]="!sourceCtrl?.errors"
-            [class.dark:border-gray-700]="!sourceCtrl?.errors"
-            [class.border-red-500]="sourceCtrl?.errors"
-            [formGroup]="integrationsFormGroup!"
-        >
-            <header>
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.integrations.source.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.integrations.source.subtitle') }}
-                </p>
-            </header>
+                    <div class="panel-body">
+                        <div class="webhook-row">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="webhook-field">
+                                <mat-label>{{ t('smartEnrollProjects.setup.integrations.webhook.select') }}</mat-label>
+                                <mat-select formControlName="webhook">
+                                    <mat-option [value]="null">
+                                        {{ t('smartEnrollProjects.setup.integrations.webhook.none') }}
+                                    </mat-option>
+                                    @for (w of webhooks; track w._id) {
+                                        <mat-option [value]="w._id">{{ w.name || w._id }}</mat-option>
+                                    }
+                                </mat-select>
+                                @if (refreshingWebhooks) {
+                                    <mat-spinner matSuffix diameter="16"></mat-spinner>
+                                }
+                            </mat-form-field>
 
-            <mat-radio-group formControlName="source" class="flex flex-wrap gap-4">
-                <mat-radio-button value="NONE">{{ t('smartEnrollProjects.setup.integrations.source.none') }}</mat-radio-button>
-                <mat-radio-button value="API">{{ t('smartEnrollProjects.setup.integrations.source.api') }}</mat-radio-button>
-            </mat-radio-group>
+                            <div class="webhook-actions">
+                                <button
+                                    type="button"
+                                    class="action-btn"
+                                    (click)="refreshWebhooks()"
+                                    [disabled]="refreshingWebhooks"
+                                >
+                                    <mat-icon [class.animate-spin]="refreshingWebhooks">refresh</mat-icon>
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.webhook.refresh') }}</span>
+                                </button>
+                                <button type="button" class="action-btn" (click)="openWebhookSettings()">
+                                    <mat-icon>open_in_new</mat-icon>
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.webhook.manage') }}</span>
+                                </button>
+                            </div>
+                        </div>
 
-            <div
-                class="flex items-start gap-2 rounded-xl bg-stone-100 p-3 text-xs text-stone-600 dark:bg-gray-800 dark:text-stone-300"
-            >
-                <mat-icon class="!h-4 !w-4">info</mat-icon>
-                <span class="flex-1" [innerHTML]="t('smartEnrollProjects.setup.integrations.source.help')"></span>
-            </div>
+                        @if (!refreshingWebhooks && webhooks.length === 0) {
+                            <div class="empty-webhook-banner">
+                                <div class="empty-webhook-banner__text">
+                                    <mat-icon>webhook</mat-icon>
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.webhook.noWebhooksMessage') }}</span>
+                                </div>
+                                <button type="button" class="empty-webhook-banner__cta" (click)="openWebhookSettings()">
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.webhook.createWebhook') }}</span>
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-sm">arrow_outward</mat-icon>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </section>
+            </li>
 
-            @if (sourceCtrl?.value === 'API') {
-                <div class="flex flex-col gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>{{ t('smartEnrollProjects.setup.integrations.source.apiUrl') }}</mat-label>
-                        <input matInput type="url" formControlName="apiUrl" placeholder="https://" required />
-                    </mat-form-field>
-                    @if (apiUrlCtrl?.invalid && apiUrlCtrl?.touched) {
-                        <p class="-mt-2 text-sm text-red-600 dark:text-red-400">
-                            @if (apiUrlCtrl?.hasError('required')) {
-                                {{ t('smartEnrollProjects.setup.integrations.source.apiUrlRequired') }}
-                            } @else if (apiUrlCtrl?.hasError('pattern')) {
-                                {{ t('smartEnrollProjects.setup.integrations.source.invalidUrl') }}
-                            }
-                        </p>
-                    }
+            <!-- Stage 3: Allow / deny list source -->
+            <li class="integrations-stage">
+                <div class="integrations-stage__marker">3</div>
+                <section class="integrations-panel" [class.border-red-500]="sourceCtrl?.errors">
+                    <header class="integrations-panel__header">
+                        <div>
+                            <span class="integrations-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                            </span>
+                            <h3>{{ t('smartEnrollProjects.setup.integrations.source.title') }}</h3>
+                            <p>{{ t('smartEnrollProjects.setup.integrations.source.subtitle') }}</p>
+                        </div>
+                        <span class="integrations-panel__status">
+                            {{
+                                sourceValue === 'API'
+                                    ? t('smartEnrollProjects.setup.integrations.source.api')
+                                    : t('smartEnrollProjects.setup.integrations.source.none')
+                            }}
+                        </span>
+                    </header>
 
-                    <p class="m-0 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.integrations.source.testApiDescription') }}
-                    </p>
+                    <mat-button-toggle-group
+                        formControlName="source"
+                        class="requirement-options"
+                        [hideSingleSelectionIndicator]="true"
+                    >
+                        <mat-button-toggle value="NONE">
+                            <span class="requirement-option">
+                                <strong>{{ t('smartEnrollProjects.setup.integrations.source.none') }}</strong>
+                                <small>{{ t('smartEnrollProjects.setup.integrations.journey.sourceHelp.none') }}</small>
+                            </span>
+                        </mat-button-toggle>
+                        <mat-button-toggle value="API">
+                            <span class="requirement-option">
+                                <strong>{{ t('smartEnrollProjects.setup.integrations.source.api') }}</strong>
+                                <small>{{ t('smartEnrollProjects.setup.integrations.journey.sourceHelp.api') }}</small>
+                            </span>
+                        </mat-button-toggle>
+                    </mat-button-toggle-group>
 
-                    <div class="flex flex-wrap items-start gap-3">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-[10rem] flex-1">
-                            <mat-label>{{ t('smartEnrollProjects.setup.integrations.source.testType') }}</mat-label>
-                            <mat-select formControlName="apiTestType">
-                                <mat-option value="email">{{ t('smartEnrollProjects.setup.integrations.source.email') }}</mat-option>
-                                <mat-option value="phone">{{ t('smartEnrollProjects.setup.integrations.source.phone') }}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-[14rem] flex-1">
-                            <mat-label>{{ t('smartEnrollProjects.setup.integrations.source.testValue') }}</mat-label>
-                            <input matInput formControlName="apiTestValue" />
-                        </mat-form-field>
-                        <button
-                            mat-flat-button
-                            color="primary"
-                            type="button"
-                            class="!h-14 rounded-xl"
-                            [disabled]="
-                                !apiUrlCtrl?.value ||
-                                !integrationsFormGroup?.get('apiTestType')?.value ||
-                                !integrationsFormGroup?.get('apiTestValue')?.value ||
-                                sendingTestApi
-                            "
-                            (click)="callTestApi()"
-                        >
-                            @if (sendingTestApi) {
-                                <mat-spinner diameter="16" class="mr-2 inline-block"></mat-spinner>
-                            }
-                            {{ t('smartEnrollProjects.setup.integrations.source.test') }}
-                        </button>
+                    <div class="source-note">
+                        <mat-icon>info_outline</mat-icon>
+                        <span [innerHTML]="t('smartEnrollProjects.setup.integrations.source.help')"></span>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <div class="flex flex-col gap-2">
-                            <p class="m-0 text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
-                                {{ t('smartEnrollProjects.setup.integrations.source.expectedResponse') }}
+                    @if (sourceCtrl?.value === 'API') {
+                        <div class="api-config-box">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('smartEnrollProjects.setup.integrations.source.apiUrl') }}</mat-label>
+                                <input
+                                    matInput
+                                    type="url"
+                                    formControlName="apiUrl"
+                                    placeholder="https://"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    required
+                                />
+                            </mat-form-field>
+
+                            @if (apiUrlCtrl?.invalid && apiUrlCtrl?.touched) {
+                                <p class="field-error" role="alert">
+                                    @if (apiUrlCtrl?.hasError('required')) {
+                                        {{ t('smartEnrollProjects.setup.integrations.source.apiUrlRequired') }}
+                                    } @else if (apiUrlCtrl?.hasError('pattern')) {
+                                        {{ t('smartEnrollProjects.setup.integrations.source.invalidUrl') }}
+                                    }
+                                </p>
+                            }
+
+                            <div class="api-test-divider"></div>
+
+                            <p class="api-test-caption">
+                                {{ t('smartEnrollProjects.setup.integrations.source.testApiDescription') }}
                             </p>
-                            <pre
-                                class="overflow-auto rounded-xl bg-stone-100 px-3 py-2 text-xs text-stone-800 dark:bg-gray-800 dark:text-stone-100"
-                            >{{ expectedResponse | json }}</pre>
+
+                            <div class="api-test-controls">
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="api-test-type">
+                                    <mat-label>{{ t('smartEnrollProjects.setup.integrations.source.testType') }}</mat-label>
+                                    <mat-select formControlName="apiTestType">
+                                        <mat-option value="email">
+                                            {{ t('smartEnrollProjects.setup.integrations.source.email') }}
+                                        </mat-option>
+                                        <mat-option value="phone">
+                                            {{ t('smartEnrollProjects.setup.integrations.source.phone') }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="api-test-value">
+                                    <mat-label>{{ t('smartEnrollProjects.setup.integrations.source.testValue') }}</mat-label>
+                                    <input
+                                        matInput
+                                        formControlName="apiTestValue"
+                                        autocorrect="off"
+                                        autocapitalize="none"
+                                        spellcheck="false"
+                                    />
+                                </mat-form-field>
+
+                                <button
+                                    type="button"
+                                    class="action-btn action-btn--primary"
+                                    [disabled]="
+                                        !apiUrlCtrl?.value ||
+                                        !integrationsFormGroup?.get('apiTestType')?.value ||
+                                        !integrationsFormGroup?.get('apiTestValue')?.value ||
+                                        sendingTestApi
+                                    "
+                                    (click)="callTestApi()"
+                                >
+                                    @if (sendingTestApi) {
+                                        <mat-spinner diameter="16" class="inline-block"></mat-spinner>
+                                    } @else {
+                                        <mat-icon>send</mat-icon>
+                                    }
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.source.test') }}</span>
+                                </button>
+                            </div>
+
+                            <div class="response-grid">
+                                <div class="code-card">
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.source.expectedResponse') }}</span>
+                                    <pre>{{ expectedResponse | json }}</pre>
+                                </div>
+                                @let hasError = (receivedResponse?.error || receivedResponse?.ok === false);
+                                <div class="code-card" [class.code-card--error]="hasError">
+                                    <span>{{ t('smartEnrollProjects.setup.integrations.source.receivedResponse') }}</span>
+                                    <pre aria-live="polite">{{ receivedResponse | json }}</pre>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <p class="m-0 text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
-                                {{ t('smartEnrollProjects.setup.integrations.source.receivedResponse') }}
-                            </p>
-                            @let hasError = (receivedResponse?.error || receivedResponse?.ok === false);
-                            <pre
-                                class="overflow-auto rounded-xl border px-3 py-2 text-xs"
-                                [ngClass]="
-                                    hasError
-                                        ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200'
-                                        : 'border-stone-200 bg-stone-100 text-stone-800 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-100'
-                                "
-                            >{{ receivedResponse | json }}</pre>
-                        </div>
-                    </div>
-                </div>
-            }
-        </section>
+                    }
+                </section>
+            </li>
+        </ol>
     </div>
 </ng-container>

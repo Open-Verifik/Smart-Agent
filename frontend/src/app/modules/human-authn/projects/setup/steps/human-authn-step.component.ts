@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { TranslocoModule } from '@jsverse/transloco';
 
@@ -41,7 +41,7 @@ const PUBLIC_DATA_SOURCES: Record<HumanAuthnPublicDataKey, 'signup' | 'documents
         TranslocoModule,
     ],
     templateUrl: './human-authn-step.component.html',
-    styleUrl: './human-authn-step.component.scss',
+    styleUrls: ['../../../../../shared/setup-journey/_setup-journey.scss', './human-authn-step.component.scss'],
 })
 export class HumanAuthnModeStepComponent {
     @Input() form!: FormGroup;
@@ -95,10 +95,10 @@ export class HumanAuthnModeStepComponent {
         return (this.humanAuthnGroup?.get('publicDataKeys')?.value || []).includes(key);
     }
 
-    onRequireLivenessChange(event: MatSlideToggleChange): void {
-        this.humanAuthnGroup.get('mode')?.setValue(event.checked ? 'active_user' : 'standard');
+    selectAccessMode(active: boolean): void {
+        this.humanAuthnGroup.get('mode')?.setValue(active ? 'active_user' : 'standard');
         this.humanAuthnGroup.get('mode')?.markAsDirty();
-        this.humanAuthnGroup.get('tolerance')?.setValue(event.checked ? 'HARDENED' : 'REGULAR');
+        this.humanAuthnGroup.get('tolerance')?.setValue(active ? 'HARDENED' : 'REGULAR');
         this.humanAuthnGroup.get('tolerance')?.markAsDirty();
     }
 

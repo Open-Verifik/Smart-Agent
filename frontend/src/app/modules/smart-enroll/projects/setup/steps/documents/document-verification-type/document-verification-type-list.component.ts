@@ -389,8 +389,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
 
     templateLabel(pt: PromptTemplateLite): string {
         const dt = this.documentTypeOf(pt);
-        if (dt?.code) return `${dt.code.toUpperCase()} – ${dt.name || pt.name}`;
-        return pt?.name || '';
+        return dt?.name || pt?.name || '';
     }
 
     /** True when the prompt template (or its populated DocumentType) is global (`country: 'World'`). */
