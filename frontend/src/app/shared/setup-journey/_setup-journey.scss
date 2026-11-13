@@ -836,7 +836,9 @@ button.check-card__source {
 
 /* Fact rows: short statements with an icon (trust / privacy callouts). */
 .fact-list {
-    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.25rem 0 0;
     padding: 0;
     list-style: none;
 
@@ -844,7 +846,7 @@ button.check-card__source {
         display: flex;
         align-items: flex-start;
         gap: 0.85rem;
-        padding: 0.9rem 1rem;
+        padding: 1rem 1.15rem;
         border: 1px solid #e7e5e4;
         border-radius: 0.95rem;
         background: #fafaf9;

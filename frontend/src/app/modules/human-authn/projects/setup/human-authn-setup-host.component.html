@@ -31,19 +31,35 @@
                     <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t('humanAuthnProjects.setup.title') }}</span>
                 </nav>
 
-                <div class="flex min-w-0 items-start gap-3">
-                    <button
-                        mat-icon-button
-                        type="button"
-                        (click)="previousStep()"
-                        class="shrink-0 !text-stone-600 dark:!text-stone-300"
-                        [attr.aria-label]="t('humanAuthnProjects.setup.back')"
-                    >
-                        <mat-icon>arrow_back</mat-icon>
-                    </button>
-                    <h1 class="min-w-0 text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
-                        {{ projectId === 'new' ? t('humanAuthnProjects.setup.newProject') : form?.get('name')?.value }}
-                    </h1>
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            (click)="previousStep()"
+                            class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                            [attr.aria-label]="t('humanAuthnProjects.setup.back')"
+                        >
+                            <mat-icon>arrow_back</mat-icon>
+                        </button>
+                        <h1 class="min-w-0 text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                            {{ projectId === 'new' ? t('humanAuthnProjects.setup.newProject') : form?.get('name')?.value }}
+                        </h1>
+                    </div>
+
+                    @if (projectId !== 'new') {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="shrink-0 rounded-xl"
+                            [disabled]="loading() || saving()"
+                            (click)="previewProject()"
+                        >
+                            <span class="mr-1">{{ t('smartEnrollProjects.setup.see_live_project') }}</span>
+                            <mat-icon class="!h-4 !w-4">open_in_new</mat-icon>
+                        </button>
+                    }
                 </div>
 
                 @if (form) {

@@ -49,6 +49,27 @@
 
                     @if (project() && !loading()) {
                         <div class="flex flex-wrap items-center gap-2">
+                            @if (liveEnrollmentUrl()) {
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="shrink-0 rounded-xl"
+                                    (click)="openLiveEnrollment()"
+                                >
+                                    <mat-icon class="!h-4 !w-4 mr-1" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                    {{ t('smartEnrollProjects.list.openLiveEnrollment') }}
+                                </button>
+                                <button
+                                    mat-icon-button
+                                    type="button"
+                                    class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                                    (click)="copyValue(liveEnrollmentUrl(), $event)"
+                                    [attr.aria-label]="t('smartEnrollProjects.detail.copy')"
+                                >
+                                    <mat-icon class="!h-4 !w-4" svgIcon="mat_outline:content_copy"></mat-icon>
+                                </button>
+                            }
+
                             <button
                                 mat-stroked-button
                                 type="button"

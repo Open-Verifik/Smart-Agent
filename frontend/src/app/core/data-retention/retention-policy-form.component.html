@@ -78,7 +78,7 @@
                                     [attr.aria-label]="'settings.dataRetention.retentionDuration' | transloco"
                                 >
                                     @for (opt of durationPresets; track opt.value) {
-                                        <mat-option [value]="opt.value">
+                                        <mat-option [value]="presetOptionValue(opt.value)">
                                             {{ opt.labelKey | transloco }}
                                         </mat-option>
                                     }

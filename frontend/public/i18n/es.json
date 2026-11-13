@@ -2954,7 +2954,7 @@
             "humanAuthn": {
                 "subtitle": "Reglas de prueba biométrica de conocimiento cero, tolerancia y umbrales.",
                 "zeroFootprintTitle": "Huella biométrica cero garantizada",
-                "zeroFootprintBody": "Los vectores faciales y plantillas biométricas se calculan de forma efímera y se convierten directamente en tokens criptográficos ZelfProof. Ninguna plantilla biométrica facial se almacena en las bases de datos de Verifik.",
+                "zeroFootprintBody": "Los vectores faciales y plantillas biométricas se calculan de forma efímera y se convierten directamente en tokens criptográficos HumanID. Ninguna plantilla biométrica facial se almacena en las bases de datos de Verifik.",
                 "modeLabel": "Modo",
                 "modeActive": "Usuario activo (Prueba de vida)",
                 "modeStandard": "Estándar",
@@ -2962,7 +2962,7 @@
             },
             "storage": {
                 "cardTitle": "Retención de Datos y Almacenamiento",
-                "tokenStorageLabel": "Almacenamiento del token ZelfProof",
+                "tokenStorageLabel": "Almacenamiento del token HumanID",
                 "providerIpfs": "IPFS (Pinata)",
                 "providerCloud": "Nube administrada",
                 "providerNone": "Ninguno (Solo respuesta de API)",
@@ -10905,7 +10905,7 @@
             "apiOfficialGuide": "Guía oficial:",
             "apiOfficialParen": "(campos de petición y respuesta, contraseña opcional y clave verificadora, y llamadas de ejemplo).",
             "apiRelated": "Relacionado:",
-            "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
+            "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-HumanID",
             "apiBaseUrlNote": "URL base https://api.verifik.co. Envía JSON con Content-Type: application/json y Authorization: Bearer <token de acceso> (el mismo JWT que esta demo tras iniciar sesión).",
             "apiDecryptEndpointDesc": "Compara tu imagen facial con la prueba y devuelve los campos públicos descifrados y la carga relacionada (por ejemplo recorte facial y dificultad) dentro del sobre data habitual firmado cuando la coincidencia tiene éxito.",
             "apiPreviewQrEndpointDesc": "Úsalo cuando el usuario proporciona un PNG o JPEG del QR de HumanID. La API lee la carga del QR, ejecuta el mismo tipo de vista previa que la cadena y devuelve un humanID que puedes pasar al descifrado. La clave verificadora opcional aplica si la prueba se creó con una. Mismos encabezados JSON que el descifrado.",
@@ -10972,7 +10972,7 @@
             "processing": "Obteniendo vista previa…",
             "apiRefSummary": "Referencia API: Vista previa HumanID",
             "apiOfficialLead": "Documentación oficial:",
-            "apiOfficialLinkLabel": "docs.verifik.co/api/tags/preview-zelfproof",
+            "apiOfficialLinkLabel": "docs.verifik.co/api/tags/preview-HumanID",
             "apiOfficialAfter": "(parámetros, respuestas y ejemplos). Esta demo llama a POST /v2/human-id/preview vía previewHumanId, alineado con ese flujo en la API actual. Relacionado:",
             "apiBaseUrlNote": "URL base https://api.verifik.co. Envía JSON con Content-Type: application/json y Authorization: Bearer <token de acceso> (el mismo JWT que esta demo tras iniciar sesión).",
             "apiPreviewEndpointDesc": "Devuelve campos de vista previa no sensibles para una prueba (por ejemplo si se requiere contraseña) dentro del sobre data firmado habitual.",
@@ -11692,80 +11692,26 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": [
-                "Criticidad",
-                "Atención",
-                "Revisión",
-                "Escalamiento",
-                "Solución"
-            ],
+            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
             "responseRows": {
-                "critical": [
-                    "Crítico",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "urgent": [
-                    "Urgente",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "medium": [
-                    "Medio",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ],
-                "normal": [
-                    "Normal",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ]
+                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
+                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": [
-                "Producto",
-                "Disponibilidad",
-                "Notas"
-            ],
+            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": [
-                    "SmartAccess (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll (Escaneo de docs)",
-                    "98.0%",
-                    ""
-                ],
+                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -11788,16 +11734,8 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% o mayor",
-                    "Sin crédito",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% o menor",
-                    "Compensación",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -11833,15 +11771,9 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": [
-                "Cobro",
-                "Ausente de cobro"
-            ],
+            "billingHeaders": ["Cobro", "Ausente de cobro"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",
