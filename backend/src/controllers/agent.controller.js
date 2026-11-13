@@ -1,5 +1,6 @@
 const AgentModule = require("../modules/agent.module");
 const ConversationRepository = require("../repositories/conversation.repository");
+const ChatUsageRepository = require("../repositories/chat-usage.repository");
 const { redactMessageForPersistence } = require("../utils/chat-response-redact.util");
 
 /**
@@ -15,20 +16,38 @@ const crypto = require("crypto");
  * POST /api/agent/chat
  */
 const chat = async (ctx) => {
-	try {
-		const {
-			message,
-			conversationId,
-			paymentTx,
-			paymentWallet,
-			paymentAmount,
-			paymentChainId,
-			mode,
-			userToken,
-			images,
-			pendingToolCall,
-		} = ctx.request.body;
+	const body = ctx.request.body || {};
+	const {
+		message,
+		conversationId,
+		paymentTx,
+		paymentWallet,
+		paymentAmount,
+		paymentChainId,
+		mode,
+		userToken,
+		images,
+		pendingToolCall,
+	} = body;
+	const usageContext = {
+		userToken,
+		paymentWallet,
+		mode,
+		conversationId: conversationId || null,
+		userContent: typeof message === "string" ? message : "",
+	};
+	let usageLogged = false;
+	const logUsage = (extra) => {
+		if (usageLogged) return;
+		usageLogged = true;
+		try {
+			ChatUsageRepository.recordChatExchange({ ...usageContext, ...extra });
+		} catch (logError) {
+			console.warn("[chat-usage] failed to queue usage record:", logError && logError.name ? logError.name : "unknown");
+		}
+	};
 
+	try {
 		if (!message && (!images || images.length === 0) && !paymentTx) {
 			ctx.status = 400;
 			ctx.body = { error: "Message or image is required" };
@@ -91,6 +110,11 @@ const chat = async (ctx) => {
 			paymentChainId
 		);
 
+		const usage = response && typeof response === "object" ? response._usage : null;
+		if (response && typeof response === "object" && Object.prototype.hasOwnProperty.call(response, "_usage")) {
+			delete response._usage;
+		}
+
 		// Now we persist
 		// 1. System Message (Payment Confirmation) - if paymentTx exists
 		let messagesToSave = [];
@@ -114,19 +138,47 @@ const chat = async (ctx) => {
 		const assistantMsg = redactMessageForPersistence(response);
 		messagesToSave.push(assistantMsg);
 
-		if (conversation) {
-			ConversationRepository.appendMessages(conversationId, messagesToSave);
-			ctx.body = { ...response, conversationId: conversationId };
-		} else {
+		let savedConversationId = conversation ? conversationId : null;
+		if (!conversation) {
 			const owner = paymentWallet || (userToken ? "authenticated_user" : null);
 			conversation = ConversationRepository.create(owner, message || "Image Analysis");
-			ConversationRepository.appendMessages(conversation.id, messagesToSave);
-			ctx.body = { ...response, conversationId: conversation.id };
+			savedConversationId = conversation.id;
 		}
+
+		logUsage({
+			conversationId: savedConversationId,
+			usage,
+			assistantContent: response && response.content,
+		});
+
+		ConversationRepository.appendMessages(savedConversationId, messagesToSave);
+		ctx.body = { ...response, conversationId: savedConversationId };
 	} catch (error) {
+		logUsage({ failed: true });
 		console.error("Agent Controller Error:", error);
 		ctx.status = 500;
 		ctx.body = { error: error.message };
+	}
+};
+
+/**
+ * Weekly Smart Check chat usage. Admin or superadmin only.
+ * GET /api/agent/usage/weekly?weeks=8
+ */
+const getWeeklyChatUsage = async (ctx) => {
+	try {
+		const weeksRaw = Number.parseInt(ctx.query.weeks, 10);
+		const weeks = Number.isFinite(weeksRaw) ? weeksRaw : 8;
+		ctx.body = await ChatUsageRepository.queryWeekly(weeks);
+	} catch (error) {
+		if (error && error.code === "CHAT_USAGE_UNCONFIGURED") {
+			ctx.status = 503;
+			ctx.body = { error: "Chat usage database is not configured" };
+			return;
+		}
+		console.error("[chat-usage] weekly query failed:", error && (error.code || error.name) ? error.code || error.name : "unknown");
+		ctx.status = 500;
+		ctx.body = { error: "Failed to read chat usage" };
 	}
 };
 
@@ -330,6 +382,7 @@ const generateProof = async (ctx) => {
 
 module.exports = {
 	chat,
+	getWeeklyChatUsage,
 	getInfo,
 	getAgentCard,
 	listConversations,

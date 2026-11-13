@@ -10,6 +10,7 @@ const {
 	formatToolCallSummary,
 	redactInlineBase64InText,
 } = require("../utils/chat-response-redact.util");
+const { buildLookupUsage, emptyUsage } = require("../utils/chat-usage.util");
 
 // Import model constants from gemini.module
 const MODELS = {
@@ -22,6 +23,35 @@ const API_VERSION = "v1beta";
 // Load tool definitions
 const toolsPath = path.resolve(__dirname, "../config/tools-manifest.json");
 const toolsDef = JSON.parse(fs.readFileSync(toolsPath, "utf8"));
+
+/** Verifik path for a tool id. Query strings are never included. */
+const endpointForTool = (toolName) => {
+    const tool = toolsDef.endpoints.find((entry) => entry.id === toolName);
+    if (!tool) return null;
+    if (typeof tool.verifikPath === "string" && tool.verifikPath) return tool.verifikPath;
+    if (typeof tool.url !== "string" || !tool.url) return null;
+    try {
+        return new URL(tool.url).pathname;
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Attach lookup metadata for the usage log. `_usage` is removed before the
+ * response is saved or returned to the client.
+ */
+const withUsage = (message, toolName = null, toolResult = null) => ({
+    ...message,
+    _usage:
+        toolName && toolResult
+            ? buildLookupUsage({
+                  endpoint: endpointForTool(toolName),
+                  status: toolResult.status,
+                  payload: toolResult.data || toolResult.details || null,
+              })
+            : emptyUsage(),
+});
 
 /**
  * Execute a tool call via Verifik Backend
@@ -234,19 +264,27 @@ const chatWithAgent = async (
 
             // If it still requires payment (e.g. partial payment? unlikely but possible), handled same way
             if (toolResult.status === "payment_required") {
-                return {
-                    role: "assistant",
-                    content: "I need to perform a paid action. Please confirm payment.",
-                    tool_call: pendingToolCall, // Return same tool call
-                    payment_required: toolResult.details,
-                };
+                return withUsage(
+                    {
+                        role: "assistant",
+                        content: "I need to perform a paid action. Please confirm payment.",
+                        tool_call: pendingToolCall, // Return same tool call
+                        payment_required: toolResult.details,
+                    },
+                    pendingToolCall.tool,
+                    toolResult,
+                );
             }
 
             if (toolResult.status === "error") {
-                return {
-                    role: "assistant",
-                    content: `To process your request, I attempted to call the tool but encountered an error: ${toolResult.error}`,
-                };
+                return withUsage(
+                    {
+                        role: "assistant",
+                        content: `To process your request, I attempted to call the tool but encountered an error: ${toolResult.error}`,
+                    },
+                    pendingToolCall.tool,
+                    toolResult,
+                );
             }
 
             // Record Proof
@@ -260,18 +298,22 @@ const chatWithAgent = async (
             }
 
             // Return success
-            return {
-                role: "assistant",
-                content: `Tool executed successfully.`,
-                data: toolResult.data,
-                proof: validationProof,
-            };
+            return withUsage(
+                {
+                    role: "assistant",
+                    content: `Tool executed successfully.`,
+                    data: toolResult.data,
+                    proof: validationProof,
+                },
+                pendingToolCall.tool,
+                toolResult,
+            );
         } catch (execError) {
             console.error("[Agent] Payment Verification or Execution Failed:", execError);
-            return {
+            return withUsage({
                 role: "assistant",
                 content: `Processing failed: ${execError.message}. If you paid, the transaction might not be confirmed yet or failed.`,
-            };
+            });
         }
     }
 
@@ -348,10 +390,10 @@ const chatWithAgent = async (
 
                         if (missingArgs.length > 0) {
                             console.warn(`[Agent] Tool call ${toolCall.tool} missing required args: ${missingArgs.join(", ")}. Aborting execution.`);
-                            return {
+                            return withUsage({
                                 role: "assistant",
                                 content: `I'm missing some information to process your request. Please provide the: ${missingArgs.join(", ")}`,
-                            };
+                            });
                         }
                     }
 
@@ -368,20 +410,28 @@ const chatWithAgent = async (
 
                     // If payment required, return special status to frontend
                     if (toolResult.status === "payment_required") {
-                        return {
-                            role: "assistant",
-                            content: "I need to perform a paid action. Please confirm payment.",
-                            tool_call: toolCall,
-                            payment_required: toolResult.details,
-                        };
+                        return withUsage(
+                            {
+                                role: "assistant",
+                                content: "I need to perform a paid action. Please confirm payment.",
+                                tool_call: toolCall,
+                                payment_required: toolResult.details,
+                            },
+                            toolCall.tool,
+                            toolResult,
+                        );
                     }
 
                     // If tool execution failed
                     if (toolResult.status === "error") {
-                        return {
-                            role: "assistant",
-                            content: `To process your request, I attempted to call the tool but encountered an error: ${toolResult.error}`,
-                        };
+                        return withUsage(
+                            {
+                                role: "assistant",
+                                content: `To process your request, I attempted to call the tool but encountered an error: ${toolResult.error}`,
+                            },
+                            toolCall.tool,
+                            toolResult,
+                        );
                     }
 
                     // If success, record validation proof on-chain (ERC8004)
@@ -395,12 +445,16 @@ const chatWithAgent = async (
                     }
 
                     // Return the data to the user
-                    return {
-                        role: "assistant",
-                        content: `Tool executed successfully.`,
-                        data: toolResult.data,
-                        proof: validationProof,
-                    };
+                    return withUsage(
+                        {
+                            role: "assistant",
+                            content: `Tool executed successfully.`,
+                            data: toolResult.data,
+                            proof: validationProof,
+                        },
+                        toolCall.tool,
+                        toolResult,
+                    );
                 }
             } catch (e) {
                 console.warn("[Agent] Failed to handle tool call from response:", e);
@@ -409,18 +463,18 @@ const chatWithAgent = async (
 
         const fallbackTool = parseToolCallFromText(responseText);
         if (fallbackTool) {
-            return {
+            return withUsage({
                 role: "assistant",
                 content: formatToolCallSummary(fallbackTool.tool, fallbackTool.args),
                 tool_call: fallbackTool,
-            };
+            });
         }
 
         // Default text response (redact accidental inline base64 in prose)
-        return {
+        return withUsage({
             role: "assistant",
             content: redactInlineBase64InText(responseText),
-        };
+        });
     } catch (error) {
         console.error("[Agent] Chat Error:", error.response?.data || error.message);
         throw new Error("Failed to communicate with AI Agent");
@@ -641,4 +695,6 @@ module.exports = {
     recordValidationProof,
     getAgentInfo,
     getAgentCard,
+    endpointForTool,
+    withUsage,
 };
