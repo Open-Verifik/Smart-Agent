@@ -1,0 +1,131 @@
+<div class="srbp">
+    <section class="srbp__hero">
+        <smartreport-header></smartreport-header>
+
+        <div class="srbp__hero-content" *ngIf="post">
+            <img
+                class="srbp__cover"
+                *ngIf="post.image"
+                [src]="post.image"
+                [alt]="post.imageAlt || post.title"
+            />
+            <h1>{{ post.title }}</h1>
+            <p class="srbp__meta">
+                <span class="srbp__author">
+                    <img
+                        *ngIf="photo && !photoFailed; else initialsTpl"
+                        [src]="photo"
+                        [alt]="post.author"
+                        (error)="photoFailed = true"
+                    />
+                    <ng-template #initialsTpl
+                        ><span>{{ initials }}</span></ng-template
+                    >
+                    {{ post.author }}
+                </span>
+                <span
+                    ><mat-icon svgIcon="heroicons_outline:calendar"></mat-icon
+                    ><time [attr.datetime]="post.date">{{ date }}</time></span
+                >
+                <span
+                    ><mat-icon svgIcon="heroicons_outline:clock"></mat-icon>{{ minutes }}
+                    {{ minutes === 1 ? 'minuto' : 'minutos' }}</span
+                >
+            </p>
+        </div>
+    </section>
+
+    <div class="srbp__state" *ngIf="loading">
+        <span class="srbp__spinner" aria-label="Cargando"></span>
+    </div>
+
+    <div class="srbp__state" *ngIf="!loading && !post">
+        <h1>No encontramos este artículo</h1>
+        <p>Puede que se haya movido o que ya no esté publicado.</p>
+        <a class="srbp__button" routerLink="/smartreport/blog">Volver al Blog</a>
+    </div>
+
+    <ng-container *ngIf="!loading && post">
+        <div class="srbp__body">
+            <aside class="srbp__sidebar">
+                <div class="srbp__card srbp__toc" *ngIf="toc.length">
+                    <h2>Tabla de Contenidos</h2>
+                    <div class="srbp__progress"><span [style.width.%]="progress"></span></div>
+                    <nav aria-label="Tabla de contenidos">
+                        <a
+                            *ngFor="let entry of toc"
+                            [href]="'#' + entry.id"
+                            [class.srbp__toc-active]="entry.id === activeHeading"
+                            (click)="scrollTo($event, entry.id)"
+                            >{{ entry.text }}</a
+                        >
+                    </nav>
+                </div>
+
+                <div class="srbp__card srbp__share">
+                    <h2>Comparte este artículo</h2>
+                    <div>
+                        <a
+                            *ngFor="let link of shareLinks"
+                            class="srbp__share-{{ link.icon }}"
+                            [href]="link.url"
+                            target="_blank"
+                            rel="noopener"
+                            [attr.aria-label]="'Compartir en ' + link.name"
+                        >
+                            <img
+                                [src]="'images/smartreport/icons/share-' + link.icon + '.svg'"
+                                alt=""
+                            />
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <article class="srbp__content">
+                <a class="srbp__back" routerLink="/smartreport/blog"
+                    ><mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>Volver al Blog</a
+                >
+
+                <div #content class="srbp__markdown">
+                    <div class="srbp__rendered" [innerHTML]="html"></div>
+                </div>
+
+                <div class="srbp__tags" *ngIf="post.categories.length || post.tags.length">
+                    <span
+                        class="srbp__tag srbp__tag--category"
+                        *ngFor="let category of post.categories"
+                        >{{ category }}</span
+                    >
+                    <span class="srbp__tag" *ngFor="let tag of post.tags">{{ tag }}</span>
+                </div>
+            </article>
+        </div>
+
+        <section class="srbp__faqs" *ngIf="post.faqs.length">
+            <h2>Preguntas frecuentes</h2>
+            <details *ngFor="let faq of post.faqs">
+                <summary>
+                    <span>{{ faq.question }}</span>
+                    <mat-icon svgIcon="heroicons_solid:plus"></mat-icon>
+                </summary>
+                <p>{{ faq.answer }}</p>
+            </details>
+        </section>
+
+        <section class="srbp__related" *ngIf="related.length">
+            <h2>Explora otros artículos</h2>
+            <div class="srbp__related-grid">
+                <smartreport-blog-card
+                    *ngFor="let other of related"
+                    [post]="other"
+                ></smartreport-blog-card>
+            </div>
+            <a class="srbp__button" routerLink="/smartreport/blog"
+                >Volver a todas las publicaciones</a
+            >
+        </section>
+    </ng-container>
+
+    <smartreport-footer></smartreport-footer>
+</div>

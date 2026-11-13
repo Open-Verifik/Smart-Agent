@@ -1,0 +1,193 @@
+// smartREPORT footer from Johan's design on #1099
+$dark: #202020;
+$n0: #ffffff;
+
+:host {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+}
+
+.srf {
+    h4,
+    p,
+    ul {
+        margin: 0;
+    }
+
+    img {
+        display: block;
+    }
+
+    // Oversized white logo, full bleed and cut off at the bottom edge
+    &__logo {
+        height: 330px;
+        padding-top: 36px;
+        overflow: hidden;
+        background: $dark;
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    &__links {
+        display: grid;
+        grid-template-columns: 246px 292px auto;
+        padding: 98px 72px 117px;
+        background: $n0;
+    }
+
+    &__column {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7.5px;
+
+        h4 {
+            margin-bottom: 4px;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #000000;
+        }
+
+        a {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #646464;
+            text-decoration: none;
+
+            &:hover {
+                color: #2642ff;
+            }
+        }
+    }
+
+    &__contact {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 48px;
+        padding: 56px 81px 56px 72px;
+        background: #f5f5f5;
+    }
+
+    // Same as the contact band on verifik.co, with only Colombia (#1099)
+    &__office {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #5b5b5b;
+        }
+
+        strong {
+            font-weight: 600;
+            color: #000000;
+        }
+    }
+
+    &__flag {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border: 2px solid #2642ff;
+        border-radius: 50%;
+        box-shadow: 0 6px 16px rgba(38, 66, 255, 0.18);
+
+        img {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+    }
+
+    &__socials {
+        display: flex;
+        gap: 33px;
+
+        img {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    &__bottom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+        min-height: 60px;
+        // The design sits the group slightly left of center
+        padding: 8px 42px 8px 24px;
+        background: $dark;
+
+        p {
+            flex: none;
+            white-space: nowrap;
+            font-size: 14px;
+            line-height: 1.5;
+            color: $n0;
+        }
+
+        img {
+            flex: none;
+            width: auto;
+            height: 42.6px;
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .srf {
+        &__links,
+        &__contact {
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        &__contact {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    .srf {
+        &__logo {
+            height: 120px;
+            padding: 32px 16px 0;
+        }
+
+        &__links {
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            padding-top: 48px;
+            padding-bottom: 48px;
+        }
+
+        &__socials {
+            gap: 28px;
+        }
+
+        &__bottom {
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px 24px;
+            text-align: center;
+
+            p {
+                white-space: normal;
+            }
+        }
+    }
+}
