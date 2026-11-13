@@ -19,26 +19,74 @@
                         <article class="journey-panel">
                             <header class="journey-panel__header">
                                 <div>
-                                    <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 1 }) }}</span>
-                                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.verifyStageTitle') }}</h3>
-                                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.verifyStageHelp') }}</p>
+                                    <span class="journey-panel__eyebrow">{{
+                                        t('humanAuthnProjects.setup.humanAuthn.stageLabel', {
+                                            number: 1,
+                                        })
+                                    }}</span>
+                                    <h3>
+                                        {{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.verifyStageTitle'
+                                            )
+                                        }}
+                                    </h3>
+                                    <p>
+                                        {{
+                                            t('humanAuthnProjects.setup.humanAuthn.verifyStageHelp')
+                                        }}
+                                    </p>
                                 </div>
                                 <span class="journey-panel__status">
-                                    {{ t(requireLiveness ? 'humanAuthnProjects.setup.humanAuthn.accessActive' : 'humanAuthnProjects.setup.humanAuthn.accessStandard') }}
+                                    {{
+                                        t(
+                                            requireLiveness
+                                                ? 'humanAuthnProjects.setup.humanAuthn.accessActive'
+                                                : 'humanAuthnProjects.setup.humanAuthn.accessStandard'
+                                        )
+                                    }}
                                 </span>
                             </header>
 
-                            <div class="requirement-options requirement-options--two" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.verifyStageTitle')">
-                                <button type="button" role="radio" class="choice-card" [class.choice-card--active]="!requireLiveness" [attr.aria-checked]="!requireLiveness" (click)="selectAccessMode(false)">
+                            <div
+                                class="requirement-options requirement-options--two"
+                                role="radiogroup"
+                                [attr.aria-label]="
+                                    t('humanAuthnProjects.setup.humanAuthn.verifyStageTitle')
+                                "
+                            >
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="choice-card"
+                                    [class.choice-card--active]="!requireLiveness"
+                                    [attr.aria-checked]="!requireLiveness"
+                                    (click)="selectAccessMode(false)"
+                                >
                                     <span>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.standardTitle') }}</strong>
-                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.standardBody') }}</small>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.standardTitle')
+                                        }}</strong>
+                                        <small>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.standardBody')
+                                        }}</small>
                                     </span>
                                 </button>
-                                <button type="button" role="radio" class="choice-card" [class.choice-card--active]="requireLiveness" [attr.aria-checked]="requireLiveness" (click)="selectAccessMode(true)">
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="choice-card"
+                                    [class.choice-card--active]="requireLiveness"
+                                    [attr.aria-checked]="requireLiveness"
+                                    (click)="selectAccessMode(true)"
+                                >
                                     <span>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.activeTitle') }}</strong>
-                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.activeBody') }}</small>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.activeTitle')
+                                        }}</strong>
+                                        <small>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.activeBody')
+                                        }}</small>
                                     </span>
                                 </button>
                             </div>
@@ -46,23 +94,60 @@
                             <div class="panel-body">
                                 <div class="setting-row">
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.livenessAtCreation') }}</strong>
-                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.livenessAtCreationHelp') }}</p>
+                                        <strong>{{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.livenessAtCreation'
+                                            )
+                                        }}</strong>
+                                        <p>
+                                            {{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.livenessAtCreationHelp'
+                                                )
+                                            }}
+                                        </p>
                                     </div>
-                                    <mat-slide-toggle formControlName="livenessAtCreation"></mat-slide-toggle>
+                                    <mat-slide-toggle
+                                        formControlName="livenessAtCreation"
+                                    ></mat-slide-toggle>
                                 </div>
 
-                                <div class="setting-row" [class.setting-row--disabled]="!livenessEnabled">
+                                <div
+                                    class="setting-row"
+                                    [class.setting-row--disabled]="!livenessEnabled"
+                                >
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceTitle') }}</strong>
-                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceHelp') }}</p>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.toleranceTitle')
+                                        }}</strong>
+                                        <p>
+                                            {{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.toleranceHelp'
+                                                )
+                                            }}
+                                        </p>
                                     </div>
-                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-56 shrink-0">
-                                        <mat-label>{{ t('humanAuthnProjects.setup.humanAuthn.toleranceTitle') }}</mat-label>
-                                        <mat-select formControlName="tolerance" [disabled]="!livenessEnabled">
+                                    <mat-form-field
+                                        appearance="outline"
+                                        subscriptSizing="dynamic"
+                                        class="w-56 shrink-0"
+                                    >
+                                        <mat-label>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.toleranceTitle')
+                                        }}</mat-label>
+                                        <mat-select
+                                            formControlName="tolerance"
+                                            [disabled]="!livenessEnabled"
+                                        >
                                             @for (value of tolerances; track value) {
                                                 <mat-option [value]="value">
-                                                    {{ t('humanAuthnProjects.setup.humanAuthn.tolerance.' + value) }}
+                                                    {{
+                                                        t(
+                                                            'humanAuthnProjects.setup.humanAuthn.tolerance.' +
+                                                                value
+                                                        )
+                                                    }}
                                                 </mat-option>
                                             }
                                         </mat-select>
@@ -73,23 +158,46 @@
                                     <div class="threshold-card">
                                         <div class="threshold-card__top">
                                             <div>
-                                                <strong class="block text-sm font-semibold text-stone-900">
-                                                    {{ t('humanAuthnProjects.setup.humanAuthn.compareTitle') }}
+                                                <strong
+                                                    class="block text-sm font-semibold text-stone-900"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'humanAuthnProjects.setup.humanAuthn.compareTitle'
+                                                        )
+                                                    }}
                                                 </strong>
-                                                <span class="text-xs text-stone-500">{{ t('humanAuthnProjects.setup.humanAuthn.compareHelp') }}</span>
+                                                <span class="text-xs text-stone-500">{{
+                                                    t(
+                                                        'humanAuthnProjects.setup.humanAuthn.compareHelp'
+                                                    )
+                                                }}</span>
                                             </div>
                                             <div class="threshold-card__value">
                                                 <strong>{{ compareMinScoreDisplayValue }}</strong>
                                             </div>
                                         </div>
-                                        <mat-slider min="0.7" max="0.95" step="0.01" discrete class="threshold-card__slider">
-                                            <input matSliderThumb formControlName="compareMinScore" />
+                                        <mat-slider
+                                            min="0.7"
+                                            max="0.95"
+                                            step="0.01"
+                                            discrete
+                                            class="threshold-card__slider"
+                                        >
+                                            <input
+                                                matSliderThumb
+                                                formControlName="compareMinScore"
+                                            />
                                         </mat-slider>
                                     </div>
                                 } @else {
                                     <div class="info-note">
                                         <mat-icon>description</mat-icon>
-                                        <span>{{ t('humanAuthnProjects.setup.humanAuthn.compareUnavailable') }}</span>
+                                        <span>{{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.compareUnavailable'
+                                            )
+                                        }}</span>
                                     </div>
                                 }
                             </div>
@@ -102,27 +210,63 @@
                         <article class="journey-panel">
                             <header class="journey-panel__header">
                                 <div>
-                                    <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 2 }) }}</span>
-                                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.publicDataTitle') }}</h3>
-                                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.publicDataHelp') }}</p>
+                                    <span class="journey-panel__eyebrow">{{
+                                        t('humanAuthnProjects.setup.humanAuthn.stageLabel', {
+                                            number: 2,
+                                        })
+                                    }}</span>
+                                    <h3>
+                                        {{
+                                            t('humanAuthnProjects.setup.humanAuthn.publicDataTitle')
+                                        }}
+                                    </h3>
+                                    <p>
+                                        {{
+                                            t('humanAuthnProjects.setup.humanAuthn.publicDataHelp')
+                                        }}
+                                    </p>
                                 </div>
                                 <span class="journey-panel__status">
-                                    {{ t('humanAuthnProjects.setup.humanAuthn.publicDataCount', { selected: selectedPublicDataCount, total: publicDataOptions.length }) }}
+                                    {{
+                                        t('humanAuthnProjects.setup.humanAuthn.publicDataCount', {
+                                            selected: selectedPublicDataCount,
+                                            total: publicDataOptions.length,
+                                        })
+                                    }}
                                 </span>
                             </header>
 
                             <div class="check-card-grid panel-body">
                                 @for (option of publicDataOptions; track option.key) {
-                                    <label class="check-card" [class.check-card--selected]="isPublicKeySelected(option.key) && option.available" [class.check-card--disabled]="!option.available">
+                                    <label
+                                        class="check-card"
+                                        [class.check-card--selected]="
+                                            isPublicKeySelected(option.key) && option.available
+                                        "
+                                        [class.check-card--disabled]="!option.available"
+                                    >
                                         <mat-checkbox
                                             [checked]="isPublicKeySelected(option.key)"
                                             [disabled]="!option.available"
                                             (change)="togglePublicKey(option.key, $event.checked)"
                                         ></mat-checkbox>
                                         <span class="check-card__copy">
-                                            <strong>{{ t('humanAuthnProjects.setup.humanAuthn.publicData.' + option.key) }}</strong>
+                                            <strong>{{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.publicData.' +
+                                                        option.key
+                                                )
+                                            }}</strong>
                                             <small>
-                                                {{ t(option.available ? 'humanAuthnProjects.setup.humanAuthn.source.' + option.source : 'humanAuthnProjects.setup.humanAuthn.enableSource.' + option.source) }}
+                                                {{
+                                                    t(
+                                                        option.available
+                                                            ? 'humanAuthnProjects.setup.humanAuthn.source.' +
+                                                                  option.source
+                                                            : 'humanAuthnProjects.setup.humanAuthn.enableSource.' +
+                                                                  option.source
+                                                    )
+                                                }}
                                             </small>
                                         </span>
                                     </label>
@@ -137,20 +281,54 @@
                         <article class="journey-panel">
                             <header class="journey-panel__header">
                                 <div>
-                                    <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 3 }) }}</span>
-                                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.protectStageTitle') }}</h3>
-                                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.protectStageHelp') }}</p>
+                                    <span class="journey-panel__eyebrow">{{
+                                        t('humanAuthnProjects.setup.humanAuthn.stageLabel', {
+                                            number: 3,
+                                        })
+                                    }}</span>
+                                    <h3>
+                                        {{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.protectStageTitle'
+                                            )
+                                        }}
+                                    </h3>
+                                    <p>
+                                        {{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.protectStageHelp'
+                                            )
+                                        }}
+                                    </p>
                                 </div>
                             </header>
 
                             <div class="panel-body">
                                 <div class="setting-row">
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyTitle') }}</strong>
-                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyHelp') }}</p>
+                                        <strong>{{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.verifierKeyTitle'
+                                            )
+                                        }}</strong>
+                                        <p>
+                                            {{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.verifierKeyHelp'
+                                                )
+                                            }}
+                                        </p>
                                     </div>
-                                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-72 shrink-0">
-                                        <mat-label>{{ t('humanAuthnProjects.setup.humanAuthn.verifierKeyLabel') }}</mat-label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        subscriptSizing="dynamic"
+                                        class="w-72 shrink-0"
+                                    >
+                                        <mat-label>{{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.verifierKeyLabel'
+                                            )
+                                        }}</mat-label>
                                         <input
                                             matInput
                                             formControlName="verifierKey"
@@ -163,9 +341,15 @@
                                             matSuffix
                                             type="button"
                                             (click)="hideVerifierKey = !hideVerifierKey"
-                                            [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.verifierKeyToggle')"
+                                            [attr.aria-label]="
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.verifierKeyToggle'
+                                                )
+                                            "
                                         >
-                                            <mat-icon>{{ hideVerifierKey ? 'visibility' : 'visibility_off' }}</mat-icon>
+                                            <mat-icon>{{
+                                                hideVerifierKey ? 'visibility' : 'visibility_off'
+                                            }}</mat-icon>
                                         </button>
                                     </mat-form-field>
                                 </div>
@@ -179,12 +363,34 @@
                         <article class="journey-panel">
                             <header class="journey-panel__header">
                                 <div>
-                                    <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 4 }) }}</span>
-                                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.outputFormatTitle') }}</h3>
-                                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.outputFormatHelp') }}</p>
+                                    <span class="journey-panel__eyebrow">{{
+                                        t('humanAuthnProjects.setup.humanAuthn.stageLabel', {
+                                            number: 4,
+                                        })
+                                    }}</span>
+                                    <h3>
+                                        {{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.outputFormatTitle'
+                                            )
+                                        }}
+                                    </h3>
+                                    <p>
+                                        {{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.outputFormatHelp'
+                                            )
+                                        }}
+                                    </p>
                                 </div>
                                 <span class="journey-panel__status">
-                                    {{ t(humanAuthnGroup.get('outputFormat')?.value === 'qrCode' ? 'humanAuthnProjects.setup.humanAuthn.outputQr' : 'humanAuthnProjects.setup.humanAuthn.outputString') }}
+                                    {{
+                                        t(
+                                            humanAuthnGroup.get('outputFormat')?.value === 'qrCode'
+                                                ? 'humanAuthnProjects.setup.humanAuthn.outputQr'
+                                                : 'humanAuthnProjects.setup.humanAuthn.outputString'
+                                        )
+                                    }}
                                 </span>
                             </header>
 
@@ -192,18 +398,30 @@
                                 formControlName="outputFormat"
                                 class="requirement-options requirement-options--two"
                                 [hideSingleSelectionIndicator]="true"
-                                [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.outputFormatTitle')"
+                                [attr.aria-label]="
+                                    t('humanAuthnProjects.setup.humanAuthn.outputFormatTitle')
+                                "
                             >
                                 <mat-button-toggle value="string">
                                     <span class="requirement-option">
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.outputString') }}</strong>
-                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.outputStringHelp') }}</small>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.outputString')
+                                        }}</strong>
+                                        <small>{{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.outputStringHelp'
+                                            )
+                                        }}</small>
                                     </span>
                                 </mat-button-toggle>
                                 <mat-button-toggle value="qrCode">
                                     <span class="requirement-option">
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.outputQr') }}</strong>
-                                        <small>{{ t('humanAuthnProjects.setup.humanAuthn.outputQrHelp') }}</small>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.outputQr')
+                                        }}</strong>
+                                        <small>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.outputQrHelp')
+                                        }}</small>
                                     </span>
                                 </mat-button-toggle>
                             </mat-button-toggle-group>
@@ -216,32 +434,64 @@
                         <article class="journey-panel">
                             <header class="journey-panel__header">
                                 <div>
-                                    <span class="journey-panel__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.stageLabel', { number: 5 }) }}</span>
-                                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.factsTitle') }}</h3>
+                                    <span class="journey-panel__eyebrow">{{
+                                        t('humanAuthnProjects.setup.humanAuthn.stageLabel', {
+                                            number: 5,
+                                        })
+                                    }}</span>
+                                    <h3>
+                                        {{ t('humanAuthnProjects.setup.humanAuthn.factsTitle') }}
+                                    </h3>
                                     <p>{{ t('humanAuthnProjects.setup.humanAuthn.factsHelp') }}</p>
                                 </div>
                             </header>
 
-                            <ul class="fact-list panel-body">
+                            <ul class="fact-list panel-body p-4">
                                 <li>
                                     <mat-icon>face_retouching_off</mat-icon>
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateTitle') }}</strong>
-                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateBody') }}</p>
+                                        <strong>{{
+                                            t(
+                                                'humanAuthnProjects.setup.humanAuthn.factTemplateTitle'
+                                            )
+                                        }}</strong>
+                                        <p>
+                                            {{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.factTemplateBody'
+                                                )
+                                            }}
+                                        </p>
                                     </div>
                                 </li>
                                 <li>
                                     <mat-icon>visibility</mat-icon>
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicTitle') }}</strong>
-                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicBody') }}</p>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.factPublicTitle')
+                                        }}</strong>
+                                        <p>
+                                            {{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.factPublicBody'
+                                                )
+                                            }}
+                                        </p>
                                     </div>
                                 </li>
                                 <li>
                                     <mat-icon>verified_user</mat-icon>
                                     <div>
-                                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveTitle') }}</strong>
-                                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveBody') }}</p>
+                                        <strong>{{
+                                            t('humanAuthnProjects.setup.humanAuthn.factActiveTitle')
+                                        }}</strong>
+                                        <p>
+                                            {{
+                                                t(
+                                                    'humanAuthnProjects.setup.humanAuthn.factActiveBody'
+                                                )
+                                            }}
+                                        </p>
                                     </div>
                                 </li>
                             </ul>

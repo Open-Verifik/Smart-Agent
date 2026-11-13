@@ -45,12 +45,12 @@ export class HumanAuthnSetupService {
 
     /** Preview screens per step; the journey always ends on the HumanID. */
     readonly previewViews: Record<number, PreviewView[]> = {
-        0: [],
+        0: ['signup'],
         1: ['signup'],
         2: ['document-scan', 'document-upload', 'document-result'],
         3: ['liveness', 'human-id-result'],
         4: ['human-id-result'],
-        5: [],
+        5: ['human-id-result'],
         6: ['signup', 'document-scan', 'document-upload', 'document-result', 'liveness', 'human-id-result'],
     };
 
