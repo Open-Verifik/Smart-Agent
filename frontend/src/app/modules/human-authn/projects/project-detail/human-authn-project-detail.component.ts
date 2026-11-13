@@ -28,6 +28,7 @@ import {
     policyFromStored,
 } from 'app/core/data-retention/retention.util';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { environment } from 'environments/environment';
 import {
     isIncompleteSmartAccessWizard,
     resumeStepIndex,
@@ -98,6 +99,13 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     isActive = computed(() => {
         const f = this.flow();
         return !!f?.status && f.status !== 'draft';
+    });
+
+    liveEnrollmentUrl = computed(() => {
+        const id = this.project()?._id;
+        if (!id) return '';
+        const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
+        return `${base}/verify/${id}`;
     });
 
     // --- Branding Preview ---
@@ -297,6 +305,13 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
 
     openRecords(): void {
         this._router.navigate(['/human-authn/history']);
+    }
+
+    openLiveEnrollment(): void {
+        const url = this.liveEnrollmentUrl();
+        if (url && typeof window !== 'undefined') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
     }
 
     copyValue(value: string, event?: Event): void {

@@ -69,13 +69,13 @@ export class RetentionPolicyFormComponent {
      * Matches a preset number or null (Indefinite).
      * If custom was selected or hours is not in the preset list, returns 'custom'.
      */
-    getDurationValue(type: RetentionDataType): number | null | 'custom' {
+    getDurationValue(type: RetentionDataType): number | 'forever' | 'custom' {
         if (this.customDurationTypes[type]) {
             return 'custom';
         }
         const hours = this.current.types[type]?.retentionHours;
         if (hours === null || hours === undefined) {
-            return null;
+            return 'forever';
         }
         const match = this.durationPresets.find((p) => p.value === hours);
         return match ? (match.value as number) : 'custom';
@@ -91,7 +91,7 @@ export class RetentionPolicyFormComponent {
     /**
      * Handles dropdown change for duration.
      */
-    onDurationSelect(type: RetentionDataType, value: number | null | 'custom'): void {
+    onDurationSelect(type: RetentionDataType, value: number | 'forever' | 'custom'): void {
         if (value === 'custom') {
             this.customDurationTypes[type] = true;
             const currentHours = this.current.types[type]?.retentionHours;
@@ -100,8 +100,15 @@ export class RetentionPolicyFormComponent {
             }
         } else {
             this.customDurationTypes[type] = false;
-            this.setRetentionHours(type, value);
+            // `mat-select` treats `null` as "no selection" and renders blank, so Indefinite uses a
+            // 'forever' sentinel in the UI and is persisted as `null` hours.
+            this.setRetentionHours(type, value === 'forever' ? null : value);
         }
+    }
+
+    /** UI value for a preset option (`null` hours is exposed as the 'forever' sentinel). */
+    presetOptionValue(value: number | null | 'custom'): number | 'forever' | 'custom' {
+        return value === null ? 'forever' : value;
     }
 
     /** Policy shown in the template. */

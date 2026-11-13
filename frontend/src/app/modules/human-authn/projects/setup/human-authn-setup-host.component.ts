@@ -20,6 +20,7 @@ import {
     type WizardProgress,
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { DEFAULT_PHONE_COUNTRY_CODE } from 'app/core/constants/phone-country-codes.constant';
+import { environment } from 'environments/environment';
 import { SetupFormFactory } from 'app/modules/smart-enroll/projects/setup/setup-form.factory';
 import { SetupBreadcrumbsComponent } from 'app/modules/smart-enroll/projects/setup/breadcrumbs/breadcrumbs.component';
 import { savedVerifyStyle } from 'app/modules/smart-enroll/projects/enrollment-client.util';
@@ -287,6 +288,9 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     nextStep(): void {
         if (!this.isFormValidForStep(this.stepIndex)) return;
         if (this.stepIndex === this.steps.length - 1) {
+            if (this.form.get('projectFlow.status')?.value === 'draft' || this.savedLastStep() < this.steps.length) {
+                this.form.markAsDirty();
+            }
             this._router.navigate(['/human-authn/projects']);
             return;
         }
@@ -323,6 +327,23 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     updateProjectId(id: string): void {
         this.projectId = id;
         this._setup.setProjectId(id);
+    }
+
+    previewProject(): void {
+        if (this.projectId === 'new') return;
+        if (!Object.keys(this._setup.formKeys).every((idx) => this.isFormValidForStep(Number(idx)))) {
+            this._snack.open(
+                this._transloco.translate('smartEnrollProjects.setup.setup_invalid'),
+                this._transloco.translate('close'),
+                { duration: 3000 }
+            );
+            return;
+        }
+        const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
+        const url = `${base}/verify/${this.projectId}`;
+        if (typeof window !== 'undefined') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
     }
 
     signUpFormGroup(): FormGroup {
@@ -467,14 +488,17 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             };
         }
         const style = savedVerifyStyle(projectFlow?.onboardingSettings?.verifyStyle);
+        const activeStatus = flow.status === 'paused' ? 'paused' : 'active';
         return {
             branding,
+            status: activeStatus,
             projectFlow: {
                 ...flow,
+                status: activeStatus,
                 onboardingSettings: {
                     enrollmentClient: 'v2',
+                    flowOrder: projectFlow?.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : 'contact_first',
                     ...(style ? { verifyStyle: style } : {}),
-                    ...(projectFlow?.onboardingSettings?.flowOrder === 'consent_first' ? { flowOrder: 'consent_first' } : {}),
                 },
             },
         };
