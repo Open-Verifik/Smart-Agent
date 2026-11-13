@@ -1,0 +1,159 @@
+<div class="cp">
+    <section class="cp__top">
+        <compliance-header
+            [locale]="locale"
+            [country]="post?.country"
+            [alternateUrl]="alternateUrl"
+        ></compliance-header>
+
+        <div class="cp__hero" *ngIf="post">
+            <div class="cp__intro">
+                <div class="cp__badges">
+                    <span *ngIf="category" class="cp__badge cp__badge--{{ category.tone }}">{{
+                        category.label[locale]
+                    }}</span>
+                    <span class="cp__country" *ngIf="country"
+                        ><img [src]="flag" alt="" />{{ country.label[locale] }}</span
+                    >
+                </div>
+
+                <div class="cp__title">
+                    <h1>{{ post.title }}</h1>
+                    <p *ngIf="post.description">{{ post.description }}</p>
+                </div>
+
+                <div class="cp__byline">
+                    <div class="cp__author">
+                        <img
+                            *ngIf="photo && !photoFailed; else initialsTpl"
+                            [src]="photo"
+                            [alt]="author"
+                            (error)="photoFailed = true"
+                        />
+                        <ng-template #initialsTpl
+                            ><span class="cp__initials">{{ initials }}</span></ng-template
+                        >
+                        <span>
+                            <strong>{{ author }}</strong>
+                            <small *ngIf="post.authorTitle">{{ post.authorTitle }}</small>
+                        </span>
+                    </div>
+                    <p class="cp__date">
+                        <time [attr.datetime]="post.date">{{ date }}</time>
+                        <span aria-hidden="true">•</span>
+                        {{ minRead }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="cp__cover">
+                <img *ngIf="post.image" [src]="post.image" [alt]="post.imageAlt || post.title" />
+            </div>
+        </div>
+    </section>
+
+    <div class="cp__state" *ngIf="loading">
+        <span class="cp__spinner" role="status" [attr.aria-label]="copy.loading"></span>
+    </div>
+
+    <div class="cp__state" *ngIf="!loading && !post">
+        <h1>{{ copy.notFoundTitle }}</h1>
+        <p>{{ copy.notFoundText }}</p>
+        <a class="cp__button" [routerLink]="homePath">{{ copy.back }}</a>
+    </div>
+
+    <ng-container *ngIf="!loading && post">
+        <div class="cp__body">
+            <aside class="cp__sidebar">
+                <nav class="cp__toc" *ngIf="toc.length" [attr.aria-label]="copy.index">
+                    <h2>{{ copy.index }}</h2>
+                    <a
+                        *ngFor="let entry of toc"
+                        [href]="'#' + entry.id"
+                        [class.cp__toc-active]="entry.id === activeHeading"
+                        (click)="scrollTo($event, entry.id)"
+                        >{{ entry.text }}</a
+                    >
+                </nav>
+
+                <div class="cp__share">
+                    <h2>{{ copy.share }}</h2>
+                    <div>
+                        <a
+                            *ngFor="let link of shareLinks"
+                            [href]="link.url"
+                            target="_blank"
+                            rel="noopener"
+                            [attr.aria-label]="copy.shareOn(link.name)"
+                        >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" [ngSwitch]="link.key">
+                                <path
+                                    *ngSwitchCase="'linkedin'"
+                                    d="M6.94 8.75H3.56V20h3.38V8.75ZM5.25 3.5a1.96 1.96 0 1 0 0 3.92 1.96 1.96 0 0 0 0-3.92ZM20.5 13.6c0-3.02-.65-5.1-4.18-5.1-1.7 0-2.84.93-3.3 1.82h-.05V8.75H9.73V20h3.38v-5.57c0-1.47.28-2.89 2.1-2.89 1.79 0 1.81 1.68 1.81 2.98V20h3.38l.1-6.4Z"
+                                />
+                                <path
+                                    *ngSwitchCase="'x'"
+                                    d="M17.75 3.5h3.07l-6.7 7.66L22 20.5h-6.17l-4.83-6.32-5.53 6.32H2.4l7.17-8.2L2 3.5h6.33l4.37 5.78 5.05-5.78Zm-1.08 15.15h1.7L7.4 5.25H5.57l11.1 13.4Z"
+                                />
+                                <path
+                                    *ngSwitchCase="'facebook'"
+                                    d="M13.5 21v-7.5h2.53l.38-2.93H13.5V8.7c0-.85.24-1.43 1.45-1.43h1.55V4.65A20.8 20.8 0 0 0 14.24 4.5c-2.24 0-3.77 1.37-3.77 3.88v2.16H7.94v2.93h2.53V21h3.03Z"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <article class="cp__content">
+                <div #content class="cp__markdown">
+                    <div class="cp__rendered" [innerHTML]="html"></div>
+                </div>
+
+                <section class="cp__faqs" *ngIf="post.faqs.length">
+                    <h2>{{ copy.faqs }}</h2>
+                    <details *ngFor="let faq of post.faqs">
+                        <summary>
+                            <span>{{ faq.question }}</span>
+                            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                        </summary>
+                        <p>{{ faq.answer }}</p>
+                    </details>
+                </section>
+
+                <div class="cp__profile" *ngIf="post.authorBio">
+                    <div class="cp__author cp__author--large">
+                        <img
+                            *ngIf="photo && !photoFailed; else initialsLargeTpl"
+                            [src]="photo"
+                            [alt]="author"
+                            (error)="photoFailed = true"
+                        />
+                        <ng-template #initialsLargeTpl
+                            ><span class="cp__initials">{{ initials }}</span></ng-template
+                        >
+                        <span>
+                            <strong>{{ author }}</strong>
+                            <small *ngIf="post.authorTitle">{{ post.authorTitle }}</small>
+                        </span>
+                    </div>
+                    <p>{{ post.authorBio }}</p>
+                </div>
+            </article>
+        </div>
+
+        <section class="cp__related" *ngIf="related.length">
+            <h2>{{ copy.related }}</h2>
+            <div class="cp__related-grid">
+                <compliance-card
+                    *ngFor="let other of related"
+                    [post]="other"
+                    [locale]="locale"
+                    variant="grid"
+                ></compliance-card>
+            </div>
+        </section>
+    </ng-container>
+
+    <compliance-cta [locale]="locale"></compliance-cta>
+</div>

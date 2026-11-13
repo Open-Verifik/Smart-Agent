@@ -1,0 +1,36 @@
+<a class="cc cc--{{ variant }}" [routerLink]="link">
+    <div class="cc__media">
+        <img
+            *ngIf="post.image; else placeholder"
+            [src]="post.image"
+            [alt]="post.imageAlt || post.title"
+            loading="lazy"
+        />
+        <ng-template #placeholder><span class="cc__placeholder"></span></ng-template>
+    </div>
+
+    <div class="cc__body">
+        <div class="cc__meta">
+            <div class="cc__info">
+                <span *ngIf="category" class="cc__badge cc__badge--{{ category.tone }}">{{
+                    category.label[locale]
+                }}</span>
+                <span class="cc__date">
+                    <time [attr.datetime]="post.date">{{ date }}</time>
+                    <span aria-hidden="true">•</span>
+                    {{ minRead }}
+                </span>
+            </div>
+            <span class="cc__country" *ngIf="country"
+                ><img [src]="flag" alt="" />{{ country.label[locale] }}</span
+            >
+        </div>
+
+        <h3 class="cc__title">{{ post.title }}</h3>
+        <p class="cc__author">{{ author }}</p>
+
+        <p class="cc__tags" *ngIf="post.tags.length">
+            <span *ngFor="let tag of post.tags">#{{ tag }}</span>
+        </p>
+    </div>
+</a>

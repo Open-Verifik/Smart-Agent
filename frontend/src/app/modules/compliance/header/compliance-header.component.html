@@ -1,0 +1,109 @@
+<header class="chd">
+    <div class="chd__bar" [class.chd__bar--open]="menuOpen">
+        <a class="chd__brand" href="https://verifik.co/" aria-label="Verifik">
+            <img src="images/compliance/logo-verifik.svg" alt="Verifik" />
+        </a>
+
+        <button
+            class="chd__burger"
+            type="button"
+            (click)="menuOpen = !menuOpen"
+            [attr.aria-expanded]="menuOpen"
+            [attr.aria-label]="copy.nav.menu"
+        >
+            <mat-icon
+                [svgIcon]="menuOpen ? 'heroicons_outline:x-mark' : 'heroicons_outline:bars-3'"
+            ></mat-icon>
+        </button>
+
+        <div class="chd__panel">
+            <nav class="chd__nav" aria-label="Verifik">
+                <div
+                    class="chd__group"
+                    *ngFor="let group of nav"
+                    [class.chd__group--open]="openGroup === group.key"
+                >
+                    <button
+                        class="chd__link"
+                        type="button"
+                        (click)="toggleGroup(group.key)"
+                        [attr.aria-expanded]="openGroup === group.key"
+                    >
+                        {{ copy.nav[group.key] }}
+                        <mat-icon svgIcon="heroicons_outline:chevron-down"></mat-icon>
+                    </button>
+                    <div class="chd__dropdown">
+                        <ng-container *ngFor="let entry of group.entries">
+                            <a
+                                *ngIf="entry.internal"
+                                [routerLink]="home"
+                                (click)="openGroup = null; menuOpen = false"
+                                >{{ entry.label[locale] }}</a
+                            >
+                            <a *ngIf="!entry.internal" [href]="entry.href">{{
+                                entry.label[locale]
+                            }}</a>
+                        </ng-container>
+                    </div>
+                </div>
+                <a class="chd__link" [href]="demo">
+                    {{ copy.nav.demo }}
+                    <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
+                </a>
+            </nav>
+
+            <div class="chd__actions">
+                <a
+                    class="chd__ghost chd__lang"
+                    *ngIf="alternateUrl"
+                    [routerLink]="alternateUrl"
+                    [attr.aria-label]="copy.nav.otherLanguage"
+                    [attr.hreflang]="locale === 'es' ? 'en' : 'es'"
+                >
+                    <mat-icon svgIcon="heroicons_outline:language"></mat-icon>
+                    {{ copy.nav.language }}
+                </a>
+                <a class="chd__ghost" [href]="signIn" target="_blank" rel="noopener">{{
+                    copy.nav.login
+                }}</a>
+                <a class="chd__cta" [href]="signUp" target="_blank" rel="noopener">
+                    {{ copy.nav.trial }}
+                    <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="chd__countries">
+        <a class="chd__hub" [routerLink]="home">{{ copy.hubName }}</a>
+
+        <nav class="chd__tabs" [attr.aria-label]="copy.hubName">
+            <a
+                *ngFor="let item of countries"
+                class="chd__tab"
+                [class.chd__tab--active]="item.key === country"
+                [attr.aria-current]="item.key === country ? 'page' : null"
+                [routerLink]="countryLink(item.key)"
+            >
+                <img [src]="flagSrc(item.flag)" alt="" />
+                {{ item.label[locale] }}
+            </a>
+        </nav>
+
+        <form
+            class="chd__search"
+            role="search"
+            (submit)="$event.preventDefault(); search(searchInput.value)"
+        >
+            <mat-icon svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+            <input
+                #searchInput
+                type="search"
+                [value]="query || ''"
+                [placeholder]="copy.search"
+                [attr.aria-label]="copy.search"
+                maxlength="100"
+            />
+        </form>
+    </div>
+</header>
