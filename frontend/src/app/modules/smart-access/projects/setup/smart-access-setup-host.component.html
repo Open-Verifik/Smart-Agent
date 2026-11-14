@@ -40,9 +40,9 @@
                         </div>
                     </div>
 
-                    @if (form?.get('projectFlow.status')?.value === 'active' && projectId !== 'new') {
+                    @if (projectId !== 'new') {
                         <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" [disabled]="!canNavigate" (click)="previewProject()">
-                            <span class="mr-1">{{ t('smartAccessProjects.setup.preview_sign_in') }}</span>
+                            <span class="mr-1">{{ t('smartAccessProjects.setup.see_live_project') }}</span>
                             <mat-icon class="!h-4 !w-4">open_in_new</mat-icon>
                         </button>
                     }

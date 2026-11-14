@@ -303,6 +303,17 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
         this.openSetup(step);
     }
 
+    connectSmartAccess(): void {
+        const id = this.project()?._id;
+        if (!id) return;
+        void this._router.navigate(['/smart-access/projects/new/setup/0'], {
+            queryParams: {
+                linkProject: id,
+                flowType: 'HUMAN_AUTHN',
+            },
+        });
+    }
+
     openRecords(): void {
         this._router.navigate(['/human-authn/history']);
     }

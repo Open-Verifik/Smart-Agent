@@ -79,6 +79,7 @@ export class SmartAccessSetupService {
                 searchMode: 'FAST',
                 showFaceLivenessRecommendation: false,
                 allowPasskeys: false,
+                requireBiometricStepUp: false,
             },
             integrations: {
                 redirectUrl: '',
@@ -90,6 +91,8 @@ export class SmartAccessSetupService {
                 apiUrl: '',
                 apiTestType: 'email',
                 apiTestValue: '',
+                linkedProjects: [],
+                primarySignUpProject: null,
             },
         };
     }

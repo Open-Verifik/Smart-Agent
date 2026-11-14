@@ -6,7 +6,7 @@ export type WizardProgress = {
 const EMAIL_GATEWAYS = ['mailgun', 'none'];
 const PHONE_GATEWAYS = ['sms', 'whatsapp', 'both', 'none'];
 const SEARCH_MODES = ['FAST', 'ACCURATE'];
-const SECURITY_SOURCES = ['API', 'CSV', 'NONE', 'SMART_ENROLL'];
+const SECURITY_SOURCES = ['API', 'CSV', 'NONE', 'SMART_ENROLL', 'HUMAN_AUTHN', 'VERIFIK_PROJECTS'];
 const API_TEST_TYPES = ['email', 'phone'];
 
 /**
@@ -94,11 +94,13 @@ export const safeLoginSettings = (raw: unknown): Record<string, unknown> => {
     const searchMode = SEARCH_MODES.includes(`${src['searchMode']}`) ? src['searchMode'] : 'FAST';
     const settings: Record<string, unknown> = {
         allowPasskeys: !!src['allowPasskeys'],
+        allowDirectHumanIdInput: src['allowDirectHumanIdInput'] !== undefined ? !!src['allowDirectHumanIdInput'] : true,
         email: !!src['email'],
         emailGateway,
         faceLiveness: !!src['faceLiveness'],
         phone: !!src['phone'],
         phoneGateway,
+        requireBiometricStepUp: !!src['requireBiometricStepUp'],
         searchMode,
         showFaceLivenessRecommendation: !!src['showFaceLivenessRecommendation'],
     };
@@ -126,13 +128,46 @@ export const safeSecurity = (raw: unknown): Record<string, unknown> | null => {
         if (!`${src['apiTestValue'] ?? ''}`.trim()) return null;
     }
 
+    const rawLinked = Array.isArray(src['linkedProjects']) ? (src['linkedProjects'] as unknown[]) : [];
+    const linkedProjects = rawLinked
+        .map((item) => {
+            if (!item || (typeof item !== 'object' && typeof item !== 'string')) return null;
+            if (typeof item === 'string') {
+                const trimmed = item.trim();
+                return trimmed ? { project: trimmed, allowSignUpRedirect: false } : null;
+            }
+            const rec = item as Record<string, unknown>;
+            const rawProj = rec['project'];
+            const project = `${(rawProj && typeof rawProj === 'object' ? (rawProj as { _id?: string })._id : rawProj) ?? ''}`.trim();
+            if (!project) return null;
+            const flowType = `${rec['flowType'] ?? ''}`.trim();
+            const target = `${rec['target'] ?? ''}`.trim();
+            const allowSignUpRedirect = Boolean(rec['allowSignUpRedirect']);
+            return {
+                project,
+                ...(flowType ? { flowType } : {}),
+                ...(target ? { target } : {}),
+                allowSignUpRedirect,
+            };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const primarySignUpProjectRaw = src['primarySignUpProject'];
+    const primarySignUpProject = primarySignUpProjectRaw
+        ? `${(primarySignUpProjectRaw && typeof primarySignUpProjectRaw === 'object' ? (primarySignUpProjectRaw as { _id?: string })._id : primarySignUpProjectRaw) ?? ''}`.trim()
+        : null;
+
     const apiUrl = `${src['apiUrl'] ?? ''}`.trim();
+    const strategy = source === 'NONE' || `${src['strategy'] ?? ''}` === 'none' ? 'none' : 'whitelist';
+
     return {
         apiTestType: testType,
         apiTestValue: `${src['apiTestValue'] ?? ''}`,
         apiUrl: source === 'API' || !apiUrl || isHttpUrl(apiUrl) ? apiUrl : '',
         source,
-        strategy: `${src['strategy'] ?? ''}` === 'none' ? 'none' : 'whitelist',
+        strategy,
+        linkedProjects,
+        primarySignUpProject: primarySignUpProject || null,
     };
 };
 

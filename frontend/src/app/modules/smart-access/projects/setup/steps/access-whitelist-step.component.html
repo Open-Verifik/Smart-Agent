@@ -35,47 +35,71 @@
             </div>
         </div>
 
-        <!-- ── Mode toggle ── -->
+        <!-- ── 4-Mode Toggle ── -->
         <div class="flex justify-center">
-            <div class="flex overflow-hidden rounded-full border border-stone-300 dark:border-gray-600">
+            <div class="inline-flex flex-wrap overflow-hidden rounded-2xl border border-stone-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-1 shadow-sm">
+                <!-- Verifik Projects (Multi-select) -->
                 <button
                     type="button"
-                    class="px-7 py-2.5 text-sm font-medium transition-colors"
-                    [class.bg-blue-600]="source === 'API'"
-                    [class.text-white]="source === 'API'"
-                    [class.bg-white]="source !== 'API'"
-                    [class.dark:bg-gray-900]="source !== 'API'"
-                    [class.text-stone-700]="source !== 'API'"
-                    [class.dark:text-stone-300]="source !== 'API'"
-                    (click)="source = 'API'"
+                    class="rounded-xl px-5 py-2.5 text-sm font-medium transition-all"
+                    [class.bg-blue-600]="source === 'VERIFIK_PROJECTS' || source === 'SMART_ENROLL'"
+                    [class.text-white]="source === 'VERIFIK_PROJECTS' || source === 'SMART_ENROLL'"
+                    [class.text-stone-700]="source !== 'VERIFIK_PROJECTS' && source !== 'SMART_ENROLL'"
+                    [class.dark:text-stone-300]="source !== 'VERIFIK_PROJECTS' && source !== 'SMART_ENROLL'"
+                    (click)="source = 'VERIFIK_PROJECTS'"
                 >
-                    {{ t('smartAccessProjects.setup.whitelist.mode_api') }}
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="!h-4 !w-4">hub</mat-icon>
+                        <span>{{ t('smartAccessProjects.setup.whitelist.mode_verifik_projects') }}</span>
+                    </div>
                 </button>
+
+                <!-- CSV -->
                 <button
                     type="button"
-                    class="px-7 py-2.5 text-sm font-medium transition-colors border-l border-stone-300 dark:border-gray-600"
+                    class="rounded-xl px-5 py-2.5 text-sm font-medium transition-all"
                     [class.bg-blue-600]="source === 'CSV'"
                     [class.text-white]="source === 'CSV'"
-                    [class.bg-white]="source !== 'CSV'"
-                    [class.dark:bg-gray-900]="source !== 'CSV'"
                     [class.text-stone-700]="source !== 'CSV'"
                     [class.dark:text-stone-300]="source !== 'CSV'"
                     (click)="source = 'CSV'"
                 >
-                    {{ t('smartAccessProjects.setup.whitelist.mode_csv') }}
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="!h-4 !w-4">upload_file</mat-icon>
+                        <span>{{ t('smartAccessProjects.setup.whitelist.mode_csv') }}</span>
+                    </div>
                 </button>
+
+                <!-- API -->
                 <button
                     type="button"
-                    class="px-7 py-2.5 text-sm font-medium transition-colors border-l border-stone-300 dark:border-gray-600"
-                    [class.bg-blue-600]="source === 'SMART_ENROLL'"
-                    [class.text-white]="source === 'SMART_ENROLL'"
-                    [class.bg-white]="source !== 'SMART_ENROLL'"
-                    [class.dark:bg-gray-900]="source !== 'SMART_ENROLL'"
-                    [class.text-stone-700]="source !== 'SMART_ENROLL'"
-                    [class.dark:text-stone-300]="source !== 'SMART_ENROLL'"
-                    (click)="source = 'SMART_ENROLL'"
+                    class="rounded-xl px-5 py-2.5 text-sm font-medium transition-all"
+                    [class.bg-blue-600]="source === 'API'"
+                    [class.text-white]="source === 'API'"
+                    [class.text-stone-700]="source !== 'API'"
+                    [class.dark:text-stone-300]="source !== 'API'"
+                    (click)="source = 'API'"
                 >
-                    {{ t('smartAccessProjects.setup.whitelist.mode_smart_enroll') }}
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="!h-4 !w-4">api</mat-icon>
+                        <span>{{ t('smartAccessProjects.setup.whitelist.mode_api') }}</span>
+                    </div>
+                </button>
+
+                <!-- Open Access / Anyone -->
+                <button
+                    type="button"
+                    class="rounded-xl px-5 py-2.5 text-sm font-medium transition-all"
+                    [class.bg-blue-600]="source === 'NONE'"
+                    [class.text-white]="source === 'NONE'"
+                    [class.text-stone-700]="source !== 'NONE'"
+                    [class.dark:text-stone-300]="source !== 'NONE'"
+                    (click)="source = 'NONE'"
+                >
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="!h-4 !w-4">lock_open</mat-icon>
+                        <span>{{ t('smartAccessProjects.setup.whitelist.mode_none') }}</span>
+                    </div>
                 </button>
             </div>
         </div>
@@ -312,28 +336,201 @@
         }
 
         <!-- ════════════════════════════════════════
-             Smart Enroll mode
+             Verifik Projects (Interactive Multi-Select Picker)
         ════════════════════════════════════════ -->
-        @if (source === 'SMART_ENROLL') {
+        @if (source === 'VERIFIK_PROJECTS' || source === 'SMART_ENROLL') {
+            <div class="step-card space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                        <h3 class="text-base font-semibold text-stone-900 dark:text-white">
+                            {{ t('smartAccessProjects.setup.whitelist.verifik_projects_title') }}
+                        </h3>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                            {{ t('smartAccessProjects.setup.whitelist.verifik_projects_subtitle') }}
+                        </p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900 self-start sm:self-auto">
+                        {{ t('smartAccessProjects.setup.whitelist.verifik_projects_selected_count', { count: linkedProjects.length }) }}
+                    </span>
+                </div>
+
+                <!-- Guardrail Alert: storage provider "none" -->
+                @if (hasStorageNoneLinked) {
+                    <div class="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200">
+                        <mat-icon class="!h-5 !w-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400">warning</mat-icon>
+                        <div class="space-y-1">
+                            <h4 class="font-semibold text-amber-950 dark:text-amber-100">
+                                {{ t('smartAccessProjects.setup.whitelist.storage_none_warning_title') }}
+                            </h4>
+                            <p class="text-xs text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
+                                {{ t('smartAccessProjects.setup.whitelist.storage_none_warning_desc') }}
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                <!-- Search Input -->
+                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                    <mat-label>{{ t('smartAccessProjects.setup.whitelist.verifik_projects_search') }}</mat-label>
+                    <mat-icon matPrefix class="mr-2 text-stone-400">search</mat-icon>
+                    <input matInput [(ngModel)]="projectSearchQuery" autocomplete="off" />
+                    @if (projectSearchQuery) {
+                        <button mat-icon-button matSuffix type="button" (click)="projectSearchQuery = ''">
+                            <mat-icon class="!h-4 !w-4">close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+
+                <!-- Loading State -->
+                @if (candidateProjectsLoading) {
+                    <div class="flex flex-col items-center justify-center py-10 gap-3">
+                        <mat-spinner diameter="32"></mat-spinner>
+                        <span class="text-xs text-stone-500">{{ t('loading') }}</span>
+                    </div>
+                } @else if (candidateProjects.length === 0) {
+                    <!-- Empty State -->
+                    <div class="rounded-xl border border-dashed border-stone-300 dark:border-gray-700 p-8 text-center space-y-2">
+                        <mat-icon class="!h-10 !w-10 text-stone-400 mx-auto">folder_off</mat-icon>
+                        <p class="text-sm font-medium text-stone-800 dark:text-stone-200">
+                            {{ t('smartAccessProjects.setup.whitelist.verifik_projects_empty') }}
+                        </p>
+                    </div>
+                } @else {
+                    <!-- Project Cards Grid -->
+                    <div class="grid grid-cols-1 gap-3">
+                        @for (cand of filteredCandidateProjects; track cand._id) {
+                            <div
+                                class="flex flex-col gap-3 rounded-xl border p-4 transition-all"
+                                [ngClass]="isProjectLinked(cand._id)
+                                    ? 'border-blue-500 bg-blue-50/20 dark:bg-blue-950/10'
+                                    : 'border-stone-200 dark:border-gray-700'"
+                            >
+                                <div class="flex items-start justify-between gap-3 cursor-pointer" (click)="toggleProjectLink(cand)">
+                                    <div class="flex items-start gap-3">
+                                        <mat-checkbox
+                                            [checked]="isProjectLinked(cand._id)"
+                                            color="primary"
+                                            (click)="$event.stopPropagation()"
+                                            (change)="toggleProjectLink(cand)"
+                                        ></mat-checkbox>
+                                        <div class="space-y-1">
+                                            <span class="font-medium text-stone-900 dark:text-white text-sm">
+                                                {{ cand.name }}
+                                            </span>
+                                            <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                                <!-- Product Pill -->
+                                                @if (cand.productType === 'smartEnroll') {
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
+                                                        {{ t('smartAccessProjects.setup.whitelist.badge_smart_enroll') }}
+                                                    </span>
+                                                } @else if (cand.productType === 'humanAuthn') {
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200">
+                                                        {{ t('smartAccessProjects.setup.whitelist.badge_human_authn') }}
+                                                    </span>
+                                                } @else {
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200">
+                                                        {{ t('smartAccessProjects.setup.whitelist.badge_smart_business') }}
+                                                    </span>
+                                                }
+
+                                                <!-- Status Pill -->
+                                                <span
+                                                    class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                                                    [ngClass]="cand.status === 'active'
+                                                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                        : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300'"
+                                                >
+                                                    {{ cand.status === 'active' ? t('smartAccessProjects.setup.whitelist.status_active') : t('smartAccessProjects.setup.whitelist.status_draft') }}
+                                                </span>
+
+                                                <!-- Biometric Capability Badge -->
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-300">
+                                                    <mat-icon class="!h-3 !w-3 !text-[12px]">fingerprint</mat-icon>
+                                                    {{ cand.biometricBadge }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Linked Options (visible only when selected) -->
+                                @if (isProjectLinked(cand._id)) {
+                                    <div class="mt-2 pt-2.5 border-t border-stone-200/80 dark:border-gray-800 flex items-center justify-between text-xs">
+                                        <div class="flex items-center gap-2">
+                                            <mat-slide-toggle
+                                                [checked]="isSignUpRedirectAllowed(cand._id)"
+                                                (change)="toggleSignUpRedirect(cand._id, $event.checked)"
+                                                color="primary"
+                                            ></mat-slide-toggle>
+                                            <span class="font-medium text-stone-700 dark:text-stone-300">
+                                                {{ t('smartAccessProjects.setup.whitelist.allow_signup_redirect') }}
+                                            </span>
+                                        </div>
+                                        @if (primarySignUpProject === cand._id) {
+                                            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 font-medium text-[11px]">
+                                                {{ t('smartAccessProjects.setup.whitelist.primary_signup_badge') }}
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Primary Sign-Up Project Selector (when 2+ projects linked) -->
+                    @if (eligiblePrimarySignUpProjects.length > 1) {
+                        <div class="pt-4 border-t border-stone-200 dark:border-gray-800 space-y-2">
+                            <div>
+                                <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
+                                    {{ t('smartAccessProjects.setup.whitelist.primary_signup_project') }}
+                                </h4>
+                                <p class="text-xs text-stone-500 dark:text-stone-400">
+                                    {{ t('smartAccessProjects.setup.whitelist.primary_signup_project_hint') }}
+                                </p>
+                            </div>
+                            <mat-form-field appearance="outline" class="w-full sm:max-w-md" subscriptSizing="dynamic">
+                                <mat-select [value]="primarySignUpProject" (selectionChange)="setPrimarySignUpProject($event.value)">
+                                    @for (proj of eligiblePrimarySignUpProjects; track proj._id) {
+                                        <mat-option [value]="proj._id">
+                                            {{ proj.name }} ({{ proj.productBadge }})
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    }
+
+                    <!-- Validation error if 0 selected -->
+                    @if (linkedProjects.length === 0) {
+                        <div class="p-3 rounded-xl bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/30 dark:border-red-900 dark:text-red-300 text-xs font-medium">
+                            {{ t('smartAccessProjects.setup.whitelist.verifik_projects_required') }}
+                        </div>
+                    }
+                }
+            </div>
+        }
+
+        <!-- ════════════════════════════════════════
+             Open Access Mode (Anyone)
+        ════════════════════════════════════════ -->
+        @if (source === 'NONE') {
             <div class="step-card space-y-4">
                 <div>
                     <h3 class="text-base font-semibold text-stone-900 dark:text-white">
-                        {{ t('smartAccessProjects.setup.whitelist.smart_enroll_title') }}
+                        {{ t('smartAccessProjects.setup.whitelist.open_access_title') }}
                     </h3>
                     <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                        {{ t('smartAccessProjects.setup.whitelist.smart_enroll_subtitle') }}
+                        {{ t('smartAccessProjects.setup.whitelist.open_access_subtitle') }}
                     </p>
                 </div>
 
-                <!-- Info card -->
-                <div class="flex items-start gap-3 rounded-xl bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
-                    <mat-icon class="!h-5 !w-5 shrink-0 mt-0.5 text-blue-600">info</mat-icon>
+                <div class="flex items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800/50">
+                    <mat-icon class="!h-5 !w-5 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400">lock_open</mat-icon>
                     <div class="space-y-1">
-                        <p>{{ t('smartAccessProjects.setup.whitelist.smart_enroll_info') }}</p>
-                        <ul class="mt-2 list-disc list-inside space-y-0.5 text-xs">
-                            <li>{{ t('smartAccessProjects.setup.whitelist.smart_enroll_point_1') }}</li>
-                            <li>{{ t('smartAccessProjects.setup.whitelist.smart_enroll_point_2') }}</li>
-                        </ul>
+                        <p class="font-medium">{{ t('smartAccessProjects.setup.whitelist.open_access_info') }}</p>
+                        <p class="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                            {{ t('smartAccessProjects.setup.whitelist.open_access_desc') }}
+                        </p>
                     </div>
                 </div>
             </div>
