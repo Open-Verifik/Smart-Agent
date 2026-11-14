@@ -1,10 +1,19 @@
 const STAGING_HOSTS = new Set(['staging.verifik.co', 'x402.on-forge.com']);
+const SANDBOX_HOSTS = new Set(['sandbox.verifik.co']);
 
 const isStaging = (): boolean => {
     if (typeof window === 'undefined') return false;
 
     return STAGING_HOSTS.has(window.location.hostname);
 };
+
+const isSandbox = (): boolean => {
+    if (typeof window === 'undefined') return false;
+
+    return SANDBOX_HOSTS.has(window.location.hostname);
+};
+
+const sameOrigin = (): string => (typeof window === 'undefined' ? '' : window.location.origin);
 
 const STAGING_API_URL = 'https://staging-api.verifik.co';
 const STAGING_APP_URL = 'https://staging.verifik.co';
@@ -13,26 +22,36 @@ const PRODUCTION_API_URL = 'https://api.verifik.co';
 export const environment = {
     production: true,
     get baseUrl(): string {
+        if (isSandbox()) return sameOrigin();
+
         return isStaging() ? STAGING_API_URL : PRODUCTION_API_URL;
     },
     get smartAgentUrl(): string {
+        if (isSandbox()) return sameOrigin();
+
         return isStaging() ? STAGING_APP_URL : 'https://ai.verifik.co';
     },
     get apiUrl(): string {
+        if (isSandbox()) return sameOrigin();
+
         return isStaging() ? STAGING_API_URL : PRODUCTION_API_URL;
     },
     get appUrl(): string {
+        if (isSandbox()) return sameOrigin();
+
         return isStaging() ? STAGING_APP_URL : 'https://prod.verifik.co';
     },
     /** SPA origin (matches dev `environment.thisUrl`); used for redirects / dev sample data. */
     get thisUrl(): string {
+        if (isSandbox()) return sameOrigin();
+
         return isStaging() ? STAGING_APP_URL : 'https://ai.verifik.co';
     },
     get projectId(): string {
-        return isStaging() ? '6266193db77ccc8111730c90' : '6332941ccde4f719d9c00f9e';
+        return isStaging() || isSandbox() ? '6266193db77ccc8111730c90' : '6332941ccde4f719d9c00f9e';
     },
     get loginProjectFlowId(): string {
-        return isStaging() ? '658ed28b0990f300134d7b78' : '6332941ccde4f719d9c00f9f';
+        return isStaging() || isSandbox() ? '658ed28b0990f300134d7b78' : '6332941ccde4f719d9c00f9f';
     },
     get plateReportProjectId(): string {
         return '6ad24bdb2467ba37a62beb72';
@@ -47,7 +66,7 @@ export const environment = {
         return 'Verifik';
     },
     get kycBaseUrl(): string {
-        return isStaging() ? 'https://staging-access.verifik.co' : 'https://access.verifik.co';
+        return isStaging() || isSandbox() ? 'https://staging-access.verifik.co' : 'https://access.verifik.co';
     },
     get documentationBaseUrl(): string {
         return 'https://docs.verifik.co';

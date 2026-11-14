@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "backend": {
+      "root": "backend",
+      "framework": "koa",
+      "entrypoint": "src/index.js"
+    },
+    "frontend": {
+      "root": "frontend",
+      "framework": "angular",
+      "outputDirectory": "dist/browser",
+      "rewrites": [
+        { "source": "/(.*)", "destination": "/index.html" }
+      ]
+    },
+    "landing": {
+      "root": "landing",
+      "framework": "vite"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/agent/:path*", "destination": { "service": "backend" } },
+    { "source": "/api/proxy", "destination": { "service": "backend" } },
+    { "source": "/api/uploads/:path*", "destination": { "service": "backend" } },
+    { "source": "/openapi.json", "destination": { "service": "backend" } },
+    { "source": "/.well-known/:path*", "destination": { "service": "backend" } },
+    { "source": "/v2/:path*", "destination": "https://sandbox-api.verifik.co/v2/:path*" },
+    { "source": "/v3/:path*", "destination": "https://sandbox-api.verifik.co/v3/:path*" },
+    { "source": "/api/:path*", "destination": "https://sandbox-api.verifik.co/api/:path*" },
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
+  ]
+}
