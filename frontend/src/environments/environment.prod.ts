@@ -10,7 +10,9 @@ const isStaging = (): boolean => {
 const isSandbox = (): boolean => {
     if (typeof window === 'undefined') return false;
 
-    return SANDBOX_HOSTS.has(window.location.hostname);
+    const hostname = window.location.hostname;
+
+    return SANDBOX_HOSTS.has(hostname) || hostname.endsWith('.vercel.app');
 };
 
 const sameOrigin = (): string => (typeof window === 'undefined' ? '' : window.location.origin);
