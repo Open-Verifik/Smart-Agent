@@ -32,8 +32,10 @@ import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, Subject, switchMap } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef } from 'ag-grid-community';
+import { AllCommunityModule, ColDef, ModuleRegistry } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import {

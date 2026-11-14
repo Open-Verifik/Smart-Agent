@@ -520,6 +520,17 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         return total > 0 ? Math.round((count / total) * 100) : 0;
     }
 
+    connectSmartAccess(): void {
+        const id = this.project()?._id;
+        if (!id) return;
+        void this._router.navigate(['/smart-access/projects/new/setup/0'], {
+            queryParams: {
+                linkProject: id,
+                flowType: 'SMART_ENROLL',
+            },
+        });
+    }
+
     goToStaff(): void {
         const id = this.project()?._id;
         if (!id) return;

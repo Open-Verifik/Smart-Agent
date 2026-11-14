@@ -53,6 +53,10 @@
                     </div>
                     @if (project() && !loading() && !section()) {
                         <div class="flex flex-wrap gap-2">
+                            <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="connectSmartAccess()">
+                                <mat-icon class="!h-4 !w-4 mr-1">lock_open</mat-icon>
+                                {{ t('smartEnrollProjects.detail.connectSmartAccess') }}
+                            </button>
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goToStaff()">
                                 {{ t('smartEnrollProjects.list.menuStaff') }}
                             </button>

@@ -93,6 +93,7 @@ export class AccessLoginMethodsStepComponent implements OnInit {
             ?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
             .subscribe((on: boolean) => {
                 this._syncEmailGatewayFromToggle(!!on);
+                this._checkStepUpConstraint();
                 this._cdr.markForCheck();
             });
 
@@ -107,6 +108,7 @@ export class AccessLoginMethodsStepComponent implements OnInit {
                     this.sms = false;
                     this._writeGateway('none');
                 }
+                this._checkStepUpConstraint();
                 this._cdr.markForCheck();
             });
 
@@ -117,10 +119,37 @@ export class AccessLoginMethodsStepComponent implements OnInit {
                 this._syncTilesFromGateway(g);
                 this._cdr.markForCheck();
             });
+
+        this.loginSettings
+            .get('faceLiveness')
+            ?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => {
+                this._checkStepUpConstraint();
+                this._cdr.markForCheck();
+            });
+
+        // Listen to security.source changes from Step 2 to update contextual warning
+        this.form
+            ?.get('projectFlow.security.source')
+            ?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => {
+                this._cdr.markForCheck();
+            });
+    }
+
+    private _checkStepUpConstraint(): void {
+        if (!this.canEnableStepUp && this.loginSettings.get('requireBiometricStepUp')?.value) {
+            this.loginSettings.get('requireBiometricStepUp')?.setValue(false, { emitEvent: false });
+            this.loginSettings.markAsDirty();
+        }
     }
 
     get loginSettings(): FormGroup {
         return this.form.get('projectFlow.loginSettings') as FormGroup;
+    }
+
+    get emailOn(): boolean {
+        return !!this.loginSettings.get('email')?.value;
     }
 
     get phoneOn(): boolean {
@@ -129,6 +158,20 @@ export class AccessLoginMethodsStepComponent implements OnInit {
 
     get faceLivenessOn(): boolean {
         return !!this.loginSettings.get('faceLiveness')?.value;
+    }
+
+    get canEnableStepUp(): boolean {
+        return this.faceLivenessOn && (this.phoneOn || this.emailOn);
+    }
+
+    get requireBiometricStepUpOn(): boolean {
+        return !!this.loginSettings.get('requireBiometricStepUp')?.value;
+    }
+
+    /** Contextual warning if Face Liveness is enabled without a linked biometric source */
+    get showBiometricSourceWarning(): boolean {
+        const src = this.form?.get('projectFlow.security.source')?.value;
+        return this.faceLivenessOn && (src === 'CSV' || src === 'API' || src === 'NONE');
     }
 
     get livenessMinScore(): number {

@@ -2972,7 +2972,8 @@
             "integrations": {
                 "cardTitle": "Integrations & API",
                 "subtitle": "Webhook delivery endpoint, redirect URLs, and API credentials."
-            }
+            },
+            "connectSmartAccess": "Connect SmartAccess Login"
         }
     },
     "humanAuthnPlans": {
@@ -4224,7 +4225,8 @@
                 "savedSuccess": "Project data retention settings saved successfully.",
                 "saveError": "Failed to save project data retention settings."
             },
-            "copied": "Copied to clipboard"
+            "copied": "Copied to clipboard",
+            "connectSmartAccess": "Connect SmartAccess Login"
         },
         "setup": {
             "title": "Setup",
@@ -5623,7 +5625,10 @@
             "or_continue": "Or continue with",
             "use_biometrics": "Face verification",
             "use_passkey": "Sign in with passkey",
-            "no_methods": "Enable at least one login method to see the sign-in preview."
+            "no_methods": "Enable at least one login method to see the sign-in preview.",
+            "use_face_verification": "Use Face Verification",
+            "use_human_id": "Sign in with HumanID",
+            "use_face_or_human_id": "Sign in with Face / HumanID"
         },
         "staff": {
             "title": "Add members to the project",
@@ -5709,10 +5714,32 @@
                 "buttonTextColor": "Button text color",
                 "backgroundColor": "Background color",
                 "imageBackgroundColor": "Image background color"
-            }
+            },
+            "source_VERIFIK_PROJECTS": "Verifik Projects",
+            "source_HUMAN_AUTHN": "HumanAuthn",
+            "linkedProjectsTitle": "Linked Enrollment Projects",
+            "linkedProjectsSubtitle": "Enrolled users from these projects can sign in through this SmartAccess gateway.",
+            "noLinkedProjects": "No enrollment projects linked yet. Edit whitelist settings to connect projects."
         },
         "loginDetail": {
-            "title": "Login record"
+            "title": "Session detail",
+            "method": "Authentication method",
+            "sourceType": "Identity source",
+            "sourceProject": "Source project",
+            "appRegistration": "Enrollment record",
+            "method_email": "Email OTP",
+            "method_phone": "Phone OTP",
+            "method_faceLiveness": "Face Biometrics (1:N)",
+            "method_biometrics": "Face Biometrics",
+            "method_humanId": "HumanID (Zero-Template)",
+            "method_passkey": "Passkey",
+            "sourceType_smartEnroll": "SmartEnroll KYC",
+            "sourceType_smartBusiness": "SmartBusiness KYB",
+            "sourceType_humanAuthn": "HumanAuthn",
+            "sourceType_csvWhitelist": "CSV Whitelist",
+            "sourceType_apiWhitelist": "External API",
+            "sourceType_open": "Open Access",
+            "sourceType_legacy": "Direct / Legacy"
         },
         "setup": {
             "title": "Setup wizard",
@@ -5813,7 +5840,16 @@
                 "actual_score": "Actual score",
                 "additional_options": "Additional options",
                 "additional_subtitle": "Fine-tune secondary behaviours for the login experience.",
-                "at_least_one_method": "Enable at least one authentication method (email, phone, or biometrics) to continue."
+                "at_least_one_method": "Enable at least one authentication method (email, phone, or biometrics) to continue.",
+                "require_biometric_step_up": "Require biometric 2FA step-up",
+                "require_biometric_step_up_subtitle": "When enabled, users must complete biometric face verification after validating their email or phone OTP.",
+                "require_biometric_step_up_hint": "Biometric 2FA requires Face Liveness and at least one OTP method (Email or Phone) to be enabled.",
+                "biometric_source_warning_title": "Biometric Database Required",
+                "biometric_source_warning": "1:N face identification requires a linked biometric database. Your selected database source does not provide enrolled facial templates. In Step 2 (Connect Database), link a SmartEnroll or HumanAuthn project to enable biometric login.",
+                "require_biometric_step_up_label": "Require Face / HumanID after OTP (2FA)",
+                "warning_face_unlinked_title": "Biometric Enrollment Source Required",
+                "warning_face_unlinked_message": "Face Biometrics requires linking at least one SmartEnroll or HumanAuthn project in the Identity Source step. Without enrolled biometrics, 1:N face identification cannot match users.",
+                "human_authn_thresholds_note": "Cryptographic thresholds and senseprint encryption are governed by your linked HumanAuthn project."
             },
             "whitelist": {
                 "title": "Connect database",
@@ -5873,8 +5909,51 @@
                 "identity": "Identity verification",
                 "prev": "Prev",
                 "next": "Next",
-                "entries": "entries"
-            }
+                "entries": "entries",
+                "mode_verifik_projects": "Verifik Projects",
+                "mode_none": "Open Access",
+                "mode_none_title": "Open Access / Anyone",
+                "mode_none_subtitle": "Allow any user with a valid email or phone number to sign in without a pre-existing whitelist.",
+                "mode_none_info": "In open access mode, users verify their email or phone number via OTP on every sign-in. No prior enrollment in a Verifik project is required.",
+                "verifik_projects_title": "Connect Verifik Projects",
+                "verifik_projects_subtitle": "Link one or more SmartEnroll or HumanAuthn projects to authenticate their enrolled users.",
+                "verifik_projects_search": "Search projects by name...",
+                "verifik_projects_search_placeholder": "Search projects by name or ID...",
+                "verifik_projects_empty": "No matching candidate enrollment projects found. Create a SmartEnroll or HumanAuthn project first.",
+                "verifik_projects_loading": "Loading available projects...",
+                "verifik_projects_required": "Please select at least 1 Verifik project to link.",
+                "verifik_projects_selected_count": "Selected: {{count}} project(s)",
+                "allow_signup_redirect": "Show \"Create Account\" link on Sign-In",
+                "allow_signup_redirect_hint": "Allow un-enrolled users to navigate directly to this project to register.",
+                "allow_signup_redirect_label": "Allow \"Create Account\" link on sign-in screen",
+                "primary_signup_project": "Primary Sign-Up Project",
+                "primary_signup_project_hint": "When users click \"Create Account\", they will be redirected to this project\"s onboarding flow.",
+                "primary_signup_project_label": "Primary Sign-Up Destination",
+                "primary_signup_badge": "Primary Sign-Up",
+                "storage_none_warning_title": "Zero-Template Storage Notice",
+                "storage_none_warning_desc": "This HumanAuthn project stores no server copy of HumanID. Biometric sign-in will prompt users to scan, upload, or paste their HumanID (or pass it via host application SDK) before taking a selfie.",
+                "guardrail_storage_none_title": "Zero-Storage HumanAuthn Notice",
+                "guardrail_storage_none_message": "This HumanAuthn project does not store encrypted HumanIDs on the server. Users will be prompted to scan, upload, or paste their HumanID (or provide it via SDK context) before taking a selfie.",
+                "open_access_title": "Open Access (No Whitelist)",
+                "open_access_subtitle": "Allow anyone with a valid email or phone OTP to sign in without an enrollment whitelist.",
+                "open_access_info": "No whitelist restriction active",
+                "open_access_desc": "Any user who can verify an email or SMS OTP will be granted access. Note: Face Biometrics requires enrolled face templates or HumanID proofs and is disabled when Open Access is active without linked projects.",
+                "badge_smart_enroll": "SmartEnroll KYC",
+                "badge_human_authn": "HumanAuthn",
+                "badge_smart_business": "SmartBusiness KYB",
+                "status_active": "Active",
+                "status_draft": "Draft",
+                "product_smart_enroll": "SmartEnroll",
+                "product_smart_business": "SmartBusiness",
+                "product_human_authn": "HumanAuthn",
+                "capability_opencv_face": "OpenCV 1:N Face",
+                "capability_human_id_ipfs": "HumanID · IPFS",
+                "capability_human_id_cloud": "HumanID · Cloud",
+                "capability_human_id_none": "HumanID · None",
+                "allow_signup_badge": "Sign-Up Link",
+                "validation_min_projects": "Please select at least one project to link."
+            },
+            "see_live_project": "Open live project"
         },
         "csv": {
             "title": "Upload your whitelist",

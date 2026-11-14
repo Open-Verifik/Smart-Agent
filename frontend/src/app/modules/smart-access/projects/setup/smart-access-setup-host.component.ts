@@ -89,6 +89,7 @@ const LOGIN_SETTINGS_KEYS = [
     `${LOGIN_SETTINGS_PREFIX}.faceLiveness`,
     `${LOGIN_SETTINGS_PREFIX}.showFaceLivenessRecommendation`,
     `${LOGIN_SETTINGS_PREFIX}.allowPasskeys`,
+    `${LOGIN_SETTINGS_PREFIX}.requireBiometricStepUp`,
     `${LOGIN_SETTINGS_PREFIX}.searchMode`,
     `${LOGIN_SETTINGS_PREFIX}.livenessMinScore`,
     `${LOGIN_SETTINGS_PREFIX}.searchMinScore`,
@@ -117,6 +118,8 @@ const CONNECT_KEYS = [
     'projectFlow.security.apiUrl',
     'projectFlow.security.apiTestType',
     'projectFlow.security.apiTestValue',
+    'projectFlow.security.linkedProjects',
+    'projectFlow.security.primarySignUpProject',
 ];
 
 const BRANDING_KEYS = [
@@ -380,15 +383,17 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     }
 
     previewProject(): void {
+        if (this.projectId === 'new') return;
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
         const baseRaw =
             environment.production && environment.kycBaseUrl
                 ? environment.kycBaseUrl
                 : ((environment as { sandBoxKYCBaseUrl?: string }).sandBoxKYCBaseUrl ??
                   environment.kycBaseUrl ??
-                  '');
+                  origin);
         const baseUrl = `${baseRaw}`.replace(/\/+$/, '');
-        if (!baseUrl || this.projectId === 'new') return;
-        window.open(`${baseUrl}/sign-in/${this.projectId}`, '_blank');
+        if (!baseUrl) return;
+        window.open(`${baseUrl}/sign-in/${this.projectId}`, '_blank', 'noopener,noreferrer');
     }
 
     previousStep(): void {
@@ -465,6 +470,12 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             const hasPendingRows =
                 (this._whitelistStep?.pendingCsvPayload?.whiteList?.length ?? 0) > 0;
             return controlsOk && (hasExistingRows || hasPendingRows);
+        }
+
+        if (source === 'VERIFIK_PROJECTS' || source === 'SMART_ENROLL') {
+            const linked = this.form.get('projectFlow.security.linkedProjects')?.value;
+            const hasProjects = Array.isArray(linked) && linked.length > 0;
+            return controlsOk && hasProjects;
         }
 
         return controlsOk;
@@ -607,6 +618,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                             !!flow.loginSettings?.showFaceLivenessRecommendation,
                         ],
                         allowPasskeys: [!!flow.loginSettings?.allowPasskeys],
+                        requireBiometricStepUp: [!!flow.loginSettings?.requireBiometricStepUp],
                     },
                     { validators: loginSettingsGroupValidator }
                 ),
@@ -623,6 +635,8 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                     ],
                     source: [(flow.security as SmartAccessSecurity)?.source ?? null],
                     strategy: [(flow.security as SmartAccessSecurity)?.strategy || 'whitelist'],
+                    linkedProjects: [(flow.security as SmartAccessSecurity)?.linkedProjects || []],
+                    primarySignUpProject: [(flow.security as SmartAccessSecurity)?.primarySignUpProject ?? null],
                 }),
             }),
         });
@@ -633,6 +647,36 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             ?.valueChanges.pipe(takeUntil(this._unsub$))
             .subscribe((src: string | null) => this._adjustSecurityValidators(src ?? null));
         this._adjustSecurityValidators(sec?.get('source')?.value ?? null);
+
+        this._route.queryParams.pipe(takeUntil(this._unsub$)).subscribe((qp) => {
+            const linkProjectId = qp['linkProject'];
+            const flowTypeParam = (qp['flowType'] || '').toUpperCase();
+            if (linkProjectId && this.form) {
+                const sGroup = this.form.get('projectFlow.security');
+                if (sGroup) {
+                    sGroup.get('source')?.setValue('VERIFIK_PROJECTS');
+                    const flowType = flowTypeParam === 'HUMAN_AUTHN' ? 'humanAuthn' : 'onboarding';
+                    const initialLinked = [
+                        {
+                            project: linkProjectId,
+                            flowType,
+                            target: 'personal',
+                            allowSignUpRedirect: true,
+                        },
+                    ];
+                    const lpCtrl = sGroup.get('linkedProjects');
+                    if (lpCtrl) {
+                        lpCtrl.setValue(initialLinked);
+                    }
+                    const primaryCtrl = sGroup.get('primarySignUpProject');
+                    if (primaryCtrl && !primaryCtrl.value) {
+                        primaryCtrl.setValue(linkProjectId);
+                    }
+                    this.form.markAsDirty();
+                    this._cdr.markForCheck();
+                }
+            }
+        });
 
         const login = this.form.get(LOGIN_SETTINGS_PREFIX) as FormGroup | null;
         login?.valueChanges.pipe(takeUntil(this._unsub$)).subscribe(() => {
@@ -645,8 +689,10 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         const g = this.form.get('projectFlow.security') as FormGroup;
         const url = g.get('apiUrl');
         const tester = g.get('apiTestValue');
+        const linked = g.get('linkedProjects');
 
         const requireApi = source === 'API';
+        const requireLinked = source === 'VERIFIK_PROJECTS' || source === 'SMART_ENROLL';
 
         if (requireApi) {
             url?.setValidators([Validators.required, Validators.pattern(STRICT_URL_PATTERN)]);
@@ -657,8 +703,17 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             tester?.clearValidators();
         }
 
+        if (requireLinked) {
+            linked?.setValidators([
+                (c) => (Array.isArray(c.value) && c.value.length > 0 ? null : { requiredProjects: true }),
+            ]);
+        } else {
+            linked?.clearValidators();
+        }
+
         url?.updateValueAndValidity({ emitEvent: false });
         tester?.updateValueAndValidity({ emitEvent: false });
+        linked?.updateValueAndValidity({ emitEvent: false });
     }
 
     private _markControlTreeState(control: AbstractControl, state: 'dirty' | 'touched'): void {

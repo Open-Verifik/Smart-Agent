@@ -52,6 +52,52 @@ export class AccessSignInPreviewComponent implements OnInit {
         this._setup.stepIndex$.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
             this._cdr.markForCheck();
         });
+
+        // Re-render live preview whenever any form value changes
+        this.form?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
+            this._cdr.markForCheck();
+        });
+    }
+
+    /** Dynamic button text key based on linked project types */
+    get biometricButtonTextKey(): string {
+        const sec = this.form?.get('projectFlow.security');
+        const source = sec?.get('source')?.value;
+        if (source === 'HUMAN_AUTHN') {
+            return 'smartAccessProjects.signIn.use_human_id';
+        }
+        const linked = sec?.get('linkedProjects')?.value;
+        if (Array.isArray(linked) && linked.length > 0) {
+            const hasHumanAuthn = linked.some((lp: any) => lp?.flowType === 'humanAuthn');
+            const hasSmartEnroll = linked.some((lp: any) => lp?.flowType === 'onboarding');
+            if (hasHumanAuthn && hasSmartEnroll) {
+                return 'smartAccessProjects.signIn.use_face_or_human_id';
+            }
+            if (hasHumanAuthn) {
+                return 'smartAccessProjects.signIn.use_human_id';
+            }
+            if (hasSmartEnroll) {
+                return 'smartAccessProjects.signIn.use_face_verification';
+            }
+        }
+        return 'smartAccessProjects.signIn.use_biometrics';
+    }
+
+    /** Dynamic signup link visible only when linked enrollment allows redirect */
+    get showSignUpLink(): boolean {
+        const sec = this.form?.get('projectFlow.security');
+        if (!sec) return false;
+        const source = sec.get('source')?.value;
+        if (source === 'SMART_ENROLL') return true;
+        if (source === 'VERIFIK_PROJECTS') {
+            const primary = sec.get('primarySignUpProject')?.value;
+            if (primary) return true;
+            const linked = sec.get('linkedProjects')?.value;
+            if (Array.isArray(linked) && linked.length > 0) {
+                return linked.some((lp: any) => lp?.allowSignUpRedirect !== false);
+            }
+        }
+        return false;
     }
 
     /** Effective branding object: caller value layered over service defaults. */

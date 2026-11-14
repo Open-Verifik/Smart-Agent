@@ -127,17 +127,19 @@
                     </div>
 
                     <!-- Don't have an account? -->
-                    <div class="mb-6 flex items-center justify-center gap-1 text-sm">
-                        <span [style.color]="effectiveBranding.textColor || '#64748b'">
-                            {{ t('smartAccessProjects.signIn.no_account') }}
-                        </span>
-                        <span
-                            class="cursor-default font-medium underline"
-                            [style.color]="effectiveBranding.buttonColor || '#6366f1'"
-                        >
-                            {{ t('smartAccessProjects.signIn.register_here') }}
-                        </span>
-                    </div>
+                    @if (showSignUpLink) {
+                        <div class="mb-6 flex items-center justify-center gap-1 text-sm">
+                            <span [style.color]="effectiveBranding.textColor || '#64748b'">
+                                {{ t('smartAccessProjects.signIn.no_account') }}
+                            </span>
+                            <span
+                                class="cursor-default font-medium underline"
+                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                            >
+                                {{ t('smartAccessProjects.signIn.register_here') }}
+                            </span>
+                        </div>
+                    }
 
                     @if (!hasAnyMethod) {
                         <!-- Empty state -->
@@ -264,15 +266,19 @@
                             </div>
                         }
 
-                        <!-- Face verification button -->
+                        <!-- Face verification / HumanID button -->
                         @if (faceLivenessEnabled) {
                             <button
                                 type="button"
-                                class="h-12 w-full rounded-xl border-2 bg-transparent text-base font-medium"
-                                [style.border-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                                class="h-12 w-full rounded-xl text-base font-medium transition-all duration-200"
+                                [class.border-2]="emailEnabled || phoneEnabled"
+                                [class.bg-transparent]="emailEnabled || phoneEnabled"
+                                [class.shadow-sm]="!emailEnabled && !phoneEnabled"
+                                [style.border-color]="(emailEnabled || phoneEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
+                                [style.background-color]="(!emailEnabled && !phoneEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
+                                [style.color]="(!emailEnabled && !phoneEnabled) ? (effectiveBranding.buttonTextColor || '#ffffff') : (effectiveBranding.buttonColor || '#6366f1')"
                             >
-                                {{ t('smartAccessProjects.signIn.use_biometrics') }}
+                                {{ t(biometricButtonTextKey) }}
                             </button>
                         }
 
@@ -280,23 +286,15 @@
                         @if (passkeysEnabled) {
                             <button
                                 type="button"
-                                class="h-12 w-full rounded-xl border-2 bg-transparent text-base font-medium"
-                                [style.border-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                                class="h-12 w-full rounded-xl text-base font-medium transition-all duration-200"
+                                [class.border-2]="emailEnabled || phoneEnabled || faceLivenessEnabled"
+                                [class.bg-transparent]="emailEnabled || phoneEnabled || faceLivenessEnabled"
+                                [class.shadow-sm]="!emailEnabled && !phoneEnabled && !faceLivenessEnabled"
+                                [style.border-color]="(emailEnabled || phoneEnabled || faceLivenessEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
+                                [style.background-color]="(!emailEnabled && !phoneEnabled && !faceLivenessEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
+                                [style.color]="(!emailEnabled && !phoneEnabled && !faceLivenessEnabled) ? (effectiveBranding.buttonTextColor || '#ffffff') : (effectiveBranding.buttonColor || '#6366f1')"
                             >
                                 {{ t('smartAccessProjects.signIn.use_passkey') }}
-                            </button>
-                        }
-
-                        <!-- Only face / passkey (no email or phone) -->
-                        @if (!emailEnabled && !phoneEnabled && faceLivenessEnabled) {
-                            <button
-                                type="button"
-                                class="h-12 w-full rounded-xl border-2 bg-transparent text-base font-medium"
-                                [style.border-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
-                            >
-                                {{ t('smartAccessProjects.signIn.use_biometrics') }}
                             </button>
                         }
                     }
