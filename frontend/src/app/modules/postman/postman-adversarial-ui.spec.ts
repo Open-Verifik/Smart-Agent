@@ -520,6 +520,57 @@ describe('Empirical Adversarial Stress-Tests: Postman UI, Titles & Parameters', 
             });
         });
 
+        it('verifies that Peru SETARE, Vehicle v3, and Driver License endpoints have complete 7-locale About docs and updated response schemas', () => {
+            const endpoints = (postmanEndpointsIo as any).endpoints || postmanEndpointsIo;
+            const peruCodes = [
+                'peru_api_vehicle_setare_arequipa',
+                'peru_api_vehicle_v3',
+                'peru_api_driver_license_lookup',
+            ];
+
+            for (const code of peruCodes) {
+                const ep = endpoints.find((e: any) => e.code === code);
+                expect(ep, `Endpoint ${code} must exist in postman-endpoints-io.json`).toBeDefined();
+                expect(ep.docs, `Endpoint ${code} must have docs`).toBeDefined();
+
+                const deps = ep.input?.dependencies || ep.dependencies || [];
+                expect(deps.some((d: any) => d.field === 'force')).toBe(false);
+
+                for (const loc of LOCALES) {
+                    const docLang = ep.docs[loc];
+                    expect(docLang, `Endpoint ${code} must have doc for locale ${loc}`).toBeDefined();
+                    expect(docLang.overview?.length, `Endpoint ${code} must have overview for ${loc}`).toBeGreaterThan(10);
+                    expect(docLang.headers?.length, `Endpoint ${code} must have headers for ${loc}`).toBeGreaterThan(0);
+                    expect(docLang.params?.length, `Endpoint ${code} must have params for ${loc}`).toBeGreaterThan(0);
+                    expect(docLang.responses?.length, `Endpoint ${code} must have responses for ${loc}`).toBeGreaterThan(0);
+                    expect(docLang.requestExamples?.length, `Endpoint ${code} must have requestExamples for ${loc}`).toBeGreaterThan(0);
+
+                    for (const resp of docLang.responses) {
+                        expect(resp.status).toBeTruthy();
+                        expect(() => JSON.parse(resp.body)).not.toThrow();
+                    }
+                }
+
+                expect(resolveAboutOverview({ endpoint: ep, catalogDescription: '', locale: 'en' }).length).toBeGreaterThan(20);
+                expect(resolveAboutOverview({ endpoint: ep, catalogDescription: '', locale: 'es' }).length).toBeGreaterThan(20);
+            }
+
+            const v3Ok = JSON.parse(endpoints.find((e: any) => e.code === 'peru_api_vehicle_v3').docs.en.responses[0].body);
+            expect(v3Ok.data.technicalSheet.dimensions).toMatchObject({
+                length: expect.any(String),
+                width: expect.any(String),
+                height: expect.any(String),
+                wheelbase: expect.any(String),
+                curbWeight: expect.any(String),
+                fuelTank: expect.any(String),
+            });
+
+            const dlOk = JSON.parse(endpoints.find((e: any) => e.code === 'peru_api_driver_license_lookup').docs.en.responses[0].body);
+            expect(dlOk.data).toHaveProperty('hasProcedureInProgress');
+            expect(dlOk.data).toHaveProperty('hasProcedureInProgressA');
+            expect(dlOk.data).toHaveProperty('hasProcedureInProgressB');
+        });
+
         it('strictly verifies zero confidential upstream provider mentions in all user-facing prose across all 448 endpoints', () => {
             const endpoints = (postmanEndpointsIo as any).endpoints || postmanEndpointsIo;
             const violations: string[] = [];
