@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-10T22:04:07.740Z",
+  "generatedAt": "2026-11-14T03:30:31.330Z",
   "source": "verifik-backend/scripts/app-features-final.json (AppFeature.docs used by Postman About tab)",
   "locale": "en",
-  "endpointCount": 457,
-  "withDocumentedResponses": 159,
+  "endpointCount": 458,
+  "withDocumentedResponses": 386,
   "withoutDocumentedResponses": [
     "feature_kyc_solution",
     "peru_identity_lookup",
@@ -12,7 +12,6 @@
     "communication_global_email_otp",
     "colombia_api_rues",
     "mexico_api_vehicle",
-    "peru_api_vehicle_v3",
     "colombia_api_min_trabajo",
     "panama_api_vehicle",
     "colombia_api_simit_subpoenas_details",
@@ -23,7 +22,6 @@
     "panama_api_identity_full_lookup",
     "ecuador_api_criminal_history",
     "peru_identity_extra_lookup",
-    "peru_api_driver_license_lookup",
     "ar_certificate_verify",
     "cl_certificate_verify",
     "communication_global_messaging_whatsapp",
@@ -17835,7 +17833,16 @@
       "price": 0.3,
       "isAvailable": true,
       "catalogHidden": false,
-      "headers": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
       "input": {
         "dependencies": [
           {
@@ -17852,17 +17859,81 @@
         "documentedParams": [
           {
             "field": "plate",
-            "description": "Plate number to consult, without spaces or points."
+            "description": "Vehicle license plate to query, without spaces or periods."
           }
         ]
       },
-      "responses": [],
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "brand": "TOYOTA",
+              "chasisSerial": "CH000001",
+              "color": "PLATA METALICO",
+              "engineSerial": "EN000001",
+              "model": "COROLLA XLI",
+              "office": "LIMA",
+              "owners": [
+                "SANDBOX OWNER"
+              ],
+              "plate": "ABC10001",
+              "serial": "CH000001",
+              "status": "EN CIRCULACION",
+              "technicalSheet": {
+                "engine": {
+                  "engineDescription": "1.5L",
+                  "fuel": "GASOLINA",
+                  "powerHp": "105"
+                },
+                "performance": {
+                  "cityConsumption": "12 km/L",
+                  "highwayConsumption": "15 km/L"
+                },
+                "dimensions": {
+                  "length": "4630 mm",
+                  "width": "1780 mm",
+                  "height": "1435 mm",
+                  "wheelbase": "2700 mm",
+                  "curbWeight": "1280 kg",
+                  "fuelTank": "50 l",
+                  "doors": "4",
+                  "occupants": "5"
+                }
+              },
+              "vin": "CH000001",
+              "year": "2022"
+            },
+            "signature": {
+              "dateTime": "November 13, 2026 5:43 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing plate\n"
+          }
+        }
+      ],
       "descriptionES": "Consulta detalles de vehículos peruanos por placa, incluyendo identificadores y ficha técnica cuando esté disponible.",
       "docs": {
         "en": {
           "title": "Peru - Vehicle Information",
-          "description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet data when available via GET /v3/pe/vehiculo/placa.",
-          "overview": "The Peruvian Vehicle Information service returns registered vehicle details for a license plate (**`plate`**): make, model, year, engine and chassis identifiers, status, owners when available, and optional technical-sheet fields.\n\nQuery a Peruvian vehicle by **`plate`** (no spaces or periods). The response may include `brand`, `model`, `year`, `engineSerial`, `chasisSerial`, `vin`, `serial`, `color`, `status`, `owners`, and `technicalSheet` (`engine`, `performance`, `dimensions`) when available. Use for **verification**, **insurance**, **fleet**, and **compliance** workflows.",
+          "description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet dimensions and engine data when available via GET /v3/pe/vehiculo/placa.",
+          "overview": "The Peruvian Vehicle Information v3 service returns registered vehicle details for a license plate (**`plate`**): make, model, year, engine and chassis identifiers, status, owners when available, and structured `technicalSheet` data (`engine`, `performance`, and vehicle `dimensions` such as length, width, height, wheelbase, curb weight, fuel tank capacity, doors, and seats).",
           "headers": [
             {
               "name": "Accept",
@@ -17878,28 +17949,40 @@
           "params": [
             {
               "field": "plate",
-              "description": "Plate number to consult, without spaces or points."
+              "description": "Vehicle license plate to query, without spaces or periods."
             }
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const options = {\n  method: 'GET',\n  url: 'https://api.verifik.co/v3/pe/vehiculo/placa',\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: 'Bearer <your_token>',\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(data);\n} catch (error) {\n  console.error(error);\n}"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <your_token>\",\n}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nres = conn.getresponse()\nprint(res.read().decode(\"utf-8\"))"
+            },
+            {
+              "lang": "swift",
+              "label": "Swift",
+              "language": "swift",
+              "code": "var request = URLRequest(\n  url: URL(string: \"https://api.verifik.co/v3/pe/vehiculo/placa?plate=ABC123\")!,\n  timeoutInterval: Double.infinity\n)\nrequest.httpMethod = \"GET\"\nrequest.setValue(\"application/json\", forHTTPHeaderField: \"Accept\")\nrequest.setValue(\"Bearer <your_token>\", forHTTPHeaderField: \"Authorization\")\n\nlet task = URLSession.shared.dataTask(with: request) { data, response, error in\n  guard let data = data else { return }\n  print(String(data: data, encoding: .utf8)!)\n}\ntask.resume()"
+            },
+            {
+              "lang": "php",
+              "label": "PHP",
+              "language": "php",
+              "code": "<?php\nrequire_once 'HTTP/Request2.php';\n$request = new HTTP_Request2();\n$request->setUrl('https://api.verifik.co/v3/pe/vehiculo/placa?plate=ABC123');\n$request->setMethod(HTTP_Request2::METHOD_GET);\n$request->setHeader('Accept', 'application/json');\n$request->setHeader('Authorization', 'Bearer <your_token>');\n$response = $request->send();\necho $response->getBody();"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -17913,14 +17996,14 @@
             }
           ],
           "notes": [
-            "`technicalSheet` can be `null` or partially populated when matching technical data is unavailable.",
-            "Sandbox plates such as `ABC10001`–`ABC10010` return stable demo profiles."
+            "`technicalSheet` (including `dimensions` fields such as `length`, `width`, `height`, `wheelbase`, `curbWeight`, `fuelTank`, `doors`, and `occupants`) may be `null` or partially populated when matching technical specifications are unavailable for the vehicle model/year.",
+            "In **sandbox mode**, plates `ABC10001`–`ABC10010` return stable fixture vehicle profiles."
           ]
         },
         "es": {
           "title": "Perú - Información de Vehículo",
-          "description": "Consulta datos de vehículos peruanos por placa, incluidos identificadores y ficha técnica cuando estén disponibles mediante GET /v3/pe/vehiculo/placa.",
-          "overview": "El servicio de Información de Vehículos Peruanos devuelve datos registrados para una placa (**`plate`**): marca, modelo, año, identificadores de motor y chasis, estado, propietarios cuando estén disponibles, y campos opcionales de ficha técnica.\n\nConsulta un vehículo peruano por **`plate`** (sin espacios ni puntos). La respuesta puede incluir `brand`, `model`, `year`, `engineSerial`, `chasisSerial`, `vin`, `serial`, `color`, `status`, `owners` y `technicalSheet` (`engine`, `performance`, `dimensions`) cuando estén disponibles. Útil para **verificación**, **seguros**, **flotas** y **cumplimiento**.",
+          "description": "Consulta detalles de vehículos peruanos por placa mediante GET /v3/pe/vehiculo/placa, incluyendo identificadores y ficha técnica con dimensiones del vehículo cuando esté disponible.",
+          "overview": "El servicio v3 de Información de Vehículos Peruanos devuelve los datos registrados para una placa (**`plate`**): marca, modelo, año, seriales de motor y chasis, estado, propietarios cuando estén disponibles y ficha técnica estructurada (`technicalSheet` con `engine`, `performance` y `dimensions` como largo, ancho, alto, distancia entre ejes, peso, tanque de combustible, puertas y ocupantes).",
           "headers": [
             {
               "name": "Accept",
@@ -17936,28 +18019,40 @@
           "params": [
             {
               "field": "plate",
-              "description": "Número de placa a consultar, sin espacios ni puntos."
+              "description": "Número de placa del vehículo a consultar, sin espacios ni puntos."
             }
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const options = {\n  method: 'GET',\n  url: 'https://api.verifik.co/v3/pe/vehiculo/placa',\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: 'Bearer <tu_token>',\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(data);\n} catch (error) {\n  console.error(error);\n}"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <tu_token>\",\n}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nres = conn.getresponse()\nprint(res.read().decode(\"utf-8\"))"
+            },
+            {
+              "lang": "swift",
+              "label": "Swift",
+              "language": "swift",
+              "code": "var request = URLRequest(\n  url: URL(string: \"https://api.verifik.co/v3/pe/vehiculo/placa?plate=ABC123\")!,\n  timeoutInterval: Double.infinity\n)\nrequest.httpMethod = \"GET\"\nrequest.setValue(\"application/json\", forHTTPHeaderField: \"Accept\")\nrequest.setValue(\"Bearer <tu_token>\", forHTTPHeaderField: \"Authorization\")\n\nlet task = URLSession.shared.dataTask(with: request) { data, response, error in\n  guard let data = data else { return }\n  print(String(data: data, encoding: .utf8)!)\n}\ntask.resume()"
+            },
+            {
+              "lang": "php",
+              "label": "PHP",
+              "language": "php",
+              "code": "<?php\nrequire_once 'HTTP/Request2.php';\n$request = new HTTP_Request2();\n$request->setUrl('https://api.verifik.co/v3/pe/vehiculo/placa?plate=ABC123');\n$request->setMethod(HTTP_Request2::METHOD_GET);\n$request->setHeader('Accept', 'application/json');\n$request->setHeader('Authorization', 'Bearer <tu_token>');\n$response = $request->send();\necho $response->getBody();"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -17971,14 +18066,14 @@
             }
           ],
           "notes": [
-            "`technicalSheet` puede ser `null` o estar parcialmente poblado cuando no hay datos técnicos coincidentes.",
-            "Placas de sandbox como `ABC10001`–`ABC10010` devuelven perfiles demo estables."
+            "`technicalSheet` (incluidos los campos de `dimensions` como `length`, `width`, `height`, `wheelbase`, `curbWeight`, `fuelTank`, `doors` y `occupants`) puede retornar `null` o completarse parcialmente cuando no hay coincidencia exacta de ficha técnica para el modelo/año del vehículo.",
+            "En **modo sandbox**, placas como `ABC10001`–`ABC10010` devuelven perfiles de vehículo de ejemplo estables."
           ]
         },
         "fr": {
-          "title": "🇵🇪 Pérou — Informations véhicule",
-          "description": "Consultez les détails d’un véhicule péruvien par plaque, y compris les identifiants et les données de fiche technique lorsqu’elles sont disponibles via GET /v3/pe/vehiculo/placa.",
-          "overview": "Le service Informations véhicule du Pérou renvoie les détails enregistrés pour une plaque (**`plate`**) : marque, modèle, année, identifiants moteur et châssis, statut, propriétaires lorsqu’ils sont disponibles, et champs optionnels de fiche technique.\n\nInterrogez un véhicule péruvien par **`plate`** (sans espaces ni points). La réponse peut inclure `brand`, `model`, `year`, `engineSerial`, `chasisSerial`, `vin`, `serial`, `color`, `status`, `owners` et `technicalSheet` (`engine`, `performance`, `dimensions`) lorsqu’ils sont disponibles. Utile pour la **vérification**, l’**assurance**, les **flottes** et la **conformité**.",
+          "title": "Pérou — Véhicule par plaque (v3)",
+          "description": "Consultez les détails et dimensions techniques d'un véhicule péruvien par plaque via GET /v3/pe/vehiculo/placa.",
+          "overview": "Le service v3 d'informations véhicule du Pérou retourne les données officielles d'immatriculation par **`plate`** ainsi que la fiche technique `technicalSheet` (`engine`, `performance` et `dimensions` : longueur, largeur, hauteur, empattement, poids à vide, réservoir, portes et places) lorsqu'elle est disponible.",
           "headers": [
             {
               "name": "Accept",
@@ -17994,28 +18089,28 @@
           "params": [
             {
               "field": "plate",
-              "description": "Numéro de plaque à consulter, sans espaces ni points."
+              "description": "Numéro de plaque à interroger, sans espaces ni points."
             }
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <votre_token>' },\n});\nconsole.log(data);"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <votre_token>\"}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -18029,14 +18124,14 @@
             }
           ],
           "notes": [
-            "`technicalSheet` peut être `null` ou partiellement renseigné lorsque les données techniques correspondantes ne sont pas disponibles.",
-            "Les plaques sandbox telles que `ABC10001`–`ABC10010` renvoient des profils de démo stables."
+            "`technicalSheet` (dont `dimensions` : `length`, `width`, `height`, `wheelbase`, `curbWeight`, `fuelTank`, `doors`, `occupants`) peut être `null` ou partiel selon la disponibilité technique du modèle.",
+            "En **mode sandbox**, les plaques `ABC10001`–`ABC10010` retournent des profils stables."
           ]
         },
         "pt": {
-          "title": "🇵🇪 Peru — Informações de veículo",
-          "description": "Consulte detalhes de veículos peruanos por placa, incluindo identificadores e dados da ficha técnica quando disponíveis via GET /v3/pe/vehiculo/placa.",
-          "overview": "O serviço peruano de informações de veículo retorna detalhes registrados para uma placa (**`plate`**): marca, modelo, ano, identificadores de motor e chassi, status, proprietários quando disponíveis e campos opcionais da ficha técnica.\n\nConsulte um veículo peruano por **`plate`** (sem espaços nem pontos). A resposta pode incluir `brand`, `model`, `year`, `engineSerial`, `chasisSerial`, `vin`, `serial`, `color`, `status`, `owners` e `technicalSheet` (`engine`, `performance`, `dimensions`) quando disponíveis. Use para **verificação**, **seguros**, **frotas** e **conformidade**.",
+          "title": "Peru — Veículo por placa (v3)",
+          "description": "Consulte detalhes e dimensões técnicas de veículos peruanos por placa via GET /v3/pe/vehiculo/placa.",
+          "overview": "O serviço v3 de Informações de Veículos do Peru retorna os dados cadastrais do veículo por **`plate`**, além da ficha técnica `technicalSheet` (`engine`, `performance` e `dimensions`, incluindo comprimento, largura, altura, entre-eixos, peso, tanque, portas e ocupantes) quando disponível.",
           "headers": [
             {
               "name": "Accept",
@@ -18057,23 +18152,23 @@
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <seu_token>' },\n});\nconsole.log(data);"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <seu_token>\"}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -18087,51 +18182,51 @@
             }
           ],
           "notes": [
-            "`technicalSheet` pode ser `null` ou parcialmente preenchido quando não há dados técnicos correspondentes.",
-            "Placas sandbox como `ABC10001`–`ABC10010` retornam perfis de demonstração estáveis."
+            "`technicalSheet` (incluindo `dimensions`: `length`, `width`, `height`, `wheelbase`, `curbWeight`, `fuelTank`, `doors` e `occupants`) pode retornar `null` ou parcial caso não haja ficha técnica correspondente.",
+            "Em **modo sandbox**, placas `ABC10001`–`ABC10010` retornam perfis estáveis de exemplo."
           ]
         },
         "ko": {
-          "title": "🇵🇪 페루 — 차량 정보",
-          "description": "GET /v3/pe/vehiculo/placa로 번호판을 통해 페루 차량 상세 정보와 가능한 경우 기술 사양서 데이터를 조회합니다.",
-          "overview": "페루 차량 정보 서비스는 번호판(**`plate`**)에 대한 등록 차량 상세를 반환합니다: 제조사, 모델, 연식, 엔진·차대 식별자, 상태, 가능한 경우 소유자, 선택적 기술 사양서 필드.\n\n**`plate`**(공백·점 없음)로 페루 차량을 조회합니다. 응답에는 가능한 경우 `brand`, `model`, `year`, `engineSerial`, `chasisSerial`, `vin`, `serial`, `color`, `status`, `owners`, `technicalSheet`(`engine`, `performance`, `dimensions`)가 포함될 수 있습니다. **검증**, **보험**, **차량 관리**, **컴플라이언스** 워크플로에 사용하세요.",
+          "title": "페루 — 차량(번호판 v3)",
+          "description": "GET /v3/pe/vehiculo/placa를 통해 번호판으로 페루 차량 정보 및 제원(technicalSheet)을 조회합니다.",
+          "overview": "페루 차량 정보 v3 서비스는 번호판(**`plate`**)으로 등록 차량 정보와 사용 가능한 경우 제원 시트 `technicalSheet` (`engine`, `performance`, 길이·너비·높이·축거·공차중량·연료탱크·도어·승차정원을 포함한 `dimensions`)를 반환합니다.",
           "headers": [
             {
               "name": "Accept",
-              "value": "application/json",
+              "value": "",
               "description": ""
             },
             {
               "name": "Authorization",
-              "value": "Bearer <token>",
+              "value": "",
               "description": ""
             }
           ],
           "params": [
             {
               "field": "plate",
-              "description": "조회할 번호판(공백·점 없음)."
+              "description": "공백이나 마침표 없이 조회할 차량 번호판입니다."
             }
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <귀하의_토큰>' },\n});\nconsole.log(data);"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <귀하의_토큰>\"}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -18145,14 +18240,14 @@
             }
           ],
           "notes": [
-            "일치하는 기술 데이터가 없을 때 `technicalSheet`는 `null`이거나 부분적으로만 채워질 수 있습니다.",
-            "`ABC10001`–`ABC10010`과 같은 샌드박스 번호판은 안정적인 데모 프로필을 반환합니다."
+            "일치하는 제원 데이터가 없는 경우 `technicalSheet`(`dimensions`: `length`, `width`, `height`, `wheelbase`, `curbWeight`, `fuelTank`, `doors`, `occupants`)는 `null`이거나 일부만 채워질 수 있습니다.",
+            "**샌드박스 모드**에서는 `ABC10001`–`ABC10010` 번호판이 안정적인 데모 프로필을 반환합니다."
           ]
         },
         "ja": {
-          "title": "🇵🇪 ペルー — 車両情報",
-          "description": "GET /v3/pe/vehiculo/placa でナンバープレートからペルー車両の詳細と、利用可能な場合の技術仕様データを照会します。",
-          "overview": "ペルー車両情報サービスは、ナンバープレート（**`plate`**）に対する登録車両詳細を返します：メーカー、モデル、年式、エンジン・シャシー識別子、ステータス、利用可能な場合の所有者、任意の技術仕様フィールド。\n\n**`plate`**（スペースや句点なし）でペルー車両を照会します。応答には、利用可能な場合に `brand`、`model`、`year`、`engineSerial`、`chasisSerial`、`vin`、`serial`、`color`、`status`、`owners`、`technicalSheet`（`engine`、`performance`、`dimensions`）が含まれることがあります。**検証**、**保険**、**フリート**、**コンプライアンス**に利用できます。",
+          "title": "ペルー — 車両（ナンバー v3）",
+          "description": "GET /v3/pe/vehiculo/placa によりナンバープレートからペルーの車両情報および技術諸元データ（technicalSheet）を取得します。",
+          "overview": "ペルー車両情報 v3 サービスは、ナンバープレート（**`plate`**）に基づき登録車両詳細および技術諸元 `technicalSheet`（`engine`、`performance`、全長・全幅・全高・ホイールベース・車両重量・燃料タンク・ドア数・乗車定員を含む `dimensions`）を返します。",
           "headers": [
             {
               "name": "Accept",
@@ -18168,28 +18263,28 @@
           "params": [
             {
               "field": "plate",
-              "description": "照会するナンバープレート（スペースや句点なし）。"
+              "description": "スペースやピリオドを含まない車両ナンバープレート。"
             }
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <あなたのトークン>' },\n});\nconsole.log(data);"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <あなたのトークン>\"}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -18203,14 +18298,14 @@
             }
           ],
           "notes": [
-            "一致する技術データがない場合、`technicalSheet` は `null` または部分的にしか埋まらないことがあります。",
-            "`ABC10001`–`ABC10010` などのサンドボックスプレートは安定したデモプロファイルを返します。"
+            "一致する技術データがない場合、`technicalSheet`（`dimensions`：`length`、`width`、`height`、`wheelbase`、`curbWeight`、`fuelTank`、`doors`、`occupants`）は `null` または部分的に返却されることがあります。",
+            "**サンドボックスモード**では、`ABC10001`–`ABC10010` などのナンバーで安定したデモプロフィールが返されます。"
           ]
         },
         "zh": {
-          "title": "🇵🇪 秘鲁 — 车辆信息",
-          "description": "通过 GET /v3/pe/vehiculo/placa 按车牌查询秘鲁车辆详情，并在可用时返回技术规格数据。",
-          "overview": "秘鲁车辆信息服务返回某车牌（**`plate`**）的登记车辆详情：品牌、型号、年份、发动机与底盘标识、状态、在可用时返回的车主，以及可选的技术规格字段。\n\n按 **`plate`**（无空格或句点）查询秘鲁车辆。响应在可用时可包含 `brand`、`model`、`year`、`engineSerial`、`chasisSerial`、`vin`、`serial`、`color`、`status`、`owners` 和 `technicalSheet`（`engine`、`performance`、`dimensions`）。适用于**核验**、**保险**、**车队**与**合规**流程。",
+          "title": "秘鲁 — 车辆信息 (v3)",
+          "description": "通过 GET /v3/pe/vehiculo/placa 按车牌查询秘鲁车辆详情，并在可用时返回尺寸等技术规格数据。",
+          "overview": "秘鲁车辆信息 v3 服务按车牌号（**`plate`**）返回登记车辆详情，并在可用时返回 `technicalSheet`（`engine`、`performance` 以及包含车长、车宽、车高、轴距、整备质量、油箱容积、车门数与座位数在内的 `dimensions`）。",
           "headers": [
             {
               "name": "Accept",
@@ -18231,23 +18326,23 @@
           ],
           "requestExamples": [
             {
-              "lang": "node",
-              "label": "Node.js",
+              "lang": "javascript",
+              "label": "JavaScript",
               "language": "javascript",
-              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: `Bearer ${process.env.VERIFIK_TOKEN}`,\n  },\n});\nconsole.log(data);"
+              "code": "const { data } = await axios.get('https://api.verifik.co/v3/pe/vehiculo/placa', {\n  params: { plate: 'ABC123' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <您的令牌>' },\n});\nconsole.log(data);"
             },
             {
               "lang": "python",
               "label": "Python",
               "language": "python",
-              "code": "url = \"https://api.verifik.co/v3/pe/vehiculo/placa\"\nheaders = {\"Accept\": \"application/json\", \"Authorization\": f\"Bearer {os.getenv('VERIFIK_TOKEN')}\"}\nparams = {\"plate\": \"ABC123\"}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <您的令牌>\"}\nconn.request(\"GET\", \"/v3/pe/vehiculo/placa?plate=ABC123\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
             }
           ],
           "responses": [
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"doors\": \"5\",\n        \"occupants\": \"7\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"July 17, 2026 3:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"brand\": \"TOYOTA\",\n    \"chasisSerial\": \"CH000001\",\n    \"color\": \"PLATA METALICO\",\n    \"engineSerial\": \"EN000001\",\n    \"model\": \"COROLLA XLI\",\n    \"office\": \"LIMA\",\n    \"owners\": [\"SANDBOX OWNER\"],\n    \"plate\": \"ABC10001\",\n    \"serial\": \"CH000001\",\n    \"status\": \"EN CIRCULACION\",\n    \"technicalSheet\": {\n      \"engine\": {\n        \"engineDescription\": \"1.5L\",\n        \"fuel\": \"GASOLINA\",\n        \"powerHp\": \"105\"\n      },\n      \"performance\": {\n        \"cityConsumption\": \"12 km/L\",\n        \"highwayConsumption\": \"15 km/L\"\n      },\n      \"dimensions\": {\n        \"length\": \"4630 mm\",\n        \"width\": \"1780 mm\",\n        \"height\": \"1435 mm\",\n        \"wheelbase\": \"2700 mm\",\n        \"curbWeight\": \"1280 kg\",\n        \"fuelTank\": \"50 l\",\n        \"doors\": \"4\",\n        \"occupants\": \"5\"\n      }\n    },\n    \"vin\": \"CH000001\",\n    \"year\": \"2022\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -18261,8 +18356,8 @@
             }
           ],
           "notes": [
-            "当无匹配技术数据时，`technicalSheet` 可能为 `null` 或部分填充。",
-            "沙箱车牌如 `ABC10001`–`ABC10010` 返回稳定的演示资料。"
+            "当无匹配技术规格数据时，`technicalSheet`（包含 `dimensions` 中的 `length`、`width`、`height`、`wheelbase`、`curbWeight`、`fuelTank`、`doors`、`occupants`）可能为 `null` 或部分填充。",
+            "在**沙盒模式**下，`ABC10001`–`ABC10010` 返回稳定的演示车辆档案。"
           ]
         }
       },
@@ -18276,6 +18371,551 @@
           "min": null,
           "max": null,
           "description": "Vehicle license plate to query, without spaces or punctuation."
+        }
+      ]
+    },
+    {
+      "code": "peru_api_vehicle_setare_arequipa",
+      "name": "Peru - SETARE Arequipa Taxi Permit",
+      "nameES": "Perú - Permiso de Taxi SETARE Arequipa",
+      "country": "Peru",
+      "category": "transit",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/pe/vehiculo/setare-arequipa",
+      "description": "Validate whether a vehicle holds an active SETARE taxi operating permit in Arequipa, Peru, including permit number, type, operating company, issue/expiration dates, and status.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "plate",
+            "type": "String",
+            "required": true,
+            "enum": null,
+            "default": null,
+            "min": 6,
+            "max": 7,
+            "description": "Número de placa a consultar (6 caracteres alfanuméricos, ej. V3D236)."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "plate",
+            "description": "Vehicle license plate to query (6 alphanumeric characters, e.g. `V3D236`)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "hasActivePermit": true,
+              "latestPermit": {
+                "permitNumber": "24581",
+                "manufactureYear": "2021",
+                "plate": "ABC10001",
+                "permitType": "Definitivo",
+                "companyName": "EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.",
+                "issueDate": "2024-03-15",
+                "expirationDate": "2029-03-15",
+                "status": "Vigente"
+              },
+              "permits": [
+                {
+                  "permitNumber": "24581",
+                  "manufactureYear": "2021",
+                  "plate": "ABC10001",
+                  "permitType": "Definitivo",
+                  "companyName": "EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.",
+                  "issueDate": "2024-03-15",
+                  "expirationDate": "2029-03-15",
+                  "status": "Vigente"
+                }
+              ],
+              "plate": "ABC10001"
+            },
+            "signature": {
+              "dateTime": "November 13, 2026 5:43 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Placa no encontrada"
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing plate\n"
+          }
+        }
+      ],
+      "descriptionES": "Valida si un vehículo cuenta con permiso de operación SETARE para servicio de taxi en Arequipa, Perú, incluyendo número de permiso, tipo, empresa operadora, fechas de emisión/vencimiento y estado.",
+      "docs": {
+        "en": {
+          "title": "Peru - SETARE Arequipa Taxi Permit",
+          "description": "Validate whether a vehicle holds an active SETARE taxi operating permit in Arequipa, Peru via GET /v2/pe/vehiculo/setare-arequipa. Returns permit number, type, operating company, issue/expiration dates, and status.",
+          "overview": "Validate whether a vehicle holds a registered **SETARE** taxi operating permit in Arequipa, Peru based on its license **`plate`**. Returns normalized active status (`hasActivePermit`), the most recent permit record (`latestPermit`), and the full list of permit entries (`permits`) retrieved from official municipal records.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "Vehicle license plate to query (6 alphanumeric characters, e.g. `V3D236`)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const options = {\n  method: 'GET',\n  url: 'https://api.verifik.co/v2/pe/vehiculo/setare-arequipa',\n  params: { plate: 'V3D236' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: 'Bearer <your_token>',\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(data);\n} catch (error) {\n  console.error(error);\n}"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <your_token>\",\n}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nres = conn.getresponse()\nprint(res.read().decode(\"utf-8\"))"
+            },
+            {
+              "lang": "swift",
+              "label": "Swift",
+              "language": "swift",
+              "code": "var request = URLRequest(\n  url: URL(string: \"https://api.verifik.co/v2/pe/vehiculo/setare-arequipa?plate=V3D236\")!,\n  timeoutInterval: Double.infinity\n)\nrequest.httpMethod = \"GET\"\nrequest.setValue(\"application/json\", forHTTPHeaderField: \"Accept\")\nrequest.setValue(\"Bearer <your_token>\", forHTTPHeaderField: \"Authorization\")\n\nlet task = URLSession.shared.dataTask(with: request) { data, response, error in\n  guard let data = data else { return }\n  print(String(data: data, encoding: .utf8)!)\n}\ntask.resume()"
+            },
+            {
+              "lang": "php",
+              "label": "PHP",
+              "language": "php",
+              "code": "<?php\nrequire_once 'HTTP/Request2.php';\n$request = new HTTP_Request2();\n$request->setUrl('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa?plate=V3D236');\n$request->setMethod(HTTP_Request2::METHOD_GET);\n$request->setHeader('Accept', 'application/json');\n$request->setHeader('Authorization', 'Bearer <your_token>');\n$response = $request->send();\necho $response->getBody();"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "Query **`plate`** without spaces or hyphens (6 alphanumeric characters).",
+            "`hasActivePermit` is `true` when at least one returned permit has an active status (`Vigente`, `Activo`, or `Habilitado`).",
+            "In **sandbox mode**, `ABC10001` returns an active `Definitivo` (`Vigente`) permit fixture and `ABC10002` returns an expired `Transitorio` (`Vencido`) permit fixture."
+          ]
+        },
+        "es": {
+          "title": "Perú - Permiso de Taxi SETARE Arequipa",
+          "description": "Valida si un vehículo cuenta con permiso de operación SETARE vigente para servicio de taxi en Arequipa, Perú mediante GET /v2/pe/vehiculo/setare-arequipa.",
+          "overview": "Valida si un vehículo cuenta con permiso de operación **SETARE** para servicio de taxi en Arequipa, Perú a partir de su número de placa (**`plate`**). Retorna el indicador booleano de vigencia (`hasActivePermit`), el permiso más reciente (`latestPermit`) y el listado completo de autorizaciones registradas (`permits`) en registros municipales oficiales.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "Número de placa a consultar (6 caracteres alfanuméricos, ej. `V3D236`)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const options = {\n  method: 'GET',\n  url: 'https://api.verifik.co/v2/pe/vehiculo/setare-arequipa',\n  params: { plate: 'V3D236' },\n  headers: {\n    Accept: 'application/json',\n    Authorization: 'Bearer <tu_token>',\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(data);\n} catch (error) {\n  console.error(error);\n}"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <tu_token>\",\n}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nres = conn.getresponse()\nprint(res.read().decode(\"utf-8\"))"
+            },
+            {
+              "lang": "swift",
+              "label": "Swift",
+              "language": "swift",
+              "code": "var request = URLRequest(\n  url: URL(string: \"https://api.verifik.co/v2/pe/vehiculo/setare-arequipa?plate=V3D236\")!,\n  timeoutInterval: Double.infinity\n)\nrequest.httpMethod = \"GET\"\nrequest.setValue(\"application/json\", forHTTPHeaderField: \"Accept\")\nrequest.setValue(\"Bearer <tu_token>\", forHTTPHeaderField: \"Authorization\")\n\nlet task = URLSession.shared.dataTask(with: request) { data, response, error in\n  guard let data = data else { return }\n  print(String(data: data, encoding: .utf8)!)\n}\ntask.resume()"
+            },
+            {
+              "lang": "php",
+              "label": "PHP",
+              "language": "php",
+              "code": "<?php\nrequire_once 'HTTP/Request2.php';\n$request = new HTTP_Request2();\n$request->setUrl('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa?plate=V3D236');\n$request->setMethod(HTTP_Request2::METHOD_GET);\n$request->setHeader('Accept', 'application/json');\n$request->setHeader('Authorization', 'Bearer <tu_token>');\n$response = $request->send();\necho $response->getBody();"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "Envía `plate` sin espacios ni guiones (6 caracteres alfanuméricos).",
+            "`hasActivePermit` es `true` cuando al menos un permiso registrado tiene estado activo (`Vigente`, `Activo` o `Habilitado`).",
+            "En **modo sandbox**, `ABC10001` devuelve un permiso `Definitivo` activo (`Vigente`) y `ABC10002` devuelve un permiso `Transitorio` vencido (`Vencido`)."
+          ]
+        },
+        "fr": {
+          "title": "Pérou — Permis taxi SETARE Arequipa",
+          "description": "Vérifiez si un véhicule dispose d'un permis taxi SETARE actif à Arequipa via GET /v2/pe/vehiculo/setare-arequipa.",
+          "overview": "Vérifie si un véhicule détient une autorisation taxi **SETARE** à Arequipa (Pérou) à partir de sa plaque (**`plate`**) et retourne `hasActivePermit`, `latestPermit` et `permits` depuis les registres municipaux officiels.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "Numéro de plaque à consulter (6 caractères alphanumériques, ex. `V3D236`)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const { data } = await axios.get('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa', {\n  params: { plate: 'V3D236' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <votre_token>' },\n});\nconsole.log(data);"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <votre_token>\"}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "Saisissez `plate` sans espaces ni tirets (6 caractères alphanumériques).",
+            "En **mode sandbox**, `ABC10001` retourne un permis actif (`Vigente`) et `ABC10002` retourne un permis expiré (`Vencido`)."
+          ]
+        },
+        "pt": {
+          "title": "Peru — Permissão de Táxi SETARE Arequipa",
+          "description": "Valide se um veículo possui permissão de táxi SETARE ativa em Arequipa via GET /v2/pe/vehiculo/setare-arequipa.",
+          "overview": "Valida se um veículo possui autorização **SETARE** de táxi em Arequipa (Peru) a partir da placa (**`plate`**), retornando `hasActivePermit`, `latestPermit` e `permits` dos registros municipais oficiais.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "Número da placa a consultar (6 caracteres alfanuméricos, ex. `V3D236`)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const { data } = await axios.get('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa', {\n  params: { plate: 'V3D236' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <seu_token>' },\n});\nconsole.log(data);"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <seu_token>\"}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "Envie `plate` sem espaços ou hifens (6 caracteres alfanuméricos).",
+            "Em **modo sandbox**, `ABC10001` retorna uma permissão ativa (`Vigente`) e `ABC10002` retorna uma permissão vencida (`Vencido`)."
+          ]
+        },
+        "ko": {
+          "title": "페루 — SETARE 아레키파 택시 면허",
+          "description": "GET /v2/pe/vehiculo/setare-arequipa를 통해 페루 아레키파에서 차량이 유효한 SETARE 택시 운행 허가를 보유하고 있는지 확인합니다.",
+          "overview": "페루 아레키파의 공식 시 기록에서 차량 번호판(**`plate`**)으로 **SETARE** 택시 운행 허가 여부를 확인하고 `hasActivePermit`, `latestPermit`, `permits`를 반환합니다.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "조회할 차량 번호판 (공백·하이픈 없는 6자리 영숫자, 예: `V3D236`)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const { data } = await axios.get('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa', {\n  params: { plate: 'V3D236' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <귀하의_토큰>' },\n});\nconsole.log(data);"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <귀하의_토큰>\"}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "`plate`는 공백이나 하이픈 없이 6자리 영숫자로 전달하세요.",
+            "**샌드박스 모드**에서는 `ABC10001`이 유효 허가(`Vigente`), `ABC10002`가 만료 허가(`Vencido`) 예시를 반환합니다."
+          ]
+        },
+        "ja": {
+          "title": "ペルー — アレキパ SETARE タクシー許可",
+          "description": "GET /v2/pe/vehiculo/setare-arequipa によりペルー・アレキパで有効な SETARE タクシー運行許可を保有しているか確認します。",
+          "overview": "ペルー・アレキパの公式自治体記録に基づき、車両ナンバー（**`plate`**）から **SETARE** タクシー運行許可の有無を確認し、`hasActivePermit`、`latestPermit`、`permits` を返します。",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "照会する車両ナンバー（スペース・ハイフンなしの6桁英数字、例: `V3D236`）。"
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const { data } = await axios.get('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa', {\n  params: { plate: 'V3D236' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <あなたのトークン>' },\n});\nconsole.log(data);"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <あなたのトークン>\"}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "`plate` はスペースやハイフンを含まない6桁の英数字で指定してください。",
+            "**サンドボックスモード**では、`ABC10001` が有効な許可（`Vigente`）、`ABC10002` が失効した許可（`Vencido`）を返します。"
+          ]
+        },
+        "zh": {
+          "title": "秘鲁 — 阿雷基帕 SETARE 出租车运营许可",
+          "description": "通过 GET /v2/pe/vehiculo/setare-arequipa 验证车辆在秘鲁阿雷基帕是否持有有效的 SETARE 出租车运营许可。",
+          "overview": "根据秘鲁阿雷基帕市政官方记录，按车牌号（**`plate`**）验证车辆是否具备 **SETARE** 出租车运营许可，并返回 `hasActivePermit`、`latestPermit` 和 `permits`。",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "plate",
+              "description": "要查询的车牌号（不含空格或连字符的 6 位字母数字，如 `V3D236`）。"
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "JavaScript",
+              "language": "javascript",
+              "code": "const { data } = await axios.get('https://api.verifik.co/v2/pe/vehiculo/setare-arequipa', {\n  params: { plate: 'V3D236' },\n  headers: { Accept: 'application/json', Authorization: 'Bearer <您的令牌>' },\n});\nconsole.log(data);"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "conn = http.client.HTTPSConnection(\"api.verifik.co\")\nheaders = {\"Accept\": \"application/json\", \"Authorization\": \"Bearer <您的令牌>\"}\nconn.request(\"GET\", \"/v2/pe/vehiculo/setare-arequipa?plate=V3D236\", headers=headers)\nprint(conn.getresponse().read().decode(\"utf-8\"))"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200",
+              "body": "{\n  \"data\": {\n    \"hasActivePermit\": true,\n    \"latestPermit\": {\n      \"permitNumber\": \"24581\",\n      \"manufactureYear\": \"2021\",\n      \"plate\": \"ABC10001\",\n      \"permitType\": \"Definitivo\",\n      \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n      \"issueDate\": \"2024-03-15\",\n      \"expirationDate\": \"2029-03-15\",\n      \"status\": \"Vigente\"\n    },\n    \"permits\": [\n      {\n        \"permitNumber\": \"24581\",\n        \"manufactureYear\": \"2021\",\n        \"plate\": \"ABC10001\",\n        \"permitType\": \"Definitivo\",\n        \"companyName\": \"EMPRESA DE TAXIS AREQUIPA FORMAL S.A.C.\",\n        \"issueDate\": \"2024-03-15\",\n        \"expirationDate\": \"2029-03-15\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"plate\": \"ABC10001\"\n  },\n  \"signature\": {\n    \"dateTime\": \"November 13, 2026 5:43 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "404",
+              "label": "404",
+              "body": "{\n  \"code\": \"NotFound\",\n  \"message\": \"Placa no encontrada\"\n}"
+            },
+            {
+              "status": "409",
+              "label": "409",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing plate\\n\"\n}"
+            }
+          ],
+          "notes": [
+            "请传入不含空格或连字符的 6 位车牌号（`plate`）。",
+            "在**沙盒模式**下，`ABC10001` 返回有效许可（`Vigente`），`ABC10002` 返回已过期许可（`Vencido`）。"
+          ]
+        }
+      },
+      "dependencies": [
+        {
+          "field": "plate",
+          "type": "String",
+          "required": true,
+          "enum": null,
+          "default": null,
+          "min": 6,
+          "max": 7,
+          "description": "Número de placa a consultar (6 caracteres alfanuméricos, ej. V3D236)."
         }
       ]
     },
@@ -38982,7 +39622,16 @@
       "price": 0.3,
       "isAvailable": true,
       "catalogHidden": false,
-      "headers": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
       "input": {
         "dependencies": [
           {
@@ -39019,7 +39668,108 @@
           }
         ]
       },
-      "responses": [],
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "bloodType": "O+",
+              "departmentCode": "15",
+              "documentNumber": "10000001",
+              "documentType": "DNI",
+              "firstName": "MARIA ELENA",
+              "fullName": "MARIA ELENA LOPEZ GARCIA",
+              "hasLicensesA": true,
+              "hasLicensesAIV": false,
+              "hasLicensesB": false,
+              "hasProcedureInProgress": false,
+              "hasProcedureInProgressA": false,
+              "hasProcedureInProgressB": false,
+              "hasProvisionalPermit": false,
+              "hasRegulatoryCourses": true,
+              "hasSexualHarassmentCourse": false,
+              "lastName": "LOPEZ GARCIA",
+              "licenses": [
+                {
+                  "licenseNumber": "R10000001",
+                  "correlation": "10",
+                  "licenseCategory": "A IIb",
+                  "expirationDate": "14/12/2027",
+                  "licenseStatus": "Vigente",
+                  "electronicLicense": 0,
+                  "restrictions": "SIN RESTRICCIONES",
+                  "issuanceCenter": "Direc. Reg. Transporte - Lima",
+                  "issueDate": "10/05/2005"
+                }
+              ],
+              "maternalLastName": "GARCIA",
+              "organDonation": "NO",
+              "paternalLastName": "LOPEZ",
+              "procedures": [
+                {
+                  "licenseNumber": "R10000001",
+                  "correlation": 10,
+                  "procedure": "Revalidación",
+                  "category": "A IIb",
+                  "issueDate": "14/12/2022",
+                  "expeditionDate": "10/05/2005",
+                  "revalidationDate": "14/12/2027",
+                  "status": "Vigente",
+                  "electronicLicense": 0,
+                  "restriction1": "SIN RESTRICCIONES",
+                  "restriction2": null,
+                  "issuanceCenter": "Direc. Reg. Transporte - Lima"
+                }
+              ],
+              "proceduresAIV": null,
+              "proceduresB": null,
+              "provisionalPermit": null,
+              "regulatoryCourses": [
+                {
+                  "certificateStatus": "001316",
+                  "serviceType": "Personas",
+                  "enrollmentDate": "05/12/2025",
+                  "startDate": "05/12/2025",
+                  "endDate": "05/12/2025",
+                  "hours": 6
+                }
+              ],
+              "sanctions": null,
+              "sexualHarassmentCourses": [],
+              "tickets": []
+            },
+            "signature": {
+              "dateTime": "June 23, 2026 10:00 AM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        },
+        {
+          "status": "409-2",
+          "label": "409 (Invalid Document Type)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "documentType must be one of: [DNI]"
+          }
+        }
+      ],
       "descriptionES": "Metodo encargado de consultar licencias de conducir en Peru. Indica documentType DNI y documentNumber; devuelve categoria, estado, vencimiento y restricciones cuando esten disponibles.",
       "docs": {
         "en": {
@@ -39078,7 +39828,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"bloodType\": \"O+\",\n    \"departmentCode\": \"15\",\n    \"documentNumber\": \"10000001\",\n    \"documentType\": \"DNI\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasLicensesAIV\": false,\n    \"hasLicensesB\": false,\n    \"hasProvisionalPermit\": false,\n    \"hasRegulatoryCourses\": true,\n    \"hasSexualHarassmentCourse\": false,\n    \"lastName\": \"LOPEZ GARCIA\",\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": \"10\",\n        \"licenseCategory\": \"A IIb\",\n        \"expirationDate\": \"14/12/2027\",\n        \"licenseStatus\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restrictions\": \"SIN RESTRICCIONES\",\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\",\n        \"issueDate\": \"10/05/2005\"\n      }\n    ],\n    \"maternalLastName\": \"GARCIA\",\n    \"organDonation\": \"NO\",\n    \"paternalLastName\": \"LOPEZ\",\n    \"procedures\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": 10,\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"issueDate\": \"14/12/2022\",\n        \"expeditionDate\": \"10/05/2005\",\n        \"revalidationDate\": \"14/12/2027\",\n        \"status\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restriction1\": \"SIN RESTRICCIONES\",\n        \"restriction2\": null,\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\"\n      }\n    ],\n    \"proceduresAIV\": null,\n    \"proceduresB\": null,\n    \"provisionalPermit\": null,\n    \"regulatoryCourses\": [\n      {\n        \"certificateStatus\": \"001316\",\n        \"serviceType\": \"Personas\",\n        \"enrollmentDate\": \"05/12/2025\",\n        \"startDate\": \"05/12/2025\",\n        \"endDate\": \"05/12/2025\",\n        \"hours\": 6\n      }\n    ],\n    \"sanctions\": null,\n    \"sexualHarassmentCourses\": [],\n    \"tickets\": []\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"bloodType\": \"O+\",\n    \"departmentCode\": \"15\",\n    \"documentNumber\": \"10000001\",\n    \"documentType\": \"DNI\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasLicensesAIV\": false,\n    \"hasLicensesB\": false,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"hasProvisionalPermit\": false,\n    \"hasRegulatoryCourses\": true,\n    \"hasSexualHarassmentCourse\": false,\n    \"lastName\": \"LOPEZ GARCIA\",\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": \"10\",\n        \"licenseCategory\": \"A IIb\",\n        \"expirationDate\": \"14/12/2027\",\n        \"licenseStatus\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restrictions\": \"SIN RESTRICCIONES\",\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\",\n        \"issueDate\": \"10/05/2005\"\n      }\n    ],\n    \"maternalLastName\": \"GARCIA\",\n    \"organDonation\": \"NO\",\n    \"paternalLastName\": \"LOPEZ\",\n    \"procedures\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": 10,\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"issueDate\": \"14/12/2022\",\n        \"expeditionDate\": \"10/05/2005\",\n        \"revalidationDate\": \"14/12/2027\",\n        \"status\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restriction1\": \"SIN RESTRICCIONES\",\n        \"restriction2\": null,\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\"\n      }\n    ],\n    \"proceduresAIV\": null,\n    \"proceduresB\": null,\n    \"provisionalPermit\": null,\n    \"regulatoryCourses\": [\n      {\n        \"certificateStatus\": \"001316\",\n        \"serviceType\": \"Personas\",\n        \"enrollmentDate\": \"05/12/2025\",\n        \"startDate\": \"05/12/2025\",\n        \"endDate\": \"05/12/2025\",\n        \"hours\": 6\n      }\n    ],\n    \"sanctions\": null,\n    \"sexualHarassmentCourses\": [],\n    \"tickets\": []\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39099,6 +39849,7 @@
           "notes": [
             "Only `documentType=DNI` is supported.",
             "`documentNumber` must be **6–8** digits.",
+            "`hasProcedureInProgress` is `true` if either `hasProcedureInProgressA` or `hasProcedureInProgressB` indicates an active licensing procedure in progress.",
             "In **sandbox mode**, use `documentNumber` values **10000001**–**10000010** for stable sample responses; `90040401` returns **404**."
           ]
         },
@@ -39146,7 +39897,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39161,6 +39912,7 @@
           ],
           "notes": [
             "Seul `documentType=DNI` est pris en charge.",
+            "`hasProcedureInProgress` vaut `true` si `hasProcedureInProgressA` ou `hasProcedureInProgressB` indique une démarche de permis en cours.",
             "En **mode sandbox** : `documentNumber` **10000001**–**10000010** ; `90040401` → **404**."
           ]
         },
@@ -39208,7 +39960,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39223,6 +39975,7 @@
           ],
           "notes": [
             "Apenas `documentType=DNI` é suportado.",
+            "`hasProcedureInProgress` é `true` quando `hasProcedureInProgressA` ou `hasProcedureInProgressB` indica um trâmite de habilitação em andamento.",
             "Em **modo sandbox**: `documentNumber` **10000001**–**10000010**; `90040401` → **404**."
           ]
         },
@@ -39270,7 +40023,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39285,6 +40038,7 @@
           ],
           "notes": [
             "`documentType=DNI`만 지원됩니다.",
+            "`hasProcedureInProgress`는 `hasProcedureInProgressA` 또는 `hasProcedureInProgressB`가 진행 중인 면허 절차를 나타내면 `true`입니다.",
             "**샌드박스 모드**: `documentNumber` **10000001**–**10000010**; `90040401` → **404**."
           ]
         },
@@ -39332,7 +40086,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39347,6 +40101,7 @@
           ],
           "notes": [
             "`documentType=DNI` のみサポートされています。",
+            "`hasProcedureInProgress` は、`hasProcedureInProgressA` または `hasProcedureInProgressB` が進行中の免許手続きを示す場合に `true` になります。",
             "**サンドボックスモード**: `documentNumber` **10000001**–**10000010**; `90040401` → **404**。"
           ]
         },
@@ -39394,7 +40149,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000001\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"licenseCategory\": \"A IIb\",\n        \"licenseStatus\": \"Vigente\",\n        \"expirationDate\": \"14/12/2027\",\n        \"restrictions\": \"SIN RESTRICCIONES\"\n      }\n    ],\n    \"procedures\": [\n      {\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"status\": \"Vigente\"\n      }\n    ],\n    \"regulatoryCourses\": [{ \"hours\": 6 }],\n    \"tickets\": [],\n    \"sanctions\": null\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39409,6 +40164,7 @@
           ],
           "notes": [
             "仅支持 `documentType=DNI`。",
+            "若 `hasProcedureInProgressA` 或 `hasProcedureInProgressB` 表示存在正在办理的驾照手续，则 `hasProcedureInProgress` 为 `true`。",
             "**沙盒模式**：`documentNumber` **10000001**–**10000010**；`90040401` → **404**。"
           ]
         },
@@ -39456,7 +40212,7 @@
             {
               "status": "200",
               "label": "200",
-              "body": "{\n  \"data\": {\n    \"bloodType\": \"O+\",\n    \"departmentCode\": \"15\",\n    \"documentNumber\": \"10000001\",\n    \"documentType\": \"DNI\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasLicensesAIV\": false,\n    \"hasLicensesB\": false,\n    \"hasProvisionalPermit\": false,\n    \"hasRegulatoryCourses\": true,\n    \"hasSexualHarassmentCourse\": false,\n    \"lastName\": \"LOPEZ GARCIA\",\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": \"10\",\n        \"licenseCategory\": \"A IIb\",\n        \"expirationDate\": \"14/12/2027\",\n        \"licenseStatus\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restrictions\": \"SIN RESTRICCIONES\",\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\",\n        \"issueDate\": \"10/05/2005\"\n      }\n    ],\n    \"maternalLastName\": \"GARCIA\",\n    \"organDonation\": \"NO\",\n    \"paternalLastName\": \"LOPEZ\",\n    \"procedures\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": 10,\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"issueDate\": \"14/12/2022\",\n        \"expeditionDate\": \"10/05/2005\",\n        \"revalidationDate\": \"14/12/2027\",\n        \"status\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restriction1\": \"SIN RESTRICCIONES\",\n        \"restriction2\": null,\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\"\n      }\n    ],\n    \"proceduresAIV\": null,\n    \"proceduresB\": null,\n    \"provisionalPermit\": null,\n    \"regulatoryCourses\": [\n      {\n        \"certificateStatus\": \"001316\",\n        \"serviceType\": \"Personas\",\n        \"enrollmentDate\": \"05/12/2025\",\n        \"startDate\": \"05/12/2025\",\n        \"endDate\": \"05/12/2025\",\n        \"hours\": 6\n      }\n    ],\n    \"sanctions\": null,\n    \"sexualHarassmentCourses\": [],\n    \"tickets\": []\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+              "body": "{\n  \"data\": {\n    \"bloodType\": \"O+\",\n    \"departmentCode\": \"15\",\n    \"documentNumber\": \"10000001\",\n    \"documentType\": \"DNI\",\n    \"firstName\": \"MARIA ELENA\",\n    \"fullName\": \"MARIA ELENA LOPEZ GARCIA\",\n    \"hasLicensesA\": true,\n    \"hasLicensesAIV\": false,\n    \"hasLicensesB\": false,\n    \"hasProcedureInProgress\": false,\n    \"hasProcedureInProgressA\": false,\n    \"hasProcedureInProgressB\": false,\n    \"hasProvisionalPermit\": false,\n    \"hasRegulatoryCourses\": true,\n    \"hasSexualHarassmentCourse\": false,\n    \"lastName\": \"LOPEZ GARCIA\",\n    \"licenses\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": \"10\",\n        \"licenseCategory\": \"A IIb\",\n        \"expirationDate\": \"14/12/2027\",\n        \"licenseStatus\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restrictions\": \"SIN RESTRICCIONES\",\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\",\n        \"issueDate\": \"10/05/2005\"\n      }\n    ],\n    \"maternalLastName\": \"GARCIA\",\n    \"organDonation\": \"NO\",\n    \"paternalLastName\": \"LOPEZ\",\n    \"procedures\": [\n      {\n        \"licenseNumber\": \"R10000001\",\n        \"correlation\": 10,\n        \"procedure\": \"Revalidación\",\n        \"category\": \"A IIb\",\n        \"issueDate\": \"14/12/2022\",\n        \"expeditionDate\": \"10/05/2005\",\n        \"revalidationDate\": \"14/12/2027\",\n        \"status\": \"Vigente\",\n        \"electronicLicense\": 0,\n        \"restriction1\": \"SIN RESTRICCIONES\",\n        \"restriction2\": null,\n        \"issuanceCenter\": \"Direc. Reg. Transporte - Lima\"\n      }\n    ],\n    \"proceduresAIV\": null,\n    \"proceduresB\": null,\n    \"provisionalPermit\": null,\n    \"regulatoryCourses\": [\n      {\n        \"certificateStatus\": \"001316\",\n        \"serviceType\": \"Personas\",\n        \"enrollmentDate\": \"05/12/2025\",\n        \"startDate\": \"05/12/2025\",\n        \"endDate\": \"05/12/2025\",\n        \"hours\": 6\n      }\n    ],\n    \"sanctions\": null,\n    \"sexualHarassmentCourses\": [],\n    \"tickets\": []\n  },\n  \"signature\": {\n    \"dateTime\": \"June 23, 2026 10:00 AM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
             },
             {
               "status": "404",
@@ -39472,6 +40228,7 @@
           "notes": [
             "Solo se admite `documentType=DNI`.",
             "`documentNumber` debe tener **6–8** dígitos.",
+            "`hasProcedureInProgress` es `true` si `hasProcedureInProgressA` o `hasProcedureInProgressB` indica un trámite de licencia en curso.",
             "En **modo sandbox**, usa `documentNumber` **10000001**–**10000010** para respuestas de ejemplo estables; `90040401` devuelve **404**."
           ]
         }
