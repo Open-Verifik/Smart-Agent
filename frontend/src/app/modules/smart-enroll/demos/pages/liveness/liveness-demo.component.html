@@ -1,249 +1,199 @@
 <app-demo-page-shell sectionLink="/human-authn/demos" sectionLabelKey="nav.human_authn" demosLink="/human-authn/demos">
-    <div class="flex items-center justify-center mb-10 pt-4 gap-2">
-        @for (label of ['smartEnrollDemos.liveness.stepCapture', 'smartEnrollDemos.liveness.stepResult']; track label; let i = $index) {
-            <div class="flex items-center">
-                <div class="flex flex-col items-center">
-                    <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center font-bold transition-all"
-                        [ngClass]="{
-                            'bg-primary text-on-primary': numericStep > i + 1,
-                            'bg-primary-container ring-4 ring-primary-20': numericStep === i + 1,
-                            'bg-surface-container-high border border-outline-variant text-on-surface-variant opacity-50': numericStep < i + 1
-                        }"
-                    >
-                        @if (numericStep > i + 1) {
-                            <span class="material-symbols-outlined text-sm">check</span>
-                        } @else {
-                            {{ i + 1 }}
-                        }
-                    </div>
-                    <span class="text-[0.6875rem] font-bold uppercase tracking-wider mt-2" [ngClass]="numericStep === i + 1 ? 'text-primary' : 'text-on-surface-variant opacity-50'">
-                        {{ label | transloco }}
-                    </span>
-                </div>
-                @if (i < 1) {
-                    <div class="w-12 h-0.5 mx-2 mb-5" [ngClass]="numericStep > i + 1 ? 'bg-primary' : 'bg-outline-variant opacity-30'"></div>
-                }
-            </div>
-        }
-    </div>
+    <app-demo-stage-hero
+        [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
+        [title]="
+            (step === 'result' && result?.isApiError
+                ? 'smartEnrollDemos.liveness.errorResultTitle'
+                : step === 'result'
+                  ? 'smartEnrollDemos.liveness.heroAnalysisComplete'
+                  : 'smartEnrollDemos.liveness.heroLivenessDefault'
+            ) | transloco
+        "
+        [subtitle]="
+            step === 'result' && result?.isApiError
+                ? result!.message
+                : ((step === 'capture'
+                      ? 'smartEnrollDemos.liveness.heroCapture'
+                      : step === 'processing'
+                        ? 'smartEnrollDemos.liveness.heroProcessing'
+                        : 'smartEnrollDemos.liveness.heroResultComplete') | transloco)
+        "
+    />
 
-    @if (step === 'capture') {
-        <app-demo-stage-hero
-            [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
-            [title]="'smartEnrollDemos.liveness.heroLivenessDefault' | transloco"
-            [subtitle]="'smartEnrollDemos.liveness.heroCapture' | transloco"
-        />
-    } @else {
-    <div class="mb-10">
-        <h2 class="text-4xl md:text-5xl font-black tracking-tight text-on-surface mb-2">
-            @if (step === 'result' && result?.isApiError) {
-                {{ 'smartEnrollDemos.liveness.errorResultTitle' | transloco }}
-            } @else if (step === 'result') {
-                {{ 'smartEnrollDemos.liveness.heroAnalysisComplete' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.liveness.heroLivenessDefault' | transloco }}
-            }
-        </h2>
-        <p class="text-on-surface-variant font-medium">
-            @switch (step) {
-                @case ('capture') {
-                    {{ 'smartEnrollDemos.liveness.heroCapture' | transloco }}
-                }
-                @case ('processing') {
-                    {{ 'smartEnrollDemos.liveness.heroProcessing' | transloco }}
-                }
-                @case ('result') {
-                    @if (result?.isApiError) {
-                        {{ result.message }}
-                    } @else {
-                        {{ 'smartEnrollDemos.liveness.heroResultComplete' | transloco }}
-                    }
-                }
-            }
-        </p>
-    </div>
-    }
+    <app-demo-step-pills [labels]="stepLabels" [currentStep]="numericStep" ariaLabel="Progress" />
 
     @if (step === 'capture') {
         @if (error) {
-            <div class="mb-6 px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-start gap-3 max-w-3xl">
-                <span class="material-symbols-outlined text-error text-base shrink-0 mt-0.5">error_outline</span>
-                <span class="text-sm text-on-error-container leading-5">{{ error }}</span>
+            <div role="alert" class="mx-auto flex w-full max-w-2xl items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+                <span class="material-symbols-outlined shrink-0 text-base mt-0.5" aria-hidden="true">error_outline</span>
+                <span>{{ error }}</span>
             </div>
         }
-        <app-demo-stage-card
-            number="01"
-            [title]="'smartEnrollDemos.demoStage.captureTitle' | transloco"
-            [help]="'smartEnrollDemos.demoStage.captureHelp' | transloco"
-        >
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div class="lg:col-span-7 bg-surface-container-low rounded-xl p-6 relative overflow-hidden">
-                <app-demo-choose-one-callout [extraClass]="'relative z-10 mb-4'" [description]="'smartEnrollDemos.liveness.chooseOneDescription' | transloco" />
-                <app-demo-scanner-shell>
-                    <app-face-guided-camera [fillFrame]="true" [disabled]="step !== 'capture'" (captured)="onCapture($event)" (captureError)="error = $event" />
-                </app-demo-scanner-shell>
 
-                <div class="mt-6 grid grid-cols-1 gap-3">
-                    <app-demo-or-divider />
-                    <app-demo-capture-option-heading label="B" headingId="liveness-upload-heading" [title]="'smartEnrollDemos.liveness.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.liveness.uploadSubtitle' | transloco" />
-                    <app-demo-upload-image-button
-                        id="btn-upload-image"
-                        [useNativeInput]="true"
-                        [loading]="uploadReading"
-                        [primaryText]="
-                            uploadReading
-                                ? ('smartEnrollDemos.liveness.uploadReading' | transloco)
-                                : ('smartEnrollDemos.liveness.uploadPrimary' | transloco)
-                        "
-                        [secondaryText]="
-                            uploadReading && uploadFileName
-                                ? uploadFileName
-                                : ('smartEnrollDemos.liveness.uploadSecondary' | transloco)
-                        "
-                        (fileSelected)="onFileUpload($event)"
-                    />
-                </div>
-            </div>
-
-            <div class="lg:col-span-5">
-                <div class="bg-surface-container rounded-xl p-5">
-                    <h3 class="text-sm font-bold tracking-widest text-on-surface-variant uppercase mb-2 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                        {{ 'smartEnrollDemos.liveness.samplesTitle' | transloco }}
-                    </h3>
-                    <p class="text-xs text-on-surface-variant mb-4">{{ 'smartEnrollDemos.liveness.samplesDescription' | transloco }}</p>
-                    <div class="grid grid-cols-3 gap-2">
-                        @for (sample of sampleImages; track sample.src) {
-                            <button
-                                type="button"
-                                (click)="runSampleImage(sample)"
-                                class="relative aspect-square rounded-lg overflow-hidden border transition-all p-0 cursor-pointer hover:border-primary/40"
-                            >
-                                <img [src]="sample.src" alt="" class="absolute inset-0 w-full h-full object-cover" />
-                                @if (sample.fail) {
-                                    <span class="absolute bottom-1 left-1 right-1 rounded bg-black/65 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
-                                        {{ 'smartEnrollDemos.common.sampleFailHint' | transloco }}
-                                    </span>
-                                }
-                            </button>
-                        }
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+            <!-- Left Column: Preset Sample Portraits + Liveness Cutoff -->
+            <section class="flex flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 lg:col-span-5 dark:border-gray-800 dark:bg-gray-900">
+                <header class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{ 'smartEnrollDemos.liveness.samplesTitle' | transloco }}
+                        </h3>
+                        <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                            {{ 'smartEnrollDemos.liveness.samplesDescription' | transloco }}
+                        </p>
                     </div>
-                </div>
-            </div>
-        </div>
-        </app-demo-stage-card>
-    }
-
-    @if (step === 'processing') {
-        <div class="flex flex-col items-center justify-center py-24">
-            @if (previewUrl) {
-                <img [src]="previewUrl" alt="" class="w-32 h-32 rounded-full object-cover grayscale opacity-70 mb-8" />
-            }
-            <p class="text-lg font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.liveness.analyzingTitle' | transloco }}</p>
-            <p class="text-on-surface-variant text-sm font-mono">{{ 'smartEnrollDemos.liveness.engineLine' | transloco }}</p>
-        </div>
-    }
-
-    @if (step === 'result' && result && !result.isApiError) {
-        <div class="max-w-xl mx-auto w-full">
-            <app-demo-sandbox-result-banner />
-            <div
-                class="rounded-2xl border p-8 text-center shadow-sm"
-                [ngClass]="
-                    result.isLive
-                        ? 'border-stone-200/90 bg-white dark:border-gray-800 dark:bg-gray-900/70'
-                        : 'border-red-200/90 bg-white dark:border-red-900/60 dark:bg-gray-900/70'
-                "
-            >
-                <div
-                    class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border"
-                    [ngClass]="
-                        result.isLive
-                            ? 'border-emerald-200/90 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300'
-                            : 'border-red-200/90 bg-red-50 text-red-600 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300'
-                    "
-                >
-                    <span class="material-symbols-outlined text-4xl" [style.font-variation-settings]="'\'FILL\' 1'">
-                        {{ result.isLive ? 'verified_user' : 'gpp_bad' }}
+                    <span class="shrink-0 rounded-md bg-blue-50 px-2 py-0.5 font-mono text-xs font-bold tabular-nums text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                        {{ defaultMinScore.toFixed(2) }}
                     </span>
-                </div>
-                <h2 class="text-3xl font-semibold tracking-tight text-stone-950 dark:text-white mb-2">
-                    {{ (result.isLive ? 'smartEnrollDemos.liveness.liveTitle' : 'smartEnrollDemos.liveness.spoofTitle') | transloco }}
-                </h2>
-                <p class="text-sm leading-6 text-stone-500 dark:text-stone-400 mb-8">{{ result.message }}</p>
-                <div class="grid grid-cols-3 gap-3 mb-8">
-                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <p class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">
-                            {{ result.confidence != null ? (result.confidence * 100).toFixed(1) + '%' : '—' }}
-                        </p>
-                        <p class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            {{ 'smartEnrollDemos.liveness.confidence' | transloco }}
-                        </p>
-                    </div>
-                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <p
-                            class="text-2xl font-semibold tracking-tight"
-                            [ngClass]="result.isLive ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-600 dark:text-red-300'"
+                </header>
+
+                <div class="grid grid-cols-3 gap-2.5">
+                    @for (sample of sampleImages; track sample.src) {
+                        <button
+                            type="button"
+                            (click)="runSampleImage(sample)"
+                            class="group relative aspect-square overflow-hidden rounded-xl border border-stone-200 bg-stone-100 transition-all hover:border-blue-500 hover:ring-2 hover:ring-blue-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:border-gray-800 dark:bg-gray-800"
                         >
-                            {{ (result.isLive ? 'smartEnrollDemos.liveness.pass' : 'smartEnrollDemos.liveness.fail') | transloco }}
-                        </p>
-                        <p class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            {{ 'smartEnrollDemos.liveness.verdict' | transloco }}
-                        </p>
-                    </div>
-                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <p class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">
-                            {{ result.price != null ? '$' + result.price.toFixed(4) : '—' }}
-                        </p>
-                        <p class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            {{ 'smartEnrollDemos.liveness.cost' | transloco }}
-                        </p>
-                    </div>
+                            <img [src]="sample.src" alt="" class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105" />
+                            @if (sample.fail) {
+                                <span class="absolute bottom-1.5 left-1.5 right-1.5 rounded-md bg-stone-900/80 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white backdrop-blur-xs">
+                                    {{ 'smartEnrollDemos.common.sampleFailHint' | transloco }}
+                                </span>
+                            }
+                        </button>
+                    }
                 </div>
-                <app-demo-result-actions
-                    [secondaryLabel]="'smartEnrollDemos.liveness.tryAgain' | transloco"
-                    [primaryLabel]="'smartEnrollDemos.common.backToDemos' | transloco"
-                    primaryRouterLink="/human-authn/demos"
-                    (secondary)="reset()"
+            </section>
+
+            <!-- Right Column: Compact Upload-First Capture Panel -->
+            <div class="lg:col-span-7">
+                <app-demo-capture-panel
+                    fileInputId="liveness-upload-file"
+                    stepBadge="01"
+                    [title]="'smartEnrollDemos.demoStage.captureTitle' | transloco"
+                    [subtitle]="'smartEnrollDemos.liveness.chooseOneDescription' | transloco"
+                    [uploadTitle]="'smartEnrollDemos.liveness.uploadPrimary' | transloco"
+                    [uploadHint]="'smartEnrollDemos.faceComparison.dropzoneHint' | transloco"
+                    [uploadButtonLabel]="'smartEnrollDemos.liveness.uploadSecondary' | transloco"
+                    [cameraFooterText]="'smartEnrollDemos.demoStage.captureHelp' | transloco"
+                    [disabled]="uploadReading"
+                    [(captureMode)]="captureMode"
+                    (filePicked)="onFilePicked($event)"
+                    (captured)="onCapture($event)"
+                    (captureError)="error = $event"
                 />
             </div>
         </div>
     }
 
-    @if (step === 'result' && result?.isApiError && result) {
-        <div
-            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px]"
-            role="dialog"
-            aria-modal="true"
-            [attr.aria-labelledby]="'liveness-api-error-title'"
-        >
-            <div class="w-full max-w-lg rounded-2xl border border-red-200/80 bg-white p-8 text-center shadow-xl shadow-black/30 dark:border-red-900/60 dark:bg-gray-900">
+    @if (step === 'processing') {
+        <div class="mx-auto w-full max-w-2xl">
+            <div class="rounded-2xl border border-stone-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-gray-900">
+                @if (previewUrl) {
+                    <img [src]="previewUrl" alt="" class="mx-auto mb-5 h-24 w-24 rounded-2xl border border-stone-200 object-cover opacity-80 grayscale dark:border-gray-700" />
+                } @else {
+                    <div class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-blue-600/30 border-t-blue-600"></div>
+                }
+                <p class="text-base font-semibold text-stone-900 dark:text-white">{{ 'smartEnrollDemos.liveness.analyzingTitle' | transloco }}</p>
+                <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ 'smartEnrollDemos.liveness.engineLine' | transloco }}</p>
+            </div>
+        </div>
+    }
+
+    @if (step === 'result' && result && !result.isApiError) {
+        <div class="mx-auto w-full max-w-2xl">
+            <app-demo-sandbox-result-banner />
+            <div
+                class="rounded-2xl border p-6 sm:p-8 text-center"
+                [ngClass]="
+                    result.isLive
+                        ? 'border-emerald-200 bg-white dark:border-emerald-800/60 dark:bg-gray-900'
+                        : 'border-red-200 bg-white dark:border-red-800/60 dark:bg-gray-900'
+                "
+            >
                 <div
-                    class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-red-200/90 bg-red-50 text-red-600 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+                    class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border"
+                    [ngClass]="
+                        result.isLive
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+                            : 'border-red-200 bg-red-50 text-red-600 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300'
+                    "
                 >
-                    <span class="material-symbols-outlined text-4xl" [style.font-variation-settings]="'\'FILL\' 1'">error</span>
+                    <span class="material-symbols-outlined text-3xl" [style.font-variation-settings]="'\'FILL\' 1'" aria-hidden="true">
+                        {{ result.isLive ? 'verified_user' : 'gpp_bad' }}
+                    </span>
                 </div>
-                <h2 id="liveness-api-error-title" class="text-3xl font-semibold tracking-tight text-stone-950 dark:text-white mb-3">
+                <h2 class="mb-2 text-2xl sm:text-3xl font-black tracking-tight text-stone-900 dark:text-white">
+                    {{ (result.isLive ? 'smartEnrollDemos.liveness.liveTitle' : 'smartEnrollDemos.liveness.spoofTitle') | transloco }}
+                </h2>
+                <p class="mb-6 text-sm text-stone-600 dark:text-stone-400">{{ result.message }}</p>
+
+                <div class="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div class="rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-800/50">
+                        <p class="font-mono text-2xl font-black tabular-nums text-blue-600 dark:text-blue-400">
+                            {{ result.confidence != null ? (result.confidence * 100).toFixed(1) + '%' : '—' }}
+                        </p>
+                        <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                            {{ 'smartEnrollDemos.liveness.confidence' | transloco }}
+                        </p>
+                    </div>
+                    <div class="rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-800/50">
+                        <p
+                            class="text-2xl font-black"
+                            [ngClass]="result.isLive ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-600 dark:text-red-300'"
+                        >
+                            {{ (result.isLive ? 'smartEnrollDemos.liveness.pass' : 'smartEnrollDemos.liveness.fail') | transloco }}
+                        </p>
+                        <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                            {{ 'smartEnrollDemos.liveness.verdict' | transloco }}
+                        </p>
+                    </div>
+                    <div class="rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-800/50">
+                        <p class="font-mono text-2xl font-black tabular-nums text-stone-900 dark:text-white">
+                            {{ result.price != null ? '$' + result.price.toFixed(4) : '—' }}
+                        </p>
+                        <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                            {{ 'smartEnrollDemos.liveness.cost' | transloco }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <app-demo-result-actions
+                        [secondaryLabel]="'smartEnrollDemos.liveness.tryAgain' | transloco"
+                        [primaryLabel]="'smartEnrollDemos.common.backToDemos' | transloco"
+                        primaryRouterLink="/human-authn/demos"
+                        (secondary)="reset()"
+                    />
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (step === 'result' && result?.isApiError && result) {
+        <div class="mx-auto w-full max-w-2xl">
+            <div role="alert" class="rounded-2xl border border-red-200 bg-white p-8 text-center dark:border-red-900/60 dark:bg-gray-900">
+                <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/50 dark:text-red-400">
+                    <span class="material-symbols-outlined text-2xl" aria-hidden="true">error</span>
+                </div>
+                <h2 class="mb-2 text-2xl font-black tracking-tight text-stone-900 dark:text-white">
                     {{ 'smartEnrollDemos.liveness.errorResultTitle' | transloco }}
                 </h2>
-                <p class="text-base leading-7 text-stone-600 dark:text-stone-300 mb-8">{{ result.message }}</p>
-                <div class="flex flex-col-reverse gap-3 sm:flex-row">
-                    <button
-                        type="button"
-                        (click)="reset()"
-                        class="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-6 py-3.5 text-base font-semibold text-stone-950 transition hover:bg-stone-50 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800"
-                    >
-                        <span class="material-symbols-outlined text-xl">refresh</span>
+                <p class="mb-8 text-sm text-stone-600 dark:text-stone-400">{{ result.message }}</p>
+                <div class="flex flex-col-reverse justify-center gap-3 sm:flex-row">
+                    <button type="button" (click)="reset()" class="demo-btn-secondary demo-btn-inline">
+                        <span class="material-symbols-outlined text-lg" aria-hidden="true">refresh</span>
                         {{ 'smartEnrollDemos.liveness.tryAgain' | transloco }}
                     </button>
                     @if (result.isInsufficientCredits) {
-                        <a
-                            routerLink="/add-credits"
-                            class="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-stone-950 px-6 py-3.5 text-base font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98] dark:bg-white dark:text-stone-950"
-                        >
-                            <span class="material-symbols-outlined text-xl">add_card</span>
+                        <a routerLink="/add-credits" class="demo-btn-primary demo-btn-inline">
+                            <span class="material-symbols-outlined text-lg" aria-hidden="true">add_card</span>
                             {{ 'smartEnrollDemos.common.addCredits' | transloco }}
+                        </a>
+                    } @else {
+                        <a routerLink="/human-authn/demos" class="demo-btn-primary demo-btn-inline">
+                            {{ 'smartEnrollDemos.common.backToDemos' | transloco }}
+                            <span class="material-symbols-outlined text-lg" aria-hidden="true">arrow_forward</span>
                         </a>
                     }
                 </div>

@@ -1,127 +1,200 @@
 <app-demo-page-shell>
     @if (!authChecked) {
-        <div class="mb-8">
-            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
-                {{ 'smartEnrollDemos.detectFace.heroTitleInitial' | transloco }}
-            </h2>
-            <p class="text-on-surface-variant">
-                {{ 'smartEnrollDemos.detectFace.heroSubtitleInitial' | transloco }}
-            </p>
-        </div>
+        <div class="h-60 rounded-2xl bg-stone-200/70 animate-pulse dark:bg-gray-800"></div>
     } @else {
         <app-demo-stage-hero
             [eyebrow]="'smartEnrollDemos.demoStage.detection' | transloco"
             [title]="(result ? 'smartEnrollDemos.detectFace.heroTitleComplete' : 'smartEnrollDemos.detectFace.heroTitleInitial') | transloco"
             [subtitle]="(result ? 'smartEnrollDemos.detectFace.heroSubtitleComplete' : 'smartEnrollDemos.detectFace.heroSubtitleInitial') | transloco"
         />
-    }
 
-    @if (!authChecked) {
-        <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
-    } @else {
-        <div class="space-y-5">
-        <div class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
-            <app-demo-stage-card
-                number="01"
-                [title]="'smartEnrollDemos.demoStage.settingsTitle' | transloco"
-                [help]="'smartEnrollDemos.demoStage.settingsHelp' | transloco"
-            >
-            <div class="grid grid-cols-1 gap-5">
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">
-                        {{ 'smartEnrollDemos.detectFace.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
-                    </label>
-                    <input type="range" min="0.5" max="1" step="0.01" [(ngModel)]="minScore" name="minScore" class="w-full" />
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.detectFace.searchModeLabel' | transloco }}</label>
-                    <select [(ngModel)]="searchMode" name="searchMode" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary/60">
-                        <option value="FAST">FAST</option>
-                        <option value="ACCURATE">ACCURATE</option>
-                    </select>
-                </div>
-            </div>
-            </app-demo-stage-card>
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+            <!-- Left Column: Settings & Primary Action -->
+            <section class="flex flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 lg:col-span-5 dark:border-gray-800 dark:bg-gray-900">
+                <header class="flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-900 text-xs font-bold text-white dark:bg-white dark:text-stone-900">
+                            01
+                        </span>
+                        <div>
+                            <h3 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                {{ 'smartEnrollDemos.demoStage.settingsTitle' | transloco }}
+                            </h3>
+                            <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                                {{ 'smartEnrollDemos.demoStage.settingsHelp' | transloco }}
+                            </p>
+                        </div>
+                    </div>
+                    @if (image || result) {
+                        <button
+                            type="button"
+                            (click)="reset()"
+                            class="shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        >
+                            {{ 'smartEnrollDemos.detectFace.reset' | transloco }}
+                        </button>
+                    }
+                </header>
 
-            <app-demo-stage-card
-                number="02"
-                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
-                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
-            >
-            <div class="space-y-5">
-            @if (!image) {
-                <div class="space-y-5">
-                    <app-demo-choose-one-callout [description]="'smartEnrollDemos.detectFace.chooseOneDescription' | transloco" />
-                    <section aria-labelledby="detect-face-camera-heading">
-                        <app-demo-capture-option-heading label="A" id="detect-face-camera-heading" [title]="'smartEnrollDemos.detectFace.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.detectFace.cameraSubtitle' | transloco" />
-                        <app-demo-scanner-shell>
-                            <div class="flex min-h-0 flex-1 flex-col">
-                                <app-face-guided-camera [fillFrame]="true" [hideIdleExplainer]="true" [disabled]="loading" [captureSuccessFeedbackMs]="750" (captured)="onCapture($event)" />
-                            </div>
-                        </app-demo-scanner-shell>
-                    </section>
-                    <app-demo-or-divider />
-                    <section aria-labelledby="detect-face-upload-heading">
-                        <app-demo-capture-option-heading label="B" id="detect-face-upload-heading" [title]="'smartEnrollDemos.detectFace.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.detectFace.uploadSubtitle' | transloco" />
-                        <app-demo-upload-image-button (clicked)="triggerFilePicker()" [primaryText]="'smartEnrollDemos.detectFace.uploadPrimary' | transloco" [secondaryText]="'smartEnrollDemos.detectFace.uploadSecondary' | transloco" />
-                    </section>
+                <!-- Threshold Slider + Presets -->
+                <div class="border-t border-stone-100 pt-5 dark:border-gray-800">
+                    <div class="mb-2 flex items-center justify-between gap-2">
+                        <label class="text-xs font-semibold text-stone-800 dark:text-stone-200" for="detect-min-score">
+                            {{ 'smartEnrollDemos.detectFace.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
+                        </label>
+                        <span class="rounded-md bg-blue-50 px-2 py-0.5 font-mono text-xs font-bold tabular-nums text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                            {{ minScore.toFixed(2) }}
+                        </span>
+                    </div>
+                    <input
+                        id="detect-min-score"
+                        type="range"
+                        min="0.5"
+                        max="1"
+                        step="0.01"
+                        [(ngModel)]="minScore"
+                        name="minScore"
+                        class="demo-range-input w-full"
+                    />
+                    <div class="mt-3 flex flex-wrap gap-1.5">
+                        @for (preset of scorePresets; track preset) {
+                            <button
+                                type="button"
+                                (click)="minScore = preset"
+                                class="rounded-lg border px-2.5 py-1 text-[11px] font-medium tabular-nums transition-colors"
+                                [ngClass]="
+                                    minScore === preset
+                                        ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-950/50 dark:text-blue-300'
+                                        : 'border-stone-200 bg-stone-50 text-stone-600 hover:border-stone-300 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300'
+                                "
+                            >
+                                {{ preset.toFixed(2) }}
+                            </button>
+                        }
+                    </div>
                 </div>
-            }
 
-            @if (preview && image) {
-                <div
-                    class="overflow-hidden rounded-xl border transition-all duration-300"
-                    [ngClass]="previewHighlighted ? 'border-emerald-400/50 ring-4 ring-emerald-400/20' : 'border-frost'"
+                <!-- Search Mode Segmented Toggle (2 exclusive choices -> visible group per modern-web-guidance) -->
+                <div class="border-t border-stone-100 pt-5 dark:border-gray-800">
+                    <span id="detect-search-mode-label" class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200">
+                        {{ 'smartEnrollDemos.detectFace.searchModeLabel' | transloco }}
+                    </span>
+                    <div
+                        role="group"
+                        aria-labelledby="detect-search-mode-label"
+                        class="grid grid-cols-2 rounded-xl border border-stone-200 bg-stone-100 p-1 dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        @for (mode of searchModes; track mode) {
+                            <button
+                                type="button"
+                                [attr.aria-pressed]="searchMode === mode"
+                                (click)="setSearchMode(mode)"
+                                class="min-h-[36px] rounded-lg px-3 py-1.5 font-mono text-xs font-semibold transition-all"
+                                [ngClass]="
+                                    searchMode === mode
+                                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white'
+                                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'
+                                "
+                            >
+                                {{ mode }}
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (error) {
+                    <div role="alert" class="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+                        <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">error_outline</span>
+                        <span>{{ error }}</span>
+                    </div>
+                }
+
+                <button
+                    type="button"
+                    (click)="handleDetect()"
+                    [disabled]="loading || !image"
+                    class="demo-btn-primary w-full"
                 >
-                    <app-demo-raster-image [src]="preview" [alt]="'smartEnrollDemos.detectFace.previewAlt' | transloco" className="w-full aspect-video object-cover" />
-                </div>
-            }
-
-            @if (image) {
-                <button type="button" (click)="handleDetect()" [disabled]="loading" class="demo-btn-primary">
+                    <span class="material-symbols-outlined text-lg" aria-hidden="true">face_retouching_natural</span>
                     {{ (loading ? 'smartEnrollDemos.detectFace.detecting' : 'smartEnrollDemos.detectFace.detectFaces') | transloco }}
                 </button>
-            }
+            </section>
 
-            <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+            <!-- Right Column: Focused Upload-First Capture Panel -->
+            <div class="flex flex-col gap-5 lg:col-span-7">
+                <app-demo-capture-panel
+                    fileInputId="detect-face-file"
+                    stepBadge="02"
+                    [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                    [subtitle]="'smartEnrollDemos.detectFace.chooseOneDescription' | transloco"
+                    [uploadTitle]="'smartEnrollDemos.detectFace.uploadPrimary' | transloco"
+                    [uploadButtonLabel]="'smartEnrollDemos.detectFace.uploadSecondary' | transloco"
+                    [cameraFooterText]="'smartEnrollDemos.detectFace.cameraSubtitle' | transloco"
+                    [previewUrl]="preview"
+                    [previewAlt]="'smartEnrollDemos.detectFace.previewAlt' | transloco"
+                    [highlighted]="previewHighlighted"
+                    [disabled]="loading"
+                    [(captureMode)]="captureMode"
+                    (filePicked)="onFilePicked($event)"
+                    (captured)="onCapture($event)"
+                    (captureError)="error = $event"
+                    (cleared)="reset()"
+                />
 
-            @if (error) {
-                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
-                    <span class="material-symbols-outlined text-sm">error_outline</span>
-                    {{ error }}
-                </div>
-            }
+                @if (result) {
+                    <section class="rounded-2xl border border-blue-200 bg-white p-5 sm:p-6 dark:border-blue-800/60 dark:bg-gray-900">
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+                                    <span class="material-symbols-outlined text-lg" aria-hidden="true">center_focus_strong</span>
+                                </span>
+                                <h3 class="text-base font-semibold text-stone-900 dark:text-white">
+                                    {{ 'smartEnrollDemos.detectFace.resultTitle' | transloco }}
+                                </h3>
+                            </div>
+                            <button
+                                type="button"
+                                (click)="reset()"
+                                class="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                                {{ 'smartEnrollDemos.detectFace.reset' | transloco }}
+                            </button>
+                        </div>
 
+                        @if (detectedFaces.length) {
+                            <div class="mb-4 flex flex-wrap gap-2">
+                                @for (face of detectedFaces; track $index) {
+                                    <div class="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs dark:border-gray-800 dark:bg-gray-800/50">
+                                        <span class="font-semibold text-stone-900 dark:text-white">#{{ $index + 1 }}</span>
+                                        @if (faceScore(face); as score) {
+                                            <span class="font-mono font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{{ score }}</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <pre class="max-h-72 overflow-auto rounded-xl border border-stone-200 bg-stone-50 p-3 font-mono text-[0.7rem] text-stone-800 whitespace-pre-wrap dark:border-gray-800 dark:bg-gray-800/70 dark:text-stone-200">{{ result | json }}</pre>
+                    </section>
+                }
             </div>
-            </app-demo-stage-card>
         </div>
 
-            @if (result) {
-                <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.detectFace.resultTitle' | transloco }}</p>
-                        <button type="button" (click)="reset()" class="text-xs text-primary underline">{{ 'smartEnrollDemos.detectFace.reset' | transloco }}</button>
-                    </div>
-                    <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ result | json }}</pre>
+        @if (showApiReference) {
+            <details class="rounded-2xl border border-stone-200 bg-white px-5 py-3.5 text-left dark:border-gray-800 dark:bg-gray-900 group">
+                <summary class="cursor-pointer list-none font-semibold text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between gap-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base text-blue-600 dark:text-blue-400" aria-hidden="true">menu_book</span>
+                        {{ 'smartEnrollDemos.detectFace.apiRefSummary' | transloco }}
+                    </span>
+                    <span class="material-symbols-outlined text-stone-400 group-open:rotate-180 transition-transform text-lg">expand_more</span>
+                </summary>
+                <div class="mt-3 border-t border-stone-100 pt-3 text-xs leading-relaxed text-stone-600 dark:border-gray-800 dark:text-stone-400">
+                    <p>{{ 'smartEnrollDemos.detectFace.apiRefBody' | transloco }}</p>
                 </div>
-            }
-        </div>
-    }
+            </details>
+        }
 
-    @if (showApiReference) {
-        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 text-left max-w-3xl mx-auto w-full px-4 py-3 group">
-            <summary class="cursor-pointer list-none font-bold text-sm text-primary flex items-center justify-between gap-2">
-                <span class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-lg">menu_book</span>
-                    {{ 'smartEnrollDemos.detectFace.apiRefSummary' | transloco }}
-                </span>
-                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform">expand_more</span>
-            </summary>
-            <div class="mt-4 text-sm text-on-surface-variant border-t border-outline-variant/15 pt-4">
-                <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.detectFace.apiRefBody' | transloco }}</p>
-            </div>
-        </details>
+        <app-demo-related-docs-section [items]="relatedDocs" />
     }
-
-    <app-demo-related-docs-section [items]="relatedDocs" />
 </app-demo-page-shell>

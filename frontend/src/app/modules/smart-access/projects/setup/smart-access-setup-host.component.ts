@@ -376,7 +376,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
 
     /** Whether to mount the live sign-in preview aside for the current step. */
     showPreviewForStep(): boolean {
-        return this.stepIndex === 1 || this.stepIndex === 3;
+        return true;
     }
 
     previewProject(): void {
@@ -388,7 +388,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                   '');
         const baseUrl = `${baseRaw}`.replace(/\/+$/, '');
         if (!baseUrl || this.projectId === 'new') return;
-        window.open(`${baseUrl}/sign-in/${this.projectId}`, '_blank');
+        const style = `${this.form?.get('projectFlow.onboardingSettings.verifyStyle')?.value ?? ''}`.trim();
+        const query = style ? `?style=${encodeURIComponent(style)}` : '';
+        window.open(`${baseUrl}/sign-in/${this.projectId}${query}`, '_blank');
     }
 
     previousStep(): void {
@@ -614,6 +616,45 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                     redirectUrl: [redirectUrl, [optionalStrictUrlValidator]],
                     webhook: [(flow.integrations?.webhook as string | null) ?? null],
                 }),
+                onboardingSettings: this._fb.group({
+                    enrollmentClient: [
+                        (
+                            flow as {
+                                onboardingSettings?: {
+                                    enrollmentClient?: string;
+                                    verifyStyle?: string;
+                                    flowOrder?: string;
+                                };
+                            }
+                        )?.onboardingSettings?.enrollmentClient || 'v2',
+                    ],
+                    verifyStyle: [
+                        (
+                            flow as {
+                                onboardingSettings?: {
+                                    enrollmentClient?: string;
+                                    verifyStyle?: string;
+                                    flowOrder?: string;
+                                };
+                            }
+                        )?.onboardingSettings?.verifyStyle !== undefined
+                            ? (
+                                  flow as {
+                                      onboardingSettings?: { verifyStyle?: string };
+                                  }
+                              ).onboardingSettings?.verifyStyle
+                            : 'a',
+                    ],
+                    flowOrder: [
+                        (
+                            flow as {
+                                onboardingSettings?: { flowOrder?: string };
+                            }
+                        )?.onboardingSettings?.flowOrder === 'consent_first'
+                            ? 'consent_first'
+                            : 'contact_first',
+                    ],
+                }),
                 security: this._fb.group({
                     apiTestType: [(flow.security as SmartAccessSecurity)?.apiTestType || 'email'],
                     apiTestValue: [(flow.security as SmartAccessSecurity)?.apiTestValue || ''],
@@ -639,6 +680,16 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             login.updateValueAndValidity({ onlySelf: true, emitEvent: false });
             this._cdr.markForCheck();
         });
+
+        this.form
+            .get('branding')
+            ?.valueChanges.pipe(takeUntil(this._unsub$))
+            .subscribe(() => this._cdr.markForCheck());
+
+        this.form
+            .get('projectFlow.onboardingSettings')
+            ?.valueChanges.pipe(takeUntil(this._unsub$))
+            .subscribe(() => this._cdr.markForCheck());
     }
 
     private _adjustSecurityValidators(source: string | null): void {
@@ -718,6 +769,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         const pf = raw['projectFlow'] as Record<string, unknown>;
         const loginSettings = pf['loginSettings'];
         const integrations = pf['integrations'];
+        const onboardingSettings = pf['onboardingSettings'];
         const security = pf['security'];
 
         let projectFlow: Record<string, unknown> = {
@@ -731,8 +783,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             projectFlow = { ...projectFlow, loginSettings };
         } else if (this.stepIndex === 2) {
             projectFlow = { ...projectFlow, integrations, security };
-        } else         if (this.stepIndex === 3) {
-            return { branding, projectFlowType: 'login', ...progressFields };
+        } else if (this.stepIndex === 3) {
+            projectFlow = { ...projectFlow, onboardingSettings };
+            return { branding, projectFlow, projectFlowType: 'login', ...progressFields };
         }
 
         return { ...baseSlice, branding, projectFlow, projectFlowType: 'login' };

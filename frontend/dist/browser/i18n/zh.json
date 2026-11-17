@@ -5036,7 +5036,7 @@
                     "minScoreHelp": "分数越高欺诈尝试越少，但也会拒绝更多真实用户。",
                     "compareMinScore": "人脸比对最低分数",
                     "compareMinScoreSubtitle": "自拍与证件照的相似度要求。",
-                    "compareMinScoreHelp": "分数越高误匹配越少。部分印刷证件（包括磨损的哥伦比亚身份证及其他国家的类似证件）与活体自拍比对时分数更低；在接受更高误通过风险后，最低可设为 65%。",
+                    "compareMinScoreHelp": "分数越高误匹配越少。推荐均衡默认值为 70%（范围 60%–75%）；若磨损的印刷证件需要更高容差，最低可设为 60%。",
                     "searchMinScore": "搜索最低分数",
                     "searchMinScoreSubtitle": "在已有注册中搜索客户时的置信度阈值。",
                     "searchMinScoreHelp": "用于 1:N 重复检测。",
@@ -9224,7 +9224,8 @@
                 "manage": "管理",
                 "search": "检索",
                 "detection": "检测",
-                "comparison": "比对"
+                "comparison": "比对",
+                "humanAuthn": "HumanID 与活体检测"
             },
             "demos": {
                 "create-collection": {
@@ -10130,7 +10131,23 @@
             "metaVerifik": "Verifik · 安全会话已激活",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "支持",
-            "mustSignIn": "请先登录以运行此演示。"
+            "mustSignIn": "请先登录以运行此演示。",
+            "pairSectionTitle": "人脸对比对与阈值",
+            "pairSectionSubtitle": "设置源照片与目标照片，并调整最低相似度要求。",
+            "resetPair": "重置",
+            "replacePhoto": "移除照片",
+            "statusCaptured": "已就绪",
+            "statusActive": "当前",
+            "statusPending": "待上传",
+            "presetRelaxed": "宽松",
+            "presetStandard": "标准",
+            "presetBalanced": "均衡",
+            "presetStrict": "严格",
+            "runCompare": "比对人脸",
+            "captureMethodAria": "采集方式",
+            "tabUpload": "上传照片",
+            "tabCamera": "实时相机",
+            "dropzoneHint": "将 JPEG 或 PNG 照片拖放到此处，或点击浏览选择。"
         },
         "faceComparisonLiveness": {
             "headerTitle": "带活体的比对",
@@ -10200,7 +10217,23 @@
             "metaVerifik": "Verifik · 安全会话已激活",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "支持",
-            "mustSignIn": "请先登录以运行此演示。"
+            "mustSignIn": "请先登录以运行此演示。",
+            "pairSectionTitle": "人脸对比对与阈值",
+            "pairSectionSubtitle": "设置源照片与目标照片，并调整最低相似度要求。",
+            "resetPair": "重置",
+            "replacePhoto": "移除照片",
+            "statusCaptured": "已就绪",
+            "statusActive": "当前",
+            "statusPending": "待上传",
+            "presetRelaxed": "宽松",
+            "presetStandard": "标准",
+            "presetBalanced": "均衡",
+            "presetStrict": "严格",
+            "runCompare": "比对人脸",
+            "captureMethodAria": "采集方式",
+            "tabUpload": "上传照片",
+            "tabCamera": "实时相机",
+            "dropzoneHint": "将 JPEG 或 PNG 照片拖放到此处，或点击浏览选择。"
         },
         "verifyFace": {
             "headerTitle": "人脸核验",
@@ -10949,6 +10982,15 @@
             "nationalitySearch": "Search countries",
             "nationalityInvalid": "Choose a country from the list.",
             "nationalityNoMatches": "No countries match that search."
+        },
+        "guidedCamera": {
+            "loadingModels": "正在加载人脸检测…",
+            "idleExplainer": "使用引导相机，在面部对齐后将自动完成拍照。",
+            "openCamera": "打开相机",
+            "startingCamera": "正在启动…",
+            "photoCaptured": "已拍摄照片",
+            "holdStill": "请保持静止…",
+            "alignFace": "请将面部对准取景框"
         }
     },
     "createBatch": {

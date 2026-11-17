@@ -150,6 +150,18 @@ export const safeIntegrations = (raw: unknown): Record<string, unknown> | null =
     return { redirectUrl: redirect, webhook: webhookId || null };
 };
 
+const VALID_VERIFY_STYLES = ['', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+export const safeOnboardingSettings = (raw: unknown): Record<string, unknown> => {
+    const src = asRecord(raw);
+    const verifyStyle = `${src['verifyStyle'] ?? 'a'}`.trim().toLowerCase();
+    return {
+        enrollmentClient: src['enrollmentClient'] === 'legacy' ? 'legacy' : 'v2',
+        flowOrder: src['flowOrder'] === 'consent_first' ? 'consent_first' : 'contact_first',
+        verifyStyle: VALID_VERIFY_STYLES.includes(verifyStyle) ? verifyStyle : 'a',
+    };
+};
+
 const draftLoginFlow = (rawFlow: unknown): Record<string, unknown> => {
     const pf = asRecord(rawFlow);
     const flow: Record<string, unknown> = {
@@ -157,6 +169,7 @@ const draftLoginFlow = (rawFlow: unknown): Record<string, unknown> => {
         type: 'login',
         version: Number(pf['version']) || 3,
         loginSettings: safeLoginSettings(pf['loginSettings']),
+        onboardingSettings: safeOnboardingSettings(pf['onboardingSettings']),
     };
     const security = safeSecurity(pf['security']);
     if (security) flow['security'] = security;

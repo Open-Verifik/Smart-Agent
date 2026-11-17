@@ -263,6 +263,10 @@ const buildOperationFromTool = (tool, pathname) => {
 		},
 	};
 
+	if (tool.deprecated) {
+		op.deprecated = true;
+	}
+
 	if (method === "GET" || method === "DELETE") {
 		let queryParams = manifestParamsToQueryOpenApi(paramSchema);
 		if (!queryParams.length) {

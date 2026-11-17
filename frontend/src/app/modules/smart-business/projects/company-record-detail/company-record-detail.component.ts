@@ -22,7 +22,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { SubscriptionLike } from 'rxjs';
-import { ProjectRecordDetailComponent } from '../../../smart-enroll/projects/project-record-detail.component';
 import { SmartBusinessService } from '../../smart-business.service';
 import type {
     BusinessMemberKYCRecord,
@@ -54,7 +53,6 @@ export type KybStepId = 'profile' | 'registries' | 'documents' | 'representative
         MatTabsModule,
         ClipboardModule,
         TranslocoModule,
-        ProjectRecordDetailComponent,
     ],
     templateUrl: './company-record-detail.component.html',
     styleUrls: ['./company-record-detail.component.scss'],
