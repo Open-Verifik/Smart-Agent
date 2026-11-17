@@ -33,6 +33,7 @@ import { SmartAccessLeaveDialogComponent, type SmartAccessLeaveAction } from 'ap
 import { draftProjectName, type WizardProgress } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 
 import { environment } from 'environments/environment';
+import { calibrateSliderCompareThreshold } from '../app-registration-record.utils';
 import { enrollmentBlockers, enrollmentSegment, readEnrollmentClient, savedVerifyStyle } from '../enrollment-client.util';
 import {
     ADDRESS_PATTERN,
@@ -447,8 +448,11 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             liveness: this._formBuilder.group({
                 attemptLimit: [currentData?.liveness?.attemptLimit || 3, [Validators.required, Validators.min(1), Validators.max(5)]],
                 minScore: [currentData?.liveness?.minScore || 0.65, [Validators.min(0.52), Validators.max(0.9)]],
-                compareMinScore: [currentData?.liveness?.compareMinScore || 0.85, [Validators.min(0.65), Validators.max(0.95)]],
-                searchMinScore: [currentData?.liveness?.searchMinScore || 0.85, [Validators.min(0.81), Validators.max(0.95)]],
+                compareMinScore: [
+                    calibrateSliderCompareThreshold(currentData?.liveness?.compareMinScore),
+                    [Validators.min(0.6), Validators.max(0.75)],
+                ],
+                searchMinScore: [currentData?.liveness?.searchMinScore || 0.85, [Validators.min(0.7), Validators.max(1)]],
                 searchMode: [currentData?.liveness?.searchMode || 'FAST'],
                 kycType: ['traditional'],
             }),
@@ -502,8 +506,14 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                         [Validators.required, Validators.min(1), Validators.max(5)],
                     ],
                     minScore: [currentData?.liveness?.minScore || 0.65, [Validators.min(0.52), Validators.max(0.9)]],
-                    compareMinScore: [currentData?.representatives?.liveness?.compareMinScore || 0.85, [Validators.min(0.65), Validators.max(0.95)]],
-                    searchMinScore: [currentData?.representatives?.liveness?.searchMinScore || 0.85, [Validators.min(0.81), Validators.max(0.95)]],
+                    compareMinScore: [
+                        calibrateSliderCompareThreshold(currentData?.representatives?.liveness?.compareMinScore),
+                        [Validators.min(0.6), Validators.max(0.75)],
+                    ],
+                    searchMinScore: [
+                        currentData?.representatives?.liveness?.searchMinScore || 0.85,
+                        [Validators.min(0.7), Validators.max(1)],
+                    ],
                     searchMode: [currentData?.representatives?.liveness?.searchMode || 'FAST'],
                     kycType: ['traditional'],
                 }),
@@ -780,8 +790,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             'information.showTermsAndConditions': [],
             'liveness.attemptLimit': [Validators.required],
             'liveness.minScore': [Validators.required, Validators.min(0.52), Validators.max(0.9)],
-            'liveness.compareMinScore': [Validators.required, Validators.min(0.65), Validators.max(0.95)],
-            'liveness.searchMinScore': [Validators.required, Validators.min(0.81), Validators.max(0.95)],
+            'liveness.compareMinScore': [Validators.required, Validators.min(0.6), Validators.max(0.75)],
+            'liveness.searchMinScore': [Validators.required, Validators.min(0.7), Validators.max(1)],
             'liveness.searchMode': [Validators.required],
         };
         Object.keys(map).forEach((key) => {
@@ -826,8 +836,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         const map: Record<string, any[]> = {
             attemptLimit: [Validators.required],
             minScore: [Validators.required, Validators.min(0.52), Validators.max(0.9)],
-            compareMinScore: [Validators.required, Validators.min(0.65), Validators.max(0.95)],
-            searchMinScore: [Validators.required, Validators.min(0.81), Validators.max(0.95)],
+            compareMinScore: [Validators.required, Validators.min(0.6), Validators.max(0.75)],
+            searchMinScore: [Validators.required, Validators.min(0.7), Validators.max(1)],
             searchMode: [Validators.required],
         };
         Object.keys(map).forEach((key) => {

@@ -2972,7 +2972,8 @@
             "integrations": {
                 "cardTitle": "Integrations & API",
                 "subtitle": "Webhook delivery endpoint, redirect URLs, and API credentials."
-            }
+            },
+            "connectSmartAccess": "Connect SmartAccess Login"
         }
     },
     "humanAuthnPlans": {
@@ -3668,6 +3669,10 @@
     "close": "Close",
     "save_changes": "Save changes",
     "smartEnrollCollections": {
+        "deprecationBannerTitle": "Legacy 1:N Collections Deprecated",
+        "deprecationBannerSubtitle": "Traditional 1:N face recognition collections have been retired in favor of zero-knowledge, privacy-preserving HumanID biometric enrollment. All new identity verification and access management workflows should use HumanAuthn.",
+        "deprecationBannerAction": "Explore HumanID Enrollment",
+        "deprecationBannerProjects": "View SmartEnroll Projects",
         "title": "Collections",
         "subtitle": "Organize and manage your SmartEnroll face recognition collections.",
         "name": "Name",
@@ -3721,6 +3726,10 @@
         "imageSearchDisabledHint": "Image search is available in SmartEnroll (Onboarding) view only."
     },
     "smartEnrollPeople": {
+        "deprecationBannerTitle": "Legacy Person Management Deprecated",
+        "deprecationBannerSubtitle": "Legacy 1:N enrolled person records are deprecated in favor of zero-knowledge HumanID biometric credentials. Please migrate active users to HumanAuthn enrollment.",
+        "deprecationBannerAction": "Explore HumanID Enrollment",
+        "deprecationBannerProjects": "View SmartEnroll Projects",
         "title": "People",
         "subtitle": "Browse, search, and manage people enrolled through SmartEnroll.",
         "clearFilters": "Clear filters",
@@ -4224,7 +4233,8 @@
                 "savedSuccess": "Project data retention settings saved successfully.",
                 "saveError": "Failed to save project data retention settings."
             },
-            "copied": "Copied to clipboard"
+            "copied": "Copied to clipboard",
+            "connectSmartAccess": "Connect SmartAccess Login"
         },
         "setup": {
             "title": "Setup",
@@ -4844,7 +4854,7 @@
                     "minScoreHelp": "Higher values reduce spoof attempts but reject more real users.",
                     "compareMinScore": "Face compare minimum score",
                     "compareMinScoreSubtitle": "How closely the selfie must match the document portrait.",
-                    "compareMinScoreHelp": "Higher values reduce false matches. Some printed IDs (including worn Colombian cédulas and similar documents in other countries) score lower against a live selfie; 65% is the lowest you can set after you accept more false-accept risk.",
+                    "compareMinScoreHelp": "Higher values reduce false matches. Recommended 70% balanced default (60%–75% range); 60% is the lowest you can set if worn printed IDs need more tolerance.",
                     "searchMinScore": "Search minimum score",
                     "searchMinScoreSubtitle": "Confidence threshold when searching the customer against existing enrollments.",
                     "searchMinScoreHelp": "Used for 1:N duplicate detection.",
@@ -5623,7 +5633,10 @@
             "or_continue": "Or continue with",
             "use_biometrics": "Face verification",
             "use_passkey": "Sign in with passkey",
-            "no_methods": "Enable at least one login method to see the sign-in preview."
+            "no_methods": "Enable at least one login method to see the sign-in preview.",
+            "use_face_verification": "Use Face Verification",
+            "use_human_id": "Sign in with HumanID",
+            "use_face_or_human_id": "Sign in with Face / HumanID"
         },
         "staff": {
             "title": "Add members to the project",
@@ -5709,10 +5722,32 @@
                 "buttonTextColor": "Button text color",
                 "backgroundColor": "Background color",
                 "imageBackgroundColor": "Image background color"
-            }
+            },
+            "source_VERIFIK_PROJECTS": "Verifik Projects",
+            "source_HUMAN_AUTHN": "HumanAuthn",
+            "linkedProjectsTitle": "Linked Enrollment Projects",
+            "linkedProjectsSubtitle": "Enrolled users from these projects can sign in through this SmartAccess gateway.",
+            "noLinkedProjects": "No enrollment projects linked yet. Edit whitelist settings to connect projects."
         },
         "loginDetail": {
-            "title": "Login record"
+            "title": "Session detail",
+            "method": "Authentication method",
+            "sourceType": "Identity source",
+            "sourceProject": "Source project",
+            "appRegistration": "Enrollment record",
+            "method_email": "Email OTP",
+            "method_phone": "Phone OTP",
+            "method_faceLiveness": "Face Biometrics (1:N)",
+            "method_biometrics": "Face Biometrics",
+            "method_humanId": "HumanID (Zero-Template)",
+            "method_passkey": "Passkey",
+            "sourceType_smartEnroll": "SmartEnroll KYC",
+            "sourceType_smartBusiness": "SmartBusiness KYB",
+            "sourceType_humanAuthn": "HumanAuthn",
+            "sourceType_csvWhitelist": "CSV Whitelist",
+            "sourceType_apiWhitelist": "External API",
+            "sourceType_open": "Open Access",
+            "sourceType_legacy": "Direct / Legacy"
         },
         "setup": {
             "title": "Setup wizard",
@@ -5813,7 +5848,16 @@
                 "actual_score": "Actual score",
                 "additional_options": "Additional options",
                 "additional_subtitle": "Fine-tune secondary behaviours for the login experience.",
-                "at_least_one_method": "Enable at least one authentication method (email, phone, or biometrics) to continue."
+                "at_least_one_method": "Enable at least one authentication method (email, phone, or biometrics) to continue.",
+                "require_biometric_step_up": "Require biometric 2FA step-up",
+                "require_biometric_step_up_subtitle": "When enabled, users must complete biometric face verification after validating their email or phone OTP.",
+                "require_biometric_step_up_hint": "Biometric 2FA requires Face Liveness and at least one OTP method (Email or Phone) to be enabled.",
+                "biometric_source_warning_title": "Biometric Database Required",
+                "biometric_source_warning": "1:N face identification requires a linked biometric database. Your selected database source does not provide enrolled facial templates. In Step 2 (Connect Database), link a SmartEnroll or HumanAuthn project to enable biometric login.",
+                "require_biometric_step_up_label": "Require Face / HumanID after OTP (2FA)",
+                "warning_face_unlinked_title": "Biometric Enrollment Source Required",
+                "warning_face_unlinked_message": "Face Biometrics requires linking at least one SmartEnroll or HumanAuthn project in the Identity Source step. Without enrolled biometrics, 1:N face identification cannot match users.",
+                "human_authn_thresholds_note": "Cryptographic thresholds and senseprint encryption are governed by your linked HumanAuthn project."
             },
             "whitelist": {
                 "title": "Connect database",
@@ -5873,8 +5917,51 @@
                 "identity": "Identity verification",
                 "prev": "Prev",
                 "next": "Next",
-                "entries": "entries"
-            }
+                "entries": "entries",
+                "mode_verifik_projects": "Verifik Projects",
+                "mode_none": "Open Access",
+                "mode_none_title": "Open Access / Anyone",
+                "mode_none_subtitle": "Allow any user with a valid email or phone number to sign in without a pre-existing whitelist.",
+                "mode_none_info": "In open access mode, users verify their email or phone number via OTP on every sign-in. No prior enrollment in a Verifik project is required.",
+                "verifik_projects_title": "Connect Verifik Projects",
+                "verifik_projects_subtitle": "Link one or more SmartEnroll or HumanAuthn projects to authenticate their enrolled users.",
+                "verifik_projects_search": "Search projects by name...",
+                "verifik_projects_search_placeholder": "Search projects by name or ID...",
+                "verifik_projects_empty": "No matching candidate enrollment projects found. Create a SmartEnroll or HumanAuthn project first.",
+                "verifik_projects_loading": "Loading available projects...",
+                "verifik_projects_required": "Please select at least 1 Verifik project to link.",
+                "verifik_projects_selected_count": "Selected: {{count}} project(s)",
+                "allow_signup_redirect": "Show \"Create Account\" link on Sign-In",
+                "allow_signup_redirect_hint": "Allow un-enrolled users to navigate directly to this project to register.",
+                "allow_signup_redirect_label": "Allow \"Create Account\" link on sign-in screen",
+                "primary_signup_project": "Primary Sign-Up Project",
+                "primary_signup_project_hint": "When users click \"Create Account\", they will be redirected to this project\"s onboarding flow.",
+                "primary_signup_project_label": "Primary Sign-Up Destination",
+                "primary_signup_badge": "Primary Sign-Up",
+                "storage_none_warning_title": "Zero-Template Storage Notice",
+                "storage_none_warning_desc": "This HumanAuthn project stores no server copy of HumanID. Biometric sign-in will prompt users to scan, upload, or paste their HumanID (or pass it via host application SDK) before taking a selfie.",
+                "guardrail_storage_none_title": "Zero-Storage HumanAuthn Notice",
+                "guardrail_storage_none_message": "This HumanAuthn project does not store encrypted HumanIDs on the server. Users will be prompted to scan, upload, or paste their HumanID (or provide it via SDK context) before taking a selfie.",
+                "open_access_title": "Open Access (No Whitelist)",
+                "open_access_subtitle": "Allow anyone with a valid email or phone OTP to sign in without an enrollment whitelist.",
+                "open_access_info": "No whitelist restriction active",
+                "open_access_desc": "Any user who can verify an email or SMS OTP will be granted access. Note: Face Biometrics requires enrolled face templates or HumanID proofs and is disabled when Open Access is active without linked projects.",
+                "badge_smart_enroll": "SmartEnroll KYC",
+                "badge_human_authn": "HumanAuthn",
+                "badge_smart_business": "SmartBusiness KYB",
+                "status_active": "Active",
+                "status_draft": "Draft",
+                "product_smart_enroll": "SmartEnroll",
+                "product_smart_business": "SmartBusiness",
+                "product_human_authn": "HumanAuthn",
+                "capability_opencv_face": "OpenCV 1:N Face",
+                "capability_human_id_ipfs": "HumanID · IPFS",
+                "capability_human_id_cloud": "HumanID · Cloud",
+                "capability_human_id_none": "HumanID · None",
+                "allow_signup_badge": "Sign-Up Link",
+                "validation_min_projects": "Please select at least one project to link."
+            },
+            "see_live_project": "Open live project"
         },
         "csv": {
             "title": "Upload your whitelist",
@@ -9488,10 +9575,10 @@
             "metaTitle": "Demo Dashboard",
             "metaDescription": "Authentication anchored to human presence. Run Verifik's live biometric demos for face match, liveness, and HumanID in the browser.",
             "heroEyebrow": "Biometrics · Live demos",
-            "heroTitle": "Centralized Biometrics · Face gallery",
-            "heroBody": "Run face match, enrollment, and live detection in the browser. Centralized biometrics cover server-side face gallery management and search.",
-            "traditionalEyebrow": "Centralized · Server-side gallery",
-            "traditionalTitle": "Centralized Biometrics",
+            "heroTitle": "Zero-Gallery Biometrics · HumanID & 1:1 Face Match",
+            "heroBody": "Run live 3D liveness checks, encrypted HumanID credentials, and 1:1 face comparisons in the browser without storing centralized face galleries.",
+            "traditionalEyebrow": "Verifik · HumanAuthn & Biometric Engine",
+            "traditionalTitle": "Face Verification & HumanID",
             "decentralizedEyebrow": "HumanAuthn · HumanID · v4",
             "decentralizedTitle": "Decentralized Biometrics · HumanAuthn",
             "decentralizedVersion": "v4",
@@ -9503,11 +9590,12 @@
             "pillSoc2": "SOC 2 Ready",
             "demoCta": "Run demo",
             "sections": {
+                "humanAuthn": "HumanID & Liveness",
                 "enroll": "Enroll",
                 "manage": "Manage",
                 "search": "Search",
                 "detection": "Detection",
-                "comparison": "Comparison"
+                "comparison": "1:1 Face Comparison & Detection"
             },
             "demos": {
                 "create-collection": {
@@ -10431,10 +10519,10 @@
             "apiRefEndpointDesc": "Compares probe image(s) to gallery image(s) and returns a similarity score. The backend sets passed when the score meets your compare_min_score (or the server default when omitted).",
             "paramGalleryDesc": "Reference face(s), base64 (no data URL prefix)",
             "paramProbeDesc": "Face(s) to match, base64",
-            "paramCompareMinDesc": "0.67 to 0.95. Server default 0.85 when omitted",
+            "paramCompareMinDesc": "0.60 to 0.75 (or legacy 0.80–0.95 calibrated to 0.65–0.75). Server default 0.65 when omitted",
             "tableType": "Type",
             "bulletShortB64": "Images must be real base64 payloads. Very short strings are rejected (for example 412:only_images_in_base64).",
-            "bulletSlider": "The Compare minimum score slider sets compare_min_score on the request (0.67 to 0.95; starts at the API client default {{defaultScore}}).",
+            "bulletSlider": "The Compare minimum score slider sets compare_min_score on the request (0.60 to 0.75; starts at {{defaultScore}}).",
             "bulletResponseShape": "Responses often include id and a signature block alongside data.",
             "analyzing": "Analyzing with Verifik…",
             "matchConfirmed": "Match Confirmed",
@@ -10450,7 +10538,32 @@
             "metaVerifik": "Verifik · Secure Session Active",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "Support",
-            "mustSignIn": "You must be signed in to run this demo."
+            "mustSignIn": "You must be signed in to run this demo.",
+            "pairSectionTitle": "Face pair & threshold",
+            "pairSectionSubtitle": "Set Source and Target portraits and configure minimum similarity.",
+            "resetPair": "Reset",
+            "replacePhoto": "Remove photo",
+            "statusCaptured": "Ready",
+            "statusActive": "Active",
+            "statusPending": "Pending",
+            "presetRelaxed": "Relaxed",
+            "presetStandard": "Standard",
+            "presetBalanced": "Balanced",
+            "presetStrict": "Strict",
+            "runCompare": "Compare faces",
+            "captureMethodAria": "Capture method",
+            "tabUpload": "Upload photo",
+            "tabCamera": "Live camera",
+            "dropzoneHint": "Drag and drop a JPEG or PNG photo here, or click to browse."
+        },
+        "guidedCamera": {
+            "loadingModels": "Loading face detection…",
+            "idleExplainer": "Use the guided camera for automatic capture when your face is aligned.",
+            "openCamera": "Open camera",
+            "startingCamera": "Starting…",
+            "photoCaptured": "Photo captured",
+            "holdStill": "Hold still…",
+            "alignFace": "Align your face in the frame"
         },
         "faceComparisonLiveness": {
             "headerTitle": "Compare with liveness",
@@ -10495,7 +10608,7 @@
             "paramProbeDesc": "Base64 live capture",
             "paramGalleryDesc": "Reference images (base64; https URLs supported server-side)",
             "paramLivenessMinDesc": "Default 0.6 if omitted",
-            "paramCompareMinDesc": "0.67 to 0.95, optional threshold",
+            "paramCompareMinDesc": "0.60 to 0.75 (or legacy 0.80–0.95 calibrated to 0.65–0.75), optional threshold",
             "bulletSeq": "Comparison runs first; liveness on probe only if compare passes your threshold (or threshold omitted).",
             "bulletLivenessDefault": "liveness_min_score defaults to 0.6 when not sent.",
             "bulletGalleryUrl": "Gallery may use https URLs; the service fetches and converts them.",
@@ -10520,7 +10633,32 @@
             "metaVerifik": "Verifik · Secure Session Active",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "Support",
-            "mustSignIn": "You must be signed in to run this demo."
+            "mustSignIn": "You must be signed in to run this demo.",
+            "pairSectionTitle": "Face pair & threshold",
+            "pairSectionSubtitle": "Set Source and Target portraits and configure minimum similarity.",
+            "resetPair": "Reset",
+            "replacePhoto": "Remove photo",
+            "statusCaptured": "Ready",
+            "statusActive": "Active",
+            "statusPending": "Pending",
+            "presetRelaxed": "Relaxed",
+            "presetStandard": "Standard",
+            "presetBalanced": "Balanced",
+            "presetStrict": "Strict",
+            "runCompare": "Compare faces",
+            "captureMethodAria": "Capture method",
+            "tabUpload": "Upload photo",
+            "tabCamera": "Live camera",
+            "dropzoneHint": "Drag and drop a JPEG or PNG photo here, or click to browse."
+        },
+        "guidedCamera": {
+            "loadingModels": "Loading face detection…",
+            "idleExplainer": "Use the guided camera for automatic capture when your face is aligned.",
+            "openCamera": "Open camera",
+            "startingCamera": "Starting…",
+            "photoCaptured": "Photo captured",
+            "holdStill": "Hold still…",
+            "alignFace": "Align your face in the frame"
         },
         "verifyFace": {
             "headerTitle": "Verify Face",

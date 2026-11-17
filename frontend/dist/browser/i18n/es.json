@@ -2972,7 +2972,8 @@
             "integrations": {
                 "cardTitle": "Integraciones y API",
                 "subtitle": "Endpoint de entrega de webhooks, URL de redirección y credenciales de API."
-            }
+            },
+            "connectSmartAccess": "Conectar inicio de sesión SmartAccess"
         }
     },
     "humanAuthnPlans": {
@@ -3668,6 +3669,10 @@
     "close": "Cerrar",
     "save_changes": "Guardar cambios",
     "smartEnrollCollections": {
+        "deprecationBannerTitle": "Colecciones 1:N obsoletas",
+        "deprecationBannerSubtitle": "Las colecciones tradicionales de reconocimiento facial 1:N están obsoletas a favor de la inscripción biométrica que preserva la privacidad con HumanID. Todos los nuevos flujos deben utilizar HumanAuthn.",
+        "deprecationBannerAction": "Explorar inscripción con HumanID",
+        "deprecationBannerProjects": "Ver proyectos SmartEnroll",
         "title": "Colecciones",
         "subtitle": "Organiza y administra tus colecciones de reconocimiento facial de SmartEnroll.",
         "name": "Nombre",
@@ -3721,6 +3726,10 @@
         "imageSearchDisabledHint": "La búsqueda por imagen solo está disponible en la vista SmartEnroll (Onboarding)."
     },
     "smartEnrollPeople": {
+        "deprecationBannerTitle": "Gestión de personas obsoleta",
+        "deprecationBannerSubtitle": "Los registros tradicionales de personas 1:N están obsoletos a favor de las credenciales biométricas HumanID de conocimiento cero. Migre los usuarios activos a HumanAuthn.",
+        "deprecationBannerAction": "Explorar inscripción con HumanID",
+        "deprecationBannerProjects": "Ver proyectos SmartEnroll",
         "title": "Personas",
         "subtitle": "Explora, busca y administra personas inscritas con SmartEnroll.",
         "clearFilters": "Limpiar filtros",
@@ -4224,7 +4233,8 @@
                 "savedSuccess": "Configuración de retención del proyecto guardada exitosamente.",
                 "saveError": "Error al guardar la configuración de retención del proyecto."
             },
-            "copied": "Copiado al portapapeles"
+            "copied": "Copiado al portapapeles",
+            "connectSmartAccess": "Conectar inicio de sesión SmartAccess"
         },
         "recordDetail": {
             "title": "Registro de inscripción",
@@ -5326,7 +5336,7 @@
                     "minScoreHelp": "Valores más altos reducen el spoofing pero rechazan más usuarios reales.",
                     "compareMinScore": "Puntuación mínima de comparación facial",
                     "compareMinScoreSubtitle": "Qué tan parecido debe ser el selfie al retrato del documento.",
-                    "compareMinScoreHelp": "Valores más altos reducen falsos positivos. Algunos documentos impresos (cédulas colombianas desgastadas y similares en otros países) puntúan más bajo frente a un selfie en vivo; 65% es el mínimo que puedes configurar si aceptas más riesgo de falsos aceptados.",
+                    "compareMinScoreHelp": "Valores más altos reducen falsos positivos. Recomendamos 70% como equilibrio predeterminado (rango 60%–75%); 60% es el mínimo permitido si documentos impresos desgastados requieren mayor tolerancia.",
                     "searchMinScore": "Puntuación mínima de búsqueda",
                     "searchMinScoreSubtitle": "Umbral de confianza al buscar al cliente entre inscripciones existentes.",
                     "searchMinScoreHelp": "Se usa para detección de duplicados 1:N.",
@@ -5623,7 +5633,10 @@
             "or_continue": "O continua con",
             "use_biometrics": "Verificación facial",
             "use_passkey": "Ingresar con llave de acceso",
-            "no_methods": "Activa al menos un método de acceso para ver la vista previa."
+            "no_methods": "Activa al menos un método de acceso para ver la vista previa.",
+            "use_face_verification": "Usar verificación facial",
+            "use_human_id": "Iniciar sesión con HumanID",
+            "use_face_or_human_id": "Iniciar sesión con Facial / HumanID"
         },
         "staff": {
             "title": "Añade miembros al proyecto",
@@ -5709,10 +5722,32 @@
                 "buttonTextColor": "Color del texto del botón",
                 "backgroundColor": "Color de fondo",
                 "imageBackgroundColor": "Color de fondo de la imagen"
-            }
+            },
+            "source_VERIFIK_PROJECTS": "Proyectos de Verifik",
+            "source_HUMAN_AUTHN": "HumanAuthn",
+            "linkedProjectsTitle": "Proyectos de enrolamiento vinculados",
+            "linkedProjectsSubtitle": "Los usuarios enrolados en estos proyectos pueden iniciar sesión a través de este portal SmartAccess.",
+            "noLinkedProjects": "Aún no hay proyectos de enrolamiento vinculados. Edite la configuración de lista de acceso para conectar proyectos."
         },
         "loginDetail": {
-            "title": "Registro de acceso"
+            "title": "Detalle de sesión",
+            "method": "Método de autenticación",
+            "sourceType": "Origen de identidad",
+            "sourceProject": "Proyecto de origen",
+            "appRegistration": "Registro de enrolamiento",
+            "method_email": "OTP por correo",
+            "method_phone": "OTP por teléfono",
+            "method_faceLiveness": "Biometría facial (1:N)",
+            "method_biometrics": "Biometría facial",
+            "method_humanId": "HumanID (Zero-Template)",
+            "method_passkey": "Passkey",
+            "sourceType_smartEnroll": "SmartEnroll KYC",
+            "sourceType_smartBusiness": "SmartBusiness KYB",
+            "sourceType_humanAuthn": "HumanAuthn",
+            "sourceType_csvWhitelist": "Lista blanca CSV",
+            "sourceType_apiWhitelist": "API externa",
+            "sourceType_open": "Acceso abierto",
+            "sourceType_legacy": "Directo / Legado"
         },
         "setup": {
             "title": "Asistente de configuración",
@@ -5813,7 +5848,16 @@
                 "actual_score": "Puntuación actual",
                 "additional_options": "Opciones adicionales",
                 "additional_subtitle": "Ajusta comportamientos secundarios de la experiencia de acceso.",
-                "at_least_one_method": "Activa al menos un método de autenticación (correo, teléfono o biometría) para continuar."
+                "at_least_one_method": "Activa al menos un método de autenticación (correo, teléfono o biometría) para continuar.",
+                "require_biometric_step_up": "Requerir segundo factor biométrico (2FA)",
+                "require_biometric_step_up_subtitle": "Cuando está activo, los usuarios deberán completar la verificación facial después de validar su OTP de correo o teléfono.",
+                "require_biometric_step_up_hint": "El 2FA biométrico requiere que la biometría facial y al menos un método OTP (Correo o Teléfono) estén habilitados.",
+                "biometric_source_warning_title": "Base de datos biométrica requerida",
+                "biometric_source_warning": "La identificación facial 1:N requiere una base de datos biométrica vinculada. Su fuente actual no proporciona plantillas faciales registradas. En el Paso 2 (Conectar base de datos), vincule un proyecto de SmartEnroll o HumanAuthn para habilitar el acceso biométrico.",
+                "require_biometric_step_up_label": "Requerir verificación facial / HumanID tras OTP (2FA)",
+                "warning_face_unlinked_title": "Se requiere origen de enrolamiento biométrico",
+                "warning_face_unlinked_message": "La biometría facial requiere vincular al menos un proyecto de SmartEnroll o HumanAuthn en el paso de Origen de Identidad. Sin enrolamientos previos, la identificación facial 1:N no podrá contrastar usuarios.",
+                "human_authn_thresholds_note": "Los umbrales criptográficos y el cifrado senseprint son regulados por su proyecto HumanAuthn vinculado."
             },
             "whitelist": {
                 "title": "Conectar base de datos",
@@ -5873,8 +5917,51 @@
                 "identity": "Verificación de identidad",
                 "prev": "Anterior",
                 "next": "Siguiente",
-                "entries": "entradas"
-            }
+                "entries": "entradas",
+                "mode_verifik_projects": "Proyectos de Verifik",
+                "mode_none": "Acceso abierto",
+                "mode_none_title": "Acceso abierto / Cualquiera",
+                "mode_none_subtitle": "Permita que cualquier usuario con un correo o teléfono válido inicie sesión sin una lista previa.",
+                "mode_none_info": "En el modo de acceso abierto, los usuarios verifican su correo o número telefónico mediante OTP en cada inicio de sesión. No se requiere enrolamiento previo en un proyecto de Verifik.",
+                "verifik_projects_title": "Conectar proyectos de Verifik",
+                "verifik_projects_subtitle": "Vincule uno o más proyectos de SmartEnroll o HumanAuthn para autenticar a sus usuarios enrolados.",
+                "verifik_projects_search": "Buscar proyectos por nombre...",
+                "verifik_projects_search_placeholder": "Buscar proyectos por nombre o ID...",
+                "verifik_projects_empty": "No se encontraron proyectos de enrolamiento candidatos. Crea primero un proyecto de SmartEnroll o HumanAuthn.",
+                "verifik_projects_loading": "Cargando proyectos disponibles...",
+                "verifik_projects_required": "Por favor selecciona al menos 1 proyecto Verifik para vincular.",
+                "verifik_projects_selected_count": "Seleccionados: {{count}} proyecto(s)",
+                "allow_signup_redirect": "Mostrar enlace \"Crear cuenta\" en inicio de sesión",
+                "allow_signup_redirect_hint": "Permite a los usuarios no registrados navegar directamente a este proyecto para registrarse.",
+                "allow_signup_redirect_label": "Permitir enlace \"Crear cuenta\" en pantalla de acceso",
+                "primary_signup_project": "Proyecto principal de registro",
+                "primary_signup_project_hint": "Cuando los usuarios hagan clic en \"Crear cuenta\", serán redirigidos al flujo de este proyecto.",
+                "primary_signup_project_label": "Destino principal de registro",
+                "primary_signup_badge": "Registro Principal",
+                "storage_none_warning_title": "Aviso de almacenamiento sin plantilla",
+                "storage_none_warning_desc": "Este proyecto de HumanAuthn no almacena copia del HumanID en el servidor. El inicio de sesión biométrico solicitará a los usuarios escanear, subir o pegar su HumanID (o pasarlo mediante el SDK de la aplicación anfitriona) antes de tomarse una selfie.",
+                "guardrail_storage_none_title": "Aviso de HumanAuthn sin almacenamiento",
+                "guardrail_storage_none_message": "Este proyecto HumanAuthn no conserva copias cifradas de HumanID en el servidor. Se solicitará a los usuarios escanear, subir o pegar su HumanID (o proveerlo vía SDK) antes de capturar la selfie.",
+                "open_access_title": "Acceso Abierto (Sin Lista Blanca)",
+                "open_access_subtitle": "Permite que cualquier persona con un OTP válido de correo o teléfono inicie sesión sin lista blanca de enrolamiento.",
+                "open_access_info": "Sin restricción de lista blanca activa",
+                "open_access_desc": "Cualquier usuario que pueda verificar un OTP de correo o SMS tendrá acceso. Nota: La biometría facial requiere plantillas faciales enroladas o pruebas HumanID y está deshabilitada en Acceso Abierto sin proyectos vinculados.",
+                "badge_smart_enroll": "SmartEnroll KYC",
+                "badge_human_authn": "HumanAuthn",
+                "badge_smart_business": "SmartBusiness KYB",
+                "status_active": "Activo",
+                "status_draft": "Borrador",
+                "product_smart_enroll": "SmartEnroll",
+                "product_smart_business": "SmartBusiness",
+                "product_human_authn": "HumanAuthn",
+                "capability_opencv_face": "OpenCV Facial 1:N",
+                "capability_human_id_ipfs": "HumanID · IPFS",
+                "capability_human_id_cloud": "HumanID · Cloud",
+                "capability_human_id_none": "HumanID · Ninguno",
+                "allow_signup_badge": "Enlace de registro",
+                "validation_min_projects": "Por favor seleccione al menos un proyecto para vincular."
+            },
+            "see_live_project": "Abrir proyecto en vivo"
         },
         "csv": {
             "title": "Sube tu lista blanca",
@@ -9488,10 +9575,10 @@
             "metaTitle": "Panel de demos",
             "metaDescription": "Autenticación anclada a la presencia humana. Ejecuta en el navegador las demos en vivo de Verifik para coincidencia facial, vida y HumanID.",
             "heroEyebrow": "Biometría · Demos en vivo",
-            "heroTitle": "Biometría centralizada · Galería facial",
-            "heroBody": "Ejecuta coincidencia facial, inscripción y detección en vivo en el navegador. La biometría centralizada cubre la gestión de galerías faciales en servidor y la búsqueda.",
-            "traditionalEyebrow": "Verifik · Galería en servidor",
-            "traditionalTitle": "Biometría tradicional",
+            "heroTitle": "Biometría sin galerías · HumanID y Comparación 1:1",
+            "heroBody": "Ejecuta pruebas de vida 3D, credenciales HumanID cifradas y comparación facial 1:1 en el navegador sin almacenar galerías centrales de rostros.",
+            "traditionalEyebrow": "Verifik · HumanAuthn y Motor Biométrico",
+            "traditionalTitle": "Verificación facial y HumanID",
             "decentralizedEyebrow": "HumanAuthn · HumanID · v4",
             "decentralizedTitle": "Biometría descentralizada · HumanAuthn",
             "decentralizedVersion": "v4",
@@ -9503,11 +9590,12 @@
             "pillSoc2": "Listo para SOC 2",
             "demoCta": "Ejecutar demo",
             "sections": {
+                "humanAuthn": "HumanID y Prueba de vida",
                 "enroll": "Registro",
                 "manage": "Gestión",
                 "search": "Búsqueda",
                 "detection": "Detección",
-                "comparison": "Comparación"
+                "comparison": "Comparación facial 1:1 y Detección"
             },
             "demos": {
                 "create-collection": {
@@ -10431,10 +10519,10 @@
             "apiRefEndpointDesc": "Compara imágenes probe con gallery y devuelve una puntuación de similitud. El backend marca passed cuando la puntuación cumple tu compare_min_score (o el valor por defecto del servidor si se omite).",
             "paramGalleryDesc": "Rostro(s) de referencia en base64 (sin prefijo data URL)",
             "paramProbeDesc": "Rostro(s) a comparar en base64",
-            "paramCompareMinDesc": "0,67 a 0,95. Por defecto en servidor 0,85 si se omite",
+            "paramCompareMinDesc": "0,60 a 0,75 (o 0,80–0,95 heredado calibrado a 0,65–0,75). Por defecto en servidor 0,65 si se omite",
             "tableType": "Tipo",
             "bulletShortB64": "Las imágenes deben ser base64 reales. Las cadenas muy cortas se rechazan (por ejemplo 412:only_images_in_base64).",
-            "bulletSlider": "El control de puntuación mínima envía compare_min_score en la petición (0,67 a 0,95; empieza en el valor por defecto del cliente API {{defaultScore}}).",
+            "bulletSlider": "El control de puntuación mínima envía compare_min_score en la petición (0,60 a 0,75; empieza en {{defaultScore}}).",
             "bulletResponseShape": "Las respuestas suelen incluir id y un bloque signature junto a data.",
             "analyzing": "Analizando con Verifik…",
             "matchConfirmed": "Coincidencia confirmada",
@@ -10450,7 +10538,32 @@
             "metaVerifik": "Verifik · Sesión segura activa",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "Soporte",
-            "mustSignIn": "Debes iniciar sesión para ejecutar esta demo."
+            "mustSignIn": "Debes iniciar sesión para ejecutar esta demo.",
+            "pairSectionTitle": "Par biométrico y umbral",
+            "pairSectionSubtitle": "Selecciona Origen y Destino y ajusta la puntuación mínima.",
+            "resetPair": "Reiniciar",
+            "replacePhoto": "Quitar foto",
+            "statusCaptured": "Lista",
+            "statusActive": "Activa",
+            "statusPending": "Pendiente",
+            "presetRelaxed": "Permisivo",
+            "presetStandard": "Estándar",
+            "presetBalanced": "Equilibrado",
+            "presetStrict": "Estricto",
+            "runCompare": "Comparar rostros",
+            "captureMethodAria": "Método de captura",
+            "tabUpload": "Subir foto",
+            "tabCamera": "Cámara en vivo",
+            "dropzoneHint": "Arrastra una foto JPEG o PNG aquí o haz clic para seleccionarla."
+        },
+        "guidedCamera": {
+            "loadingModels": "Cargando detección facial…",
+            "idleExplainer": "Usa la cámara guiada para capturar automáticamente al alinear tu rostro.",
+            "openCamera": "Abrir cámara",
+            "startingCamera": "Iniciando…",
+            "photoCaptured": "Foto capturada",
+            "holdStill": "Mantén la posición…",
+            "alignFace": "Centra tu rostro en el encuadre"
         },
         "faceComparisonLiveness": {
             "headerTitle": "Comparar con prueba de vida",
@@ -10495,7 +10608,7 @@
             "paramProbeDesc": "Captura en vivo en base64",
             "paramGalleryDesc": "Imágenes de referencia (base64; URLs https admitidas en servidor)",
             "paramLivenessMinDesc": "Por defecto 0,6 si se omite",
-            "paramCompareMinDesc": "0,67 a 0,95, umbral opcional",
+            "paramCompareMinDesc": "0,60 a 0,75 (o 0,80–0,95 heredado calibrado a 0,65–0,75), umbral opcional",
             "bulletSeq": "Primero la comparación; la vida en la probe solo si la comparación supera tu umbral (o se omite el umbral).",
             "bulletLivenessDefault": "liveness_min_score vale 0,6 por defecto si no se envía.",
             "bulletGalleryUrl": "Gallery puede usar URLs https; el servicio las obtiene y convierte.",
@@ -10520,7 +10633,32 @@
             "metaVerifik": "Verifik · Sesión segura activa",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "Soporte",
-            "mustSignIn": "Debes iniciar sesión para ejecutar esta demo."
+            "mustSignIn": "Debes iniciar sesión para ejecutar esta demo.",
+            "pairSectionTitle": "Par biométrico y umbral",
+            "pairSectionSubtitle": "Selecciona Origen y Destino y ajusta la puntuación mínima.",
+            "resetPair": "Reiniciar",
+            "replacePhoto": "Quitar foto",
+            "statusCaptured": "Lista",
+            "statusActive": "Activa",
+            "statusPending": "Pendiente",
+            "presetRelaxed": "Permisivo",
+            "presetStandard": "Estándar",
+            "presetBalanced": "Equilibrado",
+            "presetStrict": "Estricto",
+            "runCompare": "Comparar rostros",
+            "captureMethodAria": "Método de captura",
+            "tabUpload": "Subir foto",
+            "tabCamera": "Cámara en vivo",
+            "dropzoneHint": "Arrastra una foto JPEG o PNG aquí o haz clic para seleccionarla."
+        },
+        "guidedCamera": {
+            "loadingModels": "Cargando detección facial…",
+            "idleExplainer": "Usa la cámara guiada para capturar automáticamente al alinear tu rostro.",
+            "openCamera": "Abrir cámara",
+            "startingCamera": "Iniciando…",
+            "photoCaptured": "Foto capturada",
+            "holdStill": "Mantén la posición…",
+            "alignFace": "Centra tu rostro en el encuadre"
         },
         "verifyFace": {
             "headerTitle": "Verificar rostro",
@@ -11692,26 +11830,80 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
+            "responseHeaders": [
+                "Criticidad",
+                "Atención",
+                "Revisión",
+                "Escalamiento",
+                "Solución"
+            ],
             "responseRows": {
-                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
-                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
+                "critical": [
+                    "Crítico",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "urgent": [
+                    "Urgente",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "medium": [
+                    "Medio",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ],
+                "normal": [
+                    "Normal",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
+            "availabilityHeaders": [
+                "Producto",
+                "Disponibilidad",
+                "Notas"
+            ],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
+                "smartAccessComm": [
+                    "SmartAccess (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll (Escaneo de docs)",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -11734,8 +11926,16 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% o mayor",
+                    "Sin crédito",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% o menor",
+                    "Compensación",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -11771,9 +11971,15 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": ["Cobro", "Ausente de cobro"],
+            "billingHeaders": [
+                "Cobro",
+                "Ausente de cobro"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",

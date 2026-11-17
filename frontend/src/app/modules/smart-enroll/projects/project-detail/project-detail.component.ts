@@ -28,7 +28,11 @@ import {
     getRetentionModeLabel,
     policyFromStored,
 } from 'app/core/data-retention/retention.util';
-import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
+import {
+    calibrateArcFaceCompareThreshold,
+    documentFailureReasonKey,
+    livenessFailureReasonKey,
+} from '../app-registration-record.utils';
 import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import {
@@ -362,22 +366,24 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
         if (isV3) {
             const liveness = (f?.liveness ?? {}) as Record<string, unknown>;
+            const rawCompareMin = liveness['compareMinScore'] as number | undefined;
             return {
                 kycType: (liveness['kycType'] as 'traditional' | 'zero_knowledge') ?? 'traditional',
                 attemptLimit: (liveness['attemptLimit'] as number) ?? 3,
                 minScore: pct(liveness['minScore'] as number | undefined),
-                compareMinScore: pct(liveness['compareMinScore'] as number | undefined),
+                compareMinScore: rawCompareMin != null ? pct(calibrateArcFaceCompareThreshold(rawCompareMin)) : 0,
                 searchMinScore: pct(liveness['searchMinScore'] as number | undefined),
                 searchMode: (liveness['searchMode'] as string) ?? 'FAST',
             };
         } else {
             const livenessV2 = ((f?.onboardingSettings as any)?.['liveness'] ?? {}) as Record<string, unknown>;
             const docV2 = ((f?.onboardingSettings as any)?.['document'] ?? {}) as Record<string, unknown>;
+            const rawCompareMin = docV2['compareMinScore'] as number | undefined;
             return {
                 kycType: 'traditional' as const,
                 attemptLimit: (livenessV2['maxAttempts'] as number) ?? 3,
                 minScore: pct(livenessV2['livenessMinScore'] as number | undefined),
-                compareMinScore: pct(docV2['compareMinScore'] as number | undefined),
+                compareMinScore: rawCompareMin != null ? pct(calibrateArcFaceCompareThreshold(rawCompareMin)) : 0,
                 searchMinScore: pct(livenessV2['searchMinScore'] as number | undefined),
                 searchMode: (livenessV2['searchMode'] as string) ?? 'FAST',
             };
@@ -518,6 +524,17 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         const total = this.funnel()?.total ?? 0;
 
         return total > 0 ? Math.round((count / total) * 100) : 0;
+    }
+
+    connectSmartAccess(): void {
+        const id = this.project()?._id;
+        if (!id) return;
+        void this._router.navigate(['/smart-access/projects/new/setup/0'], {
+            queryParams: {
+                linkProject: id,
+                flowType: 'SMART_ENROLL',
+            },
+        });
     }
 
     goToStaff(): void {

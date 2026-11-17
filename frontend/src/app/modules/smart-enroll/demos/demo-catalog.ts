@@ -32,27 +32,31 @@ export type DemoSection = {
 };
 
 const TRADITIONAL_STEP_ORDER: DemoId[] = [
-    'create-collection',
-    'create-person',
-    'create-person-with-liveness',
-    'update-person',
-    'delete-person',
-    'search-person',
-    'search-live-person',
-    'search-active-user',
-    'detect-face',
-    'search-crops',
+    'liveness',
+    'humanid-create',
+    'humanid-create-qr',
+    'humanid-decrypt',
+    'humanid-preview',
     'face-comparison',
     'face-comparison-liveness',
-    'verify-face',
+    'detect-face',
 ];
 
 export const TRADITIONAL_SECTIONS: DemoSection[] = [
-    { id: 'enroll', demoIds: ['create-collection', 'create-person', 'create-person-with-liveness'] },
-    { id: 'manage', demoIds: ['update-person', 'delete-person'] },
-    { id: 'search', demoIds: ['search-person', 'search-live-person', 'search-active-user'] },
-    { id: 'detection', demoIds: ['detect-face', 'search-crops'] },
-    { id: 'comparison', demoIds: ['face-comparison', 'face-comparison-liveness', 'verify-face'] },
+    {
+        id: 'humanAuthn',
+        demoIds: [
+            'liveness',
+            'humanid-create',
+            'humanid-create-qr',
+            'humanid-decrypt',
+            'humanid-preview',
+        ],
+    },
+    {
+        id: 'comparison',
+        demoIds: ['face-comparison', 'face-comparison-liveness', 'detect-face'],
+    },
 ];
 
 export const HUMAN_AUTHN_DEMO_IDS: DemoId[] = [
@@ -75,12 +79,22 @@ export const getDemoCatalogEntry = (id: DemoId): DemoCatalogEntry => ({
 });
 
 export const getAllDemoEntries = (): DemoCatalogEntry[] =>
-    [...TRADITIONAL_STEP_ORDER, ...HUMAN_AUTHN_DEMO_IDS].map(getDemoCatalogEntry);
+    TRADITIONAL_STEP_ORDER.map(getDemoCatalogEntry);
 
 export const demoRoute = (id: DemoId): string => `/smart-enroll/demos/${id}`;
 
-/** Legacy HumanAuthn slugs → canonical demo ids */
+/** Legacy OpenCV & HumanAuthn slugs → canonical active demo ids */
 export const LEGACY_DEMO_REDIRECTS: Record<string, string> = {
     'face-detection': 'detect-face',
     'compare-live': 'face-comparison-liveness',
+    'create-collection': 'humanid-create',
+    'create-person': 'humanid-create',
+    'create-person-with-liveness': 'humanid-create',
+    'update-person': 'humanid-preview',
+    'delete-person': 'humanid-preview',
+    'search-person': 'humanid-decrypt',
+    'search-live-person': 'humanid-decrypt',
+    'search-active-user': 'humanid-decrypt',
+    'search-crops': 'detect-face',
+    'verify-face': 'face-comparison',
 };

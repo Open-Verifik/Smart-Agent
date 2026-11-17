@@ -9,6 +9,11 @@ export default [
             import('./project-list/access-project-list.component').then((m) => m.AccessProjectListComponent),
     },
     {
+        path: 'new',
+        redirectTo: 'new/setup/0',
+        pathMatch: 'full',
+    },
+    {
         path: 'new/setup/:step',
         loadComponent: () =>
             import('./setup/smart-access-setup-host.component').then((m) => m.SmartAccessSetupHostComponent),

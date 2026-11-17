@@ -45,22 +45,25 @@ app.use(proxyRoutes.allowedMethods());
 
 const port = config.port;
 
-app.listen(port, () => {
-	console.log(`Smart Agent Backend running on port ${port}`);
-	console.log(`Environment: ${config.env}`);
-	// Log registered routes for debugging
-	console.log(
-		"Registered Routes:",
-		unprotectedRoutes.stack.map((i) => i.path)
-	);
+/**
+ * Local `node src/index.js` listens. Vercel imports the app and serves it.
+ */
+if (require.main === module) {
+	app.listen(port, () => {
+		console.log(`Smart Agent Backend running on port ${port}`);
+		console.log(`Environment: ${config.env}`);
+		console.log(
+			"Registered Routes:",
+			unprotectedRoutes.stack.map((i) => i.path)
+		);
+		console.log(
+			"Proxy Routes:",
+			proxyRoutes.stack.map((i) => i.path)
+		);
 
-	// log proxy routes
-	console.log(
-		"Proxy Routes:",
-		proxyRoutes.stack.map((i) => i.path)
-	);
+		const ConversationRepository = require("./repositories/conversation.repository");
+		ConversationRepository.cleanup(30);
+	});
+}
 
-	// Run cleanup on startup
-	const ConversationRepository = require("./repositories/conversation.repository");
-	ConversationRepository.cleanup(30);
-});
+module.exports = app;

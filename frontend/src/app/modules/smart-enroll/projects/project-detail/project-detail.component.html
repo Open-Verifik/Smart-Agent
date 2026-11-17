@@ -53,6 +53,10 @@
                     </div>
                     @if (project() && !loading() && !section()) {
                         <div class="flex flex-wrap gap-2">
+                            <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="connectSmartAccess()">
+                                <mat-icon class="!h-4 !w-4 mr-1">lock_open</mat-icon>
+                                {{ t('smartEnrollProjects.detail.connectSmartAccess') }}
+                            </button>
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goToStaff()">
                                 {{ t('smartEnrollProjects.list.menuStaff') }}
                             </button>
@@ -749,19 +753,6 @@
                                         </div>
                                         <div class="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
                                             <div class="h-full" [ngClass]="scoreBarClass(liveness.compareMinScore)" [style.width.%]="liveness.compareMinScore"></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col gap-1">
-                                        <div class="flex items-baseline justify-between gap-2">
-                                            <span class="text-xs font-medium text-stone-600 dark:text-stone-300">
-                                                {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScore') }}
-                                            </span>
-                                            <span class="font-mono text-sm font-semibold text-stone-900 dark:text-stone-100">
-                                                {{ liveness.searchMinScore }}%
-                                            </span>
-                                        </div>
-                                        <div class="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
-                                            <div class="h-full" [ngClass]="scoreBarClass(liveness.searchMinScore)" [style.width.%]="liveness.searchMinScore"></div>
                                         </div>
                                     </div>
                                 </div>

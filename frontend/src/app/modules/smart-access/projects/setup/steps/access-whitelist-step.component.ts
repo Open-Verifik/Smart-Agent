@@ -3,12 +3,17 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    DestroyRef,
     Input,
+    OnChanges,
     OnInit,
+    SimpleChanges,
     inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -37,6 +42,7 @@ import {
         ReactiveFormsModule,
         RouterModule,
         MatButtonModule,
+        MatButtonToggleModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -52,7 +58,7 @@ import {
     styleUrls: ['./access-whitelist-step.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessWhitelistStepComponent implements OnInit {
+export class AccessWhitelistStepComponent implements OnInit, OnChanges {
     @Input({ required: true }) form!: FormGroup;
     @Input({ required: true }) projectFlowId!: string;
     @Input({ required: true }) projectId!: string;
@@ -60,10 +66,12 @@ export class AccessWhitelistStepComponent implements OnInit {
     @Input() saving = false;
 
     private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
     private _snack = inject(MatSnackBar);
     private _tLoco = inject(TranslocoService);
     private _projects = inject(SmartAccessProjectsService);
     private _setup = inject(SmartAccessSetupService);
+    private _subscriptionsBound = false;
 
     // Whitelist list state
     whitelistRows: WhitelistRow[] = [];
@@ -85,7 +93,13 @@ export class AccessWhitelistStepComponent implements OnInit {
 
     // API tester
     sendingTest = false;
-    testingData: unknown = null;
+    testingData: any = {};
+    readonly expectedResponse = {
+        name: 'Daniela ...',
+        email: 'daniela@company.com',
+        phone: '48784784',
+        countryCode: '+57',
+    };
 
     // Webhooks
     webhookList: { _id: string; name?: string }[] = [];
@@ -95,6 +109,22 @@ export class AccessWhitelistStepComponent implements OnInit {
         this._loadWhitelist();
         this._loadWebhooks();
         this._ensureWhitelistStrategy();
+        this._bindFormSubscriptions();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['form'] || changes['loading']) {
+            if (changes['form']) this._subscriptionsBound = false;
+            this._bindFormSubscriptions();
+        }
+    }
+
+    private _bindFormSubscriptions(): void {
+        if (this._subscriptionsBound || !this.form) return;
+        this._subscriptionsBound = true;
+        this.form.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
     }
 
     integrations(): FormGroup {
@@ -115,6 +145,39 @@ export class AccessWhitelistStepComponent implements OnInit {
         if (val === 'CSV' && !this.showCsvEditor && this.whitelistRows.length === 0) {
             this.openCsvUpload('add');
         }
+        this._cdr.markForCheck();
+    }
+
+    get sourceLabelKey(): string {
+        if (this.source === 'CSV') return 'smartAccessProjects.setup.whitelist.mode_csv';
+        if (this.source === 'SMART_ENROLL') return 'smartAccessProjects.setup.whitelist.mode_smart_enroll';
+        return 'smartAccessProjects.setup.whitelist.mode_api';
+    }
+
+    get redirectStatusLabel(): string | null {
+        const raw = String(this.integrations()?.get('redirectUrl')?.value || '').trim();
+        if (!raw) return null;
+        try {
+            const parsed = new URL(raw);
+            return parsed.host || raw;
+        } catch {
+            return raw;
+        }
+    }
+
+    get exampleRedirectUrl(): string {
+        return `${this.integrations()?.get('redirectUrl')?.value || ''}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`;
+    }
+
+    get selectedWebhookName(): string | null {
+        const id = this.integrations()?.get('webhook')?.value;
+        if (!id) return null;
+        const found = this.webhookList.find((w) => w._id === id);
+        return found?.name || found?._id || String(id);
+    }
+
+    get hasTestError(): boolean {
+        return Boolean(this.testingData?.error || this.testingData?.ok === false);
     }
 
     get hasNewPendingRows(): boolean {
@@ -141,16 +204,21 @@ export class AccessWhitelistStepComponent implements OnInit {
         const tv = (this.security().get('apiTestValue')?.value ?? '').trim();
         if (!url || this.sendingTest) return;
         this.sendingTest = true;
-        this.testingData = null;
+        this.testingData = {};
         this._setup.testIdentityUrl({ identityUrl: url, testType: tt, testValue: tv }).subscribe({
-            next: (res) => {
-                this.testingData = res;
+            next: (res: any) => {
+                this.testingData = res?.data ?? res ?? {};
                 this.sendingTest = false;
                 this._snack.open(this._t('smartAccessProjects.setup.whitelist.api_ok'), '', { duration: 2500 });
                 this._cdr.markForCheck();
             },
-            error: () => {
+            error: (err) => {
                 this.sendingTest = false;
+                this.testingData = {
+                    error: err?.error?.message || 'Request failed',
+                    ok: false,
+                    status: err?.status || 0,
+                };
                 this._snack.open(this._t('smartAccessProjects.setup.whitelist.api_fail'), '', { duration: 3500 });
                 this._cdr.markForCheck();
             },

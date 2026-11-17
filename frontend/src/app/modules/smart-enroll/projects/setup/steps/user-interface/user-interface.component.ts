@@ -154,6 +154,7 @@ export class SetupUserInterfaceComponent implements OnInit, OnChanges, OnDestroy
                         clientCtrl.markAsDirty();
                     }
                 }
+                this.customOverrides.clear();
                 this.applyStyleDefaults(styleId);
             });
             this._subscriptions.push(sub);

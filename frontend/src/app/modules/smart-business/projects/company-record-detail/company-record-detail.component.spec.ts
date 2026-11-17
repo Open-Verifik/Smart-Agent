@@ -2,10 +2,6 @@ import '@angular/compiler';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { of } from 'rxjs';
 
-vi.mock('../../../smart-enroll/projects/project-record-detail.component', () => ({
-    ProjectRecordDetailComponent: class {},
-}));
-
 import { SmartBusinessCompanyRecordDetailComponent } from './company-record-detail.component';
 import { SmartBusinessService } from '../../smart-business.service';
 

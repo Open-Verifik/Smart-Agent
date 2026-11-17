@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
     buildFailedBiometricAttempts,
     buildManualVerificationReasons,
+    calibrateArcFaceCompareThreshold,
     canRerunCompare,
+    compareMinScoreDisplayPercent,
     documentFaceReasonKey,
     documentFailureReasonKey,
     isDocNoStorage,
@@ -13,6 +15,7 @@ import {
     livenessScoreBand,
     nameVerificationSkip,
     recordRetentionNotice,
+    resolveCompareMinScoreUnit,
     resolveCompareStatus,
     resolveOtpStepState,
 } from './app-registration-record.utils';
@@ -261,6 +264,48 @@ describe('retention detection helpers', () => {
         } as unknown as AppRegistrationDetail;
 
         expect(recordRetentionNotice(normalRecord)).toBeNull();
+    });
+});
+
+describe('ArcFace compare threshold calibration on legacy flows', () => {
+    it('maps legacy OpenCV flow thresholds cleanly onto the 0.60–0.75 ArcFace range', () => {
+        expect(calibrateArcFaceCompareThreshold(0.85)).toBe(0.7);
+        expect(calibrateArcFaceCompareThreshold(0.9)).toBe(0.725);
+        expect(calibrateArcFaceCompareThreshold(0.95)).toBe(0.75);
+        expect(calibrateArcFaceCompareThreshold(0.65)).toBe(0.65);
+        expect(calibrateArcFaceCompareThreshold(null)).toBe(0.7);
+    });
+
+    it('avoids false staleThreshold or faceCompareFailed reasons on calibrated 0.85 flows', () => {
+        const record = {
+            status: 'NEEDS_MANUAL_VERIFICATION',
+            projectFlow: flow,
+            compareFaceVerification: {
+                result: { score: 0.78, compare_min_score: 0.7, passed: true },
+            },
+            biometricValidation: { status: 'validated', livenessScore: 0.82 },
+        } as unknown as AppRegistrationDetail;
+
+        expect(resolveCompareMinScoreUnit(record)).toBe(0.7);
+        expect(compareMinScoreDisplayPercent(record)).toBe(70);
+        const reasonKeys = buildManualVerificationReasons(record).map((r) => r.key);
+        expect(reasonKeys).not.toContain('smartEnrollProjects.recordDetail.manualReason.staleThreshold');
+        expect(reasonKeys).not.toContain('smartEnrollProjects.recordDetail.manualReason.faceCompareFailed');
+    });
+
+    it('still flags genuine mismatches and drifted flow thresholds', () => {
+        const record = {
+            status: 'NEEDS_MANUAL_VERIFICATION',
+            projectFlow: { ...flow, liveness: { attemptLimit: 3, compareMinScore: 0.75, minScore: 0.65 } },
+            compareFaceVerification: {
+                result: { score: 0.72, compare_min_score: 0.6 },
+            },
+            biometricValidation: { status: 'validated', livenessScore: 0.82 },
+        } as unknown as AppRegistrationDetail;
+
+        const reasonKeys = buildManualVerificationReasons(record).map((r) => r.key);
+        expect(reasonKeys).toContain('smartEnrollProjects.recordDetail.manualReason.staleThreshold');
+        expect(reasonKeys).toContain('smartEnrollProjects.recordDetail.manualReason.faceCompareFailed');
     });
 });
 

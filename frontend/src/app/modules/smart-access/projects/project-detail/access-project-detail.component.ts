@@ -11,7 +11,7 @@ import { environment } from 'environments/environment';
 import { Subscription } from 'rxjs';
 import { smartAccessLoginFlow } from '../login-flow.util';
 import { isIncompleteSmartAccessWizard, resumeStepIndex } from '../setup/smart-access-setup-draft.util';
-import type { AccessProject, SmartAccessLoginSettings, SmartAccessSecurity, SmartAccessFlowIntegrations } from '../smart-access-projects.types';
+import type { AccessProject, SmartAccessLoginSettings, SmartAccessSecurity, SmartAccessFlowIntegrations, LinkedProjectMeta } from '../smart-access-projects.types';
 import { SmartAccessProjectsService } from '../smart-access-projects.service';
 import { AccessSignInPreviewComponent } from '../setup/preview/access-sign-in-preview.component';
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
@@ -144,6 +144,59 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
         const s = this.flow()?.security ?? {};
         return { source: s.source ?? null, apiUrl: s.apiUrl ?? '', strategy: s.strategy ?? 'whitelist' };
     });
+
+    linkedProjects = computed<LinkedProjectMeta[]>(() => {
+        const f = this.flow();
+        if (f?.linkedProjectsMeta && Array.isArray(f.linkedProjectsMeta) && f.linkedProjectsMeta.length > 0) {
+            return f.linkedProjectsMeta;
+        }
+        const sec = (f?.security ?? {}) as Record<string, unknown>;
+        const secLinked = (sec['linkedProjects'] ?? []) as Array<Record<string, unknown>>;
+        if (!Array.isArray(secLinked) || secLinked.length === 0) return [];
+        return secLinked.map((item) => {
+            const proj = typeof item['project'] === 'object' && item['project'] !== null
+                ? (item['project'] as Record<string, unknown>)
+                : null;
+            const id = proj ? String(proj['_id'] || '') : String(item['project'] || '');
+            const flowType = (item['flowType'] || (proj ? proj['type'] : null) || 'onboarding') as 'onboarding' | 'humanAuthn';
+            const target = (item['target'] || (proj ? proj['target'] : null) || 'personal') as 'personal' | 'business';
+            return {
+                _id: id,
+                name: proj ? String(proj['name'] || id) : id,
+                status: proj ? String(proj['status'] || 'active') : 'active',
+                flowType,
+                target,
+                allowSignUpRedirect: Boolean(item['allowSignUpRedirect']),
+                isPrimarySignUp: false,
+                hasFaceCollection: Boolean(proj ? proj['assignedCollection'] || proj['collectionCode'] : false),
+                humanAuthn: proj ? (proj['humanAuthn'] as LinkedProjectMeta['humanAuthn']) : undefined,
+            };
+        });
+    });
+
+    getProjectRouterLink(lp: LinkedProjectMeta): string[] {
+        if (lp.flowType === 'humanAuthn') {
+            return ['/human-authn/projects', lp._id];
+        }
+        if (lp.target === 'business') {
+            return ['/smart-business/projects', lp._id];
+        }
+        return ['/smart-enroll/projects', lp._id];
+    }
+
+    getBiometricCapabilityLabel(lp: LinkedProjectMeta): string {
+        if (lp.flowType === 'humanAuthn') {
+            const provider = lp.humanAuthn?.storageProvider || 'ipfs';
+            if (provider === 'none') {
+                return this._transloco.translate('smartAccessProjects.setup.whitelist.capability_human_id_none');
+            }
+            if (provider === 'cloud') {
+                return this._transloco.translate('smartAccessProjects.setup.whitelist.capability_human_id_cloud');
+            }
+            return this._transloco.translate('smartAccessProjects.setup.whitelist.capability_human_id_ipfs');
+        }
+        return this._transloco.translate('smartAccessProjects.setup.whitelist.capability_opencv_face');
+    }
 
     integrationsPreview = computed<SmartAccessFlowIntegrations>(() => {
         const i = this.flow()?.integrations ?? {};

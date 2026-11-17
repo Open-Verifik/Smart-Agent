@@ -74,6 +74,16 @@
                                 mat-stroked-button
                                 type="button"
                                 class="shrink-0 rounded-xl"
+                                (click)="connectSmartAccess()"
+                            >
+                                <mat-icon class="!h-4 !w-4 mr-1">lock_open</mat-icon>
+                                {{ t('humanAuthnProjects.detail.connectSmartAccess') }}
+                            </button>
+
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                class="shrink-0 rounded-xl"
                                 (click)="openRecords()"
                             >
                                 <mat-icon class="!h-4 !w-4 mr-1">history</mat-icon>
