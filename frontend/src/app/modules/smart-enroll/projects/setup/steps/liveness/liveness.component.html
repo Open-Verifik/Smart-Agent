@@ -139,93 +139,65 @@
                         <div class="threshold-card__top">
                             <div class="threshold-card__value">
                                 <strong>{{ compareMinScoreDisplayValue }}</strong>
-                                <span>{{ 'smartEnrollProjects.setup.liveness.actualScore' | transloco }}</span>
+                                <label [for]="compareSliderId" class="threshold-card__label">
+                                    {{ 'smartEnrollProjects.setup.liveness.actualScore' | transloco }} · {{ compareMinScoreUnitValue.toFixed(2) }}
+                                </label>
                             </div>
                             <div class="threshold-card__bounds">
-                                <span>65%</span>
+                                <span>60%</span>
                                 <span>–</span>
-                                <span>95%</span>
+                                <span>75%</span>
                             </div>
                         </div>
 
-                        <mat-slider min="0.65" max="0.95" step="0.01" discrete class="threshold-card__slider">
-                            <input matSliderThumb formControlName="compareMinScore" />
-                        </mat-slider>
+                        <input
+                            [id]="compareSliderId"
+                            type="range"
+                            min="0.6"
+                            max="0.75"
+                            step="0.01"
+                            formControlName="compareMinScore"
+                            [attr.aria-describedby]="compareHelpId"
+                            [attr.aria-valuetext]="compareMinScoreDisplayValue"
+                            [style.--slider-progress]="compareMinScoreProgressPercent + '%'"
+                            class="threshold-range-input"
+                        />
 
-                        <p class="threshold-card__help">
+                        <div
+                            class="threshold-presets"
+                            role="group"
+                            [attr.aria-label]="'smartEnrollProjects.setup.liveness.thresholds.compareMinScore' | transloco"
+                        >
+                            @for (preset of compareThresholdPresets; track preset.value) {
+                                <button
+                                    type="button"
+                                    (click)="setCompareMinScorePreset(preset.value)"
+                                    class="threshold-preset"
+                                    [class.is-active]="isComparePresetActive(preset.value)"
+                                    [attr.aria-pressed]="isComparePresetActive(preset.value)"
+                                >
+                                    {{ preset.labelKey | transloco }} · {{ preset.value.toFixed(2) }}
+                                </button>
+                            }
+                        </div>
+
+                        <p [id]="compareHelpId" class="threshold-card__help">
                             {{ 'smartEnrollProjects.setup.liveness.thresholds.compareMinScoreHelp' | transloco }}
                         </p>
                     </div>
                 </section>
             </li>
 
-            <!-- Stage 4: Search minimum score -->
+            <!-- Stage 4: Attempt limit (search stage deprecated) -->
             <li class="liveness-stage">
                 <div class="liveness-stage__marker">{{ stageNumber(4) }}</div>
-                <section
-                    class="liveness-panel"
-                    [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('searchMinScore')?.errors"
-                >
-                    <header class="liveness-panel__header">
-                        <div>
-                            <span class="liveness-panel__eyebrow">
-                                {{
-                                    'smartEnrollProjects.setup.documents.journey.stage'
-                                        | transloco: { number: stageNumber(4) }
-                                }}
-                            </span>
-                            <h3>{{ 'smartEnrollProjects.setup.liveness.thresholds.searchMinScore' | transloco }}</h3>
-                            <p>{{ 'smartEnrollProjects.setup.liveness.thresholds.searchMinScoreSubtitle' | transloco }}</p>
-                        </div>
-                        <span class="liveness-panel__status">
-                            {{ searchMinScoreDisplayValue }}
-                        </span>
-                    </header>
-
-                    <div *ngIf="isNotRequired" class="disabled-stage">
-                        <mat-icon>lock_outline</mat-icon>
-                        <span>{{ 'smartEnrollProjects.setup.liveness.journey.enableToConfigure' | transloco }}</span>
-                    </div>
-
-                    <div *ngIf="!isNotRequired" class="threshold-card">
-                        <div class="threshold-card__top">
-                            <div class="threshold-card__value">
-                                <strong>{{ searchMinScoreDisplayValue }}</strong>
-                                <span>{{ 'smartEnrollProjects.setup.liveness.actualScore' | transloco }}</span>
-                            </div>
-                            <div class="threshold-card__bounds">
-                                <span>81%</span>
-                                <span>–</span>
-                                <span>95%</span>
-                            </div>
-                        </div>
-
-                        <mat-slider min="0.81" max="0.95" step="0.01" discrete class="threshold-card__slider">
-                            <input matSliderThumb formControlName="searchMinScore" />
-                        </mat-slider>
-
-                        <div *ngIf="isSearchMinScoreWarn" class="threshold-card__warning">
-                            <mat-icon>warning</mat-icon>
-                            <span>{{ 'smartEnrollProjects.setup.liveness.thresholds.searchWarn' | transloco }}</span>
-                        </div>
-
-                        <p class="threshold-card__help">
-                            {{ 'smartEnrollProjects.setup.liveness.thresholds.searchMinScoreHelp' | transloco }}
-                        </p>
-                    </div>
-                </section>
-            </li>
-
-            <!-- Stage 5: Attempt limit -->
-            <li class="liveness-stage">
-                <div class="liveness-stage__marker">{{ stageNumber(5) }}</div>
                 <section class="liveness-panel">
                     <header class="liveness-panel__header">
                         <div>
                             <span class="liveness-panel__eyebrow">
                                 {{
                                     'smartEnrollProjects.setup.documents.journey.stage'
-                                        | transloco: { number: stageNumber(5) }
+                                        | transloco: { number: stageNumber(4) }
                                 }}
                             </span>
                             <h3>{{ 'smartEnrollProjects.setup.documents.attempts.title' | transloco }}</h3>

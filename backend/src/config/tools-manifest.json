@@ -2965,7 +2965,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/compare",
 			"verifikPath": "/v2/face-recognition/compare",
 			"method": "POST",
-			"description": "1:1 face comparison to verify identity",
+			"description": "[DEPRECATED] 1:1 face comparison to verify identity. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -2998,7 +2999,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/compare-live",
 			"verifikPath": "/v2/face-recognition/compare-live",
 			"method": "POST",
-			"description": "1:1 comparison with live probe and liveness threshold",
+			"description": "[DEPRECATED] 1:1 comparison with live probe and liveness threshold. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3041,7 +3043,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/liveness",
 			"verifikPath": "/v2/face-recognition/liveness",
 			"method": "POST",
-			"description": "Detect if a face is live or from a static image/video",
+			"description": "[DEPRECATED] Detect if a face is live or from a static image/video. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3064,12 +3067,13 @@
 		},
 		{
 			"id": "face_recognition_liveness_score",
-			"name": "Global - Liveness Score (OpenCV)",
-			"category": "Global - Liveness Score (OpenCV)",
+			"name": "Global - Liveness Score",
+			"category": "Global - Liveness Score",
 			"url": "https://ai.verifik.co/api/face-recognition/liveness-score",
 			"verifikPath": "/v2/face-recognition/liveness-score",
 			"method": "POST",
-			"description": "OpenCV-only liveness score (no Zelf arbitrage)",
+			"description": "[DEPRECATED] Legacy liveness score endpoint. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3097,7 +3101,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/persons/search-live-face",
 			"verifikPath": "/v2/face-recognition/persons/search-live-face",
 			"method": "POST",
-			"description": "Enroll a person with liveness into a collection",
+			"description": "[DEPRECATED] Enroll a person with liveness into a collection. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.53,
 			"parameters": {
@@ -3171,7 +3176,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/persons",
 			"verifikPath": "/v2/face-recognition/persons",
 			"method": "POST",
-			"description": "Enroll a person into one or more face collections",
+			"description": "[DEPRECATED] Enroll a person into one or more face collections. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -3222,7 +3228,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/persons/@monitor.personId",
 			"verifikPath": "/v2/face-recognition/persons/@monitor.personId",
 			"method": "POST",
-			"description": "Delete an enrolled face person by id",
+			"description": "[DEPRECATED] Delete an enrolled face person by id. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.00001,
 			"parameters": {
@@ -3245,7 +3252,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/collections",
 			"verifikPath": "/v2/face-recognition/collections",
 			"method": "POST",
-			"description": "Create a face recognition collection",
+			"description": "[DEPRECATED] Create a face recognition collection. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.0001,
 			"parameters": {
@@ -3272,7 +3280,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/detect",
 			"verifikPath": "/v2/face-recognition/detect",
 			"method": "POST",
-			"description": "Detect and extract faces from images",
+			"description": "[DEPRECATED] Detect and extract faces from images. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -3313,7 +3322,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/search",
 			"verifikPath": "/v2/face-recognition/search",
 			"method": "POST",
-			"description": "Search for a face in a collection (1:N identification)",
+			"description": "[DEPRECATED] Search for a face in a collection (1:N identification). Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -4668,7 +4678,8 @@
 			"url": "https://ai.verifik.co/api/face-recognition/face-validation",
 			"verifikPath": "/v2/face-recognition/face-validation",
 			"method": "POST",
-			"description": "Detect and validate the presence of a human face in an image. Useful as a pre-step for liveness or face-compare flows; returns face bounding boxes and quality signals.",
+			"description": "[DEPRECATED] Detect and validate the presence of a human face in an image. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
+			"deprecated": true,
 			"country": "world",
 			"priceUsd": 0.01,
 			"parameters": {
@@ -5255,6 +5266,97 @@
 				},
 				"required": [
 					"zelfProof"
+				]
+			}
+		},
+		{
+			"id": "human_id_encrypt",
+			"name": "Global - HumanID Encrypt",
+			"category": "Global - Biometrics & HumanID",
+			"url": "https://ai.verifik.co/api/human-id/encrypt",
+			"verifikPath": "/v2/human-id/encrypt",
+			"method": "POST",
+			"description": "Performs privacy-preserving facial liveness and biometric enrollment using HumanAuthn, returning an encrypted humanId (zelfProof).",
+			"country": "world",
+			"priceUsd": 0.84,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"faceBase64": {
+						"type": "string",
+						"description": "Base64 image or data URI of face"
+					},
+					"identifier": {
+						"type": "string",
+						"description": "Unique alphanumeric identifier"
+					},
+					"publicData": {
+						"type": "object",
+						"description": "JSON object with string values"
+					},
+					"metadata": {
+						"type": "object",
+						"description": "JSON object with string values"
+					},
+					"os": {
+						"type": "string",
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
+						"default": "DESKTOP"
+					},
+					"requireLiveness": {
+						"type": "boolean",
+						"default": true
+					}
+				},
+				"required": [
+					"faceBase64",
+					"identifier",
+					"publicData",
+					"metadata",
+					"os",
+					"requireLiveness"
+				]
+			}
+		},
+		{
+			"id": "human_id_decrypt",
+			"name": "Global - HumanID Decrypt",
+			"category": "Global - Biometrics & HumanID",
+			"url": "https://ai.verifik.co/api/human-id/decrypt",
+			"verifikPath": "/v2/human-id/decrypt",
+			"method": "POST",
+			"description": "Decrypts and validates a biometric humanId against a challenge nonce.",
+			"country": "world",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"faceBase64": {
+						"type": "string",
+						"description": "Base64 image of face for verification"
+					},
+					"humanID": {
+						"type": "string",
+						"description": "Encrypted biometric token to decrypt"
+					},
+					"os": {
+						"type": "string",
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
+						"default": "DESKTOP"
+					}
+				},
+				"required": [
+					"faceBase64",
+					"humanID",
+					"os"
 				]
 			}
 		},

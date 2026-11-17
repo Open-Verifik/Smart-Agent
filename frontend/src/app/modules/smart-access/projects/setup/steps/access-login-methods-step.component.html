@@ -1,269 +1,233 @@
 <ng-container *transloco="let t">
-    <div class="flex w-full flex-col gap-6" [formGroup]="loginSettings">
-        <header class="flex flex-col gap-1">
-            <h2 class="flex items-center gap-2 text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                {{ t('smartAccessProjects.setup.login_methods.title') }}
-                <a class="inline-flex" target="_blank" rel="noopener" [href]="docUrl(5)">
-                    <mat-icon class="!h-4 !w-4 cursor-pointer text-blue-600 dark:text-blue-400" svgIcon="heroicons_outline:information-circle"></mat-icon>
-                </a>
-            </h2>
-            <p class="text-xs text-stone-500 dark:text-stone-400">
-                {{ t('smartAccessProjects.setup.login_methods.subtitle') }}
-            </p>
-        </header>
-
-        <!-- Phone + Email row -->
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <!-- Phone card -->
-            <section class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-700 dark:bg-gray-900/40">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="flex flex-col gap-1">
-                        <h3 class="flex items-center gap-2 text-sm font-semibold text-stone-900 dark:text-white">
-                            <mat-icon class="!h-4 !w-4">phone</mat-icon>
-                            {{ t('smartAccessProjects.setup.login_methods.phone') }}
-                            <a class="inline-flex" target="_blank" rel="noopener" [href]="docUrl(1)">
-                                <mat-icon class="!h-4 !w-4 cursor-pointer text-blue-600 dark:text-blue-400" svgIcon="heroicons_outline:information-circle"></mat-icon>
-                            </a>
-                        </h3>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartAccessProjects.setup.login_methods.phone_subtitle') }}
-                        </p>
-                    </div>
-                    <mat-slide-toggle formControlName="phone" [disabled]="loading || saving"></mat-slide-toggle>
+    <div class="integrations-journey" [formGroup]="loginSettings">
+        <!-- Intro card -->
+        <div class="integrations-intro">
+            <div class="integrations-intro__icon">
+                <mat-icon>vpn_key</mat-icon>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h2>{{ t('smartAccessProjects.setup.login_methods.title') }}</h2>
+                    <a
+                        class="docs-pill"
+                        [href]="docUrl(5)"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <span>{{ t('smartAccessProjects.setup.whitelist.docs_link') }}</span>
+                        <mat-icon class="!h-3.5 !w-3.5 !text-sm">open_in_new</mat-icon>
+                    </a>
                 </div>
-
-                @if (phoneOn) {
-                    <div class="grid grid-cols-2 gap-2">
-                        <button
-                            type="button"
-                            class="gateway-tile"
-                            [class.gateway-tile-active]="whatsapp"
-                            [disabled]="loading || saving"
-                            (click)="togglePhoneTile('whatsapp')"
-                        >
-                            <mat-icon class="!h-4 !w-4">chat</mat-icon>
-                            <span>{{ t('smartAccessProjects.setup.login_methods.whatsapp') }}</span>
-                        </button>
-                        <button
-                            type="button"
-                            class="gateway-tile"
-                            [class.gateway-tile-active]="sms"
-                            [disabled]="loading || saving"
-                            (click)="togglePhoneTile('sms')"
-                        >
-                            <mat-icon class="!h-4 !w-4">sms</mat-icon>
-                            <span>{{ t('smartAccessProjects.setup.login_methods.sms') }}</span>
-                        </button>
-                    </div>
-
-                    @if (phoneGatewayMissing) {
-                        <div class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
-                            <mat-icon class="!h-4 !w-4">info</mat-icon>
-                            <span>{{ t('smartAccessProjects.setup.login_methods.phone_recommendation') }}</span>
-                        </div>
-                    }
-                }
-            </section>
-
-            <!-- Email card -->
-            <section class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-700 dark:bg-gray-900/40">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="flex flex-col gap-1">
-                        <h3 class="flex items-center gap-2 text-sm font-semibold text-stone-900 dark:text-white">
-                            <mat-icon class="!h-4 !w-4">mail</mat-icon>
-                            {{ t('smartAccessProjects.setup.login_methods.email') }}
-                            <a class="inline-flex" target="_blank" rel="noopener" [href]="docUrl(2)">
-                                <mat-icon class="!h-4 !w-4 cursor-pointer text-blue-600 dark:text-blue-400" svgIcon="heroicons_outline:information-circle"></mat-icon>
-                            </a>
-                        </h3>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartAccessProjects.setup.login_methods.email_subtitle') }}
-                        </p>
-                    </div>
-                    <mat-slide-toggle formControlName="email" [disabled]="loading || saving"></mat-slide-toggle>
-                </div>
-            </section>
+                <p>{{ t('smartAccessProjects.setup.login_methods.subtitle') }}</p>
+            </div>
         </div>
 
-        <!-- Biometrics card -->
-        <section class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40">
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex flex-col gap-1">
-                    <h3 class="flex items-center gap-2 text-sm font-semibold text-stone-900 dark:text-white">
-                        <mat-icon class="!h-4 !w-4">face</mat-icon>
-                        {{ t('smartAccessProjects.setup.login_methods.face_liveness') }}
-                        <a class="inline-flex" target="_blank" rel="noopener" [href]="docUrl(3)">
-                            <mat-icon class="!h-4 !w-4 cursor-pointer text-blue-600 dark:text-blue-400" svgIcon="heroicons_outline:information-circle"></mat-icon>
-                        </a>
-                    </h3>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartAccessProjects.setup.login_methods.face_liveness_subtitle') }}
-                    </p>
-                </div>
-                <mat-slide-toggle formControlName="faceLiveness" [disabled]="loading || saving"></mat-slide-toggle>
-            </div>
-
-            @if (faceLivenessOn) {
-                @if (showBiometricSourceWarning) {
-                    <div class="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
-                        <mat-icon class="!h-5 !w-5 shrink-0 text-amber-600 dark:text-amber-400">warning</mat-icon>
-                        <div class="flex flex-col gap-1">
-                            <span class="font-semibold">{{ t('smartAccessProjects.setup.login_methods.biometric_source_warning_title') }}</span>
-                            <span class="leading-relaxed">{{ t('smartAccessProjects.setup.login_methods.biometric_source_warning') }}</span>
+        <ol class="integrations-timeline">
+            <!-- Stage 1: Contact channels (Phone & Email) -->
+            <li class="integrations-stage">
+                <div class="integrations-stage__marker">1</div>
+                <section
+                    class="integrations-panel"
+                    [class.border-red-500]="noMethodSelected || phoneGatewayMissing"
+                >
+                    <header class="integrations-panel__header">
+                        <div>
+                            <span class="integrations-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                            </span>
+                            <h3>{{ t('smartAccessProjects.setup.login_methods.title') }}</h3>
+                            <p>{{ t('smartAccessProjects.setup.login_methods.subtitle') }}</p>
                         </div>
-                    </div>
-                }
+                        <span class="integrations-panel__status">
+                            {{
+                                (phoneOn ? 1 : 0) + (loginSettings.get('email')?.value ? 1 : 0)
+                            }}
+                            / 2
+                        </span>
+                    </header>
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full max-w-xs">
-                    <mat-label>{{ t('smartAccessProjects.setup.login_methods.search_mode') }}</mat-label>
-                    <mat-select formControlName="searchMode">
-                        <mat-option value="FAST">FAST</mat-option>
-                        <mat-option value="ACCURATE">ACCURATE</mat-option>
-                    </mat-select>
-                </mat-form-field>
+                    <div class="panel-body">
+                        <div class="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+                            <!-- Phone sub-card -->
+                            <div class="channel-card" [class.channel-card--active]="phoneOn">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex flex-col gap-1">
+                                        <h4 class="flex items-center gap-2 text-sm font-semibold text-stone-900 dark:text-white">
+                                            <mat-icon class="!h-4 !w-4 text-stone-600 dark:text-stone-300">phone</mat-icon>
+                                            {{ t('smartAccessProjects.setup.login_methods.phone') }}
+                                        </h4>
+                                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                                            {{ t('smartAccessProjects.setup.login_methods.phone_subtitle') }}
+                                        </p>
+                                    </div>
+                                    <mat-slide-toggle formControlName="phone" [disabled]="loading || saving"></mat-slide-toggle>
+                                </div>
 
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <!-- Liveness score -->
-                    <div class="flex flex-col gap-3 rounded-xl border border-stone-200/80 p-4 dark:border-gray-800">
-                        <header>
-                            <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
-                                {{ t('smartAccessProjects.setup.login_methods.liveness_score') }}
-                            </h4>
-                            <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                {{ t('smartAccessProjects.setup.login_methods.liveness_subtitle') }}
+                                @if (phoneOn) {
+                                    <div class="mt-3 grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            class="gateway-tile"
+                                            [class.gateway-tile-active]="whatsapp"
+                                            [attr.aria-pressed]="whatsapp"
+                                            [disabled]="loading || saving"
+                                            (click)="togglePhoneTile('whatsapp')"
+                                        >
+                                            <mat-icon class="!h-4 !w-4">chat</mat-icon>
+                                            <span>{{ t('smartAccessProjects.setup.login_methods.whatsapp') }}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="gateway-tile"
+                                            [class.gateway-tile-active]="sms"
+                                            [attr.aria-pressed]="sms"
+                                            [disabled]="loading || saving"
+                                            (click)="togglePhoneTile('sms')"
+                                        >
+                                            <mat-icon class="!h-4 !w-4">sms</mat-icon>
+                                            <span>{{ t('smartAccessProjects.setup.login_methods.sms') }}</span>
+                                        </button>
+                                    </div>
+
+                                    @if (phoneGatewayMissing) {
+                                        <div class="mt-2.5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800" role="alert">
+                                            <mat-icon class="!h-4 !w-4 shrink-0">info_outline</mat-icon>
+                                            <span>{{ t('smartAccessProjects.setup.login_methods.phone_recommendation') }}</span>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <!-- Email sub-card -->
+                            <div class="channel-card" [class.channel-card--active]="!!loginSettings.get('email')?.value">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex flex-col gap-1">
+                                        <h4 class="flex items-center gap-2 text-sm font-semibold text-stone-900 dark:text-white">
+                                            <mat-icon class="!h-4 !w-4 text-stone-600 dark:text-stone-300">mail</mat-icon>
+                                            {{ t('smartAccessProjects.setup.login_methods.email') }}
+                                        </h4>
+                                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                                            {{ t('smartAccessProjects.setup.login_methods.email_subtitle') }}
+                                        </p>
+                                    </div>
+                                    <mat-slide-toggle formControlName="email" [disabled]="loading || saving"></mat-slide-toggle>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (noMethodSelected) {
+                            <p class="field-error" role="alert">
+                                {{ t('smartAccessProjects.setup.login_methods.at_least_one_method') }}
                             </p>
-                        </header>
+                        }
+                    </div>
+                </section>
+            </li>
 
-                        <div class="flex items-end justify-center gap-2">
-                            <span class="text-3xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                                {{ livenessPct() }}%
+            <!-- Stage 2: Biometric liveness -->
+            <li class="integrations-stage">
+                <div class="integrations-stage__marker">2</div>
+                <section class="integrations-panel">
+                    <header class="integrations-panel__header">
+                        <div>
+                            <span class="integrations-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
                             </span>
-                            <span class="pb-1 text-xs text-stone-500 dark:text-stone-400">
-                                {{ t('smartAccessProjects.setup.login_methods.actual_score') }}
+                            <h3>{{ t('smartAccessProjects.setup.login_methods.face_liveness') }}</h3>
+                            <p>{{ t('smartAccessProjects.setup.login_methods.face_liveness_subtitle') }}</p>
+                        </div>
+                        <mat-slide-toggle formControlName="faceLiveness" [disabled]="loading || saving"></mat-slide-toggle>
+                    </header>
+
+                    <div class="panel-body">
+                        @if (!faceLivenessOn) {
+                            <div class="disabled-stage">
+                                <mat-icon>lock_outline</mat-icon>
+                                <span>{{ t('smartEnrollProjects.setup.liveness.journey.enableToConfigure') }}</span>
+                            </div>
+                        } @else {
+                            <div class="max-w-md">
+                                <!-- Liveness score -->
+                                <div class="threshold-card">
+                                    <header>
+                                        <h4>{{ t('smartAccessProjects.setup.login_methods.liveness_score') }}</h4>
+                                        <p>{{ t('smartAccessProjects.setup.login_methods.liveness_subtitle') }}</p>
+                                    </header>
+
+                                    <div class="flex items-end justify-center gap-2 pt-1">
+                                        <span class="text-3xl font-semibold tabular-nums tracking-tight text-stone-900 dark:text-white">
+                                            {{ livenessPct() }}%
+                                        </span>
+                                        <span class="pb-1 text-xs text-stone-500 dark:text-stone-400">
+                                            {{ t('smartAccessProjects.setup.login_methods.actual_score') }}
+                                        </span>
+                                    </div>
+
+                                    <mat-slider min="0.52" max="0.89" step="0.01" discrete class="!w-full">
+                                        <input matSliderThumb formControlName="livenessMinScore" />
+                                    </mat-slider>
+
+                                    <div class="flex justify-between text-[11px] font-medium tabular-nums text-stone-500 dark:text-stone-400">
+                                        <span>52%</span>
+                                        <span>89%</span>
+                                    </div>
+
+                                    <div class="threshold-note">
+                                        <mat-icon>info_outline</mat-icon>
+                                        <span>{{ t('smartAccessProjects.setup.login_methods.liveness_recommendation') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </section>
+            </li>
+
+            <!-- Stage 3: Additional options -->
+            <li class="integrations-stage">
+                <div class="integrations-stage__marker">3</div>
+                <section class="integrations-panel">
+                    <header class="integrations-panel__header">
+                        <div>
+                            <span class="integrations-panel__eyebrow">
+                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
                             </span>
+                            <h3>{{ t('smartAccessProjects.setup.login_methods.additional_options') }}</h3>
+                            <p>{{ t('smartAccessProjects.setup.login_methods.additional_subtitle') }}</p>
+                        </div>
+                    </header>
+
+                    <div class="panel-body">
+                        <div class="channel-card">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex flex-col gap-1">
+                                    <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.setup.login_methods.face_recommend') }}
+                                    </h4>
+                                    <p class="text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.setup.login_methods.face_recommend_subtitle') }}
+                                    </p>
+                                </div>
+                                <mat-slide-toggle formControlName="showFaceLivenessRecommendation" [disabled]="loading || saving"></mat-slide-toggle>
+                            </div>
                         </div>
 
-                        <mat-slider min="0.52" max="0.89" step="0.01" discrete class="!w-full">
-                            <input matSliderThumb formControlName="livenessMinScore" />
-                        </mat-slider>
-
-                        <div class="flex justify-between text-[10px] text-stone-500 dark:text-stone-400">
-                            <span>52%</span>
-                            <span>89%</span>
-                        </div>
-
-                        <div class="flex items-start gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs text-indigo-800 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-200">
-                            <mat-icon class="!h-4 !w-4">info</mat-icon>
-                            <span>{{ t('smartAccessProjects.setup.login_methods.liveness_recommendation') }}</span>
+                        <div class="channel-card">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex flex-col gap-1">
+                                    <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.setup.login_methods.allow_passkeys') }}
+                                    </h4>
+                                    <p class="text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.setup.login_methods.allow_passkeys_subtitle') }}
+                                    </p>
+                                </div>
+                                <mat-slide-toggle formControlName="allowPasskeys" [disabled]="loading || saving"></mat-slide-toggle>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Search score -->
-                    <div class="flex flex-col gap-3 rounded-xl border border-stone-200/80 p-4 dark:border-gray-800">
-                        <header>
-                            <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
-                                {{ t('smartAccessProjects.setup.login_methods.search_score') }}
-                            </h4>
-                            <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                {{ t('smartAccessProjects.setup.login_methods.search_subtitle') }}
-                            </p>
-                        </header>
-
-                        <div class="flex items-end justify-center gap-2">
-                            <span class="text-3xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                                {{ searchPct() }}%
-                            </span>
-                            <span class="pb-1 text-xs text-stone-500 dark:text-stone-400">
-                                {{ t('smartAccessProjects.setup.login_methods.actual_score') }}
-                            </span>
-                        </div>
-
-                        <mat-slider min="0.71" max="0.95" step="0.01" discrete class="!w-full">
-                            <input matSliderThumb formControlName="searchMinScore" />
-                        </mat-slider>
-
-                        <div class="flex justify-between text-[10px] text-stone-500 dark:text-stone-400">
-                            <span>71%</span>
-                            <span>95%</span>
-                        </div>
-
-                        <div class="flex items-start gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs text-indigo-800 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-200">
-                            <mat-icon class="!h-4 !w-4">info</mat-icon>
-                            <span>{{ t('smartAccessProjects.setup.login_methods.search_recommendation') }}</span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </section>
-
-        <!-- Additional options -->
-        <header class="flex flex-col gap-1 pt-2">
-            <h3 class="flex items-center gap-2 text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                {{ t('smartAccessProjects.setup.login_methods.additional_options') }}
-                <a class="inline-flex" target="_blank" rel="noopener" [href]="docUrl(4)">
-                    <mat-icon class="!h-4 !w-4 cursor-pointer text-blue-600 dark:text-blue-400" svgIcon="heroicons_outline:information-circle"></mat-icon>
-                </a>
-            </h3>
-            <p class="text-xs text-stone-500 dark:text-stone-400">
-                {{ t('smartAccessProjects.setup.login_methods.additional_subtitle') }}
-            </p>
-        </header>
-
-        <section class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-700 dark:bg-gray-900/40">
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex flex-col gap-1">
-                    <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
-                        {{ t('smartAccessProjects.setup.login_methods.face_recommend') }}
-                    </h4>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartAccessProjects.setup.login_methods.face_recommend_subtitle') }}
-                    </p>
-                </div>
-                <mat-slide-toggle formControlName="showFaceLivenessRecommendation" [disabled]="loading || saving"></mat-slide-toggle>
-            </div>
-        </section>
-
-        <section class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-700 dark:bg-gray-900/40">
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex flex-col gap-1">
-                    <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
-                        {{ t('smartAccessProjects.setup.login_methods.allow_passkeys') }}
-                    </h4>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartAccessProjects.setup.login_methods.allow_passkeys_subtitle') }}
-                    </p>
-                </div>
-                <mat-slide-toggle formControlName="allowPasskeys" [disabled]="loading || saving"></mat-slide-toggle>
-            </div>
-        </section>
-
-        <section class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-700 dark:bg-gray-900/40">
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex flex-col gap-1">
-                    <h4 class="text-sm font-semibold text-stone-900 dark:text-white">
-                        {{ t('smartAccessProjects.setup.login_methods.require_biometric_step_up') }}
-                    </h4>
-                    <p class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartAccessProjects.setup.login_methods.require_biometric_step_up_subtitle') }}
-                    </p>
-                </div>
-                <mat-slide-toggle
-                    formControlName="requireBiometricStepUp"
-                    [disabled]="loading || saving || !canEnableStepUp"
-                ></mat-slide-toggle>
-            </div>
-            @if (!canEnableStepUp) {
-                <p class="text-xs text-stone-400 dark:text-stone-500">
-                    {{ t('smartAccessProjects.setup.login_methods.require_biometric_step_up_hint') }}
-                </p>
-            }
-        </section>
-
-        @if (noMethodSelected) {
-            <div class="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
-                <mat-icon class="!h-4 !w-4">error_outline</mat-icon>
-                <span>{{ t('smartAccessProjects.setup.login_methods.at_least_one_method') }}</span>
-            </div>
-        }
+                </section>
+            </li>
+        </ol>
     </div>
 </ng-container>

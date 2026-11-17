@@ -208,7 +208,7 @@ export class SetupService {
             'projectFlow.steps.liveness',
             'projectFlow.liveness.attemptLimit',
             'projectFlow.liveness.minScore',
-            'projectFlow.liveness.searchMinScore',
+            'projectFlow.liveness.compareMinScore',
             'projectFlow.liveness.searchMode',
         ];
     }
@@ -267,7 +267,7 @@ export class SetupService {
             'projectFlow.representatives.documents.verificationMethods',
             'projectFlow.representatives.liveness.attemptLimit',
             'projectFlow.representatives.liveness.minScore',
-            'projectFlow.representatives.liveness.searchMinScore',
+            'projectFlow.representatives.liveness.compareMinScore',
             'projectFlow.representatives.liveness.searchMode',
         ];
     }
