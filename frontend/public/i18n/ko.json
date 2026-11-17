@@ -5036,7 +5036,7 @@
                     "minScoreHelp": "값이 높을수록 위조 시도가 줄지만, 실제 사용자도 더 많이 거부됩니다.",
                     "compareMinScore": "얼굴 비교 최소 점수",
                     "compareMinScoreSubtitle": "셀카가 문서 사진과 얼마나 일치해야 하는지.",
-                    "compareMinScoreHelp": "값이 높을수록 오인식은 줄어듭니다. 일부 인쇄 신분증(낡은 콜롬비아 신분증 및 다른 국가의 유사 문서)은 라이브 셀피와 비교하면 점수가 낮습니다. 오수락 위험을 감수하면 최솟값은 65%입니다.",
+                    "compareMinScoreHelp": "값이 높을수록 오인식이 줄어듭니다. 권장 균형 기본값은 70%(60%–75% 범위)이며, 낡은 인쇄 신분증에 더 높은 허용치가 필요한 경우 최소 60%까지 설정할 수 있습니다.",
                     "searchMinScore": "검색 최소 점수",
                     "searchMinScoreSubtitle": "기존 등록에서 고객을 검색할 때의 신뢰도 임계값.",
                     "searchMinScoreHelp": "1:N 중복 감지에 사용됩니다.",
@@ -9224,7 +9224,8 @@
                 "manage": "관리",
                 "search": "검색",
                 "detection": "검출",
-                "comparison": "비교"
+                "comparison": "비교",
+                "humanAuthn": "HumanID 및 라이브니스"
             },
             "demos": {
                 "create-collection": {
@@ -10130,7 +10131,23 @@
             "metaVerifik": "Verifik · 보안 세션 활성",
             "engineBlock": "엔진: HumanAuthn\n프로토: FACE_CMP\n인증: 보류 중",
             "support": "지원하다",
-            "mustSignIn": "이 데모를 실행하려면 로그인해야 합니다."
+            "mustSignIn": "이 데모를 실행하려면 로그인해야 합니다.",
+            "pairSectionTitle": "생체 쌍 및 임계값",
+            "pairSectionSubtitle": "원본과 대상 인물 사진을 설정하고 최소 유사도를 조정하세요.",
+            "resetPair": "초기화",
+            "replacePhoto": "사진 제거",
+            "statusCaptured": "준비됨",
+            "statusActive": "활성",
+            "statusPending": "대기 중",
+            "presetRelaxed": "관대",
+            "presetStandard": "표준",
+            "presetBalanced": "균형",
+            "presetStrict": "엄격",
+            "runCompare": "얼굴 비교",
+            "captureMethodAria": "촬영 방식",
+            "tabUpload": "사진 업로드",
+            "tabCamera": "실시간 카메라",
+            "dropzoneHint": "여기에 JPEG 또는 PNG 사진을 끌어다 놓거나 클릭하여 찾아보세요."
         },
         "faceComparisonLiveness": {
             "headerTitle": "활성도와 비교",
@@ -10200,7 +10217,23 @@
             "metaVerifik": "Verifik · 보안 세션 활성",
             "engineBlock": "엔진: HumanAuthn\n프로토: CWL_SEQ\n인증: 보류 중",
             "support": "지원하다",
-            "mustSignIn": "이 데모를 실행하려면 로그인해야 합니다."
+            "mustSignIn": "이 데모를 실행하려면 로그인해야 합니다.",
+            "pairSectionTitle": "생체 쌍 및 임계값",
+            "pairSectionSubtitle": "원본과 대상 인물 사진을 설정하고 최소 유사도를 조정하세요.",
+            "resetPair": "초기화",
+            "replacePhoto": "사진 제거",
+            "statusCaptured": "준비됨",
+            "statusActive": "활성",
+            "statusPending": "대기 중",
+            "presetRelaxed": "관대",
+            "presetStandard": "표준",
+            "presetBalanced": "균형",
+            "presetStrict": "엄격",
+            "runCompare": "얼굴 비교",
+            "captureMethodAria": "촬영 방식",
+            "tabUpload": "사진 업로드",
+            "tabCamera": "실시간 카메라",
+            "dropzoneHint": "여기에 JPEG 또는 PNG 사진을 끌어다 놓거나 클릭하여 찾아보세요."
         },
         "verifyFace": {
             "headerTitle": "얼굴 인증",
@@ -10949,6 +10982,15 @@
             "nationalitySearch": "Search countries",
             "nationalityInvalid": "Choose a country from the list.",
             "nationalityNoMatches": "No countries match that search."
+        },
+        "guidedCamera": {
+            "loadingModels": "얼굴 감지 로드 중…",
+            "idleExplainer": "가이드 카메라를 사용하면 얼굴이 정렬될 때 자동으로 촬영됩니다.",
+            "openCamera": "카메라 열기",
+            "startingCamera": "시작 중…",
+            "photoCaptured": "사진 촬영됨",
+            "holdStill": "움직이지 마세요…",
+            "alignFace": "프레임 안에 얼굴을 맞추세요"
         }
     },
     "createBatch": {

@@ -376,6 +376,38 @@
         height: 0.5rem;
         cursor: pointer;
     }
+
+    .demo-input {
+        width: 100%;
+        min-height: 2.75rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgb(214 211 209);
+        background-color: rgb(250 250 249 / 0.75);
+        padding: 0.625rem 0.875rem;
+        font-size: max(1rem, 0.875rem);
+        line-height: 1.4;
+        color: rgb(28 25 23);
+        transition:
+            border-color 150ms ease,
+            background-color 150ms ease,
+            box-shadow 150ms ease;
+
+        &::placeholder {
+            color: rgb(120 113 108);
+        }
+
+        &:focus-visible {
+            outline: none;
+            border-color: rgb(37 99 235);
+            background-color: rgb(255 255 255);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.14);
+        }
+
+        &:user-invalid {
+            border-color: rgb(185 28 28);
+            background-color: rgb(254 242 242 / 0.65);
+        }
+    }
 }
 
 /* Demo dark theme — aligned with Fuse / classic sidebar (slate neutrals) */
@@ -484,6 +516,27 @@
             cursor: pointer;
             opacity: 0.85;
             filter: invert(1);
+        }
+    }
+
+    .demo-input {
+        border-color: rgb(55 65 81);
+        background-color: rgb(31 41 55 / 0.7);
+        color: rgb(249 250 251);
+
+        &::placeholder {
+            color: rgb(156 163 175);
+        }
+
+        &:focus-visible {
+            border-color: rgb(96 165 250);
+            background-color: rgb(17 24 39);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.22);
+        }
+
+        &:user-invalid {
+            border-color: rgb(248 113 113);
+            background-color: rgb(127 29 29 / 0.25);
         }
     }
 }

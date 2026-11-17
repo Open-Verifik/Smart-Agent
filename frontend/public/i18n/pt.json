@@ -5036,7 +5036,7 @@
                     "minScoreHelp": "Valores mais altos reduzem fraudes, mas rejeitam mais usuários reais.",
                     "compareMinScore": "Pontuação mínima de comparação facial",
                     "compareMinScoreSubtitle": "Quão parecido o selfie deve ser com o retrato do documento.",
-                    "compareMinScoreHelp": "Valores mais altos reduzem falsos positivos. Alguns documentos impressos (cédulas colombianas desgastadas e similares em outros países) pontuam mais baixo contra um selfie ao vivo; 65% é o mínimo que você pode definir se aceitar mais risco de falsos aceites.",
+                    "compareMinScoreHelp": "Valores mais altos reduzem falsos positivos. Padrão equilibrado recomendado de 70% (faixa de 60%–75%); 60% é o mínimo permitido caso documentos impressos desgastados exijam maior tolerância.",
                     "searchMinScore": "Pontuação mínima de busca",
                     "searchMinScoreSubtitle": "Limite de confiança ao buscar o cliente entre inscrições existentes.",
                     "searchMinScoreHelp": "Usado para detecção de duplicados 1:N.",
@@ -9224,7 +9224,8 @@
                 "manage": "Gerenciar",
                 "search": "Buscar",
                 "detection": "Detecção",
-                "comparison": "Comparação"
+                "comparison": "Comparação",
+                "humanAuthn": "HumanID e prova de vida"
             },
             "demos": {
                 "create-collection": {
@@ -10130,7 +10131,23 @@
             "metaVerifik": "Verifik · Sessão segura ativa",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "Suporte",
-            "mustSignIn": "É preciso entrar para executar esta demo."
+            "mustSignIn": "É preciso entrar para executar esta demo.",
+            "pairSectionTitle": "Par biométrico e limiar",
+            "pairSectionSubtitle": "Defina os retratos de Origem e Destino e ajuste a similaridade mínima.",
+            "resetPair": "Reiniciar",
+            "replacePhoto": "Remover foto",
+            "statusCaptured": "Pronta",
+            "statusActive": "Ativa",
+            "statusPending": "Pendente",
+            "presetRelaxed": "Permissivo",
+            "presetStandard": "Padrão",
+            "presetBalanced": "Equilibrado",
+            "presetStrict": "Estrito",
+            "runCompare": "Comparar rostos",
+            "captureMethodAria": "Método de captura",
+            "tabUpload": "Enviar foto",
+            "tabCamera": "Câmera ao vivo",
+            "dropzoneHint": "Arraste e solte uma foto JPEG ou PNG aqui ou clique para selecionar."
         },
         "faceComparisonLiveness": {
             "headerTitle": "Comparar com vivacidade",
@@ -10200,7 +10217,23 @@
             "metaVerifik": "Verifik · Sessão segura ativa",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "Suporte",
-            "mustSignIn": "É preciso entrar para executar esta demo."
+            "mustSignIn": "É preciso entrar para executar esta demo.",
+            "pairSectionTitle": "Par biométrico e limiar",
+            "pairSectionSubtitle": "Defina os retratos de Origem e Destino e ajuste a similaridade mínima.",
+            "resetPair": "Reiniciar",
+            "replacePhoto": "Remover foto",
+            "statusCaptured": "Pronta",
+            "statusActive": "Ativa",
+            "statusPending": "Pendente",
+            "presetRelaxed": "Permissivo",
+            "presetStandard": "Padrão",
+            "presetBalanced": "Equilibrado",
+            "presetStrict": "Estrito",
+            "runCompare": "Comparar rostos",
+            "captureMethodAria": "Método de captura",
+            "tabUpload": "Enviar foto",
+            "tabCamera": "Câmera ao vivo",
+            "dropzoneHint": "Arraste e solte uma foto JPEG ou PNG aqui ou clique para selecionar."
         },
         "verifyFace": {
             "headerTitle": "Verificar face",
@@ -10949,6 +10982,15 @@
             "nationalitySearch": "Search countries",
             "nationalityInvalid": "Choose a country from the list.",
             "nationalityNoMatches": "No countries match that search."
+        },
+        "guidedCamera": {
+            "loadingModels": "Carregando detecção facial…",
+            "idleExplainer": "Use a câmera guiada para capturar automaticamente quando o seu rosto estiver alinhado.",
+            "openCamera": "Abrir câmera",
+            "startingCamera": "Iniciando…",
+            "photoCaptured": "Foto capturada",
+            "holdStill": "Fique parado…",
+            "alignFace": "Centralize seu rosto no quadro"
         }
     },
     "createBatch": {

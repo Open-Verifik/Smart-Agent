@@ -1,53 +1,55 @@
+<ng-container *transloco="let t">
 @if (modelsError) {
     <div class="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 text-sm text-on-surface">{{ modelsError }}</div>
 } @else if (!modelsReady) {
     <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-outline-variant/30 bg-surface-container-low p-8">
-        <span class="material-symbols-outlined text-4xl text-primary animate-pulse">face_retouching_natural</span>
-        <p class="text-sm text-on-surface-variant">Loading face detection…</p>
+        <span class="material-symbols-outlined text-4xl text-primary animate-pulse" aria-hidden="true">face_retouching_natural</span>
+        <p class="text-sm text-on-surface-variant">{{ t('smartEnrollDemos.guidedCamera.loadingModels') }}</p>
     </div>
 } @else {
-    <div [class]="fillFrame ? 'flex h-full min-h-0 flex-1 flex-col gap-3' : 'space-y-3'">
+    <div [class]="fillFrame ? 'flex h-full min-h-0 flex-1 flex-col gap-2.5' : 'space-y-2.5'">
         <div #container [class]="viewfinderClass">
             <div class="absolute inset-0" [class.scale-x-[-1]]="mirror">
-                <video #video class="absolute inset-0 h-full w-full object-cover bg-black" autoplay playsinline muted></video>
+                <video #video class="absolute inset-0 h-full w-full object-cover bg-stone-950" autoplay playsinline muted></video>
                 <canvas #mask class="pointer-events-none absolute inset-0 z-[1] h-full w-full" aria-hidden="true"></canvas>
             </div>
             @if (captureSuccess) {
-                <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-emerald-950/45 px-4 text-center backdrop-blur-[2px]">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-400/20">
-                        <span class="material-symbols-outlined text-4xl text-emerald-200">check_circle</span>
+                <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-emerald-950/55 px-4 text-center backdrop-blur-[2px]">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-400/20">
+                        <span class="material-symbols-outlined text-3xl text-emerald-200" aria-hidden="true">check_circle</span>
                     </div>
-                    <p class="text-base font-semibold text-white">Photo captured</p>
+                    <p class="text-sm font-semibold text-white">{{ t('smartEnrollDemos.guidedCamera.photoCaptured') }}</p>
                 </div>
             }
             @if (!streamActive) {
-                <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-surface-container-high/80 z-10 px-4 text-center backdrop-blur-sm">
+                <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-stone-900/75 px-5 text-center backdrop-blur-xs">
                     @if (!hideIdleExplainer) {
-                        <p class="text-sm text-on-surface-variant">Use the guided camera for automatic capture when your face is aligned.</p>
+                        <p class="max-w-xs text-xs leading-relaxed text-stone-200">{{ t('smartEnrollDemos.guidedCamera.idleExplainer') }}</p>
                     }
                     <button
                         type="button"
                         [disabled]="disabled || cameraStarting"
                         (click)="startCamera()"
-                        class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-primary-cta text-on-primary-container font-bold text-sm shadow-primary disabled:opacity-50"
+                        class="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary-cta px-5 py-2.5 text-sm font-semibold text-white shadow-primary transition-transform active:scale-[0.98] disabled:opacity-50"
                     >
-                        <span class="material-symbols-outlined text-lg">photo_camera</span>
-                        {{ cameraStarting ? 'Starting…' : 'Open camera' }}
+                        <span class="material-symbols-outlined text-lg" aria-hidden="true">photo_camera</span>
+                        {{ cameraStarting ? t('smartEnrollDemos.guidedCamera.startingCamera') : t('smartEnrollDemos.guidedCamera.openCamera') }}
                     </button>
                 </div>
             }
         </div>
-        <div class="min-h-[4.5rem] text-center text-sm">
+        <div class="min-h-[2.25rem] text-center text-xs sm:text-sm">
             @if (captureSuccess) {
-                <p class="font-semibold text-green-400">Photo captured</p>
+                <p class="font-semibold text-emerald-600 dark:text-emerald-400">{{ t('smartEnrollDemos.guidedCamera.photoCaptured') }}</p>
             } @else if (guideError) {
                 <p class="font-semibold text-on-surface">{{ guideError.title }}</p>
-                <p class="text-sm text-on-surface-variant">{{ guideError.subtitle }}</p>
+                <p class="text-xs text-on-surface-variant">{{ guideError.subtitle }}</p>
             } @else if (statusOk) {
-                <p class="text-sm font-medium text-green-400">Hold still…</p>
+                <p class="font-medium text-emerald-600 dark:text-emerald-400">{{ t('smartEnrollDemos.guidedCamera.holdStill') }}</p>
             } @else {
-                <p class="text-sm text-on-surface-variant">Align your face in the frame</p>
+                <p class="text-on-surface-variant">{{ t('smartEnrollDemos.guidedCamera.alignFace') }}</p>
             }
         </div>
     </div>
 }
+</ng-container>

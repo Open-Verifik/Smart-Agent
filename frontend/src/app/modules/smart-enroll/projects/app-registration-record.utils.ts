@@ -82,15 +82,55 @@ export const scoreToPercent = (score: number | string | null | undefined): numbe
 
 export type ManualVerificationReason = { key: string; params?: Record<string, unknown> };
 
+export const DEFAULT_ARCFACE_COMPARE_MIN_SCORE = 0.7;
+
+export const FACE_COMPARE_THRESHOLD_PRESETS = [
+    { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.6 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.65 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.7 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.75 },
+] as const;
+
+export const calibrateSliderCompareThreshold = (
+    value: unknown,
+    fallback = DEFAULT_ARCFACE_COMPARE_MIN_SCORE
+): number => Math.round(calibrateArcFaceCompareThreshold(value, fallback) * 100) / 100;
+
+/**
+ * Calibrates legacy OpenCV compare thresholds (> 0.75..0.95) into the native
+ * ArcFace cosine similarity scale (0.65..0.75, FAR_1E4..FAR_1E6), matching
+ * `verifik-backend/Repositories/OpenCV/helpers/compare-threshold.helper.js`.
+ */
+export const calibrateArcFaceCompareThreshold = (
+    value: unknown,
+    fallback = DEFAULT_ARCFACE_COMPARE_MIN_SCORE
+): number => {
+    if (value === undefined || value === null || value === '') return fallback;
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return fallback;
+    const numeric = num > 1 && num <= 100 ? num / 100 : num;
+    if (numeric <= 0.75) {
+        return Math.max(0.6, Math.min(0.75, numeric));
+    }
+    if (numeric <= 0.85) {
+        const mapped = 0.65 + ((Math.max(0.8, numeric) - 0.8) / 0.05) * 0.05;
+        return Math.max(0.65, Math.min(0.7, Number(mapped.toFixed(4))));
+    }
+    if (numeric <= 0.95) {
+        const mapped = 0.7 + ((numeric - 0.85) / 0.1) * 0.05;
+        return Math.max(0.7, Math.min(0.75, Number(mapped.toFixed(4))));
+    }
+    return Math.min(0.95, numeric);
+};
+
 /** Face-compare threshold from project flow (v3: liveness.compareMinScore; v2: onboardingSettings.document.compareMinScore). */
 export const resolveCompareMinScoreUnit = (record: AppRegistrationDetail | null): number => {
-    if (!record) return 0.85;
+    if (!record) return DEFAULT_ARCFACE_COMPARE_MIN_SCORE;
     const pf = record.projectFlow;
-    return (
+    const raw =
         (pf?.liveness as { compareMinScore?: number } | undefined)?.compareMinScore ??
-        (pf?.onboardingSettings as { document?: { compareMinScore?: number } } | undefined)?.document?.compareMinScore ??
-        0.85
-    );
+        (pf?.onboardingSettings as { document?: { compareMinScore?: number } } | undefined)?.document?.compareMinScore;
+    return calibrateArcFaceCompareThreshold(raw, DEFAULT_ARCFACE_COMPARE_MIN_SCORE);
 };
 
 /**
@@ -696,7 +736,8 @@ export const buildManualVerificationReasons = (record: AppRegistrationDetail | n
 
     const compare = record.compareFaceVerification as { result?: { compare_min_score?: number; score?: number } } | null;
     if (compare?.result) {
-        const storedMin = compare.result.compare_min_score;
+        const storedMin =
+            compare.result.compare_min_score != null ? normalizeUnitScore(compare.result.compare_min_score) : null;
         const score = normalizeUnitScore(compare.result.score);
         const isStale = storedMin != null && Math.abs(storedMin - resolvedCompareMin) > 0.001;
 

@@ -178,16 +178,8 @@ export class AccessLoginMethodsStepComponent implements OnInit {
         return Number(this.loginSettings.get('livenessMinScore')?.value ?? 0);
     }
 
-    get searchMinScore(): number {
-        return Number(this.loginSettings.get('searchMinScore')?.value ?? 0);
-    }
-
     livenessPct(): number {
         return Math.round(this.livenessMinScore * 100);
-    }
-
-    searchPct(): number {
-        return Math.round(this.searchMinScore * 100);
     }
 
     /** True when phone is on and neither WhatsApp nor SMS is selected. */

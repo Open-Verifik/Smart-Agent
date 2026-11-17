@@ -4,7 +4,7 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve --port=4201",
-        "start:docker": "node scripts/patch-vite-hmr-host.mjs && ng serve --configuration=docker",
+        "start:docker": "GOMAXPROCS=4 GOMEMLIMIT=1536MiB NODE_OPTIONS='--max-old-space-size=1536' node scripts/patch-vite-hmr-host.mjs && GOMAXPROCS=4 GOMEMLIMIT=1536MiB NODE_OPTIONS='--max-old-space-size=1536' ng serve --configuration=docker",
         "prebuild": "node ../backend/scripts/sync-discovery-frontend-public.js",
         "build": "ng build",
         "build:staging": "node ../backend/scripts/sync-discovery-frontend-public.js --staging && ng build --configuration=production",

@@ -160,6 +160,8 @@
     "POST /api/human-id/encrypt-qr-code",
     "POST /api/human-id/decrypt",
     "POST /api/human-id/preview",
+    "POST /api/human-id/encrypt",
+    "POST /api/human-id/decrypt",
     "GET /api/gt/cedula/extra",
     "GET /api/in/epic",
     "POST /api/in/epic/votacion",

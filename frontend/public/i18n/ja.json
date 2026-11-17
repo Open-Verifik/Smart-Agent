@@ -5036,7 +5036,7 @@
                     "minScoreHelp": "値を高くするとなりすましは減りますが、本物のユーザーも拒否されやすくなります。",
                     "compareMinScore": "顔比較の最小スコア",
                     "compareMinScoreSubtitle": "セルフィーが書類の写真とどの程度一致する必要があるか。",
-                    "compareMinScoreHelp": "値を高くすると誤一致は減ります。一部の印刷身分証（傷んだコロンビアの国民IDや他国の同様の書類）はライブのセルフィーに対して低いスコアになります。誤受理リスクを受け入れる場合、設定できる下限は 65% です。",
+                    "compareMinScoreHelp": "値を高くすると誤一致が減ります。推奨バランス設定は 70%（60%–75% の範囲）で、傷んだ印刷身分証により広い許容範囲が必要な場合は最小 60% まで設定できます。",
                     "searchMinScore": "検索の最小スコア",
                     "searchMinScoreSubtitle": "既存の登録から顧客を検索する際の信頼度閾値。",
                     "searchMinScoreHelp": "1:N の重複検出に使用します。",
@@ -9224,7 +9224,8 @@
                 "manage": "管理",
                 "search": "検索",
                 "detection": "検出",
-                "comparison": "照合"
+                "comparison": "照合",
+                "humanAuthn": "HumanIDと生体検知"
             },
             "demos": {
                 "create-collection": {
@@ -10130,7 +10131,23 @@
             "metaVerifik": "Verifik · セキュア セッションがアクティブです",
             "engineBlock": "エンジン: HumanAuthn\nプロト: FACE_CMP\n認証: 保留中",
             "support": "サポート",
-            "mustSignIn": "このデモを実行するにはサインインする必要があります。"
+            "mustSignIn": "このデモを実行するにはサインインする必要があります。",
+            "pairSectionTitle": "顔ペアとしきい値",
+            "pairSectionSubtitle": "比較元と比較先の顔写真を設定し、最小類似度を調整します。",
+            "resetPair": "リセット",
+            "replacePhoto": "写真を削除",
+            "statusCaptured": "準備完了",
+            "statusActive": "選択中",
+            "statusPending": "保留中",
+            "presetRelaxed": "緩和",
+            "presetStandard": "標準",
+            "presetBalanced": "バランス",
+            "presetStrict": "厳格",
+            "runCompare": "顔を比較する",
+            "captureMethodAria": "撮影方法",
+            "tabUpload": "写真をアップロード",
+            "tabCamera": "ライブカメラ",
+            "dropzoneHint": "JPEGまたはPNG写真をここにドラッグ＆ドロップするか、クリックして選択してください。"
         },
         "faceComparisonLiveness": {
             "headerTitle": "活力と比較する",
@@ -10200,7 +10217,23 @@
             "metaVerifik": "Verifik · セキュア セッションがアクティブです",
             "engineBlock": "エンジン: HumanAuthn\nプロト: CWL_SEQ\n認証: 保留中",
             "support": "サポート",
-            "mustSignIn": "このデモを実行するにはサインインする必要があります。"
+            "mustSignIn": "このデモを実行するにはサインインする必要があります。",
+            "pairSectionTitle": "顔ペアとしきい値",
+            "pairSectionSubtitle": "比較元と比較先の顔写真を設定し、最小類似度を調整します。",
+            "resetPair": "リセット",
+            "replacePhoto": "写真を削除",
+            "statusCaptured": "準備完了",
+            "statusActive": "選択中",
+            "statusPending": "保留中",
+            "presetRelaxed": "緩和",
+            "presetStandard": "標準",
+            "presetBalanced": "バランス",
+            "presetStrict": "厳格",
+            "runCompare": "顔を比較する",
+            "captureMethodAria": "撮影方法",
+            "tabUpload": "写真をアップロード",
+            "tabCamera": "ライブカメラ",
+            "dropzoneHint": "JPEGまたはPNG写真をここにドラッグ＆ドロップするか、クリックして選択してください。"
         },
         "verifyFace": {
             "headerTitle": "顔を認証する",
@@ -10949,6 +10982,15 @@
             "nationalitySearch": "Search countries",
             "nationalityInvalid": "Choose a country from the list.",
             "nationalityNoMatches": "No countries match that search."
+        },
+        "guidedCamera": {
+            "loadingModels": "顔検出を読み込み中…",
+            "idleExplainer": "ガイドカメラを使うと、顔の位置が合ったときに自動撮影されます。",
+            "openCamera": "カメラを開く",
+            "startingCamera": "起動中…",
+            "photoCaptured": "写真を撮影しました",
+            "holdStill": "そのまま動かさないでください…",
+            "alignFace": "枠内に顔を合わせてください"
         }
     },
     "createBatch": {

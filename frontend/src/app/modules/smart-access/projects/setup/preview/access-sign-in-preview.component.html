@@ -69,8 +69,12 @@
 
         <!-- Preview canvas -->
         <div
-            class="relative flex min-h-0 flex-1 flex-col items-stretch overflow-auto border-t border-stone-200 dark:border-gray-700"
-            [style.background-color]="effectiveBranding.backgroundColor"
+            class="relative flex min-h-0 flex-1 flex-col items-stretch overflow-auto border-t border-stone-200 transition-colors duration-200 dark:border-gray-700"
+            [ngStyle]="styleVars"
+            [attr.data-style]="verifyStyleId || null"
+            [style.color-scheme]="isDarkSurface ? 'dark' : 'light'"
+            [style.background-color]="canvasBg"
+            [style.font-family]="activeStyleDef ? styleVars['--style-body-font'] : null"
         >
             @if (deviceType === 'desktop') {
                 <!-- Desktop: two-column layout (form left, banner right) -->
@@ -82,44 +86,79 @@
                     <!-- Right: banner panel -->
                     <div
                         class="flex flex-1 items-center justify-center overflow-hidden"
-                        [style.background-color]="effectiveBranding.imageBackgroundColor || '#e2e8f0'"
+                        [style.background-color]="effectiveBranding.imageBackgroundColor || (isDarkSurface ? '#0b1b33' : '#e2e8f0')"
                     >
                         @if (effectiveBranding.image) {
                             <img [src]="effectiveBranding.image" class="h-full w-full object-cover" alt="" />
                         } @else {
-                            <div class="flex flex-col items-center gap-3 opacity-30">
-                                <mat-icon class="!h-16 !w-16">image</mat-icon>
-                                <span class="text-sm">Banner image</span>
+                            <div
+                                class="flex flex-col items-center gap-3"
+                                [style.color]="accessibleBodyColor"
+                            >
+                                <mat-icon class="!h-16 !w-16 opacity-60">image</mat-icon>
+                                <span class="text-sm font-medium opacity-75">Banner image</span>
                             </div>
                         }
                     </div>
                 </div>
             } @else {
                 <!-- Tablet / Mobile: centered single column -->
-                <div [class]="'flex min-h-0 flex-1 flex-col items-center justify-center px-6 py-10 ' + contentDeviceClasses()">
+                <div [class]="'flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-8 ' + contentDeviceClasses()">
                     <ng-container *ngTemplateOutlet="formTpl"></ng-container>
                 </div>
             }
 
             <!-- Shared form template -->
             <ng-template #formTpl>
-                <div class="mx-auto w-full max-w-md space-y-6">
+                <div
+                    class="mx-auto w-full max-w-md space-y-6 transition-all duration-200"
+                    [class.p-7]="!!activeStyleDef"
+                    [style.background]="activeStyleDef ? cardBg : null"
+                    [style.border]="activeStyleDef ? styleVars['--style-card-border'] : null"
+                    [style.box-shadow]="activeStyleDef ? styleVars['--style-card-shadow'] : null"
+                    [style.border-radius]="activeStyleDef ? styleVars['--style-radius-card'] : null"
+                >
                     <!-- Logo -->
-                    <div class="mb-2 flex justify-center">
+                    <div
+                        class="mb-2 flex"
+                        [class.justify-center]="!activeStyleDef || styleVars['--style-headline-align'] !== 'left'"
+                        [class.justify-start]="activeStyleDef && styleVars['--style-headline-align'] === 'left'"
+                    >
                         @if (effectiveBranding.logo) {
-                            <img class="h-12 w-12 object-contain" [src]="effectiveBranding.logo" alt="Logo" />
+                            <div
+                                class="inline-flex items-center justify-center transition-all duration-200"
+                                [class.rounded-xl]="isDarkSurface"
+                                [class.bg-white]="isDarkSurface"
+                                [class.p-2]="isDarkSurface"
+                                [class.shadow-sm]="isDarkSurface"
+                            >
+                                <img class="h-11 w-auto max-w-[140px] object-contain" [src]="effectiveBranding.logo" alt="Logo" />
+                            </div>
                         } @else {
-                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
+                            <div
+                                class="flex h-12 w-12 items-center justify-center rounded-xl"
+                                [style.background-color]="isDarkSurface ? '#0b1b33' : '#f5f5f4'"
+                                [style.border]="isDarkSurface ? '1px solid #1e3a5f' : '1px solid #e7e5e4'"
+                                [style.color]="accessibleBodyColor"
+                            >
                                 <span class="text-xs font-semibold">LOGO</span>
                             </div>
                         }
                     </div>
 
                     <!-- Title -->
-                    <div class="mb-3 space-y-0 text-center">
+                    <div
+                        class="mb-3 space-y-0"
+                        [style.text-align]="activeStyleDef ? styleVars['--style-headline-align'] || 'center' : 'center'"
+                    >
                         <div
-                            class="text-4xl font-semibold leading-tight"
-                            [style.color]="effectiveBranding.titleColor || '#0f172a'"
+                            class="text-3xl font-semibold leading-tight sm:text-4xl"
+                            [style.color]="accessibleTitleColor"
+                            [style.font-family]="activeStyleDef ? styleVars['--style-display'] : null"
+                            [style.font-weight]="activeStyleDef ? styleVars['--style-display-weight'] : null"
+                            [style.letter-spacing]="activeStyleDef ? styleVars['--style-display-tracking'] : null"
+                            [style.text-transform]="activeStyleDef ? styleVars['--style-display-transform'] : null"
+                            [style.line-height]="activeStyleDef ? styleVars['--style-display-line'] : null"
                         >
                             {{ t('smartAccessProjects.signIn.title_1') }}<br />
                             {{ t('smartAccessProjects.signIn.title_2') }}
@@ -127,47 +166,64 @@
                     </div>
 
                     <!-- Don't have an account? -->
-                    @if (showSignUpLink) {
-                        <div class="mb-6 flex items-center justify-center gap-1 text-sm">
-                            <span [style.color]="effectiveBranding.textColor || '#64748b'">
-                                {{ t('smartAccessProjects.signIn.no_account') }}
-                            </span>
-                            <span
-                                class="cursor-default font-medium underline"
-                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
-                            >
-                                {{ t('smartAccessProjects.signIn.register_here') }}
-                            </span>
-                        </div>
-                    }
+                    <div
+                        class="mb-6 flex items-center gap-1.5 text-sm"
+                        [class.justify-center]="!activeStyleDef || styleVars['--style-headline-align'] !== 'left'"
+                        [class.justify-start]="activeStyleDef && styleVars['--style-headline-align'] === 'left'"
+                    >
+                        <span [style.color]="accessibleBodyColor">
+                            {{ t('smartAccessProjects.signIn.no_account') }}
+                        </span>
+                        <span
+                            class="cursor-default font-semibold underline underline-offset-2"
+                            [style.color]="accessibleAccentTextColor"
+                        >
+                            {{ t('smartAccessProjects.signIn.register_here') }}
+                        </span>
+                    </div>
 
                     @if (!hasAnyMethod) {
                         <!-- Empty state -->
-                        <div class="w-full rounded-2xl border border-dashed border-stone-300 bg-stone-50 px-4 py-6 text-center">
-                            <div class="text-sm font-medium text-stone-500">
+                        <div
+                            class="w-full rounded-2xl border border-dashed px-4 py-6 text-center"
+                            [style.border-color]="isDarkSurface ? '#2d5284' : '#d6d3d1'"
+                            [style.background-color]="inputBgColor"
+                        >
+                            <div class="text-sm font-medium" [style.color]="accessibleBodyColor">
                                 {{ t('smartAccessProjects.signIn.no_methods') }}
                             </div>
                         </div>
                     } @else {
                         <!-- Tab switcher (email + phone both on) -->
                         @if (emailEnabled && phoneEnabled) {
-                            <div class="mb-2 flex gap-2 rounded-xl bg-gray-100 p-1">
-                                <div
-                                    class="flex-1 cursor-default rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200"
-                                    [style.color]="activeTab === 'email' ? (effectiveBranding.buttonColor || '#6366f1') : '#64748b'"
-                                    [style.background-color]="activeTab === 'email' ? '#ffffff' : 'transparent'"
-                                    [style.box-shadow]="activeTab === 'email' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'"
+                            <div
+                                class="mb-2 flex gap-1.5 rounded-xl p-1"
+                                [style.background-color]="segmentTrackBg"
+                                [style.border]="segmentTrackBorder"
+                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '12px'"
+                            >
+                                <button
+                                    type="button"
+                                    (click)="selectTab('email')"
+                                    class="flex-1 cursor-pointer rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200"
+                                    [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '8px'"
+                                    [style.color]="activeTab === 'email' ? segmentActiveTextColor : segmentInactiveTextColor"
+                                    [style.background-color]="activeTab === 'email' ? segmentActiveBg : 'transparent'"
+                                    [style.box-shadow]="activeTab === 'email' && !isDarkSurface ? '0 1px 3px rgba(0,0,0,0.08)' : 'none'"
                                 >
                                     {{ t('smartAccessProjects.signIn.email_label') }}
-                                </div>
-                                <div
-                                    class="flex-1 cursor-default rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200"
-                                    [style.color]="activeTab === 'phone' ? (effectiveBranding.buttonColor || '#6366f1') : '#64748b'"
-                                    [style.background-color]="activeTab === 'phone' ? '#ffffff' : 'transparent'"
-                                    [style.box-shadow]="activeTab === 'phone' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'"
+                                </button>
+                                <button
+                                    type="button"
+                                    (click)="selectTab('phone')"
+                                    class="flex-1 cursor-pointer rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200"
+                                    [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '8px'"
+                                    [style.color]="activeTab === 'phone' ? segmentActiveTextColor : segmentInactiveTextColor"
+                                    [style.background-color]="activeTab === 'phone' ? segmentActiveBg : 'transparent'"
+                                    [style.box-shadow]="activeTab === 'phone' && !isDarkSurface ? '0 1px 3px rgba(0,0,0,0.08)' : 'none'"
                                 >
                                     {{ t('smartAccessProjects.signIn.phone_label') }}
-                                </div>
+                                </button>
                             </div>
                         }
 
@@ -177,10 +233,19 @@
                                 <!-- Email input -->
                                 @if (activeTab === 'email' && emailEnabled) {
                                     <div class="relative">
-                                        <label class="mb-1 block text-sm font-medium text-slate-500">
-                                            {{ t('smartAccessProjects.signIn.email_label') }}<span class="text-red-500">*</span>
+                                        <label
+                                            class="mb-1.5 block text-sm font-medium"
+                                            [style.color]="accessibleBodyColor"
+                                        >
+                                            {{ t('smartAccessProjects.signIn.email_label') }}<span [style.color]="isDarkSurface ? '#f87171' : '#dc2626'"> *</span>
                                         </label>
-                                        <div class="flex h-14 w-full items-center rounded-lg border-2 border-slate-300 bg-white px-4 text-sm text-slate-400">
+                                        <div
+                                            class="flex h-12 w-full items-center rounded-lg px-4 text-sm"
+                                            [style.background-color]="inputBgColor"
+                                            [style.border]="inputBorderStyle"
+                                            [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '10px'"
+                                            [style.color]="inputPlaceholderColor"
+                                        >
                                             {{ 'example@email.com' }}
                                         </div>
                                     </div>
@@ -188,9 +253,13 @@
                                     <!-- Send email button -->
                                     <button
                                         type="button"
-                                        class="h-12 w-full rounded-xl text-base font-medium shadow-sm transition-all duration-200"
-                                        [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                        [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                        class="h-12 w-full rounded-xl text-base font-semibold shadow-sm transition-all duration-200"
+                                        [style.background-color]="accessiblePrimaryBg"
+                                        [style.color]="accessiblePrimaryText"
+                                        [style.border]="activeStyleDef ? styleVars['--style-cta-border'] : null"
+                                        [style.box-shadow]="activeStyleDef ? styleVars['--style-cta-shadow'] : null"
+                                        [style.border-radius]="activeStyleDef ? styleVars['--style-radius-button'] : null"
+                                        [style.font-weight]="activeStyleDef ? styleVars['--style-cta-weight'] : null"
                                     >
                                         {{ t('smartAccessProjects.signIn.send_email') }}
                                     </button>
@@ -199,19 +268,32 @@
                                 <!-- Phone input -->
                                 @if (activeTab === 'phone' && phoneEnabled) {
                                     <div class="relative">
-                                        <label class="mb-1 block text-sm font-medium text-slate-500">
-                                            {{ t('smartAccessProjects.signIn.phone_label') }}<span class="text-red-500">*</span>
+                                        <label
+                                            class="mb-1.5 block text-sm font-medium"
+                                            [style.color]="accessibleBodyColor"
+                                        >
+                                            {{ t('smartAccessProjects.signIn.phone_label') }}<span [style.color]="isDarkSurface ? '#f87171' : '#dc2626'"> *</span>
                                         </label>
                                         <div class="flex gap-2">
                                             <div
-                                                class="flex h-14 w-24 shrink-0 items-center justify-between rounded-lg border-2 border-slate-300 bg-white px-3 text-sm text-slate-600"
+                                                class="flex h-12 w-24 shrink-0 items-center justify-between rounded-lg px-3 text-sm font-medium"
+                                                [style.background-color]="inputBgColor"
+                                                [style.border]="inputBorderStyle"
+                                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '10px'"
+                                                [style.color]="accessibleTitleColor"
                                             >
                                                 <span>+57</span>
-                                                <svg class="h-3 w-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-3.5 w-3.5 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
                                             </div>
-                                            <div class="flex h-14 flex-1 items-center rounded-lg border-2 border-slate-300 bg-white px-4 text-sm text-slate-400">
+                                            <div
+                                                class="flex h-12 flex-1 items-center rounded-lg px-4 text-sm"
+                                                [style.background-color]="inputBgColor"
+                                                [style.border]="inputBorderStyle"
+                                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '10px'"
+                                                [style.color]="inputPlaceholderColor"
+                                            >
                                                 {{ t('smartAccessProjects.signIn.phone_label') }}
                                             </div>
                                         </div>
@@ -222,17 +304,25 @@
                                         <div class="grid grid-cols-2 gap-3">
                                             <button
                                                 type="button"
-                                                class="h-12 rounded-xl text-base font-medium shadow-sm"
-                                                [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                                [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                                class="h-12 rounded-xl text-base font-semibold shadow-sm"
+                                                [style.background-color]="accessiblePrimaryBg"
+                                                [style.color]="accessiblePrimaryText"
+                                                [style.border]="activeStyleDef ? styleVars['--style-cta-border'] : null"
+                                                [style.box-shadow]="activeStyleDef ? styleVars['--style-cta-shadow'] : null"
+                                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-button'] : null"
+                                                [style.font-weight]="activeStyleDef ? styleVars['--style-cta-weight'] : null"
                                             >
                                                 {{ t('smartAccessProjects.signIn.sms') }}
                                             </button>
                                             <button
                                                 type="button"
-                                                class="h-12 rounded-xl text-base font-medium shadow-sm"
-                                                [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                                [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                                class="h-12 rounded-xl text-base font-semibold shadow-sm"
+                                                [style.background-color]="accessiblePrimaryBg"
+                                                [style.color]="accessiblePrimaryText"
+                                                [style.border]="activeStyleDef ? styleVars['--style-cta-border'] : null"
+                                                [style.box-shadow]="activeStyleDef ? styleVars['--style-cta-shadow'] : null"
+                                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-button'] : null"
+                                                [style.font-weight]="activeStyleDef ? styleVars['--style-cta-weight'] : null"
                                             >
                                                 {{ t('smartAccessProjects.signIn.whatsapp') }}
                                             </button>
@@ -240,9 +330,13 @@
                                     } @else {
                                         <button
                                             type="button"
-                                            class="h-12 w-full rounded-xl text-base font-medium shadow-sm"
-                                            [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
-                                            [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                            class="h-12 w-full rounded-xl text-base font-semibold shadow-sm"
+                                            [style.background-color]="accessiblePrimaryBg"
+                                            [style.color]="accessiblePrimaryText"
+                                            [style.border]="activeStyleDef ? styleVars['--style-cta-border'] : null"
+                                            [style.box-shadow]="activeStyleDef ? styleVars['--style-cta-shadow'] : null"
+                                            [style.border-radius]="activeStyleDef ? styleVars['--style-radius-button'] : null"
+                                            [style.font-weight]="activeStyleDef ? styleVars['--style-cta-weight'] : null"
                                         >
                                             @if (phoneChannelLabel === 'whatsapp') {
                                                 {{ t('smartAccessProjects.signIn.whatsapp') }}
@@ -258,27 +352,34 @@
                         <!-- Divider + secondary methods -->
                         @if ((faceLivenessEnabled || passkeysEnabled) && (emailEnabled || phoneEnabled)) {
                             <div class="my-2 flex items-center gap-4">
-                                <div class="flex-1 border-t border-gray-200"></div>
-                                <span class="px-2 text-sm font-medium text-slate-400">
+                                <div
+                                    class="flex-1 border-t"
+                                    [style.border-color]="isDarkSurface ? '#1e3a5f' : '#e2e8f0'"
+                                ></div>
+                                <span
+                                    class="px-2 text-xs font-medium uppercase tracking-wider"
+                                    [style.color]="accessibleBodyColor"
+                                >
                                     {{ t('smartAccessProjects.signIn.or_continue') }}
                                 </span>
-                                <div class="flex-1 border-t border-gray-200"></div>
+                                <div
+                                    class="flex-1 border-t"
+                                    [style.border-color]="isDarkSurface ? '#1e3a5f' : '#e2e8f0'"
+                                ></div>
                             </div>
                         }
 
-                        <!-- Face verification / HumanID button -->
+                        <!-- Face verification button -->
                         @if (faceLivenessEnabled) {
                             <button
                                 type="button"
-                                class="h-12 w-full rounded-xl text-base font-medium transition-all duration-200"
-                                [class.border-2]="emailEnabled || phoneEnabled"
-                                [class.bg-transparent]="emailEnabled || phoneEnabled"
-                                [class.shadow-sm]="!emailEnabled && !phoneEnabled"
-                                [style.border-color]="(emailEnabled || phoneEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
-                                [style.background-color]="(!emailEnabled && !phoneEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
-                                [style.color]="(!emailEnabled && !phoneEnabled) ? (effectiveBranding.buttonTextColor || '#ffffff') : (effectiveBranding.buttonColor || '#6366f1')"
+                                class="h-12 w-full rounded-xl text-base font-semibold transition-colors"
+                                [style.background-color]="secondaryButtonBg"
+                                [style.border]="secondaryButtonBorder"
+                                [style.border-radius]="activeStyleDef ? styleVars['--style-secondary-radius'] || styleVars['--style-radius-button'] : '12px'"
+                                [style.color]="accessibleAccentTextColor"
                             >
-                                {{ t(biometricButtonTextKey) }}
+                                {{ t('smartAccessProjects.signIn.use_biometrics') }}
                             </button>
                         }
 
@@ -286,15 +387,27 @@
                         @if (passkeysEnabled) {
                             <button
                                 type="button"
-                                class="h-12 w-full rounded-xl text-base font-medium transition-all duration-200"
-                                [class.border-2]="emailEnabled || phoneEnabled || faceLivenessEnabled"
-                                [class.bg-transparent]="emailEnabled || phoneEnabled || faceLivenessEnabled"
-                                [class.shadow-sm]="!emailEnabled && !phoneEnabled && !faceLivenessEnabled"
-                                [style.border-color]="(emailEnabled || phoneEnabled || faceLivenessEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
-                                [style.background-color]="(!emailEnabled && !phoneEnabled && !faceLivenessEnabled) ? (effectiveBranding.buttonColor || '#6366f1') : 'transparent'"
-                                [style.color]="(!emailEnabled && !phoneEnabled && !faceLivenessEnabled) ? (effectiveBranding.buttonTextColor || '#ffffff') : (effectiveBranding.buttonColor || '#6366f1')"
+                                class="h-12 w-full rounded-xl text-base font-semibold transition-colors"
+                                [style.background-color]="secondaryButtonBg"
+                                [style.border]="secondaryButtonBorder"
+                                [style.border-radius]="activeStyleDef ? styleVars['--style-secondary-radius'] || styleVars['--style-radius-button'] : '12px'"
+                                [style.color]="accessibleAccentTextColor"
                             >
                                 {{ t('smartAccessProjects.signIn.use_passkey') }}
+                            </button>
+                        }
+
+                        <!-- Only face / passkey (no email or phone) -->
+                        @if (!emailEnabled && !phoneEnabled && faceLivenessEnabled) {
+                            <button
+                                type="button"
+                                class="h-12 w-full rounded-xl text-base font-semibold transition-colors"
+                                [style.background-color]="secondaryButtonBg"
+                                [style.border]="secondaryButtonBorder"
+                                [style.border-radius]="activeStyleDef ? styleVars['--style-secondary-radius'] || styleVars['--style-radius-button'] : '12px'"
+                                [style.color]="accessibleAccentTextColor"
+                            >
+                                {{ t('smartAccessProjects.signIn.use_biometrics') }}
                             </button>
                         }
                     }
