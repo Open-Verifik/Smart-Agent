@@ -1,3 +1,5 @@
+@use '../../../../../../shared/setup-journey/threshold-slider' as *;
+
 :host {
     display: block;
 }
@@ -249,10 +251,12 @@
         font-variant-numeric: tabular-nums;
     }
 
-    span {
+    span,
+    .threshold-card__label {
         color: #78716c;
         font-size: 0.78rem;
         font-weight: 500;
+        cursor: pointer;
     }
 }
 

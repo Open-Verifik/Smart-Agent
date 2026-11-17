@@ -3,10 +3,8 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnDestroy,
     OnInit,
-    ViewChild,
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -14,22 +12,18 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     DEFAULT_COMPARE_WITH_LIVENESS_LIVENESS_FLOOR,
     DEFAULT_FACE_COMPARE_MIN_SCORE,
+    type ApiErrorResponse,
     type CompareWithLivenessParsed,
 } from '../../services/biometrics-demo.types';
-import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import { fileToBase64, parseCompareWithLivenessResult } from '../../services/biometrics-demo.util';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
-import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
-import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
+import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
+import { DemoStepPillsComponent } from '../../shared/demo-step-pills.component';
 
 type Step = 1 | 2 | 3;
 type FaceSlot = { preview: string | null; b64: string | null };
@@ -46,13 +40,9 @@ const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
         TranslocoModule,
         DemoPageShellComponent,
         DemoStageHeroComponent,
-        DemoStageCardComponent,
-        DemoChooseOneCalloutComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
-        FaceGuidedCameraComponent,
+        DemoStepPillsComponent,
+        DemoCapturePanelComponent,
+        DemoRasterImageComponent,
         DemoResultActionsComponent,
         DemoSandboxResultBannerComponent,
     ],
@@ -61,17 +51,21 @@ const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FaceComparisonLivenessDemoComponent implements OnInit, OnDestroy {
-    @ViewChild('sourceFileInput') sourceFileInput?: ElementRef<HTMLInputElement>;
-    @ViewChild('targetFileInput') targetFileInput?: ElementRef<HTMLInputElement>;
-
     readonly stepLabels = [
         'smartEnrollDemos.faceComparisonLiveness.stepSource',
         'smartEnrollDemos.faceComparisonLiveness.stepTarget',
         'smartEnrollDemos.faceComparisonLiveness.stepAnalyze',
     ] as const;
+    readonly thresholdPresets = [
+        { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.6 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.65 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.7 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.75 },
+    ] as const;
 
     authChecked = false;
     step: Step = 1;
+    captureMode: CaptureMethod = 'upload';
     source: FaceSlot = emptySlot();
     target: FaceSlot = emptySlot();
     isLoading = false;
@@ -103,6 +97,31 @@ export class FaceComparisonLivenessDemoComponent implements OnInit, OnDestroy {
         return this.step === 1 ? 'source' : 'target';
     }
 
+    selectSlot(which: SlotKind): void {
+        this.step = which === 'source' ? 1 : 2;
+        this.error = null;
+        this.result = null;
+        this._cdr.markForCheck();
+    }
+
+    clearSlot(which: SlotKind): void {
+        if (which === 'source') {
+            this.source = emptySlot();
+            this.step = 1;
+        } else {
+            this.target = emptySlot();
+            this.step = 2;
+        }
+        this.result = null;
+        this.error = null;
+        this._cdr.markForCheck();
+    }
+
+    setThresholdPreset(value: number): void {
+        this.compareMinScore = value;
+        this._cdr.markForCheck();
+    }
+
     pulseSlot(slot: SlotKind): void {
         if (this._highlightTimeout) clearTimeout(this._highlightTimeout);
         this.highlightSlot = slot;
@@ -123,18 +142,18 @@ export class FaceComparisonLivenessDemoComponent implements OnInit, OnDestroy {
             return;
         }
         this.target = slot;
-        if (this.source.b64) this.runComparison(this.source.b64, slot.b64!);
+        if (this.source.b64 && slot.b64) {
+            this.runComparison(this.source.b64, slot.b64);
+        }
     }
 
     onCapture(payload: { dataUrl: string; base64: string }): void {
         this.applyCapturedSlot(this.currentSlot, { preview: payload.dataUrl, b64: payload.base64 });
     }
 
-    async onFileSelected(event: Event, which: SlotKind): Promise<void> {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (!file) return;
+    async onFilePicked(file: File): Promise<void> {
         const b64 = await fileToBase64(file);
-        this.applyCapturedSlot(which, { preview: URL.createObjectURL(file), b64 });
+        this.applyCapturedSlot(this.currentSlot, { preview: URL.createObjectURL(file), b64 });
     }
 
     runComparison(galleryB64: string, probeB64: string): void {
@@ -183,11 +202,6 @@ export class FaceComparisonLivenessDemoComponent implements OnInit, OnDestroy {
         this.compareMinScore = DEFAULT_FACE_COMPARE_MIN_SCORE;
         this.cropFace = false;
         this._cdr.markForCheck();
-    }
-
-    triggerUpload(which: SlotKind): void {
-        if (which === 'source') this.sourceFileInput?.nativeElement.click();
-        else this.targetFileInput?.nativeElement.click();
     }
 
     isVerified(): boolean {

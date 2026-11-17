@@ -1,14 +1,14 @@
-<section class="rounded-2xl border border-outline-variant/40 bg-surface-container p-5 md:p-6">
-    <div class="mb-5 flex items-start gap-3">
-        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-on-surface text-xs font-bold text-surface">
+<section class="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 dark:border-gray-800 dark:bg-gray-900">
+    <header class="mb-5 flex items-start gap-3">
+        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-900 text-xs font-bold text-white dark:bg-white dark:text-stone-900">
             {{ number }}
         </span>
         <div>
-            <h3 class="text-base font-semibold text-on-surface">{{ title }}</h3>
+            <h3 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">{{ title }}</h3>
             @if (help) {
-                <p class="mt-1 text-sm leading-relaxed text-on-surface-variant">{{ help }}</p>
+                <p class="mt-0.5 text-xs leading-relaxed text-stone-500 dark:text-stone-400">{{ help }}</p>
             }
         </div>
-    </div>
+    </header>
     <ng-content />
 </section>

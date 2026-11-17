@@ -1,10 +1,12 @@
-<div class="space-y-5">
-    <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6">
-        <div class="flex items-center gap-3 mb-6">
-            <span class="material-symbols-outlined text-primary text-2xl">check_circle</span>
+<div class="mx-auto w-full max-w-3xl space-y-5">
+    <div class="rounded-2xl border border-emerald-200 bg-white p-6 sm:p-8 dark:border-emerald-800/60 dark:bg-gray-900">
+        <div class="mb-6 flex items-center gap-3.5">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                <span class="material-symbols-outlined text-xl" aria-hidden="true">check_circle</span>
+            </span>
             <div>
-                <p class="font-bold text-on-surface text-lg">{{ successTitle }}</p>
-                <p class="text-sm text-on-surface-variant">
+                <p class="text-lg font-semibold tracking-tight text-stone-900 dark:text-white">{{ successTitle }}</p>
+                <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                     {{
                         successDescription ||
                             ('smartEnrollDemos.humanIdStructuredResult.defaultSuccessDescription' | transloco)
@@ -14,23 +16,24 @@
         </div>
 
         @if (zelfQrPngDataUrl) {
-            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
-                <h3 class="text-sm font-bold text-primary mb-2">
+            <section class="mb-5 rounded-xl border border-stone-200 bg-stone-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                     {{ 'smartEnrollDemos.humanIdStructuredResult.pngQrHeading' | transloco }}
                 </h3>
                 <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
-                    <div class="flex justify-center rounded-xl border border-outline-variant/20 bg-white p-4 shrink-0">
-                        <img [src]="zelfQrPngDataUrl" [alt]="'smartEnrollDemos.humanIdStructuredResult.qrCodeAlt' | transloco" class="w-56 h-56 object-contain" />
+                    <div class="flex justify-center rounded-xl border border-stone-200 bg-white p-4 shrink-0 dark:border-gray-700">
+                        <img [src]="zelfQrPngDataUrl" [alt]="'smartEnrollDemos.humanIdStructuredResult.qrCodeAlt' | transloco" class="w-52 h-52 object-contain" />
                     </div>
                     <div class="flex flex-col gap-2 min-w-0">
                         <a
                             [href]="zelfQrPngDataUrl"
                             download="humanid-qr.png"
-                            class="inline-flex items-center justify-center text-sm font-semibold py-2 px-4 rounded-lg bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 transition-colors w-fit"
+                            class="inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300 w-fit"
                         >
+                            <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
                             {{ 'smartEnrollDemos.humanIdStructuredResult.downloadPng' | transloco }}
                         </a>
-                        <p class="text-xs text-on-surface-variant">
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
                             {{ 'smartEnrollDemos.humanIdStructuredResult.dataUrlHint' | transloco }}
                         </p>
                     </div>
@@ -39,15 +42,15 @@
         }
 
         @if (parsed?.humanID) {
-            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
-                <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
-                    <h3 class="text-sm font-bold text-primary">
+            <section class="mb-5 rounded-xl border border-stone-200 bg-stone-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                         {{ 'smartEnrollDemos.humanIdStructuredResult.humanIDHeading' | transloco }}
                     </h3>
                     <button
                         type="button"
                         (click)="copyText(parsed!.humanID, 'humanID')"
-                        class="text-xs font-semibold text-primary underline underline-offset-2"
+                        class="text-xs font-semibold text-blue-600 hover:underline underline-offset-2 dark:text-blue-400"
                     >
                         {{
                             copiedField === 'humanID'
@@ -57,16 +60,16 @@
                     </button>
                 </div>
                 @if (!showFullZelfProof) {
-                    <p class="text-[0.7rem] font-mono text-on-surface break-all bg-surface-container-high/80 rounded-lg px-3 py-2 border border-outline-variant/15">
+                    <p class="break-all rounded-lg border border-stone-200 bg-white px-3 py-2 font-mono text-xs text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200">
                         {{ truncateMiddle(parsed!.humanID) }}
                     </p>
                 } @else {
-                    <pre class="max-h-48 overflow-auto text-[0.65rem] font-mono bg-surface-container-high rounded-lg p-3 border border-outline-variant/15 text-on-surface whitespace-pre-wrap">{{
+                    <pre class="max-h-48 overflow-auto rounded-lg border border-stone-200 bg-white p-3 font-mono text-[0.7rem] text-stone-800 whitespace-pre-wrap dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200">{{
                         parsed!.humanID
                     }}</pre>
                 }
                 @if (parsed!.humanID.length > 52) {
-                    <button type="button" (click)="showFullZelfProof = !showFullZelfProof" class="mt-2 text-xs font-semibold text-on-surface-variant hover:text-primary">
+                    <button type="button" (click)="showFullZelfProof = !showFullZelfProof" class="mt-2 text-xs font-semibold text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white">
                         {{
                             showFullZelfProof
                                 ? ('smartEnrollDemos.humanIdStructuredResult.showLess' | transloco)
@@ -78,22 +81,22 @@
         }
 
         @if (ipfsGatewayUrl && !zelfQrPngDataUrl && qrSrc) {
-            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
-                <h3 class="text-sm font-bold text-primary mb-1">
+            <section class="mb-5 rounded-xl border border-stone-200 bg-stone-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <h3 class="mb-1 text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                     {{ 'smartEnrollDemos.humanIdStructuredResult.gatewayQrHeading' | transloco }}
                 </h3>
-                <p class="text-xs text-on-surface-variant mb-3">
+                <p class="mb-3 text-xs text-stone-500 dark:text-stone-400">
                     {{ 'smartEnrollDemos.humanIdStructuredResult.gatewayQrBody' | transloco }}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 items-start">
-                    <div class="shrink-0 rounded-lg border border-outline-variant/20 bg-white p-2">
+                    <div class="shrink-0 rounded-lg border border-stone-200 bg-white p-2 dark:border-gray-700">
                         <img [src]="qrSrc" alt="" class="block" (error)="onQrError()" width="200" height="200" />
                     </div>
                     <div class="min-w-0 flex-1 space-y-2">
-                        <a [href]="ipfsGatewayUrl" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-primary break-all underline underline-offset-2">{{
+                        <a [href]="ipfsGatewayUrl" target="_blank" rel="noopener noreferrer" class="break-all text-xs font-semibold text-blue-600 underline underline-offset-2 dark:text-blue-400">{{
                             ipfsGatewayUrl
                         }}</a>
-                        <p class="text-xs text-on-surface-variant">
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
                             {{ 'smartEnrollDemos.humanIdStructuredResult.opensNewTab' | transloco }}
                         </p>
                     </div>
@@ -102,15 +105,15 @@
         }
 
         @if (parsed?.ipfs) {
-            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
-                <h3 class="text-sm font-bold text-primary mb-3">
+            <section class="mb-5 rounded-xl border border-stone-200 bg-stone-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                     {{ 'smartEnrollDemos.humanIdStructuredResult.ipfsSectionTitle' | transloco }}
                 </h3>
                 <dl class="space-y-2 text-sm">
                     @for (key of ipfsKeys(); track key) {
-                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,11rem)_1fr] gap-x-3 gap-y-1 border-b border-outline-variant/10 pb-2 last:border-0 last:pb-0">
-                            <dt class="text-on-surface-variant font-medium">{{ key }}</dt>
-                            <dd class="font-mono text-xs text-on-surface break-all">
+                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,11rem)_1fr] gap-x-3 gap-y-1 border-b border-stone-200/70 pb-2 last:border-0 last:pb-0 dark:border-gray-700/70">
+                            <dt class="text-xs font-medium text-stone-500 dark:text-stone-400">{{ key }}</dt>
+                            <dd class="font-mono text-xs text-stone-900 break-all dark:text-white">
                                 {{ formatValue(parsed!.ipfs![key], ('smartEnrollDemos.common.yes' | transloco), ('smartEnrollDemos.common.no' | transloco)) }}
                             </dd>
                         </div>
@@ -119,15 +122,15 @@
             </section>
         }
 
-        <app-demo-credits-usage [result]="result" class="block mb-6" />
+        <app-demo-credits-usage [result]="result" class="block" />
     </div>
 
-    <details class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 px-4 py-3 group">
-        <summary class="cursor-pointer list-none font-bold text-sm text-on-surface-variant flex items-center justify-between gap-2">
+    <details class="rounded-2xl border border-stone-200 bg-white px-5 py-3.5 dark:border-gray-800 dark:bg-gray-900 group">
+        <summary class="cursor-pointer list-none font-semibold text-xs text-stone-600 dark:text-stone-300 flex items-center justify-between gap-2">
             <span>{{ 'smartEnrollDemos.humanIdStructuredResult.rawDebug' | transloco }}</span>
-            <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform text-lg">expand_more</span>
+            <span class="material-symbols-outlined text-stone-400 group-open:rotate-180 transition-transform text-lg">expand_more</span>
         </summary>
-        <pre class="mt-3 text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{
+        <pre class="mt-3 rounded-xl border border-stone-200 bg-stone-50 p-3 font-mono text-[0.7rem] text-stone-800 overflow-x-auto whitespace-pre-wrap dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200">{{
             result | json
         }}</pre>
     </details>

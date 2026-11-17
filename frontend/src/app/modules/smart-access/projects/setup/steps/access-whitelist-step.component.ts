@@ -3,13 +3,17 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    DestroyRef,
     Input,
+    OnChanges,
     OnInit,
+    SimpleChanges,
     inject,
 } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,48 +21,28 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin, Observable } from 'rxjs';
 
 import { SmartAccessProjectsService } from '../../smart-access-projects.service';
 import { SmartAccessSetupService } from '../../smart-access-setup.service';
-import { SmartEnrollProjectsService } from '../../../../smart-enroll/projects/smart-enroll-projects.service';
-import { HumanAuthnProjectsService } from '../../../../human-authn/projects/human-authn-projects.service';
-import { SmartBusinessService } from '../../../../smart-business/smart-business.service';
-import type { SmartAccessLinkedProject } from '../../smart-access-projects.types';
 import {
     WhitelistCsvHandlerComponent,
     StagedWhitelistPayload,
     WhitelistRow,
 } from '../csv-handler/whitelist-csv-handler.component';
 
-export interface CandidateProject {
-    _id: string;
-    name: string;
-    productType: 'smartEnroll' | 'humanAuthn' | 'smartBusiness';
-    productBadge: string;
-    status: string;
-    flowType: 'onboarding' | 'humanAuthn';
-    target: 'personal' | 'business';
-    biometricBadge: string;
-    storageProvider?: 'ipfs' | 'cloud' | 'none';
-}
-
 @Component({
     selector: 'access-whitelist-step',
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
         ReactiveFormsModule,
         RouterModule,
         MatButtonModule,
-        MatCheckboxModule,
+        MatButtonToggleModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -66,9 +50,7 @@ export interface CandidateProject {
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatSelectModule,
-        MatSlideToggleModule,
         MatSnackBarModule,
-        MatTooltipModule,
         TranslocoModule,
         WhitelistCsvHandlerComponent,
     ],
@@ -76,7 +58,7 @@ export interface CandidateProject {
     styleUrls: ['./access-whitelist-step.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessWhitelistStepComponent implements OnInit {
+export class AccessWhitelistStepComponent implements OnInit, OnChanges {
     @Input({ required: true }) form!: FormGroup;
     @Input({ required: true }) projectFlowId!: string;
     @Input({ required: true }) projectId!: string;
@@ -84,13 +66,12 @@ export class AccessWhitelistStepComponent implements OnInit {
     @Input() saving = false;
 
     private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
     private _snack = inject(MatSnackBar);
     private _tLoco = inject(TranslocoService);
     private _projects = inject(SmartAccessProjectsService);
     private _setup = inject(SmartAccessSetupService);
-    private _enrollProjects = inject(SmartEnrollProjectsService);
-    private _humanAuthnProjects = inject(HumanAuthnProjectsService);
-    private _smartBusiness = inject(SmartBusinessService);
+    private _subscriptionsBound = false;
 
     // Whitelist list state
     whitelistRows: WhitelistRow[] = [];
@@ -112,25 +93,38 @@ export class AccessWhitelistStepComponent implements OnInit {
 
     // API tester
     sendingTest = false;
-    testingData: unknown = null;
+    testingData: any = {};
+    readonly expectedResponse = {
+        name: 'Daniela ...',
+        email: 'daniela@company.com',
+        phone: '48784784',
+        countryCode: '+57',
+    };
 
     // Webhooks
     webhookList: { _id: string; name?: string }[] = [];
     webhooksRefreshing = false;
 
-    // Candidate Verifik Projects state
-    candidateProjects: CandidateProject[] = [];
-    candidateProjectsLoading = false;
-    projectSearchQuery = '';
-
     ngOnInit(): void {
         this._loadWhitelist();
         this._loadWebhooks();
         this._ensureWhitelistStrategy();
+        this._bindFormSubscriptions();
+    }
 
-        if (this.source === 'VERIFIK_PROJECTS' || this.source === 'SMART_ENROLL') {
-            this._loadCandidateProjects();
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['form'] || changes['loading']) {
+            if (changes['form']) this._subscriptionsBound = false;
+            this._bindFormSubscriptions();
         }
+    }
+
+    private _bindFormSubscriptions(): void {
+        if (this._subscriptionsBound || !this.form) return;
+        this._subscriptionsBound = true;
+        this.form.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
     }
 
     integrations(): FormGroup {
@@ -147,209 +141,43 @@ export class AccessWhitelistStepComponent implements OnInit {
 
     set source(val: string) {
         this.security()?.get('source')?.setValue(val);
-
-        if (val === 'NONE') {
-            this.security()?.get('strategy')?.setValue('none');
-            this.security()?.get('linkedProjects')?.setValue([]);
-            this.security()?.get('primarySignUpProject')?.setValue(null);
-        } else if (val === 'VERIFIK_PROJECTS' || val === 'SMART_ENROLL') {
-            this.security()?.get('strategy')?.setValue('whitelist');
-            this._loadCandidateProjects();
-        } else if (val === 'CSV') {
-            this.security()?.get('strategy')?.setValue('whitelist');
-            if (!this.showCsvEditor && this.whitelistRows.length === 0) {
-                this.openCsvUpload('add');
-            }
-        } else if (val === 'API') {
-            this.security()?.get('strategy')?.setValue('whitelist');
-        }
-
         this.form.markAsDirty();
-        this._cdr.markForCheck();
-    }
-
-    get linkedProjects(): SmartAccessLinkedProject[] {
-        const val = this.security()?.get('linkedProjects')?.value;
-        return Array.isArray(val) ? val : [];
-    }
-
-    get primarySignUpProject(): string | null {
-        return this.security()?.get('primarySignUpProject')?.value ?? null;
-    }
-
-    get isVerifikProjectsValid(): boolean {
-        return this.linkedProjects.length > 0;
-    }
-
-    get filteredCandidateProjects(): CandidateProject[] {
-        const q = this.projectSearchQuery.trim().toLowerCase();
-        if (!q) return this.candidateProjects;
-        return this.candidateProjects.filter(
-            (p) =>
-                p.name.toLowerCase().includes(q) ||
-                p.productBadge.toLowerCase().includes(q) ||
-                p.biometricBadge.toLowerCase().includes(q) ||
-                p._id.toLowerCase().includes(q)
-        );
-    }
-
-    get eligiblePrimarySignUpProjects(): CandidateProject[] {
-        const linkedMap = new Map(this.linkedProjects.map((lp) => [lp.project, lp]));
-        return this.candidateProjects.filter((p) => {
-            const config = linkedMap.get(p._id);
-            return config && config.allowSignUpRedirect;
-        });
-    }
-
-    get hasStorageNoneLinked(): boolean {
-        if (this.source !== 'VERIFIK_PROJECTS' && this.source !== 'SMART_ENROLL') return false;
-        const linkedIds = new Set(this.linkedProjects.map((lp) => lp.project));
-        return this.candidateProjects.some(
-            (p) => linkedIds.has(p._id) && p.storageProvider === 'none'
-        );
-    }
-
-    isProjectLinked(candId: string): boolean {
-        return this.linkedProjects.some((lp) => lp.project === candId);
-    }
-
-    isSignUpRedirectAllowed(candId: string): boolean {
-        const item = this.linkedProjects.find((lp) => lp.project === candId);
-        return !!item?.allowSignUpRedirect;
-    }
-
-    toggleProjectLink(cand: CandidateProject): void {
-        const current = [...this.linkedProjects];
-        const idx = current.findIndex((lp) => lp.project === cand._id);
-        if (idx >= 0) {
-            current.splice(idx, 1);
-        } else {
-            current.push({
-                project: cand._id,
-                flowType: cand.flowType,
-                target: cand.target,
-                allowSignUpRedirect: true,
-            });
+        if (val === 'CSV' && !this.showCsvEditor && this.whitelistRows.length === 0) {
+            this.openCsvUpload('add');
         }
-        this._setLinkedProjects(current);
-    }
-
-    toggleSignUpRedirect(candId: string, allowed: boolean): void {
-        const current = this.linkedProjects.map((lp) => {
-            if (lp.project === candId) {
-                return { ...lp, allowSignUpRedirect: allowed };
-            }
-            return lp;
-        });
-        this._setLinkedProjects(current);
-    }
-
-    setPrimarySignUpProject(projId: string | null): void {
-        this.security()?.get('primarySignUpProject')?.setValue(projId);
-        this.form.markAsDirty();
         this._cdr.markForCheck();
     }
 
-    private _setLinkedProjects(list: SmartAccessLinkedProject[]): void {
-        this.security()?.get('linkedProjects')?.setValue(list);
+    get sourceLabelKey(): string {
+        if (this.source === 'CSV') return 'smartAccessProjects.setup.whitelist.mode_csv';
+        if (this.source === 'SMART_ENROLL') return 'smartAccessProjects.setup.whitelist.mode_smart_enroll';
+        return 'smartAccessProjects.setup.whitelist.mode_api';
+    }
 
-        const currentPrimary = this.primarySignUpProject;
-        const isStillLinked = list.some((lp) => lp.project === currentPrimary);
-        if (!isStillLinked) {
-            const candidate = list.find((lp) => lp.allowSignUpRedirect) || list[0];
-            this.security()?.get('primarySignUpProject')?.setValue(candidate ? candidate.project : null);
+    get redirectStatusLabel(): string | null {
+        const raw = String(this.integrations()?.get('redirectUrl')?.value || '').trim();
+        if (!raw) return null;
+        try {
+            const parsed = new URL(raw);
+            return parsed.host || raw;
+        } catch {
+            return raw;
         }
-
-        this.form.markAsDirty();
-        this._cdr.markForCheck();
     }
 
-    private _loadCandidateProjects(): void {
-        if (this.candidateProjectsLoading) return;
-        this.candidateProjectsLoading = true;
-        this._cdr.markForCheck();
+    get exampleRedirectUrl(): string {
+        return `${this.integrations()?.get('redirectUrl')?.value || ''}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`;
+    }
 
-        forkJoin({
-            enroll: this._enrollProjects.listProjects().pipe(catchError(() => of([]))),
-            humanAuthn: this._humanAuthnProjects.listProjects().pipe(catchError(() => of([]))),
-            business: this._smartBusiness.listProjects().pipe(catchError(() => of([]))),
-        }).subscribe({
-            next: ({ enroll, humanAuthn, business }) => {
-                const list: CandidateProject[] = [];
+    get selectedWebhookName(): string | null {
+        const id = this.integrations()?.get('webhook')?.value;
+        if (!id) return null;
+        const found = this.webhookList.find((w) => w._id === id);
+        return found?.name || found?._id || String(id);
+    }
 
-                // 1. SmartEnroll (Personal KYC)
-                for (const p of enroll) {
-                    if (p._id === this.projectId) continue;
-                    list.push({
-                        _id: p._id,
-                        name: p.name || p._id,
-                        productType: 'smartEnroll',
-                        productBadge: 'SmartEnroll KYC',
-                        status: p.status || 'active',
-                        flowType: 'onboarding',
-                        target: 'personal',
-                        biometricBadge: 'OpenCV 1:N Face',
-                        storageProvider: undefined,
-                    });
-                }
-
-                // 2. HumanAuthn
-                for (const p of humanAuthn) {
-                    if (p._id === this.projectId) continue;
-                    const flow = (p.projectFlows || []).find((f) => f.type === 'humanAuthn');
-                    const storage = (flow?.storage?.provider || 'ipfs').toLowerCase() as 'ipfs' | 'cloud' | 'none';
-                    let bioBadge = 'HumanID · IPFS';
-                    if (storage === 'cloud') bioBadge = 'HumanID · Cloud';
-                    else if (storage === 'none') bioBadge = 'HumanID · None';
-
-                    list.push({
-                        _id: p._id,
-                        name: p.name || p._id,
-                        productType: 'humanAuthn',
-                        productBadge: 'HumanAuthn',
-                        status: p.status || 'active',
-                        flowType: 'humanAuthn',
-                        target: 'personal',
-                        biometricBadge: bioBadge,
-                        storageProvider: storage,
-                    });
-                }
-
-                // 3. SmartBusiness (KYB)
-                for (const p of business) {
-                    if (p._id === this.projectId) continue;
-                    list.push({
-                        _id: p._id,
-                        name: p.name || p._id,
-                        productType: 'smartBusiness',
-                        productBadge: 'SmartBusiness KYB',
-                        status: p.status || 'active',
-                        flowType: 'onboarding',
-                        target: 'business',
-                        biometricBadge: 'OpenCV 1:N Face',
-                        storageProvider: undefined,
-                    });
-                }
-
-                this.candidateProjects = list;
-                this.candidateProjectsLoading = false;
-
-                // Sync primarySignUpProject if not set yet
-                if (!this.primarySignUpProject && this.linkedProjects.length > 0) {
-                    const firstRedirect = this.linkedProjects.find((lp) => lp.allowSignUpRedirect) || this.linkedProjects[0];
-                    if (firstRedirect) {
-                        this.security()?.get('primarySignUpProject')?.setValue(firstRedirect.project, { emitEvent: false });
-                    }
-                }
-
-                this._cdr.markForCheck();
-            },
-            error: () => {
-                this.candidateProjects = [];
-                this.candidateProjectsLoading = false;
-                this._cdr.markForCheck();
-            },
-        });
+    get hasTestError(): boolean {
+        return Boolean(this.testingData?.error || this.testingData?.ok === false);
     }
 
     get hasNewPendingRows(): boolean {
@@ -376,16 +204,21 @@ export class AccessWhitelistStepComponent implements OnInit {
         const tv = (this.security().get('apiTestValue')?.value ?? '').trim();
         if (!url || this.sendingTest) return;
         this.sendingTest = true;
-        this.testingData = null;
+        this.testingData = {};
         this._setup.testIdentityUrl({ identityUrl: url, testType: tt, testValue: tv }).subscribe({
-            next: (res) => {
-                this.testingData = res;
+            next: (res: any) => {
+                this.testingData = res?.data ?? res ?? {};
                 this.sendingTest = false;
                 this._snack.open(this._t('smartAccessProjects.setup.whitelist.api_ok'), '', { duration: 2500 });
                 this._cdr.markForCheck();
             },
-            error: () => {
+            error: (err) => {
                 this.sendingTest = false;
+                this.testingData = {
+                    error: err?.error?.message || 'Request failed',
+                    ok: false,
+                    status: err?.status || 0,
+                };
                 this._snack.open(this._t('smartAccessProjects.setup.whitelist.api_fail'), '', { duration: 3500 });
                 this._cdr.markForCheck();
             },

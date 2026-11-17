@@ -1,5 +1,7 @@
 /* Shared staged-journey design language (timeline, panels, option cards, check catalog).
  * Derived from the SmartBusiness KYB journey; used by HumanAuthn setup. */
+@use './threshold-slider' as *;
+
 :host {
     display: block;
 }

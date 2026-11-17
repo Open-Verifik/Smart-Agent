@@ -33,6 +33,7 @@ import {
     isIncompleteSmartAccessWizard,
     resumeStepIndex,
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
+import { calibrateArcFaceCompareThreshold } from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import type {
     HumanAuthnProject,
     HumanAuthnProjectFlow,
@@ -189,7 +190,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     // --- Section 3: HumanAuthn Biometrics Protocol Preview ---
     humanAuthnPreview = computed(() => {
         const ha = this.flow()?.humanAuthn ?? {};
-        const score = typeof ha.compareMinScore === 'number' ? Math.round(ha.compareMinScore * 100) : 85;
+        const score = Math.round(calibrateArcFaceCompareThreshold(ha.compareMinScore, 0.7) * 100);
         return {
             mode: ha.mode || 'standard',
             tolerance: ha.tolerance || 'REGULAR',
