@@ -68,3 +68,22 @@
         transform: rotate(45deg) translateY(-1px);
     }
 }
+
+:host-context(.dark) {
+    color-scheme: dark;
+
+    .records-table {
+        .sort-btn:hover {
+            color: #f8fafc;
+        }
+
+        .sort-btn:focus-visible {
+            outline-color: #34d399;
+        }
+
+        th[aria-sort='ascending'] .sort-icon,
+        th[aria-sort='descending'] .sort-icon {
+            color: #34d399;
+        }
+    }
+}
