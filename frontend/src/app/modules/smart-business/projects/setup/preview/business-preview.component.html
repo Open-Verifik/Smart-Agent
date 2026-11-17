@@ -1,24 +1,25 @@
 <ng-container *transloco="let t">
-<div class="flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/40">
+<div class="flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
     <!-- Header with Device & Screen Bar -->
-    <div class="flex items-center justify-between border-b border-stone-200 bg-stone-100/70 px-4 py-2.5 dark:border-gray-800 dark:bg-gray-800/60">
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 bg-stone-100/70 px-4 py-2.5 dark:border-gray-800 dark:bg-gray-800/80">
         <div class="flex items-center gap-1.5">
             <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
             <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
             <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
-            <span class="ml-2 text-xs font-medium text-stone-500">{{ t('smartBusiness.setup.preview.headerTitle', { style: styleId.toUpperCase() }) }}</span>
+            <span class="ml-2 text-xs font-medium text-stone-600 dark:text-stone-300">{{ t('smartBusiness.setup.preview.headerTitle', { style: styleId.toUpperCase() }) }}</span>
         </div>
 
         <!-- Screen Toggle Chips -->
-        <div class="flex items-center gap-1">
+        <div class="flex flex-wrap items-center gap-1">
             <button
                 type="button"
                 (click)="setScreen('company')"
                 class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
-                [class.bg-white]="activeScreen === 'company'"
-                [class.shadow-xs]="activeScreen === 'company'"
-                [class.text-stone-900]="activeScreen === 'company'"
-                [class.text-stone-500]="activeScreen !== 'company'"
+                [ngClass]="
+                    activeScreen === 'company'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white dark:ring-1 dark:ring-white/15'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-gray-700/60 dark:hover:text-white'
+                "
             >
                 {{ t('smartBusiness.setup.preview.tab1Company') }}
             </button>
@@ -26,10 +27,11 @@
                 type="button"
                 (click)="setScreen('documents')"
                 class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
-                [class.bg-white]="activeScreen === 'documents'"
-                [class.shadow-xs]="activeScreen === 'documents'"
-                [class.text-stone-900]="activeScreen === 'documents'"
-                [class.text-stone-500]="activeScreen !== 'documents'"
+                [ngClass]="
+                    activeScreen === 'documents'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white dark:ring-1 dark:ring-white/15'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-gray-700/60 dark:hover:text-white'
+                "
             >
                 {{ t('smartBusiness.setup.preview.tab2Docs') }}
             </button>
@@ -37,10 +39,11 @@
                 type="button"
                 (click)="setScreen('reps')"
                 class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
-                [class.bg-white]="activeScreen === 'reps'"
-                [class.shadow-xs]="activeScreen === 'reps'"
-                [class.text-stone-900]="activeScreen === 'reps'"
-                [class.text-stone-500]="activeScreen !== 'reps'"
+                [ngClass]="
+                    activeScreen === 'reps'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white dark:ring-1 dark:ring-white/15'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-gray-700/60 dark:hover:text-white'
+                "
             >
                 {{ t('smartBusiness.setup.preview.tab3Reps') }}
             </button>
@@ -48,10 +51,11 @@
                 type="button"
                 (click)="setScreen('review')"
                 class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
-                [class.bg-white]="activeScreen === 'review'"
-                [class.shadow-xs]="activeScreen === 'review'"
-                [class.text-stone-900]="activeScreen === 'review'"
-                [class.text-stone-500]="activeScreen !== 'review'"
+                [ngClass]="
+                    activeScreen === 'review'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white dark:ring-1 dark:ring-white/15'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-gray-700/60 dark:hover:text-white'
+                "
             >
                 {{ t('smartBusiness.setup.preview.tab4Status') }}
             </button>
@@ -62,6 +66,7 @@
     <div
         class="flex min-h-[560px] flex-col p-6 transition-colors duration-200"
         [style.background-color]="effectivePageBg"
+        [style.color-scheme]="activeStyle.isDark ? 'dark' : 'light'"
     >
         <!-- Mock Verification Card inside viewport -->
         <div
