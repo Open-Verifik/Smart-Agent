@@ -1,16 +1,12 @@
 <div
     class="flex w-full flex-col gap-3 rounded-xl border bg-white px-4 py-3 dark:bg-gray-900/40"
-    [class.border-stone-200]="!hasError"
-    [class.dark:border-gray-700]="!hasError"
-    [class.border-red-400]="hasError"
+    [ngClass]="hasError ? 'border-red-400 dark:border-red-500/80' : 'border-stone-200 dark:border-gray-700'"
 >
     <div class="flex items-center justify-between gap-3">
         @if (label) {
             <label
                 class="text-sm font-semibold tracking-tight"
-                [class.text-stone-700]="!hasError"
-                [class.dark:text-stone-200]="!hasError"
-                [class.text-red-600]="hasError"
+                [ngClass]="hasError ? 'text-red-600 dark:text-red-400' : 'text-stone-700 dark:text-stone-200'"
             >
                 {{ label }}@if (required) {<span class="ml-0.5 text-red-500">*</span>}
             </label>
@@ -20,9 +16,8 @@
         >
             @if (selectedColor) {
                 <span
-                    class="inline-block h-3 w-3 rounded-full border"
+                    class="inline-block h-3 w-3 rounded-full border border-black/15 dark:border-white/30"
                     [style.background-color]="selectedColor"
-                    style="border-color: rgba(0, 0, 0, 0.12)"
                 ></span>
             }
             {{ selectedColor || '—' }}
@@ -39,11 +34,11 @@
                 type="button"
                 class="relative flex h-9 w-9 items-center justify-center rounded-full border-2 transition-transform hover:scale-105"
                 [style.background-color]="color"
-                [style.border-color]="isSwatchSelected(color) ? '#1F2937' : 'rgba(0,0,0,0.08)'"
-                [class.scale-110]="isSwatchSelected(color)"
-                [class.ring-2]="isSwatchSelected(color)"
-                [class.ring-offset-2]="isSwatchSelected(color)"
-                [class.ring-stone-900]="isSwatchSelected(color)"
+                [ngClass]="
+                    isSwatchSelected(color)
+                        ? 'scale-110 border-stone-800 ring-2 ring-stone-900 ring-offset-2 dark:border-white/80 dark:ring-stone-100 dark:ring-offset-gray-900'
+                        : 'border-black/10 dark:border-white/25'
+                "
                 [disabled]="disabled"
                 [attr.aria-label]="color"
                 (click)="onSwatchSelect(color)"
@@ -58,11 +53,11 @@
             <label
                 class="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 transition-transform hover:scale-105"
                 [style.background-color]="customColor"
-                [style.border-color]="isCustomSelected ? '#1F2937' : 'rgba(0,0,0,0.08)'"
-                [class.scale-110]="isCustomSelected"
-                [class.ring-2]="isCustomSelected"
-                [class.ring-offset-2]="isCustomSelected"
-                [class.ring-stone-900]="isCustomSelected"
+                [ngClass]="
+                    isCustomSelected
+                        ? 'scale-110 border-stone-800 ring-2 ring-stone-900 ring-offset-2 dark:border-white/80 dark:ring-stone-100 dark:ring-offset-gray-900'
+                        : 'border-black/10 dark:border-white/25'
+                "
                 [attr.aria-label]="'Custom color'"
             >
                 <mat-icon class="!h-3.5 !w-3.5 !text-[14px]" [style.color]="iconContrastColor(customColor)">edit</mat-icon>

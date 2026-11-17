@@ -4,11 +4,11 @@
     <header class="border-b border-stone-200/90 bg-white/95 px-5 py-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/90 md:px-8">
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
             <!-- Breadcrumbs Link Path -->
-            <div class="flex items-center text-xs font-medium text-stone-500">
+            <div class="flex items-center text-xs font-medium text-stone-500 dark:text-stone-400">
                 <a routerLink="/smart-business/projects" class="cursor-pointer text-stone-700 hover:underline dark:text-stone-300">
                     SmartBusiness
                 </a>
-                <mat-icon class="icon-size-4 mx-2 text-stone-400">chevron_right</mat-icon>
+                <mat-icon class="icon-size-4 mx-2 text-stone-400 dark:text-stone-500">chevron_right</mat-icon>
                 <span class="text-stone-900 font-semibold dark:text-white">
                     {{ projectId === 'new' ? t('smartBusiness.setup.newProjectBreadcrumb') : (project?.name || projectId) }}
                 </span>
@@ -35,9 +35,9 @@
                         mat-stroked-button
                         type="button"
                         (click)="fillDevSample()"
-                        class="rounded-xl border-stone-300 dark:border-gray-700"
+                        class="rounded-xl border-stone-300 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
                     >
-                        <mat-icon class="icon-size-4 mr-1 text-emerald-600">bolt</mat-icon>
+                        <mat-icon class="icon-size-4 mr-1 text-emerald-600 dark:text-emerald-400">bolt</mat-icon>
                         <span class="text-xs">{{ t('smartBusiness.common.fillDemoData') }}</span>
                     </button>
 
@@ -47,7 +47,7 @@
                         type="button"
                         (click)="saveProject()"
                         [disabled]="saving()"
-                        class="rounded-xl bg-emerald-600 text-white"
+                        class="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
                     >
                         @if (saving()) {
                             <mat-spinner diameter="16" class="mr-2 inline-block"></mat-spinner>
@@ -100,12 +100,12 @@
                         }
 
                         <!-- Step Navigation Actions Bar -->
-                        <div class="flex items-center justify-between rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/40">
+                        <div class="flex items-center justify-between rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                             <button
                                 mat-stroked-button
                                 type="button"
                                 (click)="previousStep()"
-                                class="rounded-xl"
+                                class="rounded-xl dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
                             >
                                 <mat-icon class="icon-size-4 mr-1">arrow_back</mat-icon>
                                 {{ stepIndex === 0 ? t('smartBusiness.common.cancel') : t('smartBusiness.common.previousStep') }}
@@ -116,7 +116,7 @@
                                 color="primary"
                                 type="button"
                                 (click)="nextStep()"
-                                class="rounded-xl bg-emerald-600 text-white min-w-32"
+                                class="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 min-w-32 disabled:opacity-60"
                             >
                                 <span>{{ stepIndex === 5 ? t('smartBusiness.common.finishAndSave') : t('smartBusiness.common.nextStep') }}</span>
                                 <mat-icon class="icon-size-4 ml-1">arrow_forward</mat-icon>
