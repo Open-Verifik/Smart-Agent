@@ -9,8 +9,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSliderModule } from '@angular/material/slider';
 import { TranslocoModule } from '@jsverse/transloco';
+import {
+    calibrateArcFaceCompareThreshold,
+    DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+    FACE_COMPARE_THRESHOLD_PRESETS,
+} from 'app/modules/smart-enroll/projects/app-registration-record.utils';
+
+let nextHumanAuthnSliderId = 0;
 
 export const HUMAN_AUTHN_TOLERANCES = ['SOFT', 'REGULAR', 'HARDENED', 'REGULAR_HARD', 'REGULAR_SOFT'] as const;
 export const HUMAN_AUTHN_PUBLIC_DATA_KEYS = ['fullName', 'email', 'phone', 'documentNumber'] as const;
@@ -37,7 +43,6 @@ const PUBLIC_DATA_SOURCES: Record<HumanAuthnPublicDataKey, 'signup' | 'documents
         MatInputModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatSliderModule,
         TranslocoModule,
     ],
     templateUrl: './human-authn-step.component.html',
@@ -47,6 +52,9 @@ export class HumanAuthnModeStepComponent {
     @Input() form!: FormGroup;
 
     readonly tolerances = HUMAN_AUTHN_TOLERANCES;
+    readonly compareThresholdPresets = FACE_COMPARE_THRESHOLD_PRESETS;
+    readonly compareSliderId = `human-authn-compare-min-${nextHumanAuthnSliderId++}`;
+    readonly compareHelpId = `${this.compareSliderId}-help`;
     hideVerifierKey = true;
 
     get humanAuthnGroup(): FormGroup {
@@ -65,8 +73,29 @@ export class HumanAuthnModeStepComponent {
         return this.form.get('projectFlow.steps.document')?.value !== 'skip';
     }
 
+    get compareMinScoreUnitValue(): number {
+        const raw = this.humanAuthnGroup?.get('compareMinScore')?.value;
+        return Math.round(calibrateArcFaceCompareThreshold(raw, DEFAULT_ARCFACE_COMPARE_MIN_SCORE) * 100) / 100;
+    }
+
     get compareMinScoreDisplayValue(): string {
-        return `${Math.floor((this.humanAuthnGroup?.get('compareMinScore')?.value || 0) * 100)}%`;
+        return `${Math.round(this.compareMinScoreUnitValue * 100)}%`;
+    }
+
+    get compareMinScoreProgressPercent(): number {
+        return Math.max(0, Math.min(100, ((this.compareMinScoreUnitValue - 0.6) / 0.15) * 100));
+    }
+
+    isComparePresetActive(presetValue: number): boolean {
+        return Math.abs(this.compareMinScoreUnitValue - presetValue) < 0.005;
+    }
+
+    setCompareMinScorePreset(value: number): void {
+        const ctrl = this.humanAuthnGroup?.get('compareMinScore');
+        if (!ctrl) return;
+        ctrl.setValue(value);
+        ctrl.markAsDirty();
+        ctrl.markAsTouched();
     }
 
     get publicDataOptions(): Array<{ key: HumanAuthnPublicDataKey; available: boolean; source: 'signup' | 'documents' }> {

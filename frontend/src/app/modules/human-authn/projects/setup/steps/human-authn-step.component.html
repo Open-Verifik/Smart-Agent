@@ -158,16 +158,17 @@
                                     <div class="threshold-card">
                                         <div class="threshold-card__top">
                                             <div>
-                                                <strong
-                                                    class="block text-sm font-semibold text-stone-900"
+                                                <label
+                                                    [for]="compareSliderId"
+                                                    class="block cursor-pointer text-sm font-semibold text-stone-900"
                                                 >
                                                     {{
                                                         t(
                                                             'humanAuthnProjects.setup.humanAuthn.compareTitle'
                                                         )
                                                     }}
-                                                </strong>
-                                                <span class="text-xs text-stone-500">{{
+                                                </label>
+                                                <span [id]="compareHelpId" class="text-xs text-stone-500">{{
                                                     t(
                                                         'humanAuthnProjects.setup.humanAuthn.compareHelp'
                                                     )
@@ -175,20 +176,38 @@
                                             </div>
                                             <div class="threshold-card__value">
                                                 <strong>{{ compareMinScoreDisplayValue }}</strong>
+                                                <span>{{ compareMinScoreUnitValue.toFixed(2) }} · 60%–75%</span>
                                             </div>
                                         </div>
-                                        <mat-slider
-                                            min="0.7"
-                                            max="0.95"
+                                        <input
+                                            [id]="compareSliderId"
+                                            type="range"
+                                            min="0.6"
+                                            max="0.75"
                                             step="0.01"
-                                            discrete
-                                            class="threshold-card__slider"
+                                            formControlName="compareMinScore"
+                                            [attr.aria-describedby]="compareHelpId"
+                                            [attr.aria-valuetext]="compareMinScoreDisplayValue"
+                                            [style.--slider-progress]="compareMinScoreProgressPercent + '%'"
+                                            class="threshold-range-input"
+                                        />
+                                        <div
+                                            class="threshold-presets"
+                                            role="group"
+                                            [attr.aria-label]="t('humanAuthnProjects.setup.humanAuthn.compareTitle')"
                                         >
-                                            <input
-                                                matSliderThumb
-                                                formControlName="compareMinScore"
-                                            />
-                                        </mat-slider>
+                                            @for (preset of compareThresholdPresets; track preset.value) {
+                                                <button
+                                                    type="button"
+                                                    (click)="setCompareMinScorePreset(preset.value)"
+                                                    class="threshold-preset"
+                                                    [class.is-active]="isComparePresetActive(preset.value)"
+                                                    [attr.aria-pressed]="isComparePresetActive(preset.value)"
+                                                >
+                                                    {{ preset.labelKey | transloco }} · {{ preset.value.toFixed(2) }}
+                                                </button>
+                                            }
+                                        </div>
                                     </div>
                                 } @else {
                                     <div class="info-note">
