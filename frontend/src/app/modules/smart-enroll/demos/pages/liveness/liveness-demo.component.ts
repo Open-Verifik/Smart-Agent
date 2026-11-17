@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { DEFAULT_LIVENESS_STANDALONE_MIN_SCORE } from '../../services/biometrics-demo.types';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
+import { DEFAULT_LIVENESS_STANDALONE_MIN_SCORE } from '../../services/biometrics-demo.types';
 import {
     applySandboxFaceFailMarker,
     fileToBase64,
@@ -13,20 +14,14 @@ import {
     parseLivenessResult,
     translateLivenessApiError,
 } from '../../services/biometrics-demo.util';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
-import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
-import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
-import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
+import { DemoStepPillsComponent } from '../../shared/demo-step-pills.component';
 
 type Step = 'capture' | 'processing' | 'result';
 
@@ -35,9 +30,7 @@ type LivenessDemoResult = {
     confidence: number | null;
     message: string;
     price?: number | null;
-    /** True when the API returned an ERR_* / quality failure instead of a scored verdict. */
     isApiError?: boolean;
-    /** True when the failure is a credit-balance shortage. */
     isInsufficientCredits?: boolean;
 };
 
@@ -61,8 +54,6 @@ const RELATED_DOC_HREFS = [
     `${DOCS_BASE}/biometrics/humanID-preview`,
 ] as const;
 
-const RELATED_DOC_BADGE_MUTED = [false, false, false, false, false, false] as const;
-
 @Component({
     selector: 'app-liveness-demo',
     standalone: true,
@@ -72,14 +63,9 @@ const RELATED_DOC_BADGE_MUTED = [false, false, false, false, false, false] as co
         TranslocoModule,
         DemoPageShellComponent,
         DemoStageHeroComponent,
-        DemoStageCardComponent,
+        DemoStepPillsComponent,
+        DemoCapturePanelComponent,
         DemoRelatedDocsSectionComponent,
-        DemoChooseOneCalloutComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoScannerShellComponent,
-        FaceGuidedCameraComponent,
-        DemoOrDividerComponent,
-        DemoUploadImageButtonComponent,
         DemoResultActionsComponent,
         DemoSandboxResultBannerComponent,
     ],
@@ -90,13 +76,17 @@ const RELATED_DOC_BADGE_MUTED = [false, false, false, false, false, false] as co
 export class LivenessDemoComponent implements OnInit {
     readonly sampleImages = LIVENESS_SAMPLE_IMAGES;
     readonly defaultMinScore = DEFAULT_LIVENESS_STANDALONE_MIN_SCORE;
+    readonly stepLabels = [
+        'smartEnrollDemos.liveness.stepCapture',
+        'smartEnrollDemos.liveness.stepResult',
+    ] as const;
 
     step: Step = 'capture';
+    captureMode: CaptureMethod = 'upload';
     result: LivenessDemoResult | null = null;
     error: string | null = null;
     previewUrl: string | null = null;
     uploadReading = false;
-    uploadFileName: string | null = null;
     relatedDocs: DemoRelatedDocItem[] = [];
 
     private _api = inject(BiometricsDemoApiService);
@@ -116,13 +106,8 @@ export class LivenessDemoComponent implements OnInit {
         return this.step === 'capture' ? 1 : 2;
     }
 
-    onFileUpload(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (!file) return;
-
+    onFilePicked(file: File): void {
         this.uploadReading = true;
-        this.uploadFileName = file.name;
         this.error = null;
         this._cdr.markForCheck();
 
@@ -130,13 +115,10 @@ export class LivenessDemoComponent implements OnInit {
             .then((b64) => {
                 this.previewUrl = URL.createObjectURL(file);
                 this.uploadReading = false;
-                input.value = '';
                 this.runLiveness(b64);
             })
             .catch(() => {
                 this.uploadReading = false;
-                this.uploadFileName = null;
-                input.value = '';
                 this.error = this._transloco.translate('smartEnrollDemos.liveness.sampleLoadError');
                 this._cdr.markForCheck();
             });
@@ -167,7 +149,6 @@ export class LivenessDemoComponent implements OnInit {
         if (!this._api.ensureAuthenticated()) {
             this.error = this._transloco.translate('smartEnrollDemos.common.mustBeSignedIn');
             this.uploadReading = false;
-            this.uploadFileName = null;
             this._cdr.markForCheck();
             return;
         }
@@ -218,7 +199,6 @@ export class LivenessDemoComponent implements OnInit {
         this.error = null;
         this.previewUrl = null;
         this.uploadReading = false;
-        this.uploadFileName = null;
         this._cdr.markForCheck();
     }
 
@@ -228,7 +208,7 @@ export class LivenessDemoComponent implements OnInit {
             title: this._transloco.translate(`smartEnrollDemos.liveness.relatedDocs.${i}.title`),
             description: this._transloco.translate(`smartEnrollDemos.liveness.relatedDocs.${i}.description`),
             badge: this._transloco.translate(`smartEnrollDemos.liveness.relatedDocs.${i}.badge`),
-            badgeMuted: RELATED_DOC_BADGE_MUTED[i],
+            badgeMuted: false,
         }));
     }
 }

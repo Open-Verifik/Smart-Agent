@@ -33,6 +33,7 @@ import { SetupUserInterfaceComponent } from 'app/modules/smart-enroll/projects/s
 import type { PreviewView } from 'app/modules/smart-enroll/projects/setup/setup.service';
 import { HumanAuthnSetupService } from './human-authn-setup.service';
 import { HumanAuthnModeStepComponent } from './steps/human-authn-step.component';
+import { calibrateSliderCompareThreshold } from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import { HumanAuthnStorageStepComponent } from './steps/storage-step.component';
 
 @Component({
@@ -187,7 +188,10 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                         flow.humanAuthn?.tolerance || (flow.humanAuthn?.mode === 'active_user' ? 'HARDENED' : 'REGULAR'),
                         Validators.required,
                     ],
-                    compareMinScore: [flow.humanAuthn?.compareMinScore ?? 0.85, [Validators.min(0.7), Validators.max(0.95)]],
+                    compareMinScore: [
+                        calibrateSliderCompareThreshold(flow.humanAuthn?.compareMinScore),
+                        [Validators.min(0.6), Validators.max(0.75)],
+                    ],
                     verifierKey: [flow.humanAuthn?.verifierKey || '', [Validators.maxLength(128)]],
                     publicDataKeys: [this._defaultPublicDataKeys(flow)],
                 }),
@@ -542,7 +546,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             livenessAtCreation: !!humanAuthn.livenessAtCreation,
             outputFormat: humanAuthn.outputFormat === 'qrCode' ? 'qrCode' : 'string',
             tolerance: humanAuthn.tolerance || (mode === 'active_user' ? 'HARDENED' : 'REGULAR'),
-            compareMinScore: humanAuthn.compareMinScore ?? 0.85,
+            compareMinScore: humanAuthn.compareMinScore ?? 0.7,
             verifierKey: `${humanAuthn.verifierKey || ''}`.trim(),
             publicDataKeys: this._availablePublicDataKeys(projectFlow).filter((key) =>
                 (humanAuthn.publicDataKeys || ['fullName']).includes(key)

@@ -3,10 +3,8 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnDestroy,
     OnInit,
-    ViewChild,
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -14,18 +12,11 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import { fileToBase64 } from '../../services/biometrics-demo.util';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
-import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
-import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
-import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 
 const DOCS_BASE = 'https://docs.verifik.co';
 
@@ -48,21 +39,16 @@ const RELATED_DOC_HREFS = [
         TranslocoModule,
         DemoPageShellComponent,
         DemoStageHeroComponent,
-        DemoStageCardComponent,
+        DemoCapturePanelComponent,
         DemoRelatedDocsSectionComponent,
-        DemoChooseOneCalloutComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
-        DemoRasterImageComponent,
-        FaceGuidedCameraComponent,
     ],
     templateUrl: './detect-face-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetectFaceDemoComponent implements OnInit, OnDestroy {
-    @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+    readonly scorePresets = [0.6, 0.75, 0.85] as const;
+    readonly searchModes = ['FAST', 'ACCURATE'] as const;
 
     private _api = inject(BiometricsDemoApiService);
     private _transloco = inject(TranslocoService);
@@ -70,6 +56,7 @@ export class DetectFaceDemoComponent implements OnInit, OnDestroy {
     private _previewHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
     authChecked = false;
+    captureMode: CaptureMethod = 'upload';
     image: string | null = null;
     preview: string | null = null;
     previewHighlighted = false;
@@ -97,6 +84,25 @@ export class DetectFaceDemoComponent implements OnInit, OnDestroy {
         return this.result === null;
     }
 
+    get detectedFaces(): Record<string, unknown>[] {
+        if (!this.result) return [];
+        const data = this.result['data'];
+        const rawFaces =
+            (data && typeof data === 'object' && Array.isArray((data as Record<string, unknown>)['faces'])
+                ? (data as Record<string, unknown>)['faces']
+                : null) ??
+            (Array.isArray(this.result['faces']) ? this.result['faces'] : null) ??
+            (Array.isArray(data) ? data : []);
+        return (rawFaces as unknown[]).filter(
+            (f): f is Record<string, unknown> => Boolean(f && typeof f === 'object')
+        );
+    }
+
+    faceScore(face: Record<string, unknown>): string | null {
+        const val = face['score'] ?? face['confidence'] ?? face['detScore'];
+        return typeof val === 'number' && Number.isFinite(val) ? `${(val * 100).toFixed(1)}%` : null;
+    }
+
     pulsePreview(): void {
         if (this._previewHighlightTimeout) clearTimeout(this._previewHighlightTimeout);
         this.previewHighlighted = true;
@@ -111,19 +117,20 @@ export class DetectFaceDemoComponent implements OnInit, OnDestroy {
     onCapture(event: { dataUrl: string; base64: string }): void {
         this.preview = event.dataUrl;
         this.image = event.base64;
+        this.error = null;
         this.pulsePreview();
     }
 
-    triggerFilePicker(): void {
-        this.fileInput?.nativeElement.click();
-    }
-
-    async onFileSelected(event: Event): Promise<void> {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (!file) return;
+    async onFilePicked(file: File): Promise<void> {
         this.image = await fileToBase64(file);
         this.preview = URL.createObjectURL(file);
+        this.error = null;
         this.pulsePreview();
+        this._cdr.markForCheck();
+    }
+
+    setSearchMode(mode: 'FAST' | 'ACCURATE'): void {
+        this.searchMode = mode;
         this._cdr.markForCheck();
     }
 

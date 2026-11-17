@@ -12,6 +12,7 @@ import {
     ElementRef,
     inject,
 } from '@angular/core';
+import { TranslocoModule } from '@jsverse/transloco';
 import * as faceapi from '@vladmandic/face-api';
 import { FaceCropService } from '../services/face-crop.service';
 import {
@@ -34,7 +35,7 @@ const coverLayout = (containerW: number, containerH: number, intrinsicW: number,
 @Component({
     selector: 'app-face-guided-camera',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, TranslocoModule],
     templateUrl: './face-guided-camera.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
