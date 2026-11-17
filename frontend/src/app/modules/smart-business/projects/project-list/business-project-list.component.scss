@@ -161,8 +161,16 @@
 }
 
 :host-context(.dark) {
+    color-scheme: dark;
+
     .page {
         background: #0f0f1f;
+    }
+
+    .banner-error {
+        border-color: rgba(248, 113, 113, 0.35);
+        background: rgba(127, 29, 29, 0.28);
+        color: #fecaca;
     }
 
     .title {

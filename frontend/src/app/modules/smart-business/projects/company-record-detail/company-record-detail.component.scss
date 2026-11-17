@@ -245,3 +245,11 @@ dialog.kyc-modal-dialog::backdrop {
     overflow: hidden;
     overscroll-behavior: contain;
 }
+
+:host-context(.dark) {
+    color-scheme: dark;
+
+    dialog.kyc-modal-dialog::backdrop {
+        background: rgb(2 6 23 / 0.75);
+    }
+}
