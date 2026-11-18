@@ -24,7 +24,7 @@ import { DateTime } from 'luxon';
 import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
-import { SMART_ENROLL_PROJECT_TYPE } from '../biometrics/biometrics.constants';
+import { DEFAULT_FACE_SEARCH_MIN_SCORE, SMART_ENROLL_PROJECT_TYPE } from '../biometrics/biometrics.constants';
 import { CollectionsService } from '../biometrics/collections.service';
 import type { Collection } from '../biometrics/collections.types';
 import { classifyCollections, getOnboardingCollectionCodes } from '../biometrics/collections.util';
@@ -87,7 +87,7 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
     filterText = '';
     imageSearchExpanded = false;
     loading = signal(true);
-    minScore = 0.8;
+    minScore = DEFAULT_FACE_SEARCH_MIN_SCORE;
     searchMode: 'fast' | 'accurate' = 'fast';
     selectedImagePreview: string | null = null;
     selectedPeople: Person[] = [];
@@ -133,7 +133,7 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
         const hadImage = !!this.selectedImagePreview;
         const hadScopeChange = this.scopeFilter !== 'onboarding';
         this.filterText = '';
-        this.minScore = 0.8;
+        this.minScore = DEFAULT_FACE_SEARCH_MIN_SCORE;
         this.searchMode = 'fast';
         this.selectedImagePreview = null;
         this.imageSearchExpanded = false;

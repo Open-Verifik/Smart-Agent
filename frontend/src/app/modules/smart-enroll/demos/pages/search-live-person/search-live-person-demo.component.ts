@@ -3,29 +3,29 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnDestroy,
     OnInit,
-    ViewChild,
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
+import {
+    DEFAULT_FACE_SEARCH_MIN_SCORE,
+    DEFAULT_LIVENESS_MIN_SCORE,
+    FACE_SEARCH_SCORE_PRESETS,
+    LIVENESS_SCORE_PRESETS,
+    type ApiErrorResponse,
+} from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import { fileToBase64, getDemoOs } from '../../services/biometrics-demo.util';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoScoreSliderComponent } from '../../shared/demo-score-slider.component';
+import { DemoSearchModeToggleComponent } from '../../shared/demo-search-mode-toggle.component';
 import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
 import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
-import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { SearchLivePersonResultComponent } from '../../shared/search-live-person-result.component';
 import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
 
@@ -52,22 +52,20 @@ const RELATED_DOC_BADGE_MUTED = [true, false, false, false, false, false] as con
         DemoPageShellComponent,
         DemoStageHeroComponent,
         DemoStageCardComponent,
+        DemoCapturePanelComponent,
+        DemoScoreSliderComponent,
+        DemoSearchModeToggleComponent,
         DemoRelatedDocsSectionComponent,
-        DemoChooseOneCalloutComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
-        DemoRasterImageComponent,
-        FaceGuidedCameraComponent,
         SearchLivePersonResultComponent,
         DemoSandboxResultBannerComponent,
     ],
     templateUrl: './search-live-person-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchLivePersonDemoComponent implements OnInit, OnDestroy {
-    @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+    readonly livenessPresets = LIVENESS_SCORE_PRESETS;
+    readonly searchPresets = FACE_SEARCH_SCORE_PRESETS;
 
     private _api = inject(BiometricsDemoApiService);
     private _transloco = inject(TranslocoService);
@@ -75,11 +73,12 @@ export class SearchLivePersonDemoComponent implements OnInit, OnDestroy {
     private _previewHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
     authChecked = false;
+    captureMode: CaptureMethod = 'upload';
     image: string | null = null;
     preview: string | null = null;
     previewHighlighted = false;
-    livenessMinScore = 0.65;
-    minScore = 0.75;
+    livenessMinScore = DEFAULT_LIVENESS_MIN_SCORE;
+    minScore = DEFAULT_FACE_SEARCH_MIN_SCORE;
     searchMode: 'FAST' | 'ACCURATE' = 'FAST';
     collectionId = '';
     loading = false;
@@ -121,16 +120,19 @@ export class SearchLivePersonDemoComponent implements OnInit, OnDestroy {
         this.pulsePreview();
     }
 
-    triggerFilePicker(): void {
-        this.fileInput?.nativeElement.click();
-    }
-
-    async onFileSelected(event: Event): Promise<void> {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (!file) return;
+    async onFilePicked(file: File): Promise<void> {
+        if (this.preview?.startsWith('blob:')) URL.revokeObjectURL(this.preview);
         this.image = await fileToBase64(file);
         this.preview = URL.createObjectURL(file);
         this.pulsePreview();
+        this._cdr.markForCheck();
+    }
+
+    clearPhoto(): void {
+        if (this.preview?.startsWith('blob:')) URL.revokeObjectURL(this.preview);
+        this.image = null;
+        this.preview = null;
+        this.previewHighlighted = false;
         this._cdr.markForCheck();
     }
 

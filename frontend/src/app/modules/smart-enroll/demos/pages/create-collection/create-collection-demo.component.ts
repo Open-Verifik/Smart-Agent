@@ -46,6 +46,7 @@ type Step = 'form' | 'processing' | 'result';
         DemoResultActionsComponent,
     ],
     templateUrl: './create-collection-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'flex flex-auto min-w-0 w-full',

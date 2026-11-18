@@ -1,6 +1,9 @@
 /** SmartEnroll project type for face-recognition project-type routes. */
 export const SMART_ENROLL_PROJECT_TYPE = 'onboarding';
 
+/** Default ArcFace cosine similarity threshold for 1:N vector search. */
+export const DEFAULT_FACE_SEARCH_MIN_SCORE = 0.65;
+
 /** AppFeature codes for face recognition / biometrics API requests. */
 export const FACE_RECOGNITION_CODES = [
     'face_recognition_compare',

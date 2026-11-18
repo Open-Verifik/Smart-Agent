@@ -68,6 +68,7 @@ const readPersonPayload = (body: unknown): Record<string, unknown> | null => {
         NationalitySelectComponent,
     ],
     templateUrl: './update-person-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UpdatePersonDemoComponent implements OnInit {
