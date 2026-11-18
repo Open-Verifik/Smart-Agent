@@ -9,6 +9,7 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
 import { SmartBusinessService } from '../../smart-business.service';
@@ -40,6 +41,7 @@ export class BusinessProjectListComponent implements OnInit {
     private _transloco: TranslocoService | null = null;
     private _clipboard: Clipboard;
     private _snackBar: MatSnackBar;
+    private _authGate: AuthRequiredGateService | null = null;
 
     constructor(
         router?: Router,
@@ -55,6 +57,11 @@ export class BusinessProjectListComponent implements OnInit {
         } catch {
             this._transloco = null;
         }
+        try {
+            this._authGate = inject(AuthRequiredGateService, { optional: true });
+        } catch {
+            this._authGate = null;
+        }
         this._clipboard = clipboard || (inject(Clipboard, { optional: true }) as any);
         this._snackBar = snackBar || (inject(MatSnackBar, { optional: true }) as any);
     }
@@ -64,6 +71,13 @@ export class BusinessProjectListComponent implements OnInit {
     error = signal<string | null>(null);
 
     ngOnInit(): void {
+        if (this._authGate) {
+            this._authGate.runWithAuthOrDialog({
+                onAuthenticated: () => this._loadProjects(),
+                panelClass: 'auth-required-dialog',
+            });
+            return;
+        }
         this._loadProjects();
     }
 

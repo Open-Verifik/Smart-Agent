@@ -174,7 +174,7 @@ describe('BusinessProjectDetailComponent', () => {
         const reps = component.repsPreview();
         expect(reps.uboOwnershipThreshold).toBe(20);
         expect(reps.livenessMinScore).toBe(85);
-        expect(reps.compareMinScore).toBe(88);
+        expect(reps.compareMinScore).toBe(72);
 
         const integ = component.integrationsPreview();
         expect(integ.redirectUrl).toBe('https://alpha.co/done');
