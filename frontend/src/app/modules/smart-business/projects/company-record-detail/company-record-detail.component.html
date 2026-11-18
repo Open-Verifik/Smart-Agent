@@ -282,11 +282,15 @@
                                     <mat-icon class="icon-size-4 text-emerald-600 dark:text-emerald-400">face</mat-icon>
                                 </div>
                                 @if (member.livenessScore) {
-                                    <p class="mt-1.5 font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                    @let memberBioFailed = member.kycStatus === 'FAILED' || member.kycStatus === 'REJECTED';
+                                    <p
+                                        class="mt-1.5 font-mono text-sm font-bold"
+                                        [ngClass]="memberBioFailed ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'"
+                                    >
                                         Liveness {{ (member.livenessScore > 1 ? member.livenessScore : member.livenessScore * 100) | number:'1.0-1' }}%
                                     </p>
                                     <p class="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">
-                                        Face Match: {{ member.faceCompareScore ? ((member.faceCompareScore > 1 ? member.faceCompareScore : member.faceCompareScore * 100) | number:'1.0-1') + '%' : 'Verified' }}
+                                        Face Match: {{ member.faceCompareScore ? ((member.faceCompareScore > 1 ? member.faceCompareScore : member.faceCompareScore * 100) | number:'1.0-1') + '%' : (memberBioFailed ? 'Failed' : 'Verified') }}
                                     </p>
                                 } @else {
                                     <p class="mt-1.5 text-sm font-semibold text-stone-600 dark:text-stone-300">
@@ -411,7 +415,14 @@
                                             Biometric Portrait Comparison (ID Document Crop vs Live Selfie)
                                         </span>
                                         @if (member.faceCompareScore) {
-                                            <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300">
+                                            <span
+                                                class="rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold"
+                                                [ngClass]="
+                                                    member.kycStatus === 'FAILED' || member.kycStatus === 'REJECTED'
+                                                        ? 'bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300'
+                                                        : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300'
+                                                "
+                                            >
                                                 Similarity: {{ (member.faceCompareScore > 1 ? member.faceCompareScore : member.faceCompareScore * 100) | number:'1.0-1' }}%
                                             </span>
                                         }

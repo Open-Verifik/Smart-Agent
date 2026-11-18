@@ -21,6 +21,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { TranslocoModule } from '@jsverse/transloco';
+import {
+    calibrateArcFaceCompareThreshold,
+    DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+    FACE_COMPARE_THRESHOLD_PRESETS,
+} from 'app/modules/smart-enroll/projects/app-registration-record.utils';
+
+let nextRepSliderId = 0;
 
 @Component({
     selector: 'representatives-policy',
@@ -46,6 +53,10 @@ export class RepresentativesPolicyComponent implements OnInit, OnChanges {
     @Input() form!: FormGroup;
     @Input() loading = false;
     @Input() saving = false;
+
+    readonly compareThresholdPresets = FACE_COMPARE_THRESHOLD_PRESETS;
+    readonly compareSliderId = `kyb-rep-compare-min-${nextRepSliderId++}`;
+    readonly compareHelpId = `${this.compareSliderId}-help`;
 
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
@@ -94,10 +105,32 @@ export class RepresentativesPolicyComponent implements OnInit, OnChanges {
     }
 
     get livenessMinScoreDisplay(): string {
-        return `${Math.round((Number(this.repsPolicyGroup?.get('livenessMinScore')?.value) || 0.85) * 100)}%`;
+        return `${Math.round((Number(this.repsPolicyGroup?.get('livenessMinScore')?.value) || 0.65) * 100)}%`;
+    }
+
+    get compareMinScoreUnitValue(): number {
+        const raw = this.repsPolicyGroup?.get('compareMinScore')?.value;
+        return Math.round(calibrateArcFaceCompareThreshold(raw, DEFAULT_ARCFACE_COMPARE_MIN_SCORE) * 100) / 100;
     }
 
     get compareMinScoreDisplay(): string {
-        return `${Math.round((Number(this.repsPolicyGroup?.get('compareMinScore')?.value) || 0.85) * 100)}%`;
+        return `${Math.round(this.compareMinScoreUnitValue * 100)}%`;
+    }
+
+    get compareMinScoreProgressPercent(): number {
+        return Math.max(0, Math.min(100, ((this.compareMinScoreUnitValue - 0.6) / 0.15) * 100));
+    }
+
+    isComparePresetActive(presetValue: number): boolean {
+        return Math.abs(this.compareMinScoreUnitValue - presetValue) < 0.005;
+    }
+
+    setCompareMinScorePreset(value: number): void {
+        const ctrl = this.repsPolicyGroup?.get('compareMinScore');
+        if (!ctrl) return;
+        ctrl.setValue(value);
+        ctrl.markAsDirty();
+        ctrl.markAsTouched();
+        this._cdr.markForCheck();
     }
 }
