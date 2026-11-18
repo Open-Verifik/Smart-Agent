@@ -94,6 +94,11 @@
                             "optimization": false,
                             "extractLicenses": false,
                             "sourceMap": true
+                        },
+                        "docker": {
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": false
                         }
                     },
                     "defaultConfiguration": "production"
@@ -113,10 +118,11 @@
                             "buildTarget": "avalanche-agent:build:development"
                         },
                         "docker": {
-                            "buildTarget": "avalanche-agent:build:development",
+                            "buildTarget": "avalanche-agent:build:docker",
                             "host": "0.0.0.0",
                             "port": 5555,
-                            "poll": 1000,
+                            "poll": 2000,
+                            "hmr": false,
                             "disableHostCheck": true
                         }
                     },

@@ -1,11 +1,29 @@
 <div class="fleet-shell flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
     <header
-        class="fleet-shell__header border-b border-stone-200/90 bg-white/90 px-4 py-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 sm:px-5 sm:py-6 md:px-8 md:py-8"
+        class="fleet-shell__header border-b border-stone-200/90 bg-white/90 px-4 py-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 sm:px-5 sm:py-6 md:px-8 md:py-7"
     >
-        <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+        <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
             <fleet-nav />
 
-            <div class="fleet-page-head flex flex-wrap items-start justify-between gap-3">
+            <nav
+                aria-label="Breadcrumb"
+                class="flex flex-wrap items-center gap-1.5 text-sm font-medium text-stone-500 dark:text-stone-400"
+            >
+                <a
+                    routerLink="/home"
+                    class="rounded-lg transition-colors hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:text-amber-400"
+                >
+                    Verifik
+                </a>
+                <mat-icon class="icon-size-4 text-stone-400 dark:text-stone-500" aria-hidden="true">
+                    chevron_right
+                </mat-icon>
+                <span class="font-semibold text-stone-900 dark:text-white" aria-current="page">
+                    SmartFleet
+                </span>
+            </nav>
+
+            <div class="fleet-page-head flex flex-wrap items-start justify-between gap-4">
                 <div class="min-w-0">
                     <h1
                         class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl"
@@ -16,473 +34,1211 @@
                         {{ 'smartFleet.subtitle' | transloco }}
                     </p>
                 </div>
-                <div class="fleet-actions shrink-0 sm:w-auto">
-                <button
-                    mat-flat-button
-                    color="primary"
-                    type="button"
-                    routerLink="/smart-fleet/assets"
-                    [queryParams]="{ add: 1 }"
-                    class="rounded-xl !px-6 !py-2"
-                >
-                    <mat-icon class="mr-2 icon-size-5">add</mat-icon>
-                    {{ 'smartFleet.assets.addAsset' | transloco }}
-                </button>
+
+                <div class="fleet-actions flex shrink-0 flex-wrap items-center gap-2.5 sm:w-auto">
+                    @if (showSandboxDemoCta()) {
+                        <button
+                            type="button"
+                            (click)="loadSandboxDemo()"
+                            [disabled]="isSeedingDemo()"
+                            class="fleet-tactile-btn inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-500 dark:text-gray-950 dark:hover:bg-amber-400 dark:focus-visible:ring-offset-gray-950"
+                        >
+                            @if (isSeedingDemo()) {
+                                <mat-spinner diameter="16"></mat-spinner>
+                                <span>{{ 'smartFleet.sandbox.loadingDemo' | transloco }}</span>
+                            } @else {
+                                <mat-icon class="icon-size-5" aria-hidden="true">bolt</mat-icon>
+                                <span>{{ 'smartFleet.sandbox.loadDemo' | transloco }}</span>
+                            }
+                        </button>
+                    }
+
+                    <a
+                        routerLink="/smart-fleet/assets"
+                        [queryParams]="{ type: 'vehicle', add: 1 }"
+                        class="fleet-tactile-btn inline-flex min-h-[2.75rem] items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+                        [ngClass]="
+                            showSandboxDemoCta()
+                                ? 'border border-stone-300 bg-white text-stone-800 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:bg-gray-800'
+                                : 'bg-amber-600 text-white shadow-sm hover:bg-amber-700 dark:bg-amber-500 dark:text-gray-950 dark:hover:bg-amber-400'
+                        "
+                    >
+                        <mat-icon class="icon-size-5" aria-hidden="true">add</mat-icon>
+                        <span>{{ 'smartFleet.assets.addAsset' | transloco }}</span>
+                    </a>
+
+                    <a
+                        routerLink="/smart-fleet/assets"
+                        [queryParams]="{ type: 'driver', add: 1 }"
+                        class="fleet-tactile-btn inline-flex min-h-[2.75rem] items-center justify-center gap-1.5 rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-800 transition-colors hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:bg-gray-800 dark:focus-visible:ring-offset-gray-950"
+                    >
+                        <mat-icon class="icon-size-5" aria-hidden="true">person_add</mat-icon>
+                        <span>{{ 'smartFleet.drivers.addDriver' | transloco }}</span>
+                    </a>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="fleet-shell__main flex flex-auto flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-8 md:py-10">
+    <main class="fleet-shell__main flex flex-auto flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-8 md:py-8">
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-            <div class="flex justify-center py-16" *ngIf="isLoading() && !dashboard()">
-                <mat-spinner diameter="40"></mat-spinner>
-            </div>
-
-            <ng-container *ngIf="dashboard() as data">
-                <!-- Runway warning: the credit balance is what silently stops monitoring -->
+            @if (isLoading() && !dashboard()) {
+                <!-- Structured skeleton matching the cockpit layout -->
                 <div
-                    *ngIf="isRunwayLow()"
-                    class="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20"
+                    class="flex flex-col gap-6"
+                    aria-busy="true"
+                    [attr.aria-label]="'smartFleet.dashboard.readinessNoData' | transloco"
                 >
-                    <mat-icon class="icon-size-5 text-amber-600 dark:text-amber-400"
-                        >warning</mat-icon
-                    >
-                    <span class="text-sm font-medium text-amber-900 dark:text-amber-200">
-                        {{
-                            'smartFleet.dashboard.runwayWarning'
-                                | transloco: { days: runway()?.daysOfRunway }
-                        }}
-                    </span>
-                    <a
-                        routerLink="/add-credits"
-                        class="text-sm font-semibold text-amber-900 underline underline-offset-4 dark:text-amber-200"
-                    >
-                        {{ 'smartFleet.dashboard.addCredits' | transloco }}
-                    </a>
-                </div>
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                        <div
+                            class="flex flex-col justify-between gap-5 rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:col-span-7"
+                        >
+                            <div class="flex flex-col gap-2">
+                                <div class="fleet-skeleton h-5 w-48"></div>
+                                <div class="fleet-skeleton h-4 w-72 max-w-full"></div>
+                            </div>
+                            <div class="flex flex-col items-center gap-6 sm:flex-row">
+                                <div class="fleet-skeleton h-36 w-36 shrink-0 !rounded-full"></div>
+                                <div class="grid w-full grid-cols-2 gap-3">
+                                    <div class="fleet-skeleton h-20 !rounded-2xl"></div>
+                                    <div class="fleet-skeleton h-20 !rounded-2xl"></div>
+                                    <div class="fleet-skeleton h-20 !rounded-2xl"></div>
+                                    <div class="fleet-skeleton h-20 !rounded-2xl"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 border-t border-stone-200/80 pt-4 dark:border-gray-800">
+                                <div class="fleet-skeleton h-9 w-32 !rounded-xl"></div>
+                                <div class="fleet-skeleton h-9 w-32 !rounded-xl"></div>
+                            </div>
+                        </div>
 
-                <!-- What needs attention this week -->
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-5">
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div class="fleet-skeleton h-4 w-24"></div>
+                                <div class="fleet-skeleton mt-3 h-7 w-20"></div>
+                                <div class="fleet-skeleton mt-4 h-2 w-full"></div>
+                            </div>
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div class="fleet-skeleton h-4 w-24"></div>
+                                <div class="fleet-skeleton mt-3 h-7 w-16"></div>
+                                <div class="fleet-skeleton mt-4 h-4 w-28"></div>
+                            </div>
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div class="fleet-skeleton h-4 w-24"></div>
+                                <div class="fleet-skeleton mt-3 h-7 w-16"></div>
+                                <div class="fleet-skeleton mt-4 h-5 w-32"></div>
+                            </div>
+                            <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div class="fleet-skeleton h-4 w-24"></div>
+                                <div class="fleet-skeleton mt-3 h-7 w-24"></div>
+                                <div class="fleet-skeleton mt-4 h-4 w-32"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div class="fleet-skeleton h-28 !rounded-2xl"></div>
+                        <div class="fleet-skeleton h-28 !rounded-2xl"></div>
+                        <div class="fleet-skeleton h-28 !rounded-2xl"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                        <div class="fleet-skeleton h-80 !rounded-2xl lg:col-span-8"></div>
+                        <div class="flex flex-col gap-6 lg:col-span-4">
+                            <div class="fleet-skeleton h-52 !rounded-2xl"></div>
+                            <div class="fleet-skeleton h-44 !rounded-2xl"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (dashboard(); as data) {
+                <!-- Low runway warning banner (production mode) -->
+                @if (isRunwayLow()) {
+                    <div
+                        class="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20"
+                        role="status"
+                    >
+                        <mat-icon class="icon-size-5 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                            warning
+                        </mat-icon>
+                        <span class="text-sm font-medium text-amber-900 dark:text-amber-200">
+                            {{
+                                'smartFleet.dashboard.runwayWarning'
+                                    | transloco: { days: roundedRunwayDays() ?? 0 }
+                            }}
+                        </span>
+                        <a
+                            routerLink="/add-credits"
+                            class="rounded-lg text-sm font-semibold text-amber-800 underline underline-offset-4 hover:text-amber-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-300 dark:hover:text-amber-200"
+                        >
+                            {{ 'smartFleet.dashboard.addCredits' | transloco }}
+                        </a>
+                    </div>
+                }
+
+                <!-- Section 1: Asymmetric Hero Cockpit -->
+                <section
+                    class="fleet-size-aware grid grid-cols-1 gap-6 lg:grid-cols-12"
+                    [attr.aria-label]="'smartFleet.dashboard.snapshotTitle' | transloco"
+                >
+                    <!-- Left (7 cols): Dispatch Readiness & Fleet Health -->
+                    <div
+                        class="flex flex-col justify-between gap-5 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6 lg:col-span-7"
+                    >
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                    {{ 'smartFleet.dashboard.readinessTitle' | transloco }}
+                                </h2>
+                                <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ 'smartFleet.dashboard.readinessSubtitle' | transloco }}
+                                </p>
+                            </div>
+
+                            <span
+                                class="inline-flex shrink-0 items-center rounded-lg px-2.5 py-1 text-xs font-semibold tabular-nums"
+                                [ngClass]="
+                                    readiness().scorePercent === null
+                                        ? 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300'
+                                        : (readiness().scorePercent ?? 0) >= 80
+                                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                          : (readiness().scorePercent ?? 0) >= 50
+                                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                "
+                            >
+                                @if (readiness().scorePercent !== null) {
+                                    {{
+                                        'smartFleet.dashboard.readinessScore'
+                                            | transloco: { percent: readiness().scorePercent }
+                                    }}
+                                } @else {
+                                    {{ 'smartFleet.dashboard.readinessNoData' | transloco }}
+                                }
+                            </span>
+                        </div>
+
+                        <div class="fleet-readiness-body">
+                            <!-- Circular SVG compliance ring -->
+                            <div
+                                class="relative flex h-36 w-36 shrink-0 items-center justify-center"
+                                role="img"
+                                [attr.aria-label]="
+                                    readiness().scorePercent !== null
+                                        ? ('smartFleet.dashboard.readinessScore'
+                                          | transloco: { percent: readiness().scorePercent })
+                                        : ('smartFleet.dashboard.readinessNoData' | transloco)
+                                "
+                            >
+                                <svg
+                                    class="h-full w-full"
+                                    viewBox="0 0 140 140"
+                                    aria-hidden="true"
+                                >
+                                    <circle
+                                        cx="70"
+                                        cy="70"
+                                        [attr.r]="ringRadius"
+                                        fill="none"
+                                        stroke-width="11"
+                                        class="stroke-stone-200 dark:stroke-gray-800"
+                                    />
+                                    <circle
+                                        cx="70"
+                                        cy="70"
+                                        [attr.r]="ringRadius"
+                                        fill="none"
+                                        stroke-width="11"
+                                        stroke-linecap="round"
+                                        transform="rotate(-90 70 70)"
+                                        stroke="currentColor"
+                                        class="fleet-readiness-ring__progress"
+                                        [ngClass]="ringToneClass()"
+                                        [attr.stroke-dasharray]="ringCircumference"
+                                        [attr.stroke-dashoffset]="ringDashOffset()"
+                                    />
+                                </svg>
+
+                                <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+                                    <span class="text-3xl font-bold tabular-nums tracking-tight text-stone-900 dark:text-white">
+                                        {{
+                                            readiness().scorePercent !== null
+                                                ? readiness().scorePercent + '%'
+                                                : '-'
+                                        }}
+                                    </span>
+                                    <span class="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-400">
+                                        {{
+                                            (readiness().scorePercent !== null
+                                                ? 'smartFleet.dashboard.readinessCompliant'
+                                                : 'smartFleet.dashboard.readinessNoData'
+                                            ) | transloco
+                                        }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- 4 Semantic readiness tiles -->
+                            <div class="grid w-full grid-cols-2 gap-3">
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    [queryParams]="{ coverage: 'valid' }"
+                                    class="fleet-card-interactive flex flex-col justify-between rounded-2xl border border-emerald-200/90 bg-emerald-50/70 p-3.5 transition-colors hover:border-emerald-300 hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-emerald-900/50 dark:bg-emerald-950/25 dark:hover:border-emerald-700"
+                                >
+                                    <div class="flex items-center justify-between gap-2">
+                                        <mat-icon class="icon-size-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true">
+                                            check_circle
+                                        </mat-icon>
+                                        <span class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                            {{ readiness().compliant }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-2 text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+                                        {{ 'smartFleet.dashboard.readinessCompliant' | transloco }}
+                                    </span>
+                                </a>
+
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    [queryParams]="{ coverage: 'due' }"
+                                    class="fleet-card-interactive flex flex-col justify-between rounded-2xl border border-amber-200/90 bg-amber-50/70 p-3.5 transition-colors hover:border-amber-300 hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-amber-900/50 dark:bg-amber-950/25 dark:hover:border-amber-700"
+                                >
+                                    <div class="flex items-center justify-between gap-2">
+                                        <mat-icon class="icon-size-5 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                                            schedule
+                                        </mat-icon>
+                                        <span class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                            {{ readiness().expiringSoon }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-2 text-xs font-semibold text-amber-900 dark:text-amber-200">
+                                        {{ 'smartFleet.dashboard.readinessExpiringSoon' | transloco }}
+                                    </span>
+                                </a>
+
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    [queryParams]="{ coverage: 'expired' }"
+                                    class="fleet-card-interactive flex flex-col justify-between rounded-2xl border border-red-200/90 bg-red-50/70 p-3.5 transition-colors hover:border-red-300 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-red-900/50 dark:bg-red-950/25 dark:hover:border-red-700"
+                                >
+                                    <div class="flex items-center justify-between gap-2">
+                                        <mat-icon class="icon-size-5 text-red-600 dark:text-red-400" aria-hidden="true">
+                                            gpp_bad
+                                        </mat-icon>
+                                        <span class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                            {{ readiness().grounded }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-2 text-xs font-semibold text-red-900 dark:text-red-200">
+                                        {{ 'smartFleet.dashboard.readinessGrounded' | transloco }}
+                                    </span>
+                                </a>
+
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    [queryParams]="{ coverage: 'unknown' }"
+                                    class="fleet-card-interactive flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-stone-50/80 p-3.5 transition-colors hover:border-stone-300 hover:bg-stone-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-800 dark:bg-gray-950/50 dark:hover:border-gray-700"
+                                >
+                                    <div class="flex items-center justify-between gap-2">
+                                        <mat-icon class="icon-size-5 text-stone-500 dark:text-stone-400" aria-hidden="true">
+                                            help_outline
+                                        </mat-icon>
+                                        <span class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                            {{ readiness().unchecked }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-2 text-xs font-semibold text-stone-700 dark:text-stone-300">
+                                        {{ 'smartFleet.dashboard.readinessUnchecked' | transloco }}
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Vehicles vs Drivers pill bar -->
+                        <div
+                            class="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 pt-4 dark:border-gray-800"
+                        >
+                            <div class="flex flex-wrap items-center gap-2">
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    [queryParams]="{ type: 'vehicle' }"
+                                    class="fleet-tactile-btn inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-amber-300 hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-700 dark:bg-gray-800/80 dark:text-stone-200 dark:hover:border-amber-500/40 dark:hover:bg-amber-900/20 dark:hover:text-amber-300"
+                                >
+                                    <mat-icon class="icon-size-4 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                                        directions_car
+                                    </mat-icon>
+                                    <span class="font-bold tabular-nums text-stone-900 dark:text-white">
+                                        {{ readiness().vehiclesActive }}
+                                    </span>
+                                    <span>{{ 'smartFleet.drivers.tabVehicles' | transloco }}</span>
+                                </a>
+
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    [queryParams]="{ type: 'driver' }"
+                                    class="fleet-tactile-btn inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-amber-300 hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-700 dark:bg-gray-800/80 dark:text-stone-200 dark:hover:border-amber-500/40 dark:hover:bg-amber-900/20 dark:hover:text-amber-300"
+                                >
+                                    <mat-icon class="icon-size-4 text-amber-600 dark:text-amber-400" aria-hidden="true">
+                                        badge
+                                    </mat-icon>
+                                    <span class="font-bold tabular-nums text-stone-900 dark:text-white">
+                                        {{ readiness().driversActive }}
+                                    </span>
+                                    <span>{{ 'smartFleet.drivers.tabDrivers' | transloco }}</span>
+                                </a>
+                            </div>
+
+                            <span class="text-xs text-stone-500 dark:text-stone-400">
+                                {{
+                                    'smartFleet.dashboard.readinessBreakdown'
+                                        | transloco
+                                            : {
+                                                  vehicles: readiness().vehiclesActive,
+                                                  drivers: readiness().driversActive
+                                              }
+                                }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Right (5 cols): Telemetry 2x2 Grid -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-5">
+                        <!-- 1. Active Fleet Slots -->
+                        <div
+                            class="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                        >
+                            <div>
+                                <a
+                                    routerLink="/smart-fleet/assets"
+                                    class="group flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                                >
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                    >
+                                        <mat-icon class="icon-size-5" aria-hidden="true">
+                                            directions_car
+                                        </mat-icon>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="block text-xs font-medium text-stone-500 dark:text-stone-400">
+                                            {{ 'smartFleet.dashboard.activeAssets' | transloco }}
+                                        </span>
+                                        <span class="text-xl font-bold tabular-nums text-stone-900 group-hover:text-amber-700 dark:text-white dark:group-hover:text-amber-400">
+                                            {{ data.assets.active }}
+                                            <span class="text-sm font-normal text-stone-500 dark:text-stone-400">
+                                                / {{ data.assets.limit }}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </a>
+
+                                <div class="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
+                                    <div
+                                        class="h-full rounded-full bg-amber-600 transition-all dark:bg-amber-400"
+                                        [style.width.%]="assetUsagePercent()"
+                                    ></div>
+                                </div>
+                            </div>
+
+                            <a
+                                routerLink="/smart-fleet/plans"
+                                class="mt-3 inline-flex w-fit items-center gap-1 rounded-lg text-xs font-semibold text-amber-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-400"
+                            >
+                                <mat-icon class="icon-size-4 text-current" aria-hidden="true">
+                                    credit_card
+                                </mat-icon>
+                                {{
+                                    (isNearAssetLimit()
+                                        ? 'smartFleet.dashboard.expandPlan'
+                                        : 'smartFleet.dashboard.managePlan'
+                                    ) | transloco
+                                }}
+                            </a>
+                        </div>
+
+                        <!-- 2. Active Rules -->
+                        <a
+                            routerLink="/smart-fleet/watch-rules"
+                            class="fleet-card-interactive flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition-colors hover:border-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-amber-500/40"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                >
+                                    <mat-icon class="icon-size-5" aria-hidden="true">rule</mat-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="block text-xs font-medium text-stone-500 dark:text-stone-400">
+                                        {{ 'smartFleet.dashboard.activeRules' | transloco }}
+                                    </span>
+                                    <span class="text-xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                        {{ data.rules.active }}
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+                                {{
+                                    'smartFleet.dashboard.projectedMonthly'
+                                        | transloco: { credits: formattedProjectedMonthly() }
+                                }}
+                            </p>
+                        </a>
+
+                        <!-- 3. Open Incidents -->
+                        <a
+                            routerLink="/smart-fleet/alerts"
+                            class="fleet-card-interactive flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition-colors hover:border-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-amber-500/40"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                                    [ngClass]="
+                                        data.alerts.severity.open.critical > 0
+                                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                            : data.alerts.openTotal > 0
+                                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                              : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    "
+                                >
+                                    <mat-icon class="icon-size-5" aria-hidden="true">
+                                        notifications_active
+                                    </mat-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="block text-xs font-medium text-stone-500 dark:text-stone-400">
+                                        {{ 'smartFleet.dashboard.openAlerts' | transloco }}
+                                    </span>
+                                    <span class="text-xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                        {{ data.alerts.openTotal }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 flex flex-wrap gap-1.5">
+                                @if (data.alerts.severity.open.critical) {
+                                    <span
+                                        class="rounded-lg px-2 py-0.5 text-xs font-semibold tabular-nums"
+                                        [ngClass]="severityClasses('critical')"
+                                    >
+                                        {{ data.alerts.severity.open.critical }}
+                                        {{ 'smartFleet.severity.critical' | transloco }}
+                                    </span>
+                                }
+                                @if (data.alerts.severity.open.warning) {
+                                    <span
+                                        class="rounded-lg px-2 py-0.5 text-xs font-semibold tabular-nums"
+                                        [ngClass]="severityClasses('warning')"
+                                    >
+                                        {{ data.alerts.severity.open.warning }}
+                                        {{ 'smartFleet.severity.warning' | transloco }}
+                                    </span>
+                                }
+                                @if (data.alerts.severity.open.info) {
+                                    <span
+                                        class="rounded-lg px-2 py-0.5 text-xs font-semibold tabular-nums"
+                                        [ngClass]="severityClasses('info')"
+                                    >
+                                        {{ data.alerts.severity.open.info }}
+                                        {{ 'smartFleet.severity.info' | transloco }}
+                                    </span>
+                                }
+                                @if (!data.alerts.openTotal) {
+                                    <span
+                                        class="rounded-lg bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                                    >
+                                        {{ 'smartFleet.dashboard.weekCreditsOk' | transloco }}
+                                    </span>
+                                }
+                            </div>
+                        </a>
+
+                        <!-- 4. Credit Balance & Runway -->
+                        <div
+                            class="flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                                    [ngClass]="
+                                        isRunwayLow()
+                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                            : 'bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-300'
+                                    "
+                                >
+                                    <mat-icon class="icon-size-5" aria-hidden="true">savings</mat-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="block text-xs font-medium text-stone-500 dark:text-stone-400">
+                                        {{ 'smartFleet.dashboard.creditBalance' | transloco }}
+                                    </span>
+                                    <span class="text-xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                        {{ (runway()?.balance ?? 0) | number:'1.0-2' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+                                @if (isSandboxMode() && !hasRunwayBurn()) {
+                                    {{ 'smartFleet.dashboard.runwaySandbox' | transloco }}
+                                } @else if (isRunwayCapped()) {
+                                    {{ 'smartFleet.dashboard.runwayCap' | transloco }}
+                                } @else if (roundedRunwayDays() !== null) {
+                                    {{
+                                        'smartFleet.dashboard.runwayDays'
+                                            | transloco: { days: roundedRunwayDays() }
+                                    }}
+                                } @else {
+                                    {{ 'smartFleet.dashboard.noMonitoringYet' | transloco }}
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Priority Risk Triage Strip -->
                 <section
                     class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                    aria-labelledby="fleet-triage-title"
                 >
                     <div class="border-b border-stone-200/90 px-5 py-4 dark:border-gray-800">
-                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                        <h2 id="fleet-triage-title" class="text-base font-semibold text-stone-900 dark:text-white">
                             {{ 'smartFleet.dashboard.weekTitle' | transloco }}
                         </h2>
-                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                        <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
                             {{ 'smartFleet.dashboard.weekHint' | transloco }}
                         </p>
                     </div>
-                    <div class="grid gap-3 p-5 md:grid-cols-3">
+
+                    <div class="grid grid-cols-1 gap-3 p-5 md:grid-cols-3">
+                        <!-- 1. Due within 7 days / Already expired -->
                         <button
                             type="button"
                             (click)="scrollToExpiring()"
-                            class="flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors"
+                            class="fleet-card-interactive flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                             [ngClass]="
                                 dueThisWeek().length
-                                    ? 'border-red-200 bg-red-50 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30'
-                                    : 'border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950/40'
+                                    ? 'border-red-200 bg-red-50/80 hover:bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 dark:hover:bg-red-950/45'
+                                    : 'border-stone-200 bg-stone-50/70 hover:bg-stone-100/70 dark:border-gray-800 dark:bg-gray-950/40 dark:hover:bg-gray-800/50'
                             "
                         >
                             <mat-icon
-                                class="icon-size-6"
-                                [ngClass]="dueThisWeek().length ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'"
-                                >{{ dueThisWeek().length ? 'event_busy' : 'event_available' }}</mat-icon
+                                class="icon-size-6 shrink-0"
+                                aria-hidden="true"
+                                [ngClass]="
+                                    dueThisWeek().length
+                                        ? 'text-red-600 dark:text-red-400'
+                                        : 'text-emerald-600 dark:text-emerald-400'
+                                "
                             >
+                                {{ dueThisWeek().length ? 'event_busy' : 'event_available' }}
+                            </mat-icon>
                             <div class="min-w-0">
-                                <p class="text-2xl font-bold text-stone-900 dark:text-white">
+                                <p class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
                                     {{ dueThisWeek().length }}
                                 </p>
                                 <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
                                     {{ 'smartFleet.dashboard.weekDue' | transloco }}
                                 </p>
-                                <p *ngIf="expiredCount()" class="mt-0.5 text-xs text-red-700 dark:text-red-300">
-                                    {{ 'smartFleet.dashboard.weekExpired' | transloco: { count: expiredCount() } }}
-                                </p>
+                                @if (expiredCount()) {
+                                    <p class="mt-0.5 text-xs font-medium text-red-700 dark:text-red-300">
+                                        {{
+                                            'smartFleet.dashboard.weekExpired'
+                                                | transloco: { count: expiredCount() }
+                                        }}
+                                    </p>
+                                }
                             </div>
                         </button>
 
+                        <!-- 2. Active assets without rules -->
                         <a
                             routerLink="/smart-fleet/watch-rules"
-                            class="flex items-start gap-3 rounded-2xl border p-4 transition-colors"
+                            class="fleet-card-interactive flex items-start gap-3 rounded-2xl border p-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                             [ngClass]="
                                 uncoveredAssets()?.length
-                                    ? 'border-amber-200 bg-amber-50 hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-950/30'
-                                    : 'border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950/40'
+                                    ? 'border-amber-200 bg-amber-50/80 hover:bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30 dark:hover:bg-amber-950/45'
+                                    : 'border-stone-200 bg-stone-50/70 hover:bg-stone-100/70 dark:border-gray-800 dark:bg-gray-950/40 dark:hover:bg-gray-800/50'
                             "
                         >
                             <mat-icon
-                                class="icon-size-6"
-                                [ngClass]="uncoveredAssets()?.length ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'"
-                                >{{ uncoveredAssets()?.length ? 'rule' : 'verified' }}</mat-icon
+                                class="icon-size-6 shrink-0"
+                                aria-hidden="true"
+                                [ngClass]="
+                                    uncoveredAssets()?.length
+                                        ? 'text-amber-600 dark:text-amber-400'
+                                        : 'text-emerald-600 dark:text-emerald-400'
+                                "
                             >
+                                {{ uncoveredAssets()?.length ? 'rule' : 'verified' }}
+                            </mat-icon>
                             <div class="min-w-0">
-                                <p class="text-2xl font-bold text-stone-900 dark:text-white">
-                                    {{ uncoveredAssets() === null ? '—' : uncoveredAssets()!.length }}
+                                <p class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                    {{ uncoveredAssets()?.length ?? '-' }}
                                 </p>
                                 <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
                                     {{ 'smartFleet.dashboard.weekNoRules' | transloco }}
                                 </p>
-                                <p
-                                    *ngIf="uncoveredAssets()?.length"
-                                    class="mt-0.5 truncate text-xs text-amber-800 dark:text-amber-300"
-                                >
-                                    {{ uncoveredLabel() }}
-                                </p>
+                                @if (uncoveredAssets()?.length) {
+                                    <p class="mt-0.5 truncate text-xs text-amber-800 dark:text-amber-300">
+                                        {{ uncoveredLabel() }}
+                                    </p>
+                                }
                             </div>
                         </a>
 
+                        <!-- 3. Credit shortfall / Automation coverage -->
                         <a
-                            routerLink="/add-credits"
-                            class="flex items-start gap-3 rounded-2xl border p-4 transition-colors"
+                            [routerLink]="creditShortfall() ? '/add-credits' : '/smart-fleet/plans'"
+                            class="fleet-card-interactive flex items-start gap-3 rounded-2xl border p-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                             [ngClass]="
                                 creditShortfall()
-                                    ? 'border-red-200 bg-red-50 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30'
-                                    : 'border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950/40'
+                                    ? 'border-red-200 bg-red-50/80 hover:bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 dark:hover:bg-red-950/45'
+                                    : 'border-stone-200 bg-stone-50/70 hover:bg-stone-100/70 dark:border-gray-800 dark:bg-gray-950/40 dark:hover:bg-gray-800/50'
                             "
                         >
                             <mat-icon
-                                class="icon-size-6"
-                                [ngClass]="creditShortfall() ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'"
-                                >{{ creditShortfall() ? 'savings' : 'check_circle' }}</mat-icon
+                                class="icon-size-6 shrink-0"
+                                aria-hidden="true"
+                                [ngClass]="
+                                    creditShortfall()
+                                        ? 'text-red-600 dark:text-red-400'
+                                        : 'text-emerald-600 dark:text-emerald-400'
+                                "
                             >
+                                {{ creditShortfall() ? 'savings' : 'check_circle' }}
+                            </mat-icon>
                             <div class="min-w-0">
-                                <p class="text-2xl font-bold text-stone-900 dark:text-white">
-                                    {{ creditShortfall() || ('smartFleet.dashboard.weekCreditsOk' | transloco) }}
+                                <p class="text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                    @if (creditShortfall()) {
+                                        {{ creditShortfall() | number:'1.0-2' }}
+                                    } @else {
+                                        {{ 'smartFleet.dashboard.weekCreditsOk' | transloco }}
+                                    }
                                 </p>
                                 <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
-                                    {{
-                                        (creditShortfall()
-                                            ? 'smartFleet.dashboard.weekCreditsShort'
-                                            : 'smartFleet.dashboard.weekCreditsEnough'
-                                        ) | transloco: { credits: projected()?.totalCredits ?? 0 }
-                                    }}
+                                    @if (isSandboxMode()) {
+                                        {{ 'smartFleet.dashboard.runwaySandbox' | transloco }}
+                                    } @else if (creditShortfall()) {
+                                        {{
+                                            'smartFleet.dashboard.weekCreditsShort'
+                                                | transloco: { credits: formattedProjectedMonthly() }
+                                        }}
+                                    } @else if (data.rules.active > 0) {
+                                        {{
+                                            'smartFleet.dashboard.weekCreditsEnough'
+                                                | transloco: { credits: formattedProjectedMonthly() }
+                                        }}
+                                    } @else {
+                                        {{ 'smartFleet.dashboard.noMonitoringYet' | transloco }}
+                                    }
                                 </p>
                             </div>
                         </a>
                     </div>
                 </section>
 
-                <!-- What the account has right now -->
-                <section
-                    class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                >
-                    <div class="border-b border-stone-200/90 px-5 py-4 dark:border-gray-800">
-                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
-                            {{ 'smartFleet.dashboard.snapshotTitle' | transloco }}
-                        </h2>
-                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                            {{ 'smartFleet.dashboard.snapshotHint' | transloco }}
-                        </p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 bg-stone-50/80 p-5 dark:bg-gray-950/40 md:grid-cols-4">
-                    <a
-                        routerLink="/smart-fleet/assets"
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition-all hover:border-indigo-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-indigo-700"
+                <!-- Section 3: Asymmetric 8/4 Operational Split -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                    <!-- Left (8 cols): Expirations & Grounding Horizon -->
+                    <section
+                        id="fleet-expiring"
+                        class="flex scroll-mt-6 flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:col-span-8"
+                        aria-labelledby="fleet-expiring-title"
                     >
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30"
-                            >
-                                <mat-icon class="icon-size-5 text-indigo-600 dark:text-indigo-400"
-                                    >directions_car</mat-icon
-                                >
-                            </div>
-                            <div class="min-w-0">
-                                <span
-                                    class="block text-xs font-medium uppercase text-stone-500 dark:text-stone-400"
-                                    >{{ 'smartFleet.dashboard.activeAssets' | transloco }}</span
-                                >
-                                <span class="text-xl font-bold text-stone-900 dark:text-white"
-                                    >{{ data.assets.active }}
-                                    <span class="text-sm font-normal text-stone-500"
-                                        >/ {{ data.assets.limit }}</span
-                                    ></span
-                                >
-                            </div>
-                        </div>
-                        <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
-                            <div
-                                class="h-full rounded-full transition-all"
-                                [class.bg-indigo-500]="!isNearAssetLimit()"
-                                [class.bg-amber-500]="isNearAssetLimit()"
-                                [style.width.%]="assetUsagePercent()"
-                            ></div>
-                        </div>
-                        <span
-                            role="link"
-                            tabindex="0"
-                            class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-300"
-                            (click)="openPlans($event)"
-                            (keydown.enter)="openPlans($event)"
+                        <div
+                            class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800"
                         >
-                            <mat-icon class="icon-size-4 text-current">credit_card</mat-icon>
-                            {{ (isNearAssetLimit() ? 'smartFleet.dashboard.expandPlan' : 'smartFleet.dashboard.managePlan') | transloco }}
-                        </span>
-                    </a>
+                            <h2
+                                id="fleet-expiring-title"
+                                class="text-base font-semibold text-stone-900 dark:text-white"
+                            >
+                                {{ 'smartFleet.dashboard.expiringSoon' | transloco }}
+                            </h2>
 
-                    <a
-                        routerLink="/smart-fleet/alerts"
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition-all hover:border-red-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-red-800"
-                    >
-                        <div class="flex items-center gap-3">
                             <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30"
+                                class="flex items-center gap-1 rounded-xl bg-stone-100 p-1 dark:bg-gray-950"
+                                role="group"
+                                [attr.aria-label]="'smartFleet.dashboard.expiringSoon' | transloco"
                             >
-                                <mat-icon class="icon-size-5 text-red-600 dark:text-red-400"
-                                    >notifications_active</mat-icon
-                                >
-                            </div>
-                            <div class="min-w-0">
-                                <span
-                                    class="block text-xs font-medium uppercase text-stone-500 dark:text-stone-400"
-                                    >{{ 'smartFleet.dashboard.openAlerts' | transloco }}</span
-                                >
-                                <span class="text-xl font-bold text-stone-900 dark:text-white">{{
-                                    data.alerts.openTotal
-                                }}</span>
+                                @for (option of horizonOptions; track option) {
+                                    <button
+                                        type="button"
+                                        (click)="setHorizon(option)"
+                                        [attr.aria-pressed]="horizonDays() === option"
+                                        class="fleet-tactile-btn rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                                        [ngClass]="
+                                            horizonDays() === option
+                                                ? 'bg-amber-600 text-white shadow-sm dark:bg-amber-500 dark:text-gray-950'
+                                                : 'text-stone-600 hover:bg-white/80 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                                        "
+                                    >
+                                        {{
+                                            'smartFleet.dashboard.horizonDays'
+                                                | transloco: { days: option }
+                                        }}
+                                    </button>
+                                }
                             </div>
                         </div>
-                        <div class="mt-3 flex flex-wrap gap-1.5">
-                            <span
-                                *ngIf="data.alerts.severity.open.critical"
-                                class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                                [ngClass]="severityClasses('critical')"
-                                >{{ data.alerts.severity.open.critical }}
-                                {{ 'smartFleet.severity.critical' | transloco }}</span
-                            >
-                            <span
-                                *ngIf="data.alerts.severity.open.warning"
-                                class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                                [ngClass]="severityClasses('warning')"
-                                >{{ data.alerts.severity.open.warning }}
-                                {{ 'smartFleet.severity.warning' | transloco }}</span
-                            >
-                            <span
-                                *ngIf="data.alerts.severity.open.info"
-                                class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                                [ngClass]="severityClasses('info')"
-                                >{{ data.alerts.severity.open.info }}
-                                {{ 'smartFleet.severity.info' | transloco }}</span
-                            >
-                        </div>
-                    </a>
 
-                    <a
-                        routerLink="/smart-fleet/watch-rules"
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition-all hover:border-purple-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-purple-800"
-                    >
-                        <div class="flex items-center gap-3">
+                        @if (expiring().length) {
                             <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30"
+                                tabindex="0"
+                                role="region"
+                                aria-labelledby="fleet-expiring-title"
+                                class="fleet-table-region"
                             >
-                                <mat-icon class="icon-size-5 text-purple-600 dark:text-purple-400"
-                                    >rule</mat-icon
-                                >
+                                <table class="w-full border-collapse text-left text-sm">
+                                    <caption class="sr-only">
+                                        {{ 'smartFleet.dashboard.expiringSoon' | transloco }}
+                                        ({{ 'smartFleet.dashboard.horizonDays' | transloco: { days: horizonDays() } }})
+                                    </caption>
+                                    <thead>
+                                        <tr class="border-b border-stone-200/90 text-xs font-semibold text-stone-600 dark:border-gray-800 dark:text-stone-300">
+                                            <th scope="col" class="fleet-sticky-cell px-5 py-3">
+                                                {{ 'smartFleet.dashboard.activeAssets' | transloco }}
+                                            </th>
+                                            <th scope="col" class="px-4 py-3">
+                                                {{ 'smartFleet.assets.nickname' | transloco }}
+                                            </th>
+                                            <th scope="col" class="px-4 py-3">
+                                                {{ 'smartFleet.rules.check' | transloco }}
+                                            </th>
+                                            <th scope="col" class="px-4 py-3">
+                                                {{ 'smartFleet.field.expiresAt' | transloco }}
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-right">
+                                                {{ 'smartFleet.field.status' | transloco }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-stone-200/80 dark:divide-gray-800">
+                                        @for (entry of expiring(); track entry.asset + ':' + entry.checkType + ':' + $index) {
+                                            <tr class="transition-colors hover:bg-stone-50/80 dark:hover:bg-gray-800/40">
+                                                <th scope="row" class="fleet-sticky-cell px-5 py-3 font-medium">
+                                                    <a
+                                                        [routerLink]="['/smart-fleet/assets', entry.asset]"
+                                                        class="group inline-flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                                                    >
+                                                        <mat-icon
+                                                            class="icon-size-5 shrink-0 text-stone-500 group-hover:text-amber-600 dark:text-stone-400 dark:group-hover:text-amber-400"
+                                                            aria-hidden="true"
+                                                        >
+                                                            {{ entryIcon(entry) }}
+                                                        </mat-icon>
+                                                        <span
+                                                            class="rounded-lg bg-stone-100 px-2 py-0.5 font-mono text-xs font-semibold text-stone-800 transition-colors group-hover:bg-amber-50 group-hover:text-amber-800 dark:bg-gray-800 dark:text-stone-100 dark:group-hover:bg-amber-900/30 dark:group-hover:text-amber-300"
+                                                        >
+                                                            {{ entryIdentifier(entry) }}
+                                                        </span>
+                                                    </a>
+                                                </th>
+                                                <td
+                                                    [attr.data-label]="'smartFleet.assets.nickname' | transloco"
+                                                    class="px-4 py-3 text-stone-700 dark:text-stone-200"
+                                                >
+                                                    <span class="block max-w-[14rem] truncate">
+                                                        {{ entry.nickname || entry.group || '-' }}
+                                                    </span>
+                                                </td>
+                                                <td
+                                                    [attr.data-label]="'smartFleet.rules.check' | transloco"
+                                                    class="px-4 py-3"
+                                                >
+                                                    <span
+                                                        class="inline-flex items-center rounded-lg bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700 dark:bg-gray-800 dark:text-stone-300"
+                                                    >
+                                                        {{ 'smartFleet.checkType.' + entry.checkType | transloco }}
+                                                    </span>
+                                                </td>
+                                                <td
+                                                    [attr.data-label]="'smartFleet.field.expiresAt' | transloco"
+                                                    class="px-4 py-3 tabular-nums text-xs text-stone-600 dark:text-stone-300"
+                                                >
+                                                    {{ formatDate(entry.expiresAt) }}
+                                                </td>
+                                                <td
+                                                    [attr.data-label]="'smartFleet.field.status' | transloco"
+                                                    class="px-5 py-3 text-right"
+                                                >
+                                                    <span
+                                                        class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold tabular-nums"
+                                                        [ngClass]="expiryClasses(entry.daysRemaining)"
+                                                    >
+                                                        @if (entry.daysRemaining >= 0) {
+                                                            {{
+                                                                'smartFleet.dashboard.inDays'
+                                                                    | transloco: { days: entry.daysRemaining }
+                                                            }}
+                                                        } @else {
+                                                            {{ 'smartFleet.dashboard.expired' | transloco }}
+                                                        }
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="min-w-0">
-                                <span
-                                    class="block text-xs font-medium uppercase text-stone-500 dark:text-stone-400"
-                                    >{{ 'smartFleet.dashboard.activeRules' | transloco }}</span
+                        } @else {
+                            <!-- Rich empty state -->
+                            <div class="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
+                                <div
+                                    class="flex h-12 w-12 items-center justify-center rounded-2xl"
+                                    [ngClass]="
+                                        data.assets.active === 0 && isSandboxMode()
+                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                            : data.assets.active > 0
+                                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                              : 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300'
+                                    "
                                 >
-                                <span class="text-xl font-bold text-stone-900 dark:text-white">{{
-                                    data.rules.active
-                                }}</span>
+                                    <mat-icon class="icon-size-6" aria-hidden="true">
+                                        {{
+                                            data.assets.active === 0 && isSandboxMode()
+                                                ? 'bolt'
+                                                : data.assets.active > 0
+                                                  ? 'event_available'
+                                                  : 'directions_car'
+                                        }}
+                                    </mat-icon>
+                                </div>
+
+                                @if (data.assets.active === 0 && isSandboxMode()) {
+                                    <h3 class="mt-4 text-base font-semibold text-stone-900 dark:text-white">
+                                        {{ 'smartFleet.sandbox.emptyCtaTitle' | transloco }}
+                                    </h3>
+                                    <p class="mt-1.5 max-w-md text-sm text-stone-500 dark:text-stone-400">
+                                        {{ 'smartFleet.sandbox.emptyCtaBody' | transloco }}
+                                    </p>
+                                } @else if (data.assets.active === 0) {
+                                    <h3 class="mt-4 text-base font-semibold text-stone-900 dark:text-white">
+                                        {{ 'smartFleet.assets.empty' | transloco }}
+                                    </h3>
+                                    <p class="mt-1.5 max-w-md text-sm text-stone-500 dark:text-stone-400">
+                                        {{ 'smartFleet.flow.caption' | transloco }}
+                                    </p>
+                                } @else {
+                                    <h3 class="mt-4 text-base font-semibold text-stone-900 dark:text-white">
+                                        {{ 'smartFleet.dashboard.nothingExpiring' | transloco }}
+                                    </h3>
+                                    <p class="mt-1.5 max-w-md text-sm text-stone-500 dark:text-stone-400">
+                                        {{
+                                            'smartFleet.dashboard.readinessBreakdown'
+                                                | transloco
+                                                    : {
+                                                          vehicles: readiness().vehiclesActive,
+                                                          drivers: readiness().driversActive
+                                                      }
+                                        }}
+                                    </p>
+                                }
+
+                                <div class="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                                    @if (showSandboxDemoCta()) {
+                                        <button
+                                            type="button"
+                                            (click)="loadSandboxDemo()"
+                                            [disabled]="isSeedingDemo()"
+                                            class="fleet-tactile-btn inline-flex min-h-[2.5rem] items-center gap-2 rounded-xl bg-amber-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-500 dark:text-gray-950 dark:hover:bg-amber-400"
+                                        >
+                                            <mat-icon class="icon-size-4" aria-hidden="true">bolt</mat-icon>
+                                            <span>{{ 'smartFleet.sandbox.loadDemo' | transloco }}</span>
+                                        </button>
+                                    }
+
+                                    <a
+                                        routerLink="/smart-fleet/assets"
+                                        [queryParams]="{ type: 'vehicle', add: 1 }"
+                                        class="fleet-tactile-btn inline-flex min-h-[2.5rem] items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-100 dark:hover:bg-gray-700"
+                                    >
+                                        <mat-icon class="icon-size-4" aria-hidden="true">add</mat-icon>
+                                        <span>{{ 'smartFleet.assets.addAsset' | transloco }}</span>
+                                    </a>
+
+                                    <a
+                                        routerLink="/smart-fleet/assets"
+                                        [queryParams]="{ type: 'driver', add: 1 }"
+                                        class="fleet-tactile-btn inline-flex min-h-[2.5rem] items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-100 dark:hover:bg-gray-700"
+                                    >
+                                        <mat-icon class="icon-size-4" aria-hidden="true">person_add</mat-icon>
+                                        <span>{{ 'smartFleet.drivers.addDriver' | transloco }}</span>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <p class="mt-3 text-xs text-stone-500 dark:text-stone-400">
-                            {{
-                                'smartFleet.dashboard.projectedMonthly'
-                                    | transloco: { credits: projected()?.totalCredits }
-                            }}
-                        </p>
-                    </a>
+                        }
+                    </section>
 
-                    <div
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                    >
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30"
-                            >
-                                <mat-icon class="icon-size-5 text-emerald-600 dark:text-emerald-400"
-                                    >savings</mat-icon
-                                >
-                            </div>
-                            <div class="min-w-0">
-                                <span
-                                    class="block text-xs font-medium uppercase text-stone-500 dark:text-stone-400"
-                                    >{{ 'smartFleet.dashboard.creditBalance' | transloco }}</span
-                                >
-                                <span class="text-xl font-bold text-stone-900 dark:text-white">{{
-                                    runway()?.balance
-                                }}</span>
-                            </div>
-                        </div>
-                        <p class="mt-3 text-xs text-stone-500 dark:text-stone-400">
-                            <ng-container *ngIf="runway()?.daysOfRunway !== null; else noBurn">
-                                {{
-                                    'smartFleet.dashboard.runwayDays'
-                                        | transloco: { days: runway()?.daysOfRunway }
-                                }}
-                            </ng-container>
-                            <ng-template #noBurn>{{
-                                'smartFleet.dashboard.noMonitoringYet' | transloco
-                            }}</ng-template>
-                        </p>
-                    </div>
-                    </div>
-                </section>
-
-                <!-- Expiring soon -->
-                <div
-                    id="fleet-expiring"
-                    class="scroll-mt-6 rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                >
-                    <div
-                        class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800"
-                    >
-                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
-                            {{ 'smartFleet.dashboard.expiringSoon' | transloco }}
-                        </h2>
-                        <div class="flex gap-1">
-                            <button
-                                *ngFor="let option of [30, 60, 90]"
-                                type="button"
-                                (click)="setHorizon(option)"
-                                class="rounded-lg px-3 py-1 text-xs font-medium transition-colors"
-                                [class.bg-stone-900]="horizonDays() === option"
-                                [class.text-white]="horizonDays() === option"
-                                [class.text-stone-600]="horizonDays() !== option"
-                                [class.hover:bg-stone-100]="horizonDays() !== option"
-                            >
-                                {{ 'smartFleet.dashboard.horizonDays' | transloco: { days: option } }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <p
-                        class="px-5 py-8 text-center text-sm text-stone-500 dark:text-stone-400"
-                        *ngIf="!expiring().length"
-                    >
-                        {{ 'smartFleet.dashboard.nothingExpiring' | transloco }}
-                    </p>
-
-                    <div class="divide-y divide-stone-200/90 dark:divide-gray-800" *ngIf="expiring().length">
-                        <a
-                            *ngFor="let entry of expiring()"
-                            [routerLink]="['/smart-fleet/assets', entry.asset]"
-                            class="flex flex-wrap items-center gap-3 px-5 py-3 transition-colors hover:bg-stone-50 dark:hover:bg-gray-800/50"
+                    <!-- Right (4 cols): Automated Dispatch Gate + 30-Day Spend & Subscription Summary -->
+                    <div class="flex flex-col gap-6 lg:col-span-4">
+                        <!-- Automated Dispatch Gate Card -->
+                        <section
+                            class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                            aria-labelledby="fleet-dispatch-gate-title"
                         >
-                            <span
-                                class="rounded-lg bg-stone-100 px-2 py-1 font-mono text-sm font-semibold text-stone-800 dark:bg-gray-800 dark:text-stone-200"
-                                >{{ entry.plate || '—' }}</span
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                    >
+                                        <mat-icon class="icon-size-5" aria-hidden="true">webhook</mat-icon>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h2
+                                            id="fleet-dispatch-gate-title"
+                                            class="text-base font-semibold text-stone-900 dark:text-white"
+                                        >
+                                            {{ 'smartFleet.dashboard.dispatchGateTitle' | transloco }}
+                                        </h2>
+                                    </div>
+                                </div>
+
+                                <span
+                                    class="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold"
+                                    [ngClass]="
+                                        hasWebhookGate()
+                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                            : data.rules.active > 0
+                                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                                              : 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300'
+                                    "
+                                >
+                                    <span
+                                        class="h-1.5 w-1.5 rounded-full"
+                                        [ngClass]="
+                                            hasWebhookGate()
+                                                ? 'bg-emerald-500'
+                                                : data.rules.active > 0
+                                                  ? 'bg-amber-500'
+                                                  : 'bg-stone-400'
+                                        "
+                                        aria-hidden="true"
+                                    ></span>
+                                    {{
+                                        hasWebhookGate()
+                                            ? ('smartFleet.dashboard.dispatchGateReady' | transloco)
+                                            : data.rules.active > 0
+                                              ? (data.rules.active + ' ' + ('smartFleet.dashboard.activeRules' | transloco))
+                                              : ('smartFleet.dashboard.noMonitoringYet' | transloco)
+                                    }}
+                                </span>
+                            </div>
+
+                            <p class="text-sm text-stone-500 dark:text-stone-400">
+                                {{ 'smartFleet.dashboard.dispatchGateSubtitle' | transloco }}
+                            </p>
+
+                            <div
+                                class="flex flex-col divide-y divide-stone-200/80 rounded-xl border border-stone-200/80 bg-stone-50/80 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-950/50"
                             >
-                            <span class="text-sm text-stone-600 dark:text-stone-300">{{
-                                entry.nickname || entry.group || ''
-                            }}</span>
-                            <span
-                                class="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium uppercase text-stone-600 dark:bg-gray-800 dark:text-stone-300"
-                                >{{ 'smartFleet.checkType.' + entry.checkType | transloco }}</span
-                            >
-                            <span class="ml-auto text-xs text-stone-500 dark:text-stone-400">{{
-                                formatDate(entry.expiresAt)
-                            }}</span>
-                            <span
-                                class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                                [ngClass]="expiryClasses(entry.daysRemaining)"
-                            >
-                                <ng-container *ngIf="entry.daysRemaining >= 0; else expiredLabel">{{
-                                    'smartFleet.dashboard.inDays'
-                                        | transloco: { days: entry.daysRemaining }
-                                }}</ng-container>
-                                <ng-template #expiredLabel>{{
-                                    'smartFleet.dashboard.expired' | transloco
-                                }}</ng-template>
-                            </span>
-                        </a>
+                                @for (event of dispatchGateEvents(); track event.type) {
+                                    <div class="flex items-center justify-between gap-2 px-3 py-2.5">
+                                        <div class="flex min-w-0 items-center gap-2">
+                                            <span
+                                                class="h-2 w-2 shrink-0 rounded-full"
+                                                [ngClass]="
+                                                    event.openCount > 0
+                                                        ? 'bg-red-500'
+                                                        : event.monitored
+                                                          ? 'bg-emerald-500'
+                                                          : 'bg-stone-300 dark:bg-gray-700'
+                                                "
+                                                aria-hidden="true"
+                                            ></span>
+                                            <div class="min-w-0">
+                                                <p class="truncate text-xs font-semibold text-stone-800 dark:text-stone-100">
+                                                    {{ 'smartFleet.alerts.type_' + event.type | transloco }}
+                                                </p>
+                                                <p class="font-mono text-[11px] text-stone-500 dark:text-stone-400">
+                                                    {{ event.type }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        @if (event.openCount > 0) {
+                                            <span
+                                                class="shrink-0 rounded-lg bg-red-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                                            >
+                                                {{ event.openCount }}
+                                            </span>
+                                        } @else {
+                                            <span
+                                                class="shrink-0 rounded-lg px-2 py-0.5 text-xs font-medium tabular-nums"
+                                                [ngClass]="
+                                                    event.monitored
+                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                                        : 'bg-stone-200/70 text-stone-600 dark:bg-gray-800 dark:text-stone-400'
+                                                "
+                                            >
+                                                0
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2 pt-1">
+                                <a
+                                    routerLink="/smart-fleet/watch-rules"
+                                    class="fleet-tactile-btn inline-flex min-h-[2.5rem] flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-500 dark:text-gray-950 dark:hover:bg-amber-400"
+                                >
+                                    <mat-icon class="icon-size-4" aria-hidden="true">tune</mat-icon>
+                                    <span>{{ 'smartFleet.dashboard.dispatchGateAction' | transloco }}</span>
+                                </a>
+
+                                <a
+                                    routerLink="/smart-fleet/alerts"
+                                    class="fleet-tactile-btn inline-flex min-h-[2.5rem] flex-1 items-center justify-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-100 dark:hover:bg-gray-700"
+                                >
+                                    <mat-icon class="icon-size-4" aria-hidden="true">gpp_maybe</mat-icon>
+                                    <span>{{ 'smartFleet.dashboard.dispatchGateAlertAction' | transloco }}</span>
+                                </a>
+                            </div>
+                        </section>
+
+                        <!-- 30-Day Spend & Subscription Summary Card -->
+                        <section
+                            class="flex flex-col gap-5 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                            aria-labelledby="fleet-spend-title"
+                        >
+                            <div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <h2
+                                        id="fleet-spend-title"
+                                        class="text-base font-semibold text-stone-900 dark:text-white"
+                                    >
+                                        {{
+                                            'smartFleet.dashboard.spendTitle'
+                                                | transloco: { days: spend()?.windowDays ?? 30 }
+                                        }}
+                                    </h2>
+                                    <span
+                                        class="rounded-lg bg-stone-100 px-2 py-0.5 text-xs font-medium tabular-nums text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                                    >
+                                        {{ spend()?.windowDays ?? 30 }}d
+                                    </span>
+                                </div>
+
+                                <p class="mt-2 text-2xl font-bold tabular-nums text-stone-900 dark:text-white">
+                                    {{ (spend()?.totalCredits ?? 0) | number:'1.0-2' }}
+                                </p>
+                                <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                                    {{
+                                        'smartFleet.dashboard.creditsAcross'
+                                            | transloco
+                                                : {
+                                                      credits: formattedSpendCredits(),
+                                                      checks: spend()?.totalChecks ?? 0
+                                                  }
+                                    }}
+                                </p>
+
+                                <div class="mt-3 flex flex-col gap-2">
+                                    @for (row of spend()?.byCheckType ?? []; track row.checkType) {
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span class="text-stone-600 dark:text-stone-300">
+                                                {{ 'smartFleet.checkType.' + row.checkType | transloco }}
+                                            </span>
+                                            <span class="font-semibold tabular-nums text-stone-900 dark:text-white">
+                                                {{ row.credits | number:'1.0-2' }}
+                                                <span class="font-normal text-stone-500 dark:text-stone-400">
+                                                    ({{ row.checks }})
+                                                </span>
+                                            </span>
+                                        </div>
+                                    } @empty {
+                                        <p class="text-sm text-stone-500 dark:text-stone-400">
+                                            {{ 'smartFleet.dashboard.noSpendYet' | transloco }}
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="border-t border-stone-200/80 pt-4 dark:border-gray-800">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h3 class="text-base font-semibold text-stone-900 dark:text-white">
+                                        {{ 'smartFleet.dashboard.planTitle' | transloco }}
+                                    </h3>
+                                    @if (plan(); as planData) {
+                                        <span
+                                            class="rounded-lg bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                                        >
+                                            {{ planData.status }}
+                                        </span>
+                                    } @else if (isSandboxMode()) {
+                                        <span
+                                            class="rounded-lg bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                                        >
+                                            {{ 'smartFleet.sandbox.badge' | transloco }}
+                                        </span>
+                                    } @else {
+                                        <span
+                                            class="rounded-lg bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                                        >
+                                            {{ 'smartFleet.dashboard.freeTier' | transloco }}
+                                        </span>
+                                    }
+                                </div>
+
+                                @if (plan(); as planData) {
+                                    <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">
+                                        {{
+                                            'smartFleet.dashboard.planSummary'
+                                                | transloco
+                                                    : {
+                                                          used: data.assets.active,
+                                                          limit: planData.assetLimit || data.assets.limit
+                                                      }
+                                        }}
+                                    </p>
+                                    @if (planData.endDate) {
+                                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                            {{
+                                                'smartFleet.dashboard.renewsOn'
+                                                    | transloco: { date: formatDate(planData.endDate) }
+                                            }}
+                                        </p>
+                                    }
+                                    <a
+                                        routerLink="/smart-fleet/plans"
+                                        class="mt-3 inline-flex items-center gap-1 rounded-lg text-sm font-semibold text-amber-700 underline underline-offset-4 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
+                                    >
+                                        {{ 'smartFleet.dashboard.managePlan' | transloco }}
+                                    </a>
+                                } @else {
+                                    <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">
+                                        {{
+                                            'smartFleet.dashboard.planSummary'
+                                                | transloco
+                                                    : {
+                                                          used: data.assets.active,
+                                                          limit: data.assets.limit
+                                                      }
+                                        }}
+                                    </p>
+                                    @if (isSandboxMode()) {
+                                        <p class="mt-1 text-xs text-amber-800 dark:text-amber-300">
+                                            {{ 'smartFleet.plans.sandboxUnlockedTitle' | transloco }}
+                                        </p>
+                                    }
+                                    <a
+                                        routerLink="/smart-fleet/plans"
+                                        class="mt-3 inline-flex items-center gap-1 rounded-lg text-sm font-semibold text-amber-700 underline underline-offset-4 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
+                                    >
+                                        {{
+                                            (isSandboxMode()
+                                                ? 'smartFleet.dashboard.managePlan'
+                                                : 'smartFleet.dashboard.upgrade'
+                                            ) | transloco
+                                        }}
+                                    </a>
+                                }
+                            </div>
+                        </section>
                     </div>
                 </div>
-
-                <!-- Spend -->
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                    >
-                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
-                            {{
-                                'smartFleet.dashboard.spendTitle'
-                                    | transloco: { days: spend()?.windowDays }
-                            }}
-                        </h2>
-                        <p class="mt-1 text-2xl font-bold text-stone-900 dark:text-white">
-                            {{ spend()?.totalCredits }}
-                            <span class="text-sm font-normal text-stone-500"
-                                >{{ 'smartFleet.dashboard.creditsAcross' | transloco: { checks: spend()?.totalChecks } }}</span
-                            >
-                        </p>
-                        <div class="mt-4 flex flex-col gap-2">
-                            <div
-                                *ngFor="let row of spend()?.byCheckType"
-                                class="flex items-center justify-between text-sm"
-                            >
-                                <span class="text-stone-600 dark:text-stone-300">{{
-                                    'smartFleet.checkType.' + row.checkType | transloco
-                                }}</span>
-                                <span class="font-medium text-stone-900 dark:text-white"
-                                    >{{ row.credits }} ({{ row.checks }})</span
-                                >
-                            </div>
-                            <p
-                                class="text-sm text-stone-500 dark:text-stone-400"
-                                *ngIf="!spend()?.byCheckType?.length"
-                            >
-                                {{ 'smartFleet.dashboard.noSpendYet' | transloco }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                    >
-                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
-                            {{ 'smartFleet.dashboard.planTitle' | transloco }}
-                        </h2>
-                        <ng-container *ngIf="plan() as planData; else noPlan">
-                            <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">
-                                {{
-                                    'smartFleet.dashboard.planSummary'
-                                        | transloco
-                                            : {
-                                                  status: planData.status,
-                                                  limit: planData.assetLimit,
-                                                  billed: planData.billedQuantity
-                                              }
-                                }}
-                            </p>
-                            <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                {{ 'smartFleet.dashboard.renewsOn' | transloco }}
-                                {{ formatDate(planData.endDate) }}
-                            </p>
-                        </ng-container>
-                        <ng-template #noPlan>
-                            <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">
-                                {{
-                                    'smartFleet.dashboard.freeTier'
-                                        | transloco: { limit: assets()?.limit }
-                                }}
-                            </p>
-                            <a
-                                routerLink="/subscription-plans"
-                                class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
-                            >
-                                {{ 'smartFleet.dashboard.upgrade' | transloco }}
-                            </a>
-                        </ng-template>
-                    </div>
-                </div>
-            </ng-container>
+            }
         </div>
     </main>
 </div>

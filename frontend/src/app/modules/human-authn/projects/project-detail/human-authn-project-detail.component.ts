@@ -28,10 +28,15 @@ import {
     policyFromStored,
 } from 'app/core/data-retention/retention.util';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { environment } from 'environments/environment';
 import {
     isIncompleteSmartAccessWizard,
     resumeStepIndex,
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
+import {
+    calibrateArcFaceCompareThreshold,
+    thresholdScoreBarClass,
+} from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import type {
     HumanAuthnProject,
     HumanAuthnProjectFlow,
@@ -98,6 +103,13 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     isActive = computed(() => {
         const f = this.flow();
         return !!f?.status && f.status !== 'draft';
+    });
+
+    liveEnrollmentUrl = computed(() => {
+        const id = this.project()?._id;
+        if (!id) return '';
+        const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
+        return `${base}/verify/${id}`;
     });
 
     // --- Branding Preview ---
@@ -181,7 +193,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     // --- Section 3: HumanAuthn Biometrics Protocol Preview ---
     humanAuthnPreview = computed(() => {
         const ha = this.flow()?.humanAuthn ?? {};
-        const score = typeof ha.compareMinScore === 'number' ? Math.round(ha.compareMinScore * 100) : 85;
+        const score = Math.round(calibrateArcFaceCompareThreshold(ha.compareMinScore, 0.7) * 100);
         return {
             mode: ha.mode || 'standard',
             tolerance: ha.tolerance || 'REGULAR',
@@ -299,6 +311,13 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
         this._router.navigate(['/human-authn/history']);
     }
 
+    openLiveEnrollment(): void {
+        const url = this.liveEnrollmentUrl();
+        if (url && typeof window !== 'undefined') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    }
+
     copyValue(value: string, event?: Event): void {
         event?.stopPropagation();
         if (!value) return;
@@ -330,9 +349,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     scoreBarClass(score: number): string {
-        if (score >= 85) return 'bg-emerald-500';
-        if (score >= 70) return 'bg-amber-500';
-        return 'bg-rose-500';
+        return thresholdScoreBarClass(score);
     }
 
     /** Opens the override editor. Face images keep their saved mode. */

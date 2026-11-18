@@ -1057,8 +1057,8 @@
             "description": "Servicio de validación empresarial peruano"
         },
         "peru_api_driver_license_lookup": {
-            "title": "Peru - Licencia de Conducir",
-            "description": "Metodo encargado de consultar licencias de conducir en Peru. Indica documentType DNI y documentNumber; devuelve categoria, estado, vencimiento y restricciones cuando esten disponibles."
+            "title": "Licencia de Conducir",
+            "description": "Consulta licencias de conducir peruanas por DNI mediante GET /v2/pe/driver-license. Devuelve categoría, estado, vencimiento, restricciones y detalles de emisión cuando están disponibles en registros oficiales."
         },
         "peru_api_identity_ce_foreigner_id": {
             "title": "Peru - Perú - Cédula de Extranjero",
@@ -1081,8 +1081,8 @@
             "description": "El servicio de información de seguros de vehículos peruanos proporciona información sobre el estado del seguro de un vehículo en Perú. Retorna detalles incluyendo el nombre de la compañía de seguros, fechas de inicio y fin de la póliza, número de placa del vehículo, número de póliza, tipo de uso, clase de vehículo y estado de la póliza."
         },
         "peru_api_vehicle_v3": {
-            "title": "Peru - Información de Vehículo",
-            "description": "Consulta detalles de vehículos peruanos por placa, incluyendo identificadores y ficha técnica cuando esté disponible."
+            "title": "Información de Vehículo",
+            "description": "Consulta detalles de vehículos peruanos por placa mediante GET /v3/pe/vehiculo/placa, incluyendo identificadores y ficha técnica con dimensiones del vehículo cuando esté disponible."
         },
         "peru_identity_extra_lookup": {
             "title": "Perú - Verificación de Identidad",
@@ -1919,6 +1919,10 @@
         "colombia_api_pep_misiones_exterior": {
             "title": "Colombia — PEP Misiones y Consulados de Colombia en el Exterior",
             "description": "Consulta embajadores, cónsules y personal diplomático de Colombia en misiones en el exterior ante la entidad oficial competente."
+        },
+        "peru_api_vehicle_setare_arequipa": {
+            "title": "Permiso de Taxi SETARE Arequipa",
+            "description": "Valida si un vehículo cuenta con permiso de operación SETARE vigente para servicio de taxi en Arequipa, Perú mediante GET /v2/pe/vehiculo/setare-arequipa."
         }
     }
 }

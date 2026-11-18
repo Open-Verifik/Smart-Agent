@@ -1,98 +1,166 @@
 <app-demo-page-shell sectionLink="/human-authn/demos" sectionLabelKey="nav.human_authn" demosLink="/human-authn/demos">
-    @if (step === 'form' && authChecked) {
-        <app-demo-stage-hero
-            [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
-            [title]="'smartEnrollDemos.humanidPreview.heroTitle' | transloco"
-            [subtitle]="'smartEnrollDemos.humanidPreview.heroSubtitle' | transloco"
-        />
-    } @else {
-        <div class="mb-8 mt-6">
-            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
-                {{ (step === 'result' ? 'smartEnrollDemos.humanidPreview.heroTitleResult' : 'smartEnrollDemos.humanidPreview.heroTitle') | transloco }}
-            </h2>
-            <p class="text-on-surface-variant">{{ 'smartEnrollDemos.humanidPreview.heroSubtitle' | transloco }}</p>
-        </div>
-    }
+    <app-demo-stage-hero
+        [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
+        [title]="(step === 'result' ? 'smartEnrollDemos.humanidPreview.heroTitleResult' : 'smartEnrollDemos.humanidPreview.heroTitle') | transloco"
+        [subtitle]="'smartEnrollDemos.humanidPreview.heroSubtitle' | transloco"
+    />
 
     @if (!authChecked) {
-        <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
+        <div class="h-60 rounded-2xl bg-stone-200/70 animate-pulse dark:bg-gray-800"></div>
     } @else if (step === 'form') {
-        <form class="space-y-5" (submit)="submit($event)">
+        <form class="mx-auto w-full max-w-2xl space-y-5" (submit)="submit($event)">
             <app-demo-stage-card
                 number="01"
                 [title]="'smartEnrollDemos.demoStage.proofTitle' | transloco"
                 [help]="'smartEnrollDemos.demoStage.proofHelp' | transloco"
             >
-            <div class="space-y-5">
-            <div>
-                <p class="block text-sm font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.humanidPreview.humanIdModeLabel' | transloco }}</p>
-                <div class="flex rounded-xl p-1 bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 gap-1.5">
-                    <button type="button" 
-                            (click)="setProofMode('paste')" 
-                            class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-150" 
-                            [ngClass]="{
-                                'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200/20': proofMode === 'paste',
-                                'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-transparent': proofMode !== 'paste'
-                            }">
-                        {{ 'smartEnrollDemos.humanidPreview.pasteString' | transloco }}
-                    </button>
-                    <button type="button" 
-                            (click)="setProofMode('qr')" 
-                            class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-150" 
-                            [ngClass]="{
-                                'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200/20': proofMode === 'qr',
-                                'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-transparent': proofMode !== 'qr'
-                            }">
-                        {{ 'smartEnrollDemos.humanidPreview.uploadQrImage' | transloco }}
-                    </button>
-                </div>
-            </div>
+                <div class="space-y-5">
+                    <div>
+                        <p id="prev-mode-label" class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200">
+                            {{ 'smartEnrollDemos.humanidPreview.humanIdModeLabel' | transloco }}
+                        </p>
+                        <div
+                            role="group"
+                            aria-labelledby="prev-mode-label"
+                            class="grid grid-cols-2 rounded-xl border border-stone-200 bg-stone-100 p-1 dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <button
+                                type="button"
+                                [attr.aria-pressed]="proofMode === 'paste'"
+                                (click)="setProofMode('paste')"
+                                class="min-h-[36px] rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                [ngClass]="
+                                    proofMode === 'paste'
+                                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white'
+                                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'
+                                "
+                            >
+                                {{ 'smartEnrollDemos.humanidPreview.pasteString' | transloco }}
+                            </button>
+                            <button
+                                type="button"
+                                [attr.aria-pressed]="proofMode === 'qr'"
+                                (click)="setProofMode('qr')"
+                                class="min-h-[36px] rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                [ngClass]="
+                                    proofMode === 'qr'
+                                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-900 dark:text-white'
+                                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'
+                                "
+                            >
+                                {{ 'smartEnrollDemos.humanidPreview.uploadQrImage' | transloco }}
+                            </button>
+                        </div>
+                    </div>
 
-            @if (proofMode === 'paste') {
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="prev-proof">{{ 'smartEnrollDemos.humanidPreview.proofLabel' | transloco }} <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span></label>
-                    <textarea id="prev-proof" required rows="4" [(ngModel)]="humanID" name="humanID" [placeholder]="'smartEnrollDemos.humanidPreview.proofPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-xs font-mono focus:outline-none focus:border-primary/60 resize-none"></textarea>
-                </div>
-            } @else {
-                <div class="space-y-3">
-                    <p class="text-xs text-on-surface-variant">{{ 'smartEnrollDemos.humanidPreview.qrUploadHelp' | transloco }}</p>
-                    <app-demo-upload-image-button (clicked)="triggerQrUpload()" [primaryText]="(qrExtracting ? 'smartEnrollDemos.humanidPreview.readingQr' : 'smartEnrollDemos.humanidPreview.chooseQrImage') | transloco" [secondaryText]="'smartEnrollDemos.humanidPreview.secondaryPngJpeg' | transloco" />
-                    <input #qrFileInput type="file" accept="image/png,image/jpeg,image/jpg,image/*" class="hidden" (change)="onQrFile($event)" />
-                    @if (qrPreview) {
-                        <app-demo-raster-image [src]="qrPreview" [alt]="'smartEnrollDemos.humanidPreview.qrPreviewAlt' | transloco" [width]="400" [height]="160" className="max-h-40 w-auto rounded-lg border border-outline-variant/30 object-contain bg-white p-2" />
+                    @if (proofMode === 'paste') {
+                        <div>
+                            <label class="mb-1.5 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="prev-proof">
+                                {{ 'smartEnrollDemos.humanidPreview.proofLabel' | transloco }}
+                                <span class="text-red-600 dark:text-red-400" aria-hidden="true">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                            </label>
+                            <textarea
+                                id="prev-proof"
+                                required
+                                rows="5"
+                                autocorrect="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                [(ngModel)]="humanID"
+                                name="humanID"
+                                [placeholder]="'smartEnrollDemos.humanidPreview.proofPlaceholder' | transloco"
+                                class="demo-input font-mono text-xs leading-relaxed"
+                            ></textarea>
+                        </div>
+                    } @else {
+                        <div class="space-y-3">
+                            <p class="text-xs text-stone-500 dark:text-stone-400">{{ 'smartEnrollDemos.humanidPreview.qrUploadHelp' | transloco }}</p>
+                            <label
+                                for="prev-qr-file"
+                                class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-5 py-7 text-center transition-colors cursor-pointer"
+                                [ngClass]="
+                                    isQrDragging
+                                        ? 'border-blue-600 bg-blue-50/70 dark:bg-blue-950/30'
+                                        : 'border-stone-300 bg-stone-50/70 hover:border-blue-500 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-800/40 dark:hover:border-blue-500'
+                                "
+                                (dragover)="onQrDragOver($event)"
+                                (dragleave)="onQrDragLeave($event)"
+                                (drop)="onQrDrop($event)"
+                            >
+                                <div class="mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 dark:text-blue-400">
+                                    <span class="material-symbols-outlined text-xl" aria-hidden="true">qr_code_scanner</span>
+                                </div>
+                                <span class="text-xs font-semibold text-stone-900 dark:text-white">
+                                    {{ (qrExtracting ? 'smartEnrollDemos.humanidPreview.readingQr' : 'smartEnrollDemos.humanidPreview.chooseQrImage') | transloco }}
+                                </span>
+                                <span class="mt-1 text-[11px] text-stone-500 dark:text-stone-400">
+                                    {{ 'smartEnrollDemos.humanidPreview.secondaryPngJpeg' | transloco }}
+                                </span>
+                            </label>
+                            <input id="prev-qr-file" type="file" accept="image/png,image/jpeg,image/jpg,image/*" class="sr-only" (change)="onQrFile($event)" />
+                            @if (qrPreview) {
+                                <app-demo-raster-image [src]="qrPreview" [alt]="'smartEnrollDemos.humanidPreview.qrPreviewAlt' | transloco" [width]="400" [height]="160" className="max-h-40 w-auto rounded-xl border border-stone-200 bg-white p-2 object-contain dark:border-gray-700" />
+                            }
+                        </div>
                     }
-                </div>
-            }
 
-            <div>
-            <label class="block text-sm font-semibold text-on-surface mb-1.5" for="prev-verifier">{{ 'smartEnrollDemos.humanidPreview.verifierKeyOptional' | transloco }}</label>
-            <input id="prev-verifier" type="text" [(ngModel)]="verifierKey" name="verifierKey" [placeholder]="'smartEnrollDemos.humanidPreview.verifierKeyPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/60" />
-            </div>
-            </div>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="prev-verifier">
+                            {{ 'smartEnrollDemos.humanidPreview.verifierKeyOptional' | transloco }}
+                        </label>
+                        <input
+                            id="prev-verifier"
+                            type="text"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            [(ngModel)]="verifierKey"
+                            name="verifierKey"
+                            [placeholder]="'smartEnrollDemos.humanidPreview.verifierKeyPlaceholder' | transloco"
+                            class="demo-input"
+                        />
+                    </div>
+                </div>
             </app-demo-stage-card>
 
             @if (error) {
-                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg text-sm text-error">{{ error }}</div>
+                <div role="alert" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+                    {{ error }}
+                </div>
             }
             @if (qrExtractMessage) {
-                <div class="px-4 py-3 bg-primary/10 border border-primary/20 rounded-lg text-sm text-primary">{{ qrExtractMessage }}</div>
+                <div role="status" class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+                    {{ qrExtractMessage }}
+                </div>
             }
 
-            <button type="submit" [disabled]="!canPreview" class="demo-btn-primary">{{ 'smartEnrollDemos.humanidPreview.previewCta' | transloco }}</button>
+            <button type="submit" [disabled]="!canPreview" class="demo-btn-primary w-full">
+                <span class="material-symbols-outlined text-lg" aria-hidden="true">visibility</span>
+                {{ 'smartEnrollDemos.humanidPreview.previewCta' | transloco }}
+            </button>
         </form>
     } @else if (step === 'processing') {
-        <div class="flex flex-col items-center justify-center py-20 gap-4">
-            <div class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <p class="font-semibold">{{ 'smartEnrollDemos.humanidPreview.processing' | transloco }}</p>
+        <div class="mx-auto w-full max-w-2xl">
+            <div class="rounded-2xl border border-stone-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-gray-900">
+                <div class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-blue-600/30 border-t-blue-600"></div>
+                <p class="text-sm font-medium text-stone-600 dark:text-stone-300">{{ 'smartEnrollDemos.humanidPreview.processing' | transloco }}</p>
+            </div>
         </div>
     } @else {
         <app-human-id-preview-result [result]="result" (previewAnother)="reset()" (backToDemos)="backToDemos()" />
     }
 
     @if (showApiReference) {
-        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 px-4 py-3 group">
-            <summary class="cursor-pointer list-none font-bold text-sm text-primary">{{ 'smartEnrollDemos.humanidPreview.apiRefSummary' | transloco }}</summary>
-            <div class="mt-4 text-xs text-on-surface-variant border-t border-outline-variant/15 pt-4">
+        <details class="rounded-2xl border border-stone-200 bg-white px-5 py-3.5 text-left dark:border-gray-800 dark:bg-gray-900 group">
+            <summary class="cursor-pointer list-none font-semibold text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base text-blue-600 dark:text-blue-400" aria-hidden="true">menu_book</span>
+                    {{ 'smartEnrollDemos.humanidPreview.apiRefSummary' | transloco }}
+                </span>
+                <span class="material-symbols-outlined text-stone-400 group-open:rotate-180 transition-transform text-lg">expand_more</span>
+            </summary>
+            <div class="mt-3 border-t border-stone-100 pt-3 text-xs leading-relaxed text-stone-600 dark:border-gray-800 dark:text-stone-400">
                 <p>{{ 'smartEnrollDemos.humanidPreview.apiBullet1' | transloco }}</p>
             </div>
         </details>

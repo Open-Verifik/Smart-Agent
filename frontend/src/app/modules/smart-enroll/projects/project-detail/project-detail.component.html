@@ -59,20 +59,16 @@
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goToRecords()">
                                 {{ t('smartEnrollProjects.viewRecords') }}
                             </button>
-                            @if (incompleteWizard()) {
-                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartEnrollProjects.setup.openSetup') }}
-                                </button>
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="continueSetup()">
-                                    {{ t('smartEnrollProjects.setup.continue_setup') }}
-                                </button>
-                            } @else {
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartEnrollProjects.setup.openSetup') }}
-                                </button>
-                            }
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="shrink-0 rounded-xl"
+                                (click)="incompleteWizard() ? continueSetup() : openSetup(0)"
+                            >
+                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                {{ t(incompleteWizard() ? 'smartEnrollProjects.setup.continue_setup' : 'smartEnrollProjects.setup.openSetup') }}
+                            </button>
                         </div>
                     }
                 </div>
@@ -226,7 +222,11 @@
                                                             : 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'
                                                     "
                                                 >
-                                                    {{ flow()?.status || 'draft' }}
+                                                    @if (flowStatusKey(); as statusKey) {
+                                                        {{ t(statusKey) }}
+                                                    } @else {
+                                                        {{ flow()?.status }}
+                                                    }
                                                 </span>
                                                 <button
                                                     type="button"
@@ -292,6 +292,8 @@
                                                                 <span class="text-stone-800 dark:text-stone-100">
                                                                     @if (stepLabelKey(bucket.label); as key) {
                                                                         {{ t(key) }}
+                                                                    } @else if (isNumericStep(bucket.label)) {
+                                                                        {{ t('smartEnrollProjects.step.stepNumber', { number: bucket.label }) }}
                                                                     } @else {
                                                                         {{ bucket.label }}
                                                                     }
@@ -749,19 +751,6 @@
                                         </div>
                                         <div class="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
                                             <div class="h-full" [ngClass]="scoreBarClass(liveness.compareMinScore)" [style.width.%]="liveness.compareMinScore"></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col gap-1">
-                                        <div class="flex items-baseline justify-between gap-2">
-                                            <span class="text-xs font-medium text-stone-600 dark:text-stone-300">
-                                                {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScore') }}
-                                            </span>
-                                            <span class="font-mono text-sm font-semibold text-stone-900 dark:text-stone-100">
-                                                {{ liveness.searchMinScore }}%
-                                            </span>
-                                        </div>
-                                        <div class="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
-                                            <div class="h-full" [ngClass]="scoreBarClass(liveness.searchMinScore)" [style.width.%]="liveness.searchMinScore"></div>
                                         </div>
                                     </div>
                                 </div>

@@ -16,21 +16,17 @@ import { DEFAULT_FACE_COMPARE_MIN_SCORE } from '../../services/biometrics-demo.t
 import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import { fileToBase64, parseFaceCompareResult } from '../../services/biometrics-demo.util';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
-import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
 import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 
 type Step = 1 | 2 | 3;
 type FaceSlot = { preview: string | null; b64: string | null };
 type SlotKind = 'source' | 'target';
+type CaptureMode = 'upload' | 'camera';
 
 const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
 
@@ -43,13 +39,8 @@ const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
         TranslocoModule,
         DemoPageShellComponent,
         DemoStageHeroComponent,
-        DemoStageCardComponent,
-        DemoChooseOneCalloutComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
         DemoRasterImageComponent,
+        DemoScannerShellComponent,
         FaceGuidedCameraComponent,
         DemoResultActionsComponent,
     ],
@@ -62,6 +53,12 @@ export class FaceComparisonDemoComponent implements OnInit, OnDestroy {
     @ViewChild('targetFileInput') targetFileInput?: ElementRef<HTMLInputElement>;
 
     readonly defaultMinScore = DEFAULT_FACE_COMPARE_MIN_SCORE;
+    readonly thresholdPresets = [
+        { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.6 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.65 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.7 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.75 },
+    ] as const;
     readonly stepLabels = [
         'smartEnrollDemos.faceComparison.stepSource',
         'smartEnrollDemos.faceComparison.stepTarget',
@@ -70,10 +67,12 @@ export class FaceComparisonDemoComponent implements OnInit, OnDestroy {
 
     authChecked = false;
     step: Step = 1;
+    captureMode: CaptureMode = 'upload';
+    isDragging = false;
     source: FaceSlot = emptySlot();
     target: FaceSlot = emptySlot();
     isLoading = false;
-    result: { match: boolean; score: number; message: string } | null = null;
+    result: { match: boolean; score: number; threshold: number | null; message: string } | null = null;
     error: string | null = null;
     compareMinScore = DEFAULT_FACE_COMPARE_MIN_SCORE;
     highlightSlot: SlotKind | null = null;
@@ -100,6 +99,36 @@ export class FaceComparisonDemoComponent implements OnInit, OnDestroy {
         return this.step === 1 ? 'source' : 'target';
     }
 
+    setCaptureMode(mode: CaptureMode): void {
+        this.captureMode = mode;
+        this._cdr.markForCheck();
+    }
+
+    selectSlot(which: SlotKind): void {
+        this.step = which === 'source' ? 1 : 2;
+        this.error = null;
+        this.result = null;
+        this._cdr.markForCheck();
+    }
+
+    clearSlot(which: SlotKind): void {
+        if (which === 'source') {
+            this.source = emptySlot();
+            this.step = 1;
+        } else {
+            this.target = emptySlot();
+            this.step = 2;
+        }
+        this.result = null;
+        this.error = null;
+        this._cdr.markForCheck();
+    }
+
+    setThresholdPreset(value: number): void {
+        this.compareMinScore = value;
+        this._cdr.markForCheck();
+    }
+
     pulseSlot(slot: SlotKind): void {
         if (this._highlightTimeout) clearTimeout(this._highlightTimeout);
         this.highlightSlot = slot;
@@ -120,7 +149,9 @@ export class FaceComparisonDemoComponent implements OnInit, OnDestroy {
             return;
         }
         this.target = slot;
-        if (this.source.b64) this.runComparison(this.source.b64, slot.b64!);
+        if (this.source.b64 && slot.b64) {
+            this.runComparison(this.source.b64, slot.b64);
+        }
     }
 
     onCapture(payload: { dataUrl: string; base64: string }): void {
@@ -128,8 +159,43 @@ export class FaceComparisonDemoComponent implements OnInit, OnDestroy {
     }
 
     async onFileSelected(event: Event, which: SlotKind): Promise<void> {
-        const file = (event.target as HTMLInputElement).files?.[0];
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
         if (!file) return;
+        await this._applyImageFile(which, file);
+        input.value = '';
+    }
+
+    onDragOver(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.isDragging) {
+            this.isDragging = true;
+            this._cdr.markForCheck();
+        }
+    }
+
+    onDragLeave(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.isDragging) {
+            this.isDragging = false;
+            this._cdr.markForCheck();
+        }
+    }
+
+    async onFileDrop(event: DragEvent): Promise<void> {
+        event.preventDefault();
+        event.stopPropagation();
+        this.isDragging = false;
+        const file = event.dataTransfer?.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            await this._applyImageFile(this.currentSlot, file);
+        }
+        this._cdr.markForCheck();
+    }
+
+    private async _applyImageFile(which: SlotKind, file: File): Promise<void> {
         const b64 = await fileToBase64(file);
         this.applyCapturedSlot(which, { preview: URL.createObjectURL(file), b64 });
     }

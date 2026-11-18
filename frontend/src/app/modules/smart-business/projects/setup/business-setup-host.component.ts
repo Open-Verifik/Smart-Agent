@@ -16,6 +16,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { SetupFormFactory } from 'app/modules/smart-enroll/projects/setup/setup-form.factory';
+import { calibrateSliderCompareThreshold } from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import { Subject, takeUntil } from 'rxjs';
 import type { BusinessProject, VerifyStyleId } from '../../smart-business.types';
 import { BusinessBreadcrumbsComponent } from './business-breadcrumbs.component';
@@ -325,12 +326,12 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
                         defaultFlow.representativesPolicy?.notificationChannel || 'both',
                     ],
                     livenessMinScore: [
-                        defaultFlow.representativesPolicy?.livenessMinScore || 0.85,
-                        [Validators.required],
+                        defaultFlow.representativesPolicy?.livenessMinScore ?? 0.65,
+                        [Validators.required, Validators.min(0.52), Validators.max(0.9)],
                     ],
                     compareMinScore: [
-                        defaultFlow.representativesPolicy?.compareMinScore || 0.85,
-                        [Validators.required],
+                        calibrateSliderCompareThreshold(defaultFlow.representativesPolicy?.compareMinScore),
+                        [Validators.required, Validators.min(0.6), Validators.max(0.75)],
                     ],
                 }),
                 integrations: this._fb.group({
@@ -401,8 +402,14 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
                     });
 
                     if (flow) {
+                        const rawRepsPolicy = flow.representativesPolicy || {};
                         this.form.get('projectFlow')?.patchValue({
                             ...flow,
+                            representativesPolicy: {
+                                ...rawRepsPolicy,
+                                livenessMinScore: rawRepsPolicy.livenessMinScore ?? 0.65,
+                                compareMinScore: calibrateSliderCompareThreshold(rawRepsPolicy.compareMinScore),
+                            },
                             onboardingSettings: {
                                 ...(flow.onboardingSettings || {}),
                                 enrollmentClient: 'v2',

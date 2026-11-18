@@ -16,6 +16,8 @@ import {
 export const PERU_V3_IDENTITY_ENDPOINT_CODE = 'peru_identity_lookup_v3';
 export const PERU_SOAT_VEHICLE_ENDPOINT_CODE = 'peru_api_vehicle_soat';
 export const PERU_VEHICLE_ENDPOINT_CODE = 'peru_api_vehicle';
+export const PERU_VEHICLE_V3_ENDPOINT_CODE = 'peru_api_vehicle_v3';
+export const PERU_SETARE_AREQUIPA_ENDPOINT_CODE = 'peru_api_vehicle_setare_arequipa';
 export const PERU_COMPANY_V3_ENDPOINT_CODE = 'peru_api_company_lookup_v3';
 export const PERU_CE_FOREIGNER_ENDPOINT_CODE = 'peru_api_identity_ce_foreigner_id';
 export const PERU_IDENTITY_EXTRA_V3_ENDPOINT_CODE = 'peru_identity_extra_lookup_v3';
@@ -111,6 +113,18 @@ export const PERU_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoint
         showProfileMeta: false,
     },
     [PERU_VEHICLE_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [PERU_VEHICLE_V3_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [PERU_SETARE_AREQUIPA_ENDPOINT_CODE]: {
         profiles: appendVehiclePlateSandboxProfiles(),
         defaultPlate: SANDBOX_DEFAULT_PLATE,
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,

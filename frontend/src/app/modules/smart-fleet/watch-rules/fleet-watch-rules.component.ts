@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
 import {
+    AfterViewInit,
     Component,
     computed,
     DestroyRef,
+    effect,
+    ElementRef,
     inject,
     OnInit,
     signal,
+    ViewChild,
     ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,9 +22,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetDialogBackdropTracker, syncModalDialog } from '../fleet-modal-dialog.util';
 import { FleetAssetRulesBoardComponent } from './fleet-asset-rules-board.component';
 import { FleetVehicleIconComponent } from '../assets/fleet-vehicle-icon.component';
 import { FleetChannelIconComponent, fleetChannelTone } from './fleet-channel-icon.component';
@@ -35,6 +40,7 @@ import {
     FleetGroupRef,
     FleetWatchRule,
     FleetWatchRuleSchedule,
+    FleetWatchRuleUpcomingAsset,
     SmartFleetService,
     fleetAssetSupportsCheck,
     parseFleetPhones,
@@ -46,6 +52,59 @@ import {
 
 /** Public docs for fleet_alert_* webhook events. */
 export const FLEET_WEBHOOK_DOCS_URL = 'https://docs.verifik.co/resources/smart-fleet-webhooks';
+
+interface BlueprintRuleSpec {
+    checkType: FleetCheckType;
+    frequency: FleetFrequency;
+    thresholdDays?: number;
+    kind: 'threshold' | 'delta';
+}
+
+export interface PolicyBlueprint {
+    id: 'ride_hailing' | 'last_mile' | 'executive_audit';
+    titleKey: string;
+    bodyKey: string;
+    icon: string;
+    featured?: boolean;
+    rules: BlueprintRuleSpec[];
+}
+
+const POLICY_BLUEPRINTS: PolicyBlueprint[] = [
+    {
+        id: 'ride_hailing',
+        titleKey: 'smartFleet.rules.blueprintsRideHailingTitle',
+        bodyKey: 'smartFleet.rules.blueprintsRideHailingBody',
+        icon: 'local_taxi',
+        featured: true,
+        rules: [
+            { checkType: 'soat', frequency: 'weekly', thresholdDays: 30, kind: 'threshold' },
+            { checkType: 'rtm', frequency: 'weekly', thresholdDays: 30, kind: 'threshold' },
+            { checkType: 'comparendos', frequency: 'weekly', kind: 'delta' },
+            { checkType: 'driver_license', frequency: 'weekly', thresholdDays: 30, kind: 'threshold' },
+        ],
+    },
+    {
+        id: 'last_mile',
+        titleKey: 'smartFleet.rules.blueprintsLastMileTitle',
+        bodyKey: 'smartFleet.rules.blueprintsLastMileBody',
+        icon: 'two_wheeler',
+        rules: [
+            { checkType: 'soat', frequency: 'weekly', thresholdDays: 15, kind: 'threshold' },
+            { checkType: 'rtm', frequency: 'weekly', thresholdDays: 15, kind: 'threshold' },
+            { checkType: 'driver_license', frequency: 'weekly', thresholdDays: 15, kind: 'threshold' },
+        ],
+    },
+    {
+        id: 'executive_audit',
+        titleKey: 'smartFleet.rules.blueprintsExecutiveTitle',
+        bodyKey: 'smartFleet.rules.blueprintsExecutiveBody',
+        icon: 'verified_user',
+        rules: [
+            { checkType: 'ownership', frequency: 'monthly', kind: 'delta' },
+            { checkType: 'claims', frequency: 'monthly', kind: 'delta' },
+        ],
+    },
+];
 
 interface RuleDraft {
     scope: 'fleet' | 'group' | 'asset';
@@ -102,7 +161,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
     templateUrl: './fleet-watch-rules.component.html',
     encapsulation: ViewEncapsulation.None,
 })
-export class FleetWatchRulesComponent implements OnInit {
+export class FleetWatchRulesComponent implements OnInit, AfterViewInit {
     private _fleetService = inject(SmartFleetService);
     private _authGate = inject(AuthRequiredGateService);
     private _transloco = inject(TranslocoService);
@@ -111,6 +170,12 @@ export class FleetWatchRulesComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _destroyRef = inject(DestroyRef);
+
+    private _lastSandboxRevision = 0;
+    private _viewReady = signal(false);
+    private _ruleBackdrop = new FleetDialogBackdropTracker();
+
+    @ViewChild('ruleFormDialog') private _ruleFormDialog?: ElementRef<HTMLDialogElement>;
 
     rules = this._fleetService.watchRules;
     isLoading = this._fleetService.isLoadingRules;
@@ -127,6 +192,9 @@ export class FleetWatchRulesComponent implements OnInit {
 
         return [...names].sort((left, right) => left.localeCompare(right));
     });
+
+    readonly blueprints = POLICY_BLUEPRINTS;
+    applyingBlueprintId = signal<string | null>(null);
 
     groupColor(name: string): string {
         return this.savedGroups().find((group) => group.name === name)?.color || FLEET_GROUP_COLOR_DEFAULT;
@@ -146,13 +214,16 @@ export class FleetWatchRulesComponent implements OnInit {
     readonly channelOptions: FleetChannel[] = ['email', 'webhook', 'inApp', 'sms', 'whatsapp'];
 
     channelTone(channel: FleetChannel, selected: boolean): string {
-        return selected ? 'bg-white/20 text-white' : fleetChannelTone(channel);
+        return selected
+            ? 'bg-white/20 text-white dark:bg-gray-950/15 dark:text-gray-950'
+            : fleetChannelTone(channel);
     }
+
     readonly scopes: RuleDraft['scope'][] = ['fleet', 'group', 'asset'];
     readonly webhookDocsUrl = FLEET_WEBHOOK_DOCS_URL;
 
     showForm = signal(false);
-    /** Vehicle opened from the list via "Editar reglas". */
+    /** Vehicle or driver opened from the list via "Edit rules". */
     composeAssetId = signal<string | null>(null);
     composeGroup = signal<string | null>(null);
     composeFleet = signal(false);
@@ -164,7 +235,7 @@ export class FleetWatchRulesComponent implements OnInit {
             )
     );
     assigningRuleId = signal<string | null>(null);
-    /** Which list is open on the first screen: a vehicle or a group. */
+    /** Which list is open on the first screen: an asset or a group. */
     pickKind = signal<'asset' | 'group' | null>(null);
     isSaving = signal(false);
     /** When set, Save updates this rule instead of creating a new one. */
@@ -182,6 +253,12 @@ export class FleetWatchRulesComponent implements OnInit {
         this.availableChecks().find((check) => check.checkType === this.draft().checkType)
     );
 
+    selectedFormAsset = computed(() => {
+        const assetId = this.draft().asset;
+
+        return assetId ? (this.assets().find((entry) => entry._id === assetId) ?? null) : null;
+    });
+
     /** When the rule targets one vehicle, which dual-path endpoint that vehicle unlocks. */
     selectedAssetResolvedPath = computed<'plate' | 'vin' | null>(() => {
         const draft = this.draft();
@@ -190,7 +267,7 @@ export class FleetWatchRulesComponent implements OnInit {
 
         const asset = this.assets().find((entry) => entry._id === draft.asset);
 
-        if (!asset) return null;
+        if (!asset || asset.type === 'driver') return null;
 
         const hasPlatePath = Boolean(
             asset.plate?.trim() &&
@@ -214,6 +291,8 @@ export class FleetWatchRulesComponent implements OnInit {
         if (checkType === 'soat') return 'smartFleet.rules.thresholdDaysSoat';
 
         if (checkType === 'rtm') return 'smartFleet.rules.thresholdDaysRtm';
+
+        if (checkType === 'driver_license') return 'smartFleet.rules.thresholdDaysDriverLicense';
 
         return 'smartFleet.rules.thresholdDays';
     });
@@ -258,6 +337,30 @@ export class FleetWatchRulesComponent implements OnInit {
         }));
     });
 
+    constructor() {
+        effect(() => {
+            const revision = this._fleetService.sandboxRevision();
+
+            if (revision > 0 && revision !== this._lastSandboxRevision) {
+                this._lastSandboxRevision = revision;
+                this._reloadFromSandbox();
+            }
+        });
+
+        effect(() => {
+            const ready = this._viewReady();
+            const open = this.showForm();
+
+            if (!ready) return;
+
+            syncModalDialog(this._ruleFormDialog?.nativeElement, open);
+        });
+    }
+
+    ngAfterViewInit(): void {
+        this._viewReady.set(true);
+    }
+
     ngOnInit(): void {
         this._route.queryParamMap.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((params) => {
             const editing = Boolean(params.get('edit'));
@@ -278,12 +381,207 @@ export class FleetWatchRulesComponent implements OnInit {
         });
     }
 
+    isBlueprintActive(blueprint: PolicyBlueprint): boolean {
+        const activeFleetChecks = new Set(
+            this.rules()
+                .filter((rule) => this._isFleetWideActiveRule(rule))
+                .map((rule) => rule.checkType)
+        );
+
+        return blueprint.rules.every((spec) => activeFleetChecks.has(spec.checkType));
+    }
+
+    async applyBlueprint(blueprint: PolicyBlueprint): Promise<void> {
+        if (this.applyingBlueprintId()) return;
+
+        const activeFleetChecks = new Set(
+            this.rules()
+                .filter((rule) => this._isFleetWideActiveRule(rule))
+                .map((rule) => rule.checkType)
+        );
+        const missing = blueprint.rules.filter((spec) => !activeFleetChecks.has(spec.checkType));
+
+        if (!missing.length) return;
+
+        this.applyingBlueprintId.set(blueprint.id);
+
+        try {
+            let catalog = this.availableChecks();
+
+            if (!catalog.length) {
+                const checksResponse = await firstValueFrom(this._fleetService.getAvailableChecks('co'));
+
+                catalog = checksResponse.data?.checks ?? [];
+                this.availableChecks.set(catalog);
+            }
+
+            const requests = missing.map((spec) => {
+                const checkDef = catalog.find((entry) => entry.checkType === spec.checkType);
+                const payload: FleetWatchRule = {
+                    checkType: spec.checkType,
+                    ...(checkDef?.featureCode ? { featureCode: checkDef.featureCode } : {}),
+                    kind: checkDef?.kind ?? spec.kind,
+                    frequency: spec.frequency,
+                    channels: ['inApp', 'email'],
+                    asset: null,
+                    group: null,
+                    unassigned: false,
+                    ...(spec.thresholdDays !== undefined ? { thresholdDays: spec.thresholdDays } : {}),
+                };
+
+                return this._fleetService.createWatchRule(payload);
+            });
+
+            await firstValueFrom(forkJoin(requests));
+
+            this._snackBar.open(
+                this._transloco.translate('smartFleet.rules.blueprintsApplied'),
+                undefined,
+                { duration: 3500 }
+            );
+
+            this._loadRules(() => this._refreshOpenDetailSchedule());
+            this._fleetService.getDashboard().subscribe({ error: () => undefined });
+        } catch (err) {
+            this._reportFailure('smartFleet.rules.createFailed', err);
+        } finally {
+            this.applyingBlueprintId.set(null);
+        }
+    }
+
+    checkAssetType(check?: { checkType: string; assetType?: 'vehicle' | 'driver' } | null): 'vehicle' | 'driver' {
+        if (check?.assetType === 'driver' || check?.assetType === 'vehicle') {
+            return check.assetType;
+        }
+
+        if (check?.checkType === 'driver_license' || check?.checkType === 'driver_fines') {
+            return 'driver';
+        }
+
+        return 'vehicle';
+    }
+
+    checkAssetTypeForType(checkType: FleetCheckType): 'vehicle' | 'driver' {
+        const match = this.availableChecks().find((entry) => entry.checkType === checkType);
+
+        return this.checkAssetType(match ?? { checkType });
+    }
+
+    assetTypeLabelKey(entityType: 'vehicle' | 'driver'): string {
+        return entityType === 'driver'
+            ? 'smartFleet.assets.assetTypeDriver'
+            : 'smartFleet.assets.assetTypeVehicle';
+    }
+
+    isCheckCompatibleWithSelectedAsset(check: FleetAvailableCheck): boolean {
+        const draft = this.draft();
+
+        if (draft.scope !== 'asset' || !draft.asset) return true;
+
+        const asset = this.selectedFormAsset();
+
+        return asset ? fleetAssetSupportsCheck(check, asset) : true;
+    }
+
+    assetOptionLabel(asset?: FleetAsset | null): string {
+        if (!asset) return '-';
+
+        if (asset.type === 'driver') {
+            const doc = asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '';
+
+            if (asset.nickname && doc) return `${asset.nickname} (${doc})`;
+
+            return asset.nickname || doc || '-';
+        }
+
+        const primary = asset.plate || asset.vin || '';
+
+        if (primary && asset.nickname) return `${primary} - ${asset.nickname}`;
+
+        return primary || asset.nickname || '-';
+    }
+
+    assetPrimaryLabel(asset?: FleetAsset | null): string {
+        if (!asset) return '-';
+
+        if (asset.type === 'driver') {
+            const doc = asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '';
+
+            return asset.nickname || doc || '-';
+        }
+
+        return asset.plate || asset.vin || asset.nickname || '-';
+    }
+
+    assetSecondaryLabel(asset?: FleetAsset | null): string {
+        if (!asset) return '';
+
+        if (asset.type === 'driver') {
+            const doc = asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '';
+
+            return asset.nickname && doc ? doc : '';
+        }
+
+        return asset.nickname && (asset.plate || asset.vin) ? asset.nickname : '';
+    }
+
+    upcomingAssetLabel(asset: FleetWatchRuleUpcomingAsset): string {
+        const extended = asset as FleetWatchRuleUpcomingAsset & {
+            type?: 'vehicle' | 'driver';
+            ownerDocumentType?: string | null;
+            ownerDocumentNumber?: string | null;
+        };
+
+        if (extended.type === 'driver') {
+            const doc = extended.ownerDocumentNumber
+                ? `${extended.ownerDocumentType || 'ID'} ${extended.ownerDocumentNumber}`.trim()
+                : '';
+
+            return asset.nickname || doc || asset.assetId;
+        }
+
+        return asset.plate || asset.nickname || asset.assetId;
+    }
+
     toggleForm(): void {
         this.closeDetail();
         this.showForm.update((open) => !open);
 
         if (!this.showForm()) {
             this._resetForm();
+        }
+    }
+
+    openNewRuleModal(): void {
+        this.closeDetail();
+        this._resetForm();
+        this.showForm.set(true);
+    }
+
+    closeRuleForm(): void {
+        this.showForm.set(false);
+        this._resetForm();
+    }
+
+    onRuleDialogNativeClose(): void {
+        if (this.showForm()) {
+            this.closeRuleForm();
+        }
+    }
+
+    onRuleDialogPointerDown(event: PointerEvent): void {
+        this._ruleBackdrop.onPointerDown(event, this._ruleFormDialog?.nativeElement);
+    }
+
+    onRuleDialogPointerUp(event: PointerEvent): void {
+        if (this._ruleBackdrop.shouldDismissOnPointerUp(event, this._ruleFormDialog?.nativeElement)) {
+            this.closeRuleForm();
         }
     }
 
@@ -326,7 +624,7 @@ export class FleetWatchRulesComponent implements OnInit {
         this.openTarget(this.targetQuery(rule));
     }
 
-    /** Fleet and unassigned open at once. A vehicle or a group first shows that list. */
+    /** Fleet and unassigned open at once. An asset or a group first shows that list. */
     choosePick(kind: 'asset' | 'group' | 'fleet' | 'library'): void {
         if (kind === 'fleet') {
             this.openTarget({ scope: 'fleet' });
@@ -343,7 +641,7 @@ export class FleetWatchRulesComponent implements OnInit {
         this.pickKind.set(this.pickKind() === kind ? null : kind);
     }
 
-    /** Same three targets as the vehicles step: one vehicle, one group, or the whole fleet. */
+    /** Same three targets as the assets step: one asset, one group, or the whole fleet. */
     openTarget(query: Record<string, string>): void {
         this.showForm.set(false);
         this._router.navigate(['/smart-fleet/watch-rules'], { queryParams: query });
@@ -355,7 +653,7 @@ export class FleetWatchRulesComponent implements OnInit {
     }
 
     targetQuery(rule: FleetWatchRule): Record<string, string> {
-        const assetId = typeof rule.asset === 'string' ? rule.asset : rule.asset?._id;
+        const assetId = this._ruleAssetId(rule);
 
         if (rule.unassigned) return { scope: 'library' };
 
@@ -410,7 +708,7 @@ export class FleetWatchRulesComponent implements OnInit {
     }
 
     intervalLabel(intervalMs?: number): string {
-        if (!intervalMs) return '—';
+        if (!intervalMs) return '-';
 
         const hours = Math.round(intervalMs / (60 * 60 * 1000));
 
@@ -465,24 +763,24 @@ export class FleetWatchRulesComponent implements OnInit {
     }
 
     apiRequestLabel(check?: FleetAvailableCheck | null): string {
-        if (!check?.url) return check?.featureCode || '—';
+        if (!check?.url) return check?.featureCode || '-';
 
         return `${(check.method || 'GET').toUpperCase()} ${check.url}`;
     }
 
     endpointPathLabel(path?: FleetCheckEndpointPath | null): string {
-        if (!path?.url) return path?.featureCode || '—';
+        if (!path?.url) return path?.featureCode || '-';
 
         return `${(path.method || 'GET').toUpperCase()} ${path.url}`;
     }
 
     endpointLabelForFeature(featureCode?: string): string {
-        if (!featureCode) return '—';
+        if (!featureCode) return '-';
 
         const check = this.availableChecks().find((entry) => entry.featureCode === featureCode);
         const label = this.apiRequestLabel(check);
 
-        return label === '—' ? featureCode : label;
+        return label === '-' ? featureCode : label;
     }
 
     sharedCheckLabels(types?: FleetCheckType[]): string {
@@ -523,8 +821,7 @@ export class FleetWatchRulesComponent implements OnInit {
         event?.stopPropagation();
         this.closeDetail();
 
-        const assetId =
-            typeof rule.asset === 'string' ? rule.asset : rule.asset?._id || undefined;
+        const assetId = this._ruleAssetId(rule) ?? undefined;
 
         this.editingRuleId.set(rule._id!);
         this.draft.set({
@@ -666,12 +963,60 @@ export class FleetWatchRulesComponent implements OnInit {
         if (rule.asset) {
             const asset = typeof rule.asset === 'string' ? null : rule.asset;
 
-            return asset?.plate || this._transloco.translate('smartFleet.rules.scopeAsset');
+            if (!asset) return this._transloco.translate('smartFleet.rules.scopeAsset');
+
+            return this.assetPrimaryLabel(asset);
         }
 
         if (rule.group) return rule.group;
 
         return this._transloco.translate('smartFleet.rules.scopeFleet');
+    }
+
+    private _ruleAssetId(rule: FleetWatchRule): string | null {
+        if (!rule.asset) return null;
+
+        return typeof rule.asset === 'string' ? rule.asset : (rule.asset._id ?? null);
+    }
+
+    private _isFleetWideActiveRule(rule: FleetWatchRule): boolean {
+        return (
+            rule.isActive !== false &&
+            !rule.unassigned &&
+            !this._ruleAssetId(rule) &&
+            !rule.group
+        );
+    }
+
+    private _reloadFromSandbox(): void {
+        this._loadRules(() => this._refreshOpenDetailSchedule());
+        this._fleetService.getAssets({ perPage: 200, isActive: true }).subscribe({
+            next: (response) => this.assets.set(response.data ?? []),
+            error: (err) => console.error('[SmartFleet] getAssets error', err),
+        });
+        this._fleetService.listGroups().subscribe({
+            next: (response) =>
+                this.savedGroups.set((response.data ?? []).map((entry) => normalizeFleetGroup(entry))),
+            error: (err) => console.error('[SmartFleet] listGroups error', err),
+        });
+
+        if (this.showForm()) {
+            this._refreshEstimate();
+        }
+    }
+
+    private _refreshOpenDetailSchedule(): void {
+        const current = this.detailRule();
+
+        if (!current?._id) return;
+
+        const refreshed = this.rules().find((entry) => entry._id === current._id);
+
+        if (refreshed) {
+            this.openDetail(refreshed);
+        } else {
+            this.closeDetail();
+        }
     }
 
     private _load(): void {
@@ -688,13 +1033,14 @@ export class FleetWatchRulesComponent implements OnInit {
         });
 
         this._fleetService.listGroups().subscribe({
-            next: (response) => this.savedGroups.set((response.data ?? []).map((entry) => normalizeFleetGroup(entry))),
+            next: (response) =>
+                this.savedGroups.set((response.data ?? []).map((entry) => normalizeFleetGroup(entry))),
             error: (err) => console.error('[SmartFleet] listGroups error', err),
         });
     }
 
     /**
-     * Deep-links from the vehicle detail page: create scoped to an asset, or open edit.
+     * Deep-links from the asset detail page: create scoped to an asset, or open edit.
      */
     private _applyQueryParams(): void {
         const params = this._route.snapshot.queryParamMap;
@@ -712,7 +1058,7 @@ export class FleetWatchRulesComponent implements OnInit {
 
         if (assetId || params.get('group') || params.get('scope') === 'fleet') return;
 
-        if (create === '1') this.clearTarget();
+        if (create === '1') this.openNewRuleModal();
     }
 
     private _loadRules(onLoaded?: () => void): void {
@@ -723,7 +1069,7 @@ export class FleetWatchRulesComponent implements OnInit {
     }
 
     /**
-     * Live cost preview. Per-vehicle daily checks add up fast, and bill shock is the fastest
+     * Live cost preview. Per-asset daily checks add up fast, and bill shock is the fastest
      * way to lose a monitoring subscription, so the number is shown before the rule is saved.
      */
     private _refreshEstimate(): void {

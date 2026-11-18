@@ -150,6 +150,18 @@ export const safeIntegrations = (raw: unknown): Record<string, unknown> | null =
     return { redirectUrl: redirect, webhook: webhookId || null };
 };
 
+const VALID_VERIFY_STYLES = ['', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+export const safeOnboardingSettings = (raw: unknown): Record<string, unknown> => {
+    const src = asRecord(raw);
+    const verifyStyle = `${src['verifyStyle'] ?? 'a'}`.trim().toLowerCase();
+    return {
+        enrollmentClient: src['enrollmentClient'] === 'legacy' ? 'legacy' : 'v2',
+        flowOrder: src['flowOrder'] === 'consent_first' ? 'consent_first' : 'contact_first',
+        verifyStyle: VALID_VERIFY_STYLES.includes(verifyStyle) ? verifyStyle : 'a',
+    };
+};
+
 const draftLoginFlow = (rawFlow: unknown): Record<string, unknown> => {
     const pf = asRecord(rawFlow);
     const flow: Record<string, unknown> = {
@@ -157,6 +169,7 @@ const draftLoginFlow = (rawFlow: unknown): Record<string, unknown> => {
         type: 'login',
         version: Number(pf['version']) || 3,
         loginSettings: safeLoginSettings(pf['loginSettings']),
+        onboardingSettings: safeOnboardingSettings(pf['onboardingSettings']),
     };
     const security = safeSecurity(pf['security']);
     if (security) flow['security'] = security;
@@ -190,3 +203,18 @@ export const buildSmartAccessDraftPayload = (
     termsAndConditionsUrl: `${raw['termsAndConditionsUrl'] ?? ''}`,
     version: 3,
 });
+
+const TRANSLATABLE_FLOW_STATUSES = new Set(['active', 'draft', 'paused']);
+
+/** Resolve the translation key for a flow status badge, or empty string for unknown statuses. */
+export const flowStatusTranslationKey = (
+    status: string | null | undefined,
+    keyPrefix: string
+): string => {
+    const normalized = `${status || 'draft'}`.trim().toLowerCase();
+    return TRANSLATABLE_FLOW_STATUSES.has(normalized) ? `${keyPrefix}.${normalized}` : '';
+};
+
+/** True when a funnel or record step identifier is purely numeric (e.g. "2", "4", "5"). */
+export const isNumericStepValue = (step?: string | null): boolean =>
+    /^\d+$/.test(`${step || ''}`.trim());

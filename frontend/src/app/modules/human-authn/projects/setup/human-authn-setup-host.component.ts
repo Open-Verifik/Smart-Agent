@@ -20,6 +20,7 @@ import {
     type WizardProgress,
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { DEFAULT_PHONE_COUNTRY_CODE } from 'app/core/constants/phone-country-codes.constant';
+import { environment } from 'environments/environment';
 import { SetupFormFactory } from 'app/modules/smart-enroll/projects/setup/setup-form.factory';
 import { SetupBreadcrumbsComponent } from 'app/modules/smart-enroll/projects/setup/breadcrumbs/breadcrumbs.component';
 import { savedVerifyStyle } from 'app/modules/smart-enroll/projects/enrollment-client.util';
@@ -32,6 +33,7 @@ import { SetupUserInterfaceComponent } from 'app/modules/smart-enroll/projects/s
 import type { PreviewView } from 'app/modules/smart-enroll/projects/setup/setup.service';
 import { HumanAuthnSetupService } from './human-authn-setup.service';
 import { HumanAuthnModeStepComponent } from './steps/human-authn-step.component';
+import { calibrateSliderCompareThreshold } from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import { HumanAuthnStorageStepComponent } from './steps/storage-step.component';
 
 @Component({
@@ -186,7 +188,10 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                         flow.humanAuthn?.tolerance || (flow.humanAuthn?.mode === 'active_user' ? 'HARDENED' : 'REGULAR'),
                         Validators.required,
                     ],
-                    compareMinScore: [flow.humanAuthn?.compareMinScore ?? 0.85, [Validators.min(0.7), Validators.max(0.95)]],
+                    compareMinScore: [
+                        calibrateSliderCompareThreshold(flow.humanAuthn?.compareMinScore),
+                        [Validators.min(0.6), Validators.max(0.75)],
+                    ],
                     verifierKey: [flow.humanAuthn?.verifierKey || '', [Validators.maxLength(128)]],
                     publicDataKeys: [this._defaultPublicDataKeys(flow)],
                 }),
@@ -287,6 +292,9 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     nextStep(): void {
         if (!this.isFormValidForStep(this.stepIndex)) return;
         if (this.stepIndex === this.steps.length - 1) {
+            if (this.form.get('projectFlow.status')?.value === 'draft' || this.savedLastStep() < this.steps.length) {
+                this.form.markAsDirty();
+            }
             this._router.navigate(['/human-authn/projects']);
             return;
         }
@@ -323,6 +331,23 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     updateProjectId(id: string): void {
         this.projectId = id;
         this._setup.setProjectId(id);
+    }
+
+    previewProject(): void {
+        if (this.projectId === 'new') return;
+        if (!Object.keys(this._setup.formKeys).every((idx) => this.isFormValidForStep(Number(idx)))) {
+            this._snack.open(
+                this._transloco.translate('smartEnrollProjects.setup.setup_invalid'),
+                this._transloco.translate('close'),
+                { duration: 3000 }
+            );
+            return;
+        }
+        const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
+        const url = `${base}/verify/${this.projectId}`;
+        if (typeof window !== 'undefined') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
     }
 
     signUpFormGroup(): FormGroup {
@@ -467,14 +492,17 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             };
         }
         const style = savedVerifyStyle(projectFlow?.onboardingSettings?.verifyStyle);
+        const activeStatus = flow.status === 'paused' ? 'paused' : 'active';
         return {
             branding,
+            status: activeStatus,
             projectFlow: {
                 ...flow,
+                status: activeStatus,
                 onboardingSettings: {
                     enrollmentClient: 'v2',
+                    flowOrder: projectFlow?.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : 'contact_first',
                     ...(style ? { verifyStyle: style } : {}),
-                    ...(projectFlow?.onboardingSettings?.flowOrder === 'consent_first' ? { flowOrder: 'consent_first' } : {}),
                 },
             },
         };
@@ -518,7 +546,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             livenessAtCreation: !!humanAuthn.livenessAtCreation,
             outputFormat: humanAuthn.outputFormat === 'qrCode' ? 'qrCode' : 'string',
             tolerance: humanAuthn.tolerance || (mode === 'active_user' ? 'HARDENED' : 'REGULAR'),
-            compareMinScore: humanAuthn.compareMinScore ?? 0.85,
+            compareMinScore: humanAuthn.compareMinScore ?? 0.7,
             verifierKey: `${humanAuthn.verifierKey || ''}`.trim(),
             publicDataKeys: this._availablePublicDataKeys(projectFlow).filter((key) =>
                 (humanAuthn.publicDataKeys || ['fullName']).includes(key)

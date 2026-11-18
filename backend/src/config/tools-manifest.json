@@ -3064,12 +3064,12 @@
 		},
 		{
 			"id": "face_recognition_liveness_score",
-			"name": "Global - Liveness Score (OpenCV)",
-			"category": "Global - Liveness Score (OpenCV)",
+			"name": "Global - Liveness Score",
+			"category": "Global - Liveness Score",
 			"url": "https://ai.verifik.co/api/face-recognition/liveness-score",
 			"verifikPath": "/v2/face-recognition/liveness-score",
 			"method": "POST",
-			"description": "OpenCV-only liveness score (no Zelf arbitrage)",
+			"description": "Direct liveness score (without multi-engine arbitrage)",
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -5255,6 +5255,97 @@
 				},
 				"required": [
 					"zelfProof"
+				]
+			}
+		},
+		{
+			"id": "human_id_encrypt",
+			"name": "Global - HumanID Encrypt",
+			"category": "Global - Biometrics & HumanID",
+			"url": "https://ai.verifik.co/api/human-id/encrypt",
+			"verifikPath": "/v2/human-id/encrypt",
+			"method": "POST",
+			"description": "Performs privacy-preserving facial liveness and biometric enrollment using HumanAuthn, returning an encrypted humanId (zelfProof).",
+			"country": "world",
+			"priceUsd": 0.84,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"faceBase64": {
+						"type": "string",
+						"description": "Base64 image or data URI of face"
+					},
+					"identifier": {
+						"type": "string",
+						"description": "Unique alphanumeric identifier"
+					},
+					"publicData": {
+						"type": "object",
+						"description": "JSON object with string values"
+					},
+					"metadata": {
+						"type": "object",
+						"description": "JSON object with string values"
+					},
+					"os": {
+						"type": "string",
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
+						"default": "DESKTOP"
+					},
+					"requireLiveness": {
+						"type": "boolean",
+						"default": true
+					}
+				},
+				"required": [
+					"faceBase64",
+					"identifier",
+					"publicData",
+					"metadata",
+					"os",
+					"requireLiveness"
+				]
+			}
+		},
+		{
+			"id": "human_id_decrypt",
+			"name": "Global - HumanID Decrypt",
+			"category": "Global - Biometrics & HumanID",
+			"url": "https://ai.verifik.co/api/human-id/decrypt",
+			"verifikPath": "/v2/human-id/decrypt",
+			"method": "POST",
+			"description": "Decrypts and validates a biometric humanId against a challenge nonce.",
+			"country": "world",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"faceBase64": {
+						"type": "string",
+						"description": "Base64 image of face for verification"
+					},
+					"humanID": {
+						"type": "string",
+						"description": "Encrypted biometric token to decrypt"
+					},
+					"os": {
+						"type": "string",
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
+						"default": "DESKTOP"
+					}
+				},
+				"required": [
+					"faceBase64",
+					"humanID",
+					"os"
 				]
 			}
 		},

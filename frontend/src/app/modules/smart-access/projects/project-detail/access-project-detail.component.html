@@ -43,20 +43,16 @@
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openRecords()">
                                 {{ t('smartAccessProjects.viewRecords') }}
                             </button>
-                            @if (incompleteWizard()) {
-                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartAccessProjects.detail.openSetup') }}
-                                </button>
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="continueSetup()">
-                                    {{ t('smartAccessProjects.setup.continue_setup') }}
-                                </button>
-                            } @else {
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartAccessProjects.detail.openSetup') }}
-                                </button>
-                            }
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="shrink-0 rounded-xl"
+                                (click)="incompleteWizard() ? continueSetup() : openSetup(0)"
+                            >
+                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                {{ t(incompleteWizard() ? 'smartAccessProjects.setup.continue_setup' : 'smartAccessProjects.detail.openSetup') }}
+                            </button>
                         </div>
                     }
                 </div>
@@ -120,7 +116,11 @@
                                                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
                                                     : 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'"
                                             >
-                                                {{ flow()?.status || 'draft' }}
+                                                @if (flowStatusKey(); as statusKey) {
+                                                    {{ t(statusKey) }}
+                                                } @else {
+                                                    {{ flow()?.status }}
+                                                }
                                             </span>
                                             <!-- Edit branding pill -->
                                             <button

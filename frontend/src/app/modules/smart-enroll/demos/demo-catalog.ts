@@ -45,6 +45,11 @@ const TRADITIONAL_STEP_ORDER: DemoId[] = [
     'face-comparison',
     'face-comparison-liveness',
     'verify-face',
+    'liveness',
+    'humanid-create',
+    'humanid-create-qr',
+    'humanid-decrypt',
+    'humanid-preview',
 ];
 
 export const TRADITIONAL_SECTIONS: DemoSection[] = [
@@ -53,6 +58,16 @@ export const TRADITIONAL_SECTIONS: DemoSection[] = [
     { id: 'search', demoIds: ['search-person', 'search-live-person', 'search-active-user'] },
     { id: 'detection', demoIds: ['detect-face', 'search-crops'] },
     { id: 'comparison', demoIds: ['face-comparison', 'face-comparison-liveness', 'verify-face'] },
+    {
+        id: 'humanAuthn',
+        demoIds: [
+            'liveness',
+            'humanid-create',
+            'humanid-create-qr',
+            'humanid-decrypt',
+            'humanid-preview',
+        ],
+    },
 ];
 
 export const HUMAN_AUTHN_DEMO_IDS: DemoId[] = [
@@ -75,11 +90,11 @@ export const getDemoCatalogEntry = (id: DemoId): DemoCatalogEntry => ({
 });
 
 export const getAllDemoEntries = (): DemoCatalogEntry[] =>
-    [...TRADITIONAL_STEP_ORDER, ...HUMAN_AUTHN_DEMO_IDS].map(getDemoCatalogEntry);
+    TRADITIONAL_STEP_ORDER.map(getDemoCatalogEntry);
 
 export const demoRoute = (id: DemoId): string => `/smart-enroll/demos/${id}`;
 
-/** Legacy HumanAuthn slugs → canonical demo ids */
+/** Legacy HumanAuthn slug aliases → canonical demo ids */
 export const LEGACY_DEMO_REDIRECTS: Record<string, string> = {
     'face-detection': 'detect-face',
     'compare-live': 'face-comparison-liveness',

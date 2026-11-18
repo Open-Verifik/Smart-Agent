@@ -1,7 +1,12 @@
 export const DEFAULT_LIVENESS_STANDALONE_MIN_SCORE = 0.6;
-export const DEFAULT_FACE_COMPARE_MIN_SCORE = 0.85;
+export const DEFAULT_FACE_COMPARE_MIN_SCORE = 0.7;
+export const DEFAULT_FACE_SEARCH_MIN_SCORE = 0.65;
 export const DEFAULT_LIVENESS_MIN_SCORE = 0.65;
 export const DEFAULT_COMPARE_WITH_LIVENESS_LIVENESS_FLOOR = 0.6;
+
+export const FACE_SEARCH_SCORE_PRESETS = [0.55, 0.65, 0.7, 0.75] as const;
+export const FACE_COMPARE_SCORE_PRESETS = [0.6, 0.65, 0.7, 0.75] as const;
+export const LIVENESS_SCORE_PRESETS = [0.55, 0.6, 0.65, 0.75] as const;
 
 export interface ApiErrorResponse {
     error?: string;
@@ -191,6 +196,7 @@ export interface PreviewHumanIdQrPayload {
 export interface FaceCompareLiveParsed {
     match: boolean;
     score: number;
+    threshold: number | null;
     livenessScore: number | null;
     livenessPassed: boolean;
     livenessMinScore: number;
@@ -208,6 +214,7 @@ export interface LivenessParsed {
 export interface CompareWithLivenessParsed {
     match: boolean;
     score: number;
+    threshold: number | null;
     livenessScore: number | null;
     livenessPassed: boolean;
     livenessMinScore: number;

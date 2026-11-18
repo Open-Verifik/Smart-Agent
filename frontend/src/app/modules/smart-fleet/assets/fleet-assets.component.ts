@@ -1,5 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewChild, ViewEncapsulation } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    computed,
+    DestroyRef,
+    effect,
+    ElementRef,
+    inject,
+    OnInit,
+    signal,
+    ViewChild,
+    ViewEncapsulation,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +25,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { endpointsNotInAccountCodes } from 'app/modules/smart-batch/account-endpoint-access.util';
 import { BatchBrowserRunnerService } from 'app/modules/smart-batch/batch-browser-runner.service';
 import {
@@ -37,6 +51,7 @@ import {
     mergeFleetCountries,
 } from '../fleet-country.util';
 import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetDialogBackdropTracker, syncModalDialog } from '../fleet-modal-dialog.util';
 import { FleetGroupsBoardComponent } from './fleet-groups-board.component';
 import { FleetReportProgressDialogComponent } from './fleet-report-progress-dialog.component';
 import {
@@ -70,14 +85,32 @@ import {
 const IMPORT_HEADERS = ['plate', 'vin', 'nickname', 'group', 'documentType', 'documentNumber'];
 
 type IdentifierMode = 'plate' | 'plateOnly' | 'vin';
+type EntityFilter = 'all' | 'vehicle' | 'driver';
+type RegistryViewMode = 'table' | 'groups';
+type DispatchStatus = 'compliant' | 'expiring' | 'grounded' | 'unchecked';
 
-/** Document types accepted by the Colombia vehicle lookup. CC is cédula. */
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/** Document types accepted by the Colombia vehicle lookup. */
 const CO_DOCUMENT_TYPES = ['CC', 'CE', 'TI', 'PA', 'RC'] as const;
 
-const DEFAULT_DRAFT = (): FleetAsset => ({
+/** Document types accepted for drivers. */
+const DRIVER_DOCUMENT_TYPES = ['CC', 'CE', 'PA', 'PPT'] as const;
+
+/** Colombian driver license categories. */
+const DRIVER_LICENSE_CATEGORIES = ['A2', 'B1', 'B2', 'C1', 'C2', 'C3'] as const;
+
+const OK_THRESHOLD_STATUSES: Record<string, string[]> = {
+    soat: ['VIGENTE'],
+    rtm: ['APROBADA', 'VIGENTE'],
+    driver_license: ['ACTIVA', 'VIGENTE'],
+};
+
+const DEFAULT_DRAFT = (type: 'vehicle' | 'driver' = 'vehicle'): FleetAsset => ({
     country: 'co',
-    type: 'vehicle',
+    type,
     ownerDocumentType: 'CC',
+    ...(type === 'driver' ? { metadata: {} } : {}),
 });
 
 @Component({
@@ -139,7 +172,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .fleet-report-menu-group--system {
-                background: #eef2ff;
+                background: #fffbeb;
             }
 
             .fleet-report-menu-group--mine {
@@ -155,7 +188,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .fleet-report-menu-section--system {
-                background: #818cf8;
+                background: #d97706;
                 color: #ffffff;
             }
 
@@ -165,16 +198,16 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .fleet-report-menu-group--system .fleet-report-menu-row {
-                background: #eef2ff;
-                color: #312e81;
+                background: #fffbeb;
+                color: #78350f;
             }
 
             .fleet-report-menu-group--system .fleet-report-menu-row--stripe {
-                background: #e0e7ff;
+                background: #fef3c7;
             }
 
             .fleet-report-menu-group--system .fleet-report-menu-row:hover {
-                background: #c7d2fe !important;
+                background: #fde68a !important;
             }
 
             .fleet-report-menu-group--mine .fleet-report-menu-row {
@@ -191,7 +224,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .dark .fleet-report-menu-group--system {
-                background: #1e1b4b;
+                background: #292524;
             }
 
             .dark .fleet-report-menu-group--mine {
@@ -199,8 +232,8 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .dark .fleet-report-menu-section--system {
-                background: #4f46e5;
-                color: #eef2ff;
+                background: #b45309;
+                color: #fffbeb;
             }
 
             .dark .fleet-report-menu-section--mine {
@@ -209,16 +242,16 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .dark .fleet-report-menu-group--system .fleet-report-menu-row {
-                background: #1e1b4b;
-                color: #e0e7ff;
+                background: #1c1917;
+                color: #fde68a;
             }
 
             .dark .fleet-report-menu-group--system .fleet-report-menu-row--stripe {
-                background: #312e81;
+                background: #292524;
             }
 
             .dark .fleet-report-menu-group--system .fleet-report-menu-row:hover {
-                background: #4338ca !important;
+                background: #44403c !important;
             }
 
             .dark .fleet-report-menu-group--mine .fleet-report-menu-row {
@@ -237,7 +270,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             .fleet-report-menu-footer.mat-mdc-menu-item {
                 background: #f5f5f4;
                 border-top: 1px solid #e7e5e4;
-                color: #4338ca;
+                color: #b45309;
                 font-weight: 600;
             }
 
@@ -253,7 +286,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
             }
 
             .dark .fleet-report-menu-footer.mat-mdc-menu-item {
-                color: #a5b4fc;
+                color: #fbbf24;
             }
 
             .dark .fleet-report-menu-footer.mat-mdc-menu-item:hover {
@@ -301,7 +334,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
         `,
     ],
 })
-export class FleetAssetsComponent implements OnInit {
+export class FleetAssetsComponent implements OnInit, AfterViewInit {
     private _fleetService = inject(SmartFleetService);
     private _authGate = inject(AuthRequiredGateService);
     private _transloco = inject(TranslocoService);
@@ -309,16 +342,26 @@ export class FleetAssetsComponent implements OnInit {
     private _confirm = inject(FuseConfirmationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _destroyRef = inject(DestroyRef);
     private _reports = inject(SmartReportService);
     private _batches = inject(SmartBatchService);
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewData = inject(ReportBuilderPreviewDataService);
     private _dialog = inject(MatDialog);
+    readonly env = inject(AccountEnvironmentService);
     private _reportMenu?: MatMenuTrigger;
+    private _lastSandboxRevision = 0;
+    private _hadQueryCoverage = false;
+    private _hadQueryAlerts = false;
+    private _viewReady = signal(false);
+    private _assetBackdrop = new FleetDialogBackdropTracker();
 
+    @ViewChild('assetFormDialog') private _assetFormDialog?: ElementRef<HTMLDialogElement>;
     @ViewChild(FleetGroupsBoardComponent) private _groupsBoard?: FleetGroupsBoardComponent;
 
+    readonly isSandboxMode = this.env.isSandboxModeActive;
     assets = this._fleetService.assets;
+    readonly assetRows = this.assets;
     isLoading = this._fleetService.isLoadingAssets;
 
     private _pagination = this._fleetService.assetsPage;
@@ -338,6 +381,16 @@ export class FleetAssetsComponent implements OnInit {
     canGoPrevious = computed(() => this.page() > 1 && !this.isLoading());
     canGoNext = computed(() => this.page() < this.pages() && !this.isLoading());
 
+    entityType = signal<EntityFilter>('all');
+    viewMode = signal<RegistryViewMode>('table');
+    isSeedingDemo = signal(false);
+
+    readonly entityTabs: { id: EntityFilter; labelKey: string }[] = [
+        { id: 'all', labelKey: 'smartFleet.drivers.tabAll' },
+        { id: 'vehicle', labelKey: 'smartFleet.drivers.tabVehicles' },
+        { id: 'driver', labelKey: 'smartFleet.drivers.tabDrivers' },
+    ];
+
     search = signal('');
     filterGroup = signal('');
     filterIdentifier = signal<FleetIdentifierFilter | ''>('');
@@ -349,8 +402,10 @@ export class FleetAssetsComponent implements OnInit {
     checkingAssetId = signal<string | null>(null);
 
     showCreateForm = signal(false);
-    /** Vehicle whose row menu is assigning a group. */
+    /** Vehicle or driver whose row menu is assigning a group. */
     groupTarget = signal<FleetAsset | null>(null);
+    /** Vehicle or driver whose overflow action menu is open. */
+    rowMenuTarget = signal<FleetAsset | null>(null);
     /** Vehicle whose report menu is open. */
     reportTarget = signal<FleetAsset | null>(null);
     reportTemplates = signal<SmartReportTemplate[]>([]);
@@ -390,6 +445,8 @@ export class FleetAssetsComponent implements OnInit {
     draft = signal<FleetAsset>(DEFAULT_DRAFT());
     identifierMode = signal<IdentifierMode>('plate');
     readonly documentTypes = CO_DOCUMENT_TYPES;
+    readonly driverDocumentTypes = DRIVER_DOCUMENT_TYPES;
+    readonly driverLicenseCategories = DRIVER_LICENSE_CATEGORIES;
     availableChecks = signal<FleetAvailableCheck[]>([]);
 
     /** Live + Coming soon countries for the create/import selectors. */
@@ -400,59 +457,113 @@ export class FleetAssetsComponent implements OnInit {
 
     draftPlaceholders = computed(() => getFleetCountryPlaceholders(this.draft().country));
 
-    formTitleKey = computed(() =>
-        this.editingAssetId() ? 'smartFleet.assets.editAsset' : 'smartFleet.assets.addAsset'
-    );
+    pageTitleKey = computed(() => {
+        const type = this.entityType();
+
+        if (type === 'driver') return 'smartFleet.drivers.title';
+        if (type === 'vehicle') return 'smartFleet.assets.title';
+
+        return 'smartFleet.nav.assets';
+    });
+
+    pageSubtitleKey = computed(() => {
+        const type = this.entityType();
+
+        if (type === 'driver') return 'smartFleet.drivers.subtitle';
+        if (type === 'vehicle') return 'smartFleet.assets.subtitle';
+
+        return 'smartFleet.subtitle';
+    });
+
+    formTitleKey = computed(() => {
+        const isDriver = this.draft().type === 'driver';
+
+        if (this.editingAssetId()) {
+            return isDriver ? 'smartFleet.drivers.editDriver' : 'smartFleet.assets.editAsset';
+        }
+
+        return isDriver ? 'smartFleet.drivers.addDriver' : 'smartFleet.assets.addAsset';
+    });
 
     /**
-     * Which monitoring checks the current draft identifiers unlock, with the endpoint
-     * that would be called for SOAT/RTM (plate+docs vs VIN).
+     * Which monitoring checks the current draft identifiers unlock, filtered by entity type
+     * (`vehicle` vs `driver`) so drivers preview license & fines checks and vehicles preview SOAT/RTM/etc.
      */
     unlockedChecks = computed(() => {
         const draft = this.draft();
+        const draftType = draft.type || 'vehicle';
         const hasPlatePath = Boolean(
             draft.plate?.trim() &&
                 draft.ownerDocumentType?.trim() &&
                 draft.ownerDocumentNumber?.trim()
         );
         const hasVinPath = Boolean(draft.vin?.trim() && draft.vin!.trim().length >= 5);
+        const hasField = (field: string): boolean => {
+            if (field === 'vin') return hasVinPath;
 
-        return this.availableChecks().map((check) => {
-            const plateReady = Boolean(check.endpoints?.byPlate) && hasPlatePath;
-            const vinReady = Boolean(check.endpoints?.byVin) && hasVinPath;
-            const simpleReady =
-                !check.endpoints?.byPlate &&
-                !check.endpoints?.byVin &&
-                (check.requires || []).every((field) => {
-                    if (field === 'plate') return Boolean(draft.plate?.trim());
+            const raw = (draft as unknown as Record<string, unknown>)[field];
 
-                    if (field === 'vin') return hasVinPath;
+            return typeof raw === 'string' ? raw.trim().length > 0 : false;
+        };
 
-                    return false;
-                });
+        return this.availableChecks()
+            .filter((check) => (check.assetType || 'vehicle') === draftType)
+            .map((check) => {
+                const plateReady = Boolean(check.endpoints?.byPlate) && hasPlatePath;
+                const vinReady = Boolean(check.endpoints?.byVin) && hasVinPath;
+                const simpleReady =
+                    !check.endpoints?.byPlate &&
+                    !check.endpoints?.byVin &&
+                    (check.requires || []).every((field) => hasField(field));
 
-            const ready = plateReady || vinReady || simpleReady;
-            const path = plateReady
-                ? check.endpoints?.byPlate
-                : vinReady
-                  ? check.endpoints?.byVin
-                  : check.endpoints?.byPlate || check.endpoints?.byVin || null;
+                const ready = plateReady || vinReady || simpleReady;
+                const path = plateReady
+                    ? check.endpoints?.byPlate
+                    : vinReady
+                      ? check.endpoints?.byVin
+                      : check.endpoints?.byPlate || check.endpoints?.byVin || null;
 
-            const request = path?.url
-                ? `${(path.method || 'GET').toUpperCase()} ${path.url}`
-                : check.url
-                  ? `${(check.method || 'GET').toUpperCase()} ${check.url}`
-                  : check.featureCode;
+                const request = path?.url
+                    ? `${(path.method || 'GET').toUpperCase()} ${path.url}`
+                    : check.url
+                      ? `${(check.method || 'GET').toUpperCase()} ${check.url}`
+                      : check.featureCode;
 
-            return {
-                checkType: check.checkType,
-                ready,
-                request,
-                pathKind: plateReady ? 'plate' : vinReady ? 'vin' : null,
-                conditionKey: check.condition?.summaryKey,
-            };
-        });
+                return {
+                    checkType: check.checkType,
+                    ready,
+                    request,
+                    pathKind: plateReady ? 'plate' : vinReady ? 'vin' : null,
+                    conditionKey: check.condition?.summaryKey,
+                };
+            });
     });
+
+    constructor() {
+        effect(() => {
+            const revision = this._fleetService.sandboxRevision();
+
+            if (revision > 0 && revision !== this._lastSandboxRevision) {
+                this._lastSandboxRevision = revision;
+                this.bulkAssets.set([]);
+                this.loadPage(1);
+                this._groupsBoard?.reload();
+            }
+        });
+
+        effect(() => {
+            const ready = this._viewReady();
+            const open = this.showCreateForm();
+
+            if (!ready) return;
+
+            syncModalDialog(this._assetFormDialog?.nativeElement, open);
+        });
+    }
+
+    ngAfterViewInit(): void {
+        this._viewReady.set(true);
+    }
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
@@ -460,17 +571,138 @@ export class FleetAssetsComponent implements OnInit {
                 this._loadCountries();
                 this._loadAvailableChecks();
                 this._loadReportTemplates();
-                this.loadPage(1);
 
-                if (this._route.snapshot.queryParamMap.get('add') === '1') {
-                    this.editingAssetId.set(null);
-                    this.identifierMode.set('plate');
-                    this.draft.set(DEFAULT_DRAFT());
-                    this.showCreateForm.set(true);
-                }
+                this._route.queryParamMap
+                    .pipe(takeUntilDestroyed(this._destroyRef))
+                    .subscribe((params) => {
+                        const typeParam = params.get('type');
+                        const nextType: EntityFilter =
+                            typeParam === 'vehicle' || typeParam === 'driver' ? typeParam : 'all';
+
+                        this.entityType.set(nextType);
+
+                        if (
+                            nextType === 'driver' &&
+                            ['plate', 'plateOnly', 'vin'].includes(this.filterIdentifier())
+                        ) {
+                            this.filterIdentifier.set('');
+                        } else if (nextType === 'vehicle' && this.filterIdentifier() === 'driverDoc') {
+                            this.filterIdentifier.set('');
+                        }
+
+                        if (params.has('coverage')) {
+                            const cov = params.get('coverage');
+
+                            this.filterCoverage.set(
+                                cov === 'valid' || cov === 'due' || cov === 'expired' || cov === 'unknown'
+                                    ? cov
+                                    : ''
+                            );
+                        } else if (this._hadQueryCoverage) {
+                            this.filterCoverage.set('');
+                        }
+                        this._hadQueryCoverage = params.has('coverage');
+
+                        if (params.has('hasAlerts')) {
+                            const alertsParam = params.get('hasAlerts');
+
+                            this.filterAlerts.set(alertsParam === '1' || alertsParam === 'true');
+                        } else if (this._hadQueryAlerts) {
+                            this.filterAlerts.set(false);
+                        }
+                        this._hadQueryAlerts = params.has('hasAlerts');
+
+                        if (params.get('add') === '1') {
+                            this.openCreateForm(nextType === 'driver' ? 'driver' : 'vehicle');
+                        }
+
+                        this.loadPage(1);
+                    });
             },
             panelClass: 'auth-required-dialog',
         });
+    }
+
+    setEntityType(next: EntityFilter): void {
+        if (this.bulkWorking() || this.entityType() === next) return;
+
+        this.entityType.set(next);
+
+        if (next === 'driver') {
+            this.bulkMode.set(false);
+
+            if (['plate', 'plateOnly', 'vin'].includes(this.filterIdentifier())) {
+                this.filterIdentifier.set('');
+            }
+        } else if (next === 'vehicle' && this.filterIdentifier() === 'driverDoc') {
+            this.filterIdentifier.set('');
+        }
+
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { type: next === 'all' ? null : next, add: null },
+            queryParamsHandling: 'merge',
+        });
+    }
+
+    onEntityTabKeydown(event: KeyboardEvent): void {
+        const tabs = this.entityTabs;
+        const currentIndex = tabs.findIndex((tab) => tab.id === this.entityType());
+
+        if (currentIndex === -1) return;
+
+        let nextIndex = -1;
+
+        if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+
+        if (nextIndex === -1) return;
+
+        event.preventDefault();
+        const nextTab = tabs[nextIndex];
+        this.setEntityType(nextTab.id);
+
+        if (typeof document !== 'undefined') {
+            const el = document.getElementById(`fleet-entity-tab-${nextTab.id}`);
+
+            el?.focus();
+            el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
+    }
+
+    setViewMode(mode: RegistryViewMode): void {
+        this.viewMode.set(mode);
+
+        if (mode === 'groups') {
+            this.bulkMode.set(false);
+        }
+    }
+
+    async seedDemo(): Promise<void> {
+        if (this.isSeedingDemo() || this.bulkWorking()) return;
+
+        this.isSeedingDemo.set(true);
+
+        try {
+            await firstValueFrom(this._fleetService.seedSandboxDemo());
+            this._fleetService.getDashboard().subscribe();
+            this._snackBar.open(
+                this._transloco.translate('smartFleet.sandbox.seedSuccess'),
+                undefined,
+                { duration: 3500 }
+            );
+        } catch (err) {
+            console.error('[SmartFleet] seedSandboxDemo error', err);
+            this._snackBar.open(
+                this._transloco.translate('smartFleet.sandbox.seedError'),
+                undefined,
+                { duration: 4000 }
+            );
+        } finally {
+            this.isSeedingDemo.set(false);
+        }
     }
 
     private _loadAvailableChecks(): void {
@@ -534,7 +766,7 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     readyReport(asset: FleetAsset): { reportId: string; templateName?: string; rowIndex?: number } | null {
-        if (!asset._id) return null;
+        if (!asset._id || asset.type === 'driver') return null;
 
         return this.readyReports()[asset._id] ?? savedReportsOf(asset)[0] ?? null;
     }
@@ -668,7 +900,9 @@ export class FleetAssetsComponent implements OnInit {
         this.bulkLoading.set(true);
 
         try {
-            this.bulkAssets.set(await this._fleetService.findAllAssets());
+            const all = await this._fleetService.findAllAssets({ type: 'vehicle' });
+
+            this.bulkAssets.set(all.filter((asset) => asset.type !== 'driver'));
         } catch (err) {
             console.error('[SmartFleet] bulk assets error', err);
             this.bulkMode.set(false);
@@ -703,7 +937,13 @@ export class FleetAssetsComponent implements OnInit {
             this.bulkSelected.set(
                 Object.fromEntries(
                     this.bulkAssets()
-                        .filter((asset) => asset._id && !this.readyReport(asset) && assetMatchesTemplate(asset, steps))
+                        .filter(
+                            (asset) =>
+                                asset.type !== 'driver' &&
+                                asset._id &&
+                                !this.readyReport(asset) &&
+                                assetMatchesTemplate(asset, steps)
+                        )
                         .map((asset) => [asset._id!, true])
                 )
             );
@@ -720,7 +960,9 @@ export class FleetAssetsComponent implements OnInit {
 
         if (!this.bulkTemplateId() || !this.bulkReady()) return [];
 
-        return this.bulkAssets().filter((asset) => assetMatchesTemplate(asset, steps));
+        return this.bulkAssets().filter(
+            (asset) => asset.type !== 'driver' && assetMatchesTemplate(asset, steps)
+        );
     }
 
     /** Vehicles that can still be reported: they apply to the template and have no report yet. */
@@ -732,7 +974,7 @@ export class FleetAssetsComponent implements OnInit {
     bulkSkippedCount(): number {
         if (!this.bulkTemplateId() || !this.bulkReady()) return 0;
 
-        return this.bulkAssets().length - this._bulkMatching().length;
+        return this.bulkAssets().filter((asset) => asset.type !== 'driver').length - this._bulkMatching().length;
     }
 
     /** Vehicles left out because they were already reported, so they are not generated or charged again. */
@@ -821,8 +1063,129 @@ export class FleetAssetsComponent implements OnInit {
         }
     }
 
+    assetDisplayId(asset: FleetAsset): string {
+        if (asset.type === 'driver') {
+            if (asset.ownerDocumentNumber) {
+                return `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim();
+            }
+
+            return asset.plate || asset.vin || '-';
+        }
+
+        return (
+            asset.plate ||
+            asset.vin ||
+            (asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '') ||
+            '-'
+        );
+    }
+
     assetLabel(asset: FleetAsset): string {
-        return asset.plate || asset.vin || asset.nickname || '—';
+        if (asset.type === 'driver') {
+            return asset.nickname?.trim() || this.assetDisplayId(asset);
+        }
+
+        return asset.plate || asset.vin || asset.nickname || '-';
+    }
+
+    driverLicenseCategory(asset: FleetAsset): string | null {
+        const meta = asset.metadata?.['licenseCategory'];
+
+        if (typeof meta === 'string' && meta.trim()) return meta.trim().toUpperCase();
+
+        const state = asset.lastKnownState?.['driver_license']?.['category'];
+
+        return typeof state === 'string' && state.trim() ? state.trim().toUpperCase() : null;
+    }
+
+    driverAssignedPlate(asset: FleetAsset): string | null {
+        const plate = asset.metadata?.['assignedPlate'];
+
+        return typeof plate === 'string' && plate.trim() ? plate.trim().toUpperCase() : null;
+    }
+
+    dispatchStatus(asset: FleetAsset): DispatchStatus {
+        const type = asset.type === 'driver' ? 'driver' : 'vehicle';
+        const state = asset.lastKnownState ?? {};
+        const thresholdChecks = type === 'driver' ? ['driver_license'] : ['soat', 'rtm'];
+        const deltaChecks = type === 'driver' ? ['driver_fines'] : ['comparendos', 'ownership', 'claims'];
+
+        let hasThresholdSignal = false;
+        let isGrounded = (asset.alertCounts?.critical ?? 0) > 0;
+        let isExpiring = (asset.alertCounts?.warning ?? 0) > 0;
+
+        for (const checkType of thresholdChecks) {
+            const entry = state[checkType];
+
+            if (!entry || typeof entry !== 'object') continue;
+
+            const status = typeof entry.status === 'string' ? entry.status.trim().toUpperCase() : null;
+            const okList = OK_THRESHOLD_STATUSES[checkType];
+            const hasExpiry = Boolean(entry.expiresAt);
+
+            if (hasExpiry || status) hasThresholdSignal = true;
+
+            if (status && okList && !okList.includes(status)) {
+                isGrounded = true;
+                continue;
+            }
+
+            if (!hasExpiry) continue;
+
+            const timestamp = new Date(String(entry.expiresAt)).getTime();
+
+            if (Number.isNaN(timestamp)) continue;
+
+            const days = Math.floor((timestamp - Date.now()) / MS_PER_DAY);
+
+            if (days < 0) {
+                isGrounded = true;
+            } else if (days <= 30) {
+                isExpiring = true;
+            }
+        }
+
+        if (type === 'driver' && (state['driver_fines']?.count ?? 0) > 0) isExpiring = true;
+        if (type === 'vehicle' && (state['comparendos']?.count ?? 0) > 0) isExpiring = true;
+
+        const hasDeltaSignal = deltaChecks.some((checkType) => Boolean(state[checkType]?.checkedAt));
+
+        if (!hasThresholdSignal && !hasDeltaSignal && !isGrounded && !isExpiring) {
+            return 'unchecked';
+        }
+
+        if (isGrounded) return 'grounded';
+        if (isExpiring) return 'expiring';
+
+        return 'compliant';
+    }
+
+    dispatchStatusClasses(status: DispatchStatus): string {
+        switch (status) {
+            case 'compliant':
+                return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+            case 'expiring':
+                return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+            case 'grounded':
+                return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+            default:
+                return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
+        }
+    }
+
+    dispatchStatusKey(status: DispatchStatus): string {
+        switch (status) {
+            case 'compliant':
+                return 'smartFleet.assets.statusCompliant';
+            case 'expiring':
+                return 'smartFleet.assets.statusExpiring';
+            case 'grounded':
+                return 'smartFleet.assets.statusGrounded';
+            default:
+                return 'smartFleet.assets.statusUnchecked';
+        }
     }
 
     rememberReportMenu(trigger: MatMenuTrigger): void {
@@ -1042,7 +1405,7 @@ export class FleetAssetsComponent implements OnInit {
 
         const batchName = (
             assets.length === 1
-                ? assets[0].nickname || assets[0].plate || assets[0].vin || 'Vehículo'
+                ? assets[0].nickname || assets[0].plate || assets[0].vin || 'Vehiculo'
                 : `Informes ${assets.length}`
         ).slice(0, 150);
         const created = await firstValueFrom(
@@ -1107,7 +1470,7 @@ export class FleetAssetsComponent implements OnInit {
             }
             throw error;
         }
-        let batch = started.data?.rows?.length
+        const batch = started.data?.rows?.length
             ? started.data
             : (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
 
@@ -1343,7 +1706,7 @@ export class FleetAssetsComponent implements OnInit {
         hub?.beginStep('smartFleet.assets.reportProgressSyncInTab');
 
         let status = await this._runBatchInBrowser(working!, steps, assets, onDone, hub);
-        let refreshed = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
+        const refreshed = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
         const stillOpen = (refreshed?.rows || []).some(
             (row) => row.status === 'pending' || row.status === 'processing'
         );
@@ -1558,16 +1921,24 @@ export class FleetAssetsComponent implements OnInit {
 
         if (option.available) return base;
 
-        return `${base} — ${this._transloco.translate('smartFleet.assets.comingSoon')}`;
+        return `${base} - ${this._transloco.translate('smartFleet.assets.comingSoon')}`;
+    }
+
+    driverDocTypeLabel(type: string): string {
+        if (type === 'PPT') return 'PPT';
+
+        return this._transloco.translate(`smartFleet.assets.docType.${type}`);
     }
 
     loadPage(page: number): void {
         const active = this.filterActive();
+        const type = this.entityType();
 
         this._fleetService
             .getAssets({
                 page,
-                search: this.search() || undefined,
+                type: type === 'all' ? undefined : type,
+                search: this.search().trim() || undefined,
                 group: this.filterGroup() || undefined,
                 identifier: this.filterIdentifier() || undefined,
                 coverage: this.filterCoverage() || undefined,
@@ -1581,7 +1952,8 @@ export class FleetAssetsComponent implements OnInit {
 
     hasFilters(): boolean {
         return Boolean(
-            this.filterGroup() ||
+            this.search().trim() ||
+                this.filterGroup() ||
                 this.filterIdentifier() ||
                 this.filterCoverage() ||
                 this.filterAlerts() ||
@@ -1598,11 +1970,24 @@ export class FleetAssetsComponent implements OnInit {
     clearFilters(): void {
         if (this.bulkWorking()) return;
 
+        this.search.set('');
         this.filterGroup.set('');
         this.filterIdentifier.set('');
         this.filterCoverage.set('');
         this.filterAlerts.set(false);
         this.filterActive.set('all');
+
+        if (this._hadQueryCoverage || this._hadQueryAlerts) {
+            this._hadQueryCoverage = false;
+            this._hadQueryAlerts = false;
+            void this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { coverage: null, hasAlerts: null },
+                queryParamsHandling: 'merge',
+            });
+            return;
+        }
+
         this.loadPage(1);
     }
 
@@ -1617,13 +2002,23 @@ export class FleetAssetsComponent implements OnInit {
     coverageText(chip: CoverageChip): string {
         if (chip.tone === 'unknown') return this._transloco.translate('smartFleet.assets.coverageUnknown');
 
+        if (chip.checkType === 'comparendos' || chip.checkType === 'driver_fines') {
+            return (chip.count ?? 0) > 0
+                ? this._transloco.translate('smartFleet.assets.finesChip', { count: chip.count })
+                : this._transloco.translate('smartFleet.assets.finesClearChip');
+        }
+
         const label = this._transloco.translate(`smartFleet.checkType.${chip.checkType}`);
 
         if (chip.tone === 'expired') {
             return `${label} · ${this._transloco.translate('smartFleet.assets.coverageExpired')}`;
         }
 
-        return `${label} · ${this._transloco.translate('smartFleet.assets.coverageDays', { days: chip.days })}`;
+        if (chip.days !== null && chip.days !== undefined) {
+            return `${label} · ${this._transloco.translate('smartFleet.assets.coverageDays', { days: chip.days })}`;
+        }
+
+        return `${label} · ${chip.status || '-'}`;
     }
 
     previousPage(): void {
@@ -1644,19 +2039,76 @@ export class FleetAssetsComponent implements OnInit {
         this.loadPage(1);
     }
 
-    toggleCreateForm(): void {
+    openCreateForm(type: 'vehicle' | 'driver' = 'vehicle'): void {
         if (this.bulkWorking()) return;
 
-        if (this.showCreateForm()) {
+        this.editingAssetId.set(null);
+        this.identifierMode.set('plate');
+        this.draft.set(DEFAULT_DRAFT(type));
+        this.showCreateForm.set(true);
+    }
+
+    toggleCreateForm(type?: 'vehicle' | 'driver'): void {
+        if (this.bulkWorking()) return;
+
+        if (this.showCreateForm() && (!type || (this.draft().type || 'vehicle') === type)) {
             this._closeForm();
 
             return;
         }
 
-        this.editingAssetId.set(null);
-        this.identifierMode.set('plate');
-        this.draft.set(DEFAULT_DRAFT());
-        this.showCreateForm.set(true);
+        const targetType = type ?? (this.entityType() === 'driver' ? 'driver' : 'vehicle');
+
+        this.openCreateForm(targetType);
+    }
+
+    setDraftType(type: 'vehicle' | 'driver'): void {
+        if (this.editingAssetId()) return;
+
+        this.draft.update((current) => {
+            if (type === 'driver') {
+                const { plate: _p, vin: _v, ...rest } = current;
+
+                return {
+                    ...rest,
+                    type: 'driver',
+                    ownerDocumentType:
+                        current.ownerDocumentType &&
+                        (DRIVER_DOCUMENT_TYPES as readonly string[]).includes(current.ownerDocumentType)
+                            ? current.ownerDocumentType
+                            : 'CC',
+                    metadata: { ...(current.metadata ?? {}) },
+                };
+            }
+
+            return {
+                ...current,
+                type: 'vehicle',
+                ownerDocumentType: current.ownerDocumentType || 'CC',
+            };
+        });
+
+        if (type === 'vehicle') {
+            this.identifierMode.set('plate');
+        }
+    }
+
+    draftMetadataString(key: string): string {
+        const val = this.draft().metadata?.[key];
+
+        return typeof val === 'string' ? val : '';
+    }
+
+    updateDraftMetadata(key: string, value: string): void {
+        this.draft.update((current) => {
+            const nextMeta = { ...(current.metadata ?? {}) };
+            const trimmed = value.trim();
+
+            if (trimmed) nextMeta[key] = key === 'assignedPlate' ? trimmed.toUpperCase() : trimmed;
+            else delete nextMeta[key];
+
+            return { ...current, metadata: nextMeta };
+        });
     }
 
     setIdentifierMode(mode: IdentifierMode): void {
@@ -1695,10 +2147,11 @@ export class FleetAssetsComponent implements OnInit {
         });
     }
 
-    /** Open the shared form populated from an existing vehicle. */
+    /** Open the shared form populated from an existing vehicle or driver. */
     startEdit(asset: FleetAsset): void {
         if (this.bulkWorking()) return;
 
+        const isDriver = asset.type === 'driver';
         const mode: IdentifierMode = asset.vin && !asset.plate
             ? 'vin'
             : asset.plate && !asset.ownerDocumentNumber
@@ -1709,20 +2162,36 @@ export class FleetAssetsComponent implements OnInit {
         this.identifierMode.set(mode);
         this.draft.set({
             country: asset.country || 'co',
-            type: asset.type || 'vehicle',
-            plate: asset.plate || '',
-            vin: asset.vin || '',
+            type: isDriver ? 'driver' : 'vehicle',
+            plate: isDriver ? '' : asset.plate || '',
+            vin: isDriver ? '' : asset.vin || '',
             nickname: asset.nickname || '',
             group: asset.group || '',
-            ownerDocumentType: asset.ownerDocumentType || '',
+            ownerDocumentType: asset.ownerDocumentType || (isDriver ? 'CC' : ''),
             ownerDocumentNumber: asset.ownerDocumentNumber || '',
             notes: asset.notes || '',
+            metadata: { ...(asset.metadata ?? {}) },
         });
         this.showCreateForm.set(true);
+    }
 
-        // Bring the form into view when editing from a lower row.
-        if (typeof window !== 'undefined') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeCreateForm(): void {
+        this._closeForm();
+    }
+
+    onAssetDialogNativeClose(): void {
+        if (this.showCreateForm()) {
+            this._closeForm();
+        }
+    }
+
+    onAssetDialogPointerDown(event: PointerEvent): void {
+        this._assetBackdrop.onPointerDown(event, this._assetFormDialog?.nativeElement);
+    }
+
+    onAssetDialogPointerUp(event: PointerEvent): void {
+        if (this._assetBackdrop.shouldDismissOnPointerUp(event, this._assetFormDialog?.nativeElement)) {
+            this._closeForm();
         }
     }
 
@@ -1730,7 +2199,16 @@ export class FleetAssetsComponent implements OnInit {
         this.showCreateForm.set(false);
         this.editingAssetId.set(null);
         this.identifierMode.set('plate');
-        this.draft.set(DEFAULT_DRAFT());
+        this.draft.set(DEFAULT_DRAFT(this.entityType() === 'driver' ? 'driver' : 'vehicle'));
+
+        if (this._route.snapshot.queryParamMap.has('add')) {
+            void this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { add: null },
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+            });
+        }
     }
 
     updateDraft(field: keyof FleetAsset, value: string): void {
@@ -1774,6 +2252,15 @@ export class FleetAssetsComponent implements OnInit {
 
     canSubmitDraft = computed(() => {
         const draft = this.draft();
+
+        if (draft.type === 'driver') {
+            return Boolean(
+                draft.ownerDocumentType?.trim() &&
+                    draft.ownerDocumentNumber?.trim() &&
+                    draft.nickname?.trim()
+            );
+        }
+
         const country = (draft.country || 'co').toLowerCase();
 
         if (country !== 'co') {
@@ -1793,16 +2280,46 @@ export class FleetAssetsComponent implements OnInit {
         return hasPlateOnly || hasPlatePath || hasVinPath;
     });
 
-    saveAsset(): void {
+    canSave = this.canSubmitDraft;
+
+    saveAsset(event?: Event): void {
+        if (event?.currentTarget instanceof HTMLFormElement && !event.currentTarget.checkValidity()) {
+            event.currentTarget.reportValidity();
+            return;
+        }
+
         if (!this.canSubmitDraft() || this.isCreating()) return;
 
         const editingId = this.editingAssetId();
         const draft = this.draft();
+        const isDriver = draft.type === 'driver';
 
         this.isCreating.set(true);
 
-        const request$ = editingId
-            ? this._fleetService.updateAsset(editingId, {
+        const createPayload: FleetAsset = isDriver
+            ? {
+                  type: 'driver',
+                  country: draft.country,
+                  nickname: draft.nickname,
+                  group: draft.group,
+                  ownerDocumentType: draft.ownerDocumentType,
+                  ownerDocumentNumber: draft.ownerDocumentNumber,
+                  notes: draft.notes,
+                  metadata: draft.metadata,
+              }
+            : draft;
+
+        const updatePayload: Partial<FleetAsset> = isDriver
+            ? {
+                  country: draft.country,
+                  nickname: draft.nickname,
+                  group: draft.group,
+                  ownerDocumentType: draft.ownerDocumentType,
+                  ownerDocumentNumber: draft.ownerDocumentNumber,
+                  notes: draft.notes,
+                  metadata: draft.metadata,
+              }
+            : {
                   country: draft.country,
                   plate: draft.plate,
                   vin: draft.vin,
@@ -1811,8 +2328,11 @@ export class FleetAssetsComponent implements OnInit {
                   ownerDocumentType: draft.ownerDocumentType,
                   ownerDocumentNumber: draft.ownerDocumentNumber,
                   notes: draft.notes,
-              })
-            : this._fleetService.createAsset(draft);
+              };
+
+        const request$ = editingId
+            ? this._fleetService.updateAsset(editingId, updatePayload)
+            : this._fleetService.createAsset(createPayload);
 
         request$.subscribe({
             next: () => {
@@ -1820,7 +2340,13 @@ export class FleetAssetsComponent implements OnInit {
                 this._closeForm();
                 this._snackBar.open(
                     this._transloco.translate(
-                        editingId ? 'smartFleet.assets.updated' : 'smartFleet.assets.created'
+                        isDriver
+                            ? editingId
+                                ? 'smartFleet.drivers.updated'
+                                : 'smartFleet.drivers.created'
+                            : editingId
+                              ? 'smartFleet.assets.updated'
+                              : 'smartFleet.assets.created'
                     ),
                     undefined,
                     { duration: 3000 }
@@ -1841,13 +2367,21 @@ export class FleetAssetsComponent implements OnInit {
     async deleteAsset(asset: FleetAsset): Promise<void> {
         if (this.bulkWorking()) return;
 
+        const isDriver = asset.type === 'driver';
         const confirmed = await firstValueFrom(
             this._confirm
                 .open({
-                    title: this._transloco.translate('smartFleet.assets.deleteTitle'),
-                    message: this._transloco.translate('smartFleet.assets.deleteConfirmation', {
-                        plate: asset.plate || asset.vin || '',
-                    }),
+                    title: this._transloco.translate(
+                        isDriver ? 'smartFleet.drivers.deleteTitle' : 'smartFleet.assets.deleteTitle'
+                    ),
+                    message: this._transloco.translate(
+                        isDriver
+                            ? 'smartFleet.drivers.deleteConfirmation'
+                            : 'smartFleet.assets.deleteConfirmation',
+                        isDriver
+                            ? { name: this.assetLabel(asset) }
+                            : { plate: asset.plate || asset.vin || this.assetLabel(asset) }
+                    ),
                     actions: {
                         confirm: {
                             label: this._transloco.translate('smartFleet.assets.deleteConfirm'),
@@ -1862,9 +2396,13 @@ export class FleetAssetsComponent implements OnInit {
 
         this._fleetService.deleteAsset(asset._id!).subscribe({
             next: () => {
-                this._snackBar.open(this._transloco.translate('smartFleet.assets.deleted'), undefined, {
-                    duration: 3000,
-                });
+                this._snackBar.open(
+                    this._transloco.translate(
+                        isDriver ? 'smartFleet.drivers.deleted' : 'smartFleet.assets.deleted'
+                    ),
+                    undefined,
+                    { duration: 3000 }
+                );
                 this.loadPage(this.page());
                 this._groupsBoard?.reload();
             },
@@ -1986,25 +2524,25 @@ export class FleetAssetsComponent implements OnInit {
             this._fleetService
                 .importAssets({ content, format, country: this.importCountry() })
                 .subscribe({
-                next: (response) => {
-                    this.isImporting.set(false);
-                    this.importRejections.set(response.data.rejected ?? []);
-                    this._snackBar.open(
-                        this._transloco.translate('smartFleet.assets.imported', {
-                            imported: response.data.imported,
-                            total: response.data.totalRows,
-                        }),
-                        undefined,
-                        { duration: 5000 }
-                    );
-                    this.loadPage(1);
-                    this._groupsBoard?.reload();
-                },
-                error: (err) => {
-                    this.isImporting.set(false);
-                    this._reportFailure('smartFleet.assets.importFailed', err);
-                },
-            });
+                    next: (response) => {
+                        this.isImporting.set(false);
+                        this.importRejections.set(response.data.rejected ?? []);
+                        this._snackBar.open(
+                            this._transloco.translate('smartFleet.assets.imported', {
+                                imported: response.data.imported,
+                                total: response.data.totalRows,
+                            }),
+                            undefined,
+                            { duration: 5000 }
+                        );
+                        this.loadPage(1);
+                        this._groupsBoard?.reload();
+                    },
+                    error: (err) => {
+                        this.isImporting.set(false);
+                        this._reportFailure('smartFleet.assets.importFailed', err);
+                    },
+                });
         };
 
         // XLSX is binary, so hand the server base64 and let it decode.
@@ -2076,7 +2614,7 @@ export class FleetAssetsComponent implements OnInit {
             return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
 
         if (asset.alertCounts?.warning)
-            return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
 
         return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
     }
@@ -2088,9 +2626,11 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     formatDate(value?: string | null): string {
-        if (!value) return '—';
+        if (!value) return '-';
 
-        return new Date(value).toLocaleString();
+        const date = new Date(value);
+
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
     }
 
     private _reportFailure(key: string, error: unknown): void {

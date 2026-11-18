@@ -10,7 +10,7 @@ import {
 
 /** Example private-data rows for HumanID create demos (encrypted until face decrypt). */
 export const DEMO_HUMANID_PRIVATE_DATA_DEFAULT: Record<string, string> = {
-    secretKey: '7c4f9a2e8b1d0635f4a9c2e7b8d1f0a6e3c9b2d7f4a8e1c0b5d9f3a6e2c8b1',
+    secretKey: 'demo_example_payload_0000_0000',
     mnemonics: 'ocean trumpet velvet ladder silent granite mirror humble ripple canyon frost pioneer anchor',
 };
 
@@ -37,6 +37,31 @@ export const blobToRawBase64 = async (blob: Blob): Promise<string> => {
 
 export const fileToBase64 = async (file: File | Blob): Promise<string> => blobToRawBase64(file);
 
+/** Convert picked/dropped image files into parallel base64 payloads and object-URL previews. */
+export const filesToImagesAndPreviews = async (
+    files: readonly File[]
+): Promise<{ images: string[]; previews: string[] }> => {
+    const valid = files.filter((f) => !f.type || f.type.startsWith('image/'));
+    if (!valid.length) return { images: [], previews: [] };
+    const images = await Promise.all(valid.map((f) => fileToBase64(f)));
+    const previews = valid.map((f) => URL.createObjectURL(f));
+    return { images, previews };
+};
+
+/** Remove an entry at `index` from parallel image/preview arrays, revoking any object URL. */
+export const removeGalleryImageAt = (
+    images: readonly string[],
+    previews: readonly string[],
+    index: number
+): { images: string[]; previews: string[] } => {
+    const url = previews[index];
+    if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+    return {
+        images: images.filter((_, i) => i !== index),
+        previews: previews.filter((_, i) => i !== index),
+    };
+};
+
 export const imageUrlToRawBase64 = async (url: string): Promise<string> => {
     const resolved =
         typeof window !== 'undefined' && url.startsWith('/')
@@ -62,8 +87,10 @@ const coerceScore01 = (value: unknown): number | null => {
 
 export const parseFaceCompareResult = (
     data: unknown
-): { match: boolean; score: number; message: string } => {
-    if (!data || typeof data !== 'object') return { match: false, score: 0, message: '' };
+): { match: boolean; score: number; threshold: number | null; message: string } => {
+    if (!data || typeof data !== 'object') {
+        return { match: false, score: 0, threshold: null, message: '' };
+    }
     let doc = data as Record<string, unknown>;
     const envelope = doc['data'];
     if (envelope && typeof envelope === 'object' && !Array.isArray(envelope)) {
@@ -77,18 +104,18 @@ export const parseFaceCompareResult = (
     let score = typeof inner['score'] === 'number' ? inner['score'] : 0;
     if (score > 1) score /= 100;
 
+    const thresholdRaw = inner['compare_min_score'] ?? doc['compare_min_score'];
+    const threshold = typeof thresholdRaw === 'number' ? thresholdRaw : null;
+
     let match: boolean;
     if (typeof inner['passed'] === 'boolean') {
         match = inner['passed'];
     } else {
-        const thresholdRaw = inner['compare_min_score'] ?? doc['compare_min_score'];
-        const threshold =
-            typeof thresholdRaw === 'number' ? thresholdRaw : DEFAULT_FACE_COMPARE_MIN_SCORE;
-        match = score >= threshold;
+        match = score >= (threshold ?? DEFAULT_FACE_COMPARE_MIN_SCORE);
     }
 
     const message = typeof inner['message'] === 'string' ? inner['message'] : '';
-    return { match, score, message };
+    return { match, score, threshold, message };
 };
 
 export const parseLivenessResult = (raw: unknown): LivenessParsed => {
@@ -128,6 +155,7 @@ export const parseFaceCompareLiveResult = (data: unknown): FaceCompareLiveParsed
         return {
             match: base.match,
             score: base.score,
+            threshold: base.threshold,
             livenessScore: null,
             livenessPassed: true,
             livenessMinScore: DEFAULT_LIVENESS_MIN_SCORE,
@@ -154,6 +182,7 @@ export const parseFaceCompareLiveResult = (data: unknown): FaceCompareLiveParsed
     return {
         match: base.match,
         score: base.score,
+        threshold: base.threshold,
         livenessScore,
         livenessPassed,
         livenessMinScore,
@@ -165,6 +194,7 @@ export const parseCompareWithLivenessResult = (data: unknown): CompareWithLivene
     const empty: CompareWithLivenessParsed = {
         match: false,
         score: 0,
+        threshold: null,
         livenessScore: null,
         livenessPassed: false,
         livenessMinScore: DEFAULT_COMPARE_WITH_LIVENESS_LIVENESS_FLOOR,
@@ -184,16 +214,20 @@ export const parseCompareWithLivenessResult = (data: unknown): CompareWithLivene
 
     let score = 0;
     let match = false;
+    let threshold: number | null = null;
     if (comparison && typeof comparison === 'object') {
         const res = comparison['result'] as Record<string, unknown> | undefined;
         if (res && typeof res['score'] === 'number') {
             score = res['score'];
             if (score > 1) score /= 100;
         }
-        const thresholdRaw = comparison['compare_min_score'];
-        const threshold =
-            typeof thresholdRaw === 'number' ? thresholdRaw : DEFAULT_FACE_COMPARE_MIN_SCORE;
-        match = score >= threshold;
+        const thresholdRaw = res?.['compare_min_score'] ?? comparison['compare_min_score'];
+        threshold = typeof thresholdRaw === 'number' ? thresholdRaw : null;
+        if (res && typeof res['passed'] === 'boolean') {
+            match = res['passed'];
+        } else {
+            match = score >= (threshold ?? DEFAULT_FACE_COMPARE_MIN_SCORE);
+        }
     }
 
     const livenessSkipped = livenessDoc == null;
@@ -214,7 +248,16 @@ export const parseCompareWithLivenessResult = (data: unknown): CompareWithLivene
         }
     }
 
-    return { match, score, livenessScore, livenessPassed, livenessMinScore, livenessSkipped, message: '' };
+    return {
+        match,
+        score,
+        threshold,
+        livenessScore,
+        livenessPassed,
+        livenessMinScore,
+        livenessSkipped,
+        message: '',
+    };
 };
 
 export const normalizePersonsListPayload = (data: unknown): Record<string, unknown>[] => {

@@ -20,6 +20,13 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { TranslocoModule } from '@jsverse/transloco';
+import {
+    calibrateArcFaceCompareThreshold,
+    DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+    FACE_COMPARE_THRESHOLD_PRESETS,
+} from '../../../app-registration-record.utils';
+
+let nextLivenessSliderId = 0;
 
 /**
  * Step 3 — Liveness scoring + KYC type.
@@ -53,6 +60,9 @@ export class SetupLivenessComponent implements OnInit, OnChanges {
     @Input() stepFormControlName: 'liveness' | 'legalRepresentative' = 'liveness';
 
     readonly attemptOptions: number[] = [1, 2, 3, 4, 5];
+    readonly compareThresholdPresets = FACE_COMPARE_THRESHOLD_PRESETS;
+    readonly compareSliderId = `liveness-compare-min-${nextLivenessSliderId++}`;
+    readonly compareHelpId = `${this.compareSliderId}-help`;
 
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
@@ -145,13 +155,31 @@ export class SetupLivenessComponent implements OnInit, OnChanges {
     }
 
     get minScoreDisplayValue(): string {
-        return `${Math.floor((this.livenessFormGroup?.get('minScore')?.value || 0) * 100)}%`;
+        return `${Math.round((this.livenessFormGroup?.get('minScore')?.value || 0) * 100)}%`;
     }
     get searchMinScoreDisplayValue(): string {
-        return `${Math.floor((this.livenessFormGroup?.get('searchMinScore')?.value || 0) * 100)}%`;
+        return `${Math.round((this.livenessFormGroup?.get('searchMinScore')?.value || 0) * 100)}%`;
+    }
+    get compareMinScoreUnitValue(): number {
+        const raw = this.livenessFormGroup?.get('compareMinScore')?.value;
+        return Math.round(calibrateArcFaceCompareThreshold(raw, DEFAULT_ARCFACE_COMPARE_MIN_SCORE) * 100) / 100;
     }
     get compareMinScoreDisplayValue(): string {
-        return `${Math.floor((this.livenessFormGroup?.get('compareMinScore')?.value || 0) * 100)}%`;
+        return `${Math.round(this.compareMinScoreUnitValue * 100)}%`;
+    }
+    get compareMinScoreProgressPercent(): number {
+        return Math.max(0, Math.min(100, ((this.compareMinScoreUnitValue - 0.6) / 0.15) * 100));
+    }
+    isComparePresetActive(presetValue: number): boolean {
+        return Math.abs(this.compareMinScoreUnitValue - presetValue) < 0.005;
+    }
+    setCompareMinScorePreset(value: number): void {
+        const ctrl = this.livenessFormGroup?.get('compareMinScore');
+        if (!ctrl) return;
+        ctrl.setValue(value);
+        ctrl.markAsDirty();
+        ctrl.markAsTouched();
+        this._cdr.markForCheck();
     }
 
     get selectedKycType(): string | null {

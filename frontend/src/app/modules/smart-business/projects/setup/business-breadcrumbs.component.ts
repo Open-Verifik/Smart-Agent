@@ -14,17 +14,20 @@ import { BUSINESS_WIZARD_STEPS, BusinessWizardStep } from './business-setup.type
                 <ol class="flex items-center justify-between gap-2 overflow-x-auto py-2">
                     @for (step of steps; track step.index) {
                         <li
-                            class="flex flex-1 min-w-[130px] items-center gap-2 cursor-pointer transition-all"
+                            tabindex="0"
+                            class="flex flex-1 min-w-[130px] items-center gap-2 cursor-pointer rounded-lg px-1.5 py-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                             (click)="onStepClick(step.index)"
+                            (keydown.enter)="onStepClick(step.index)"
                         >
                             <div
                                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all"
-                                [class.bg-emerald-600]="step.index === currentStep"
-                                [class.text-white]="step.index === currentStep"
-                                [class.bg-emerald-100]="step.index < currentStep"
-                                [class.text-emerald-800]="step.index < currentStep"
-                                [class.bg-stone-200]="step.index > currentStep"
-                                [class.text-stone-500]="step.index > currentStep"
+                                [ngClass]="
+                                    step.index === currentStep
+                                        ? 'bg-emerald-600 text-white ring-4 ring-emerald-500/20 dark:ring-emerald-400/20'
+                                        : step.index < currentStep
+                                          ? 'bg-emerald-100 text-emerald-800 dark:border dark:border-emerald-700/60 dark:bg-emerald-950/80 dark:text-emerald-300'
+                                          : 'bg-stone-200 text-stone-600 dark:border dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300'
+                                "
                             >
                                 @if (step.index < currentStep) {
                                     <mat-icon class="icon-size-4">check</mat-icon>
@@ -35,15 +38,17 @@ import { BUSINESS_WIZARD_STEPS, BusinessWizardStep } from './business-setup.type
                             <div class="flex flex-col min-w-0">
                                 <span
                                     class="text-xs font-semibold truncate leading-tight"
-                                    [class.text-emerald-700]="step.index === currentStep"
-                                    [class.dark:text-emerald-400]="step.index === currentStep"
-                                    [class.text-stone-800]="step.index < currentStep"
-                                    [class.dark:text-stone-200]="step.index < currentStep"
-                                    [class.text-stone-400]="step.index > currentStep"
+                                    [ngClass]="
+                                        step.index === currentStep
+                                            ? 'text-emerald-700 dark:text-emerald-400'
+                                            : step.index < currentStep
+                                              ? 'text-stone-800 dark:text-stone-200'
+                                              : 'text-stone-500 dark:text-stone-400'
+                                    "
                                 >
                                     {{ t(step.titleKey) }}
                                 </span>
-                                <span class="text-[10px] text-stone-400 truncate">{{ t('smartBusiness.setup.stepXof6', { step: step.index + 1 }) }}</span>
+                                <span class="text-[10px] text-stone-500 dark:text-stone-400 truncate">{{ t('smartBusiness.setup.stepXof6', { step: step.index + 1 }) }}</span>
                             </div>
                         </li>
                     }

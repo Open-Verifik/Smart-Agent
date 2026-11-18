@@ -116,6 +116,16 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         link: '/smart-fleet/assets',
                     },
                     {
+                        id: 'smart-fleet-drivers',
+                        title: 'nav.smart_fleet_drivers',
+                        subtitle: 'nav.smart_fleet_drivers_subtitle',
+                        type: 'basic',
+                        icon: 'heroicons_outline:identification',
+                        link: '/smart-fleet/assets',
+                        queryParams: { type: 'driver' },
+                        exactMatch: true,
+                    },
+                    {
                         id: 'smart-fleet-watch-rules',
                         title: 'nav.smart_fleet_watch_rules',
                         subtitle: 'nav.smart_fleet_watch_rules_subtitle',
@@ -175,6 +185,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         icon: 'heroicons_outline:squares-2x2',
                         link: '/smart-enroll/document-templates',
                     },
+                    // Legacy OpenCV 1:N views replaced cleanly below — restored on local InsightFace/ArcFace engine
                     {
                         id: 'smart-enroll-collections',
                         title: 'nav.collections',
@@ -522,6 +533,16 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:truck',
                 link: '/smart-fleet/assets',
+            },
+            {
+                id: 'smart-fleet-drivers',
+                title: 'nav.smart_fleet_drivers',
+                subtitle: 'nav.smart_fleet_drivers_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:identification',
+                link: '/smart-fleet/assets',
+                queryParams: { type: 'driver' },
+                exactMatch: true,
             },
             {
                 id: 'smart-fleet-watch-rules',

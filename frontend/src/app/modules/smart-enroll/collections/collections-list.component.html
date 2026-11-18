@@ -192,10 +192,10 @@
                             @if (selectedImagePreview) {
                                 <div class="max-w-md rounded-xl border border-stone-200 p-4 dark:border-gray-800">
                                     <label class="text-xs font-medium uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
-                                        {{ t('smartEnrollPeople.minScore') }}: {{ minScore }}
+                                        {{ t('smartEnrollPeople.minScore') }}: {{ minScore.toFixed(2) }}
                                     </label>
-                                    <mat-slider class="mt-2 w-full" min="0.5" max="1" step="0.05" discrete>
-                                        <input matSliderThumb [value]="minScore" (valueChange)="onMinScoreChange($event)" />
+                                    <mat-slider class="mt-2 w-full" min="0.5" max="0.75" step="0.01" discrete>
+                                        <input matSliderThumb [value]="minScore" [attr.aria-valuetext]="minScore.toFixed(2)" (valueChange)="onMinScoreChange($event)" />
                                     </mat-slider>
                                 </div>
                             }

@@ -15,7 +15,7 @@ import { TranslocoModule } from '@jsverse/transloco';
     },
 })
 export class DemoPageShellComponent {
-    @Input() sectionLink = '/smart-enroll/collections';
+    @Input() sectionLink = '/smart-enroll/projects';
     @Input() sectionLabelKey = '';
     @Input() demosLink = '/smart-enroll/demos';
 }

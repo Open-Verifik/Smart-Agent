@@ -6356,8 +6356,8 @@
           "Global"
         ],
         "operationId": "face_recognition_liveness_score",
-        "summary": "Global - Liveness Score (OpenCV)",
-        "description": "OpenCV-only liveness score (no Zelf arbitrage)",
+        "summary": "Global - Liveness Score",
+        "description": "Direct liveness score (without multi-engine arbitrage)",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -10199,14 +10199,14 @@
           "Data",
           "Global"
         ],
-        "operationId": "zelf-proof-liveness-active-user",
-        "summary": "Global - HumanID with Liveness (Active user)",
-        "description": "Create a HumanID with decrypt-side liveness. History bills this code when requireLiveness is enabled; the HTTP path is the same as Encrypt HumanID.",
+        "operationId": "human_id_encrypt",
+        "summary": "Global - HumanID Encrypt",
+        "description": "Performs privacy-preserving facial liveness and biometric enrollment using HumanAuthn, returning an encrypted humanId (zelfProof).",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.4"
+            "amount": "0.84"
           },
           "protocols": [
             {
@@ -10236,28 +10236,24 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "faceBase64": {
+                    "type": "string",
+                    "description": "Base64 image or data URI of face"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "Unique alphanumeric identifier"
+                  },
                   "publicData": {
                     "type": "object",
-                    "description": "Public metadata stored with the HumanID (string key-value pairs)",
-                    "default": {
-                      "name": "Jane Doe",
-                      "documentNumber": "12345678"
-                    }
+                    "description": "JSON object with string values"
                   },
                   "metadata": {
                     "type": "object",
-                    "description": "Private metadata encrypted into the HumanID (string key-value pairs)",
-                    "default": {
-                      "secretKey": "example-secret"
-                    }
-                  },
-                  "faceBase64": {
-                    "type": "string",
-                    "description": "Base64 encoded facial image"
+                    "description": "JSON object with string values"
                   },
                   "os": {
                     "type": "string",
-                    "description": "Client operating system",
                     "enum": [
                       "DESKTOP",
                       "ANDROID",
@@ -10265,52 +10261,17 @@
                     ],
                     "default": "DESKTOP"
                   },
-                  "identifier": {
-                    "type": "string",
-                    "description": "Alphanumeric identifier only (no spaces or special characters)",
-                    "default": "randomid"
-                  },
                   "requireLiveness": {
                     "type": "boolean",
-                    "description": "Require a live face when decrypting later",
                     "default": true
-                  },
-                  "livenessDetectionPriorCreation": {
-                    "type": "boolean",
-                    "description": "Require a live face when creating the HumanID",
-                    "default": false
-                  },
-                  "tolerance": {
-                    "type": "string",
-                    "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
-                    "enum": [
-                      "SOFT",
-                      "REGULAR",
-                      "HARDENED",
-                      "REGULAR_HARD",
-                      "REGULAR_SOFT"
-                    ],
-                    "default": "HARDENED"
-                  },
-                  "password": {
-                    "type": "string",
-                    "description": "Optional password for additional security"
-                  },
-                  "referenceFaceBase64": {
-                    "type": "string",
-                    "description": "Optional reference face image"
-                  },
-                  "verifierKey": {
-                    "type": "string",
-                    "description": "Optional verifier key"
                   }
                 },
                 "required": [
+                  "faceBase64",
+                  "identifier",
                   "publicData",
                   "metadata",
-                  "faceBase64",
                   "os",
-                  "identifier",
                   "requireLiveness"
                 ]
               }
@@ -10455,9 +10416,9 @@
           "Data",
           "Global"
         ],
-        "operationId": "zelf-proof-decrypt",
-        "summary": "Global - Decrypt HumanID",
-        "description": "Decrypt a HumanID using a live face to recover the stored metadata",
+        "operationId": "human_id_decrypt",
+        "summary": "Global - HumanID Decrypt",
+        "description": "Decrypts and validates a biometric humanId against a challenge nonce.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -10494,35 +10455,26 @@
                 "properties": {
                   "faceBase64": {
                     "type": "string",
-                    "description": "Base64 encoded facial image of the HumanID owner"
+                    "description": "Base64 image of face for verification"
+                  },
+                  "humanID": {
+                    "type": "string",
+                    "description": "Encrypted biometric token to decrypt"
                   },
                   "os": {
                     "type": "string",
-                    "description": "Client operating system",
                     "enum": [
                       "DESKTOP",
                       "ANDROID",
                       "IOS"
                     ],
                     "default": "DESKTOP"
-                  },
-                  "zelfProof": {
-                    "type": "string",
-                    "description": "HumanID token returned by encrypt"
-                  },
-                  "password": {
-                    "type": "string",
-                    "description": "Password if one was set at encrypt time"
-                  },
-                  "verifierKey": {
-                    "type": "string",
-                    "description": "Optional verifier key"
                   }
                 },
                 "required": [
                   "faceBase64",
-                  "os",
-                  "zelfProof"
+                  "humanID",
+                  "os"
                 ]
               }
             }

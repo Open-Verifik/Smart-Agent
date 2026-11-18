@@ -1,3 +1,4 @@
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { requiresHumanAuthnSubscription } from 'app/core/client-settings/override-conditions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -24,6 +26,7 @@ import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smar
     selector: 'app-human-authn-projects',
     standalone: true,
     imports: [
+        ClipboardModule,
         CommonModule,
         MatButtonModule,
         MatIconModule,
@@ -37,6 +40,7 @@ import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smar
     styleUrls: ['./human-authn-projects.component.scss'],
 })
 export class HumanAuthnProjectsComponent implements OnInit {
+    private _clipboard = inject(Clipboard);
     private _projectsService = inject(HumanAuthnProjectsService);
     private _router = inject(Router);
     private _authGate = inject(AuthRequiredGateService);
@@ -139,6 +143,24 @@ export class HumanAuthnProjectsComponent implements OnInit {
     openSetup(project: HumanAuthnProject, step = 0, event?: Event): void {
         event?.stopPropagation();
         this._router.navigate(['/human-authn/projects', project._id, 'setup', String(step)]);
+    }
+
+    liveEnrollmentUrl(project: HumanAuthnProject): string {
+        const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
+        return `${base}/verify/${project._id}`;
+    }
+
+    openLiveEnrollment(project: HumanAuthnProject, event?: Event): void {
+        event?.stopPropagation();
+        const url = this.liveEnrollmentUrl(project);
+        if (typeof window !== 'undefined') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    }
+
+    copyLiveEnrollmentUrl(project: HumanAuthnProject, event?: Event): void {
+        event?.stopPropagation();
+        this._clipboard.copy(this.liveEnrollmentUrl(project));
     }
 
     isIncomplete(project: HumanAuthnProject): boolean {

@@ -1057,8 +1057,8 @@
             "description": "Validate Peruvian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
         },
         "peru_api_driver_license_lookup": {
-            "title": "Peru - Driver License",
-            "description": "Look up Peruvian driver licenses by DNI. Returns license category, status, expiration, restrictions, issuance center, and related procedures when available from official records."
+            "title": "Driver License",
+            "description": "Look up Peruvian driver licenses by DNI via GET /v2/pe/driver-license. Returns category, status, expiration, restrictions, and issuance details when available from official records."
         },
         "peru_api_identity_ce_foreigner_id": {
             "title": "Peru - Foreigner ID",
@@ -1081,8 +1081,8 @@
             "description": "This service provides information on the insurance status of a vehicle in Peru. It returns details including the insurance company name, policy start and end dates, vehicle plate number, policy number, usage type, vehicle class, and policy status."
         },
         "peru_api_vehicle_v3": {
-            "title": "Peru - Vehicle Information",
-            "description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet data when available."
+            "title": "Vehicle Information",
+            "description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet dimensions and engine data when available via GET /v3/pe/vehiculo/placa."
         },
         "peru_identity_extra_lookup": {
             "title": "Peru - National ID Verification",
@@ -1919,6 +1919,10 @@
         "colombia_api_pep_misiones_exterior": {
             "title": "Colombia — PEP Foreign Missions & Consulates",
             "description": "Screen Colombian ambassadors, consul generals, and diplomatic mission staff posted abroad via official records."
+        },
+        "peru_api_vehicle_setare_arequipa": {
+            "title": "SETARE Arequipa Taxi Permit",
+            "description": "Validate whether a vehicle holds an active SETARE taxi operating permit in Arequipa, Peru via GET /v2/pe/vehiculo/setare-arequipa. Returns permit number, type, operating company, issue/expiration dates, and status."
         }
     }
 }

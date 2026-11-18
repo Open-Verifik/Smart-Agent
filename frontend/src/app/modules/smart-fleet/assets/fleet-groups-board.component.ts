@@ -29,9 +29,9 @@ const STORED_GROUP_VIEW_KEY = 'smart-fleet.groups.view';
 
 type GroupView = 'list' | 'icons';
 
-type IdentifierKind = 'plateOnly' | 'plate' | 'vin';
+type IdentifierKind = 'plateOnly' | 'plate' | 'vin' | 'driver';
 
-/** How the vehicle can be checked: plate only, plate plus owner document, or VIN. */
+/** How the vehicle or driver can be checked: plate only, plate plus owner document, VIN, or driver doc. */
 function readGroupView(): GroupView {
     if (typeof localStorage === 'undefined') return 'list';
 
@@ -39,6 +39,8 @@ function readGroupView(): GroupView {
 }
 
 function identifierKind(asset: FleetAsset): IdentifierKind {
+    if (asset.type === 'driver') return 'driver';
+
     const plate = asset.plate?.trim();
     const vin = asset.vin?.trim();
     const documentNumber = asset.ownerDocumentNumber?.trim();
@@ -128,7 +130,7 @@ function identifierKind(asset: FleetAsset): IdentifierKind {
         `,
     ],
     template: `
-        <h2 mat-dialog-title class="!px-5 !pt-5 text-xl font-semibold">
+        <h2 mat-dialog-title class="!px-5 !pt-5 text-xl font-semibold text-stone-900 dark:text-white">
             {{ 'smartFleet.groups.promptTitle' | transloco }}
         </h2>
         <mat-dialog-content class="fleet-group-dialog__body">
@@ -141,7 +143,7 @@ function identifierKind(asset: FleetAsset): IdentifierKind {
                     [(ngModel)]="name"
                     (keyup.enter)="confirm()"
                     [placeholder]="'smartFleet.groups.namePlaceholder' | transloco"
-                    class="min-h-[3rem] rounded-xl border border-stone-300 px-4 py-3 text-base focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900"
+                    class="min-h-[3rem] rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-amber-400"
                 />
             </label>
 
@@ -155,10 +157,11 @@ function identifierKind(asset: FleetAsset): IdentifierKind {
                     (click)="color = swatch"
                     class="h-11 w-11 rounded-full border-[3px] transition-transform"
                     [style.background]="swatch"
-                    [class.border-stone-900]="color === swatch"
-                    [class.dark:border-white]="color === swatch"
-                    [class.scale-110]="color === swatch"
-                    [class.border-transparent]="color !== swatch"
+                    [ngClass]="
+                        color === swatch
+                            ? 'scale-110 border-stone-900 dark:border-white'
+                            : 'border-transparent'
+                    "
                     [attr.aria-label]="swatch"
                     [attr.aria-pressed]="color === swatch"
                 ></button>
@@ -173,12 +176,11 @@ function identifierKind(asset: FleetAsset): IdentifierKind {
                     type="button"
                     (click)="icon = mark"
                     class="fleet-group-dialog__tile border-2 text-stone-800 dark:text-stone-100"
-                    [class.border-stone-900]="icon === mark"
-                    [class.bg-stone-100]="icon === mark"
-                    [class.dark:border-stone-100]="icon === mark"
-                    [class.dark:bg-gray-800]="icon === mark"
-                    [class.border-stone-200]="icon !== mark"
-                    [class.dark:border-gray-600]="icon !== mark"
+                    [ngClass]="
+                        icon === mark
+                            ? 'border-amber-600 bg-amber-50 dark:border-amber-400 dark:bg-amber-950/30'
+                            : 'border-stone-200 dark:border-gray-600'
+                    "
                     [attr.aria-label]="'smartFleet.groups.icon.' + mark | transloco"
                     [attr.aria-pressed]="icon === mark"
                 >
@@ -189,11 +191,16 @@ function identifierKind(asset: FleetAsset): IdentifierKind {
                 </button>
             </div>
         </mat-dialog-content>
-        <mat-dialog-actions align="end" class="fleet-group-dialog__actions">
-            <button mat-stroked-button type="button" (click)="cancel()">
+        <mat-dialog-actions align="end" class="fleet-group-dialog__actions dark:border-gray-800">
+            <button mat-stroked-button type="button" class="rounded-xl" (click)="cancel()">
                 {{ 'smartFleet.cancel' | transloco }}
             </button>
-            <button mat-flat-button color="primary" type="button" (click)="confirm()">
+            <button
+                mat-flat-button
+                type="button"
+                class="rounded-xl !bg-amber-600 !text-white hover:!bg-amber-700 dark:!bg-amber-500 dark:!text-gray-950 dark:hover:!bg-amber-400"
+                (click)="confirm()"
+            >
                 {{ 'smartFleet.groups.create' | transloco }}
             </button>
         </mat-dialog-actions>
@@ -225,26 +232,31 @@ export class FleetGroupNameDialogComponent {
     standalone: true,
     imports: [CommonModule, FormsModule, TranslocoModule, MatDialogModule, MatButtonModule],
     template: `
-        <h2 mat-dialog-title class="text-lg font-semibold">
+        <h2 mat-dialog-title class="text-lg font-semibold text-stone-900 dark:text-white">
             {{ 'smartFleet.groups.editNameTitle' | transloco }}
         </h2>
         <mat-dialog-content>
             <label class="mt-2 flex flex-col gap-1">
-                <span class="text-sm text-stone-600">{{ 'smartFleet.groups.editNameLabel' | transloco }}</span>
+                <span class="text-sm text-stone-600 dark:text-stone-300">{{ 'smartFleet.groups.editNameLabel' | transloco }}</span>
                 <input
                     type="text"
                     [(ngModel)]="name"
                     (keyup.enter)="confirm()"
                     [placeholder]="'smartFleet.groups.namePlaceholder' | transloco"
-                    class="rounded-xl border border-stone-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none"
+                    class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-amber-400"
                 />
             </label>
         </mat-dialog-content>
         <mat-dialog-actions align="end">
-            <button mat-button type="button" (click)="cancel()">
+            <button mat-button type="button" class="rounded-xl" (click)="cancel()">
                 {{ 'smartFleet.cancel' | transloco }}
             </button>
-            <button mat-flat-button color="primary" type="button" (click)="confirm()">
+            <button
+                mat-flat-button
+                type="button"
+                class="rounded-xl !bg-amber-600 !text-white hover:!bg-amber-700 dark:!bg-amber-500 dark:!text-gray-950 dark:hover:!bg-amber-400"
+                (click)="confirm()"
+            >
                 {{ 'smartFleet.groups.save' | transloco }}
             </button>
         </mat-dialog-actions>
@@ -326,11 +338,28 @@ export class FleetGroupsBoardComponent implements OnInit {
         if (!query) return list;
 
         return list.filter((asset) =>
-            [asset.plate, asset.vin, asset.nickname].some((value) => value?.toLowerCase().includes(query))
+            [
+                asset.plate,
+                asset.vin,
+                asset.nickname,
+                asset.ownerDocumentNumber,
+                asset.ownerDocumentType,
+            ].some((value) => value?.toLowerCase().includes(query))
         );
     });
 
-    readonly identifierKinds: IdentifierKind[] = ['plateOnly', 'plate', 'vin'];
+    readonly identifierKinds: IdentifierKind[] = ['plateOnly', 'plate', 'vin', 'driver'];
+
+    assetIdentifier(asset: FleetAsset): string {
+        return (
+            asset.plate ||
+            (asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '') ||
+            asset.vin ||
+            '-'
+        );
+    }
 
     private _buckets = computed(() => {
         const map = new Map<string, FleetAsset[]>();

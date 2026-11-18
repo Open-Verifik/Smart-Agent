@@ -1,0 +1,32 @@
+<nav [attr.aria-label]="ariaLabel" class="mb-2 flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+    @for (label of labels; track label; let i = $index) {
+        @let stepNum = i + 1;
+        @let isDone = currentStep > stepNum;
+        @let isCurrent = currentStep === stepNum;
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div
+                class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors"
+                [attr.aria-current]="isCurrent ? 'step' : null"
+                [ngClass]="
+                    isCurrent
+                        ? 'border-stone-900 bg-stone-900 text-white dark:border-white dark:bg-white dark:text-stone-900'
+                        : isDone
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300'
+                          : 'border-stone-200 bg-white text-stone-500 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-400'
+                "
+            >
+                <span class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[11px] font-bold">
+                    @if (isDone) {
+                        <span class="material-symbols-outlined text-sm leading-none" aria-hidden="true">check</span>
+                    } @else {
+                        {{ stepNum }}
+                    }
+                </span>
+                <span>{{ label | transloco }}</span>
+            </div>
+            @if (i < labels.length - 1) {
+                <span class="hidden h-px w-6 bg-stone-300 dark:bg-gray-700 sm:block" aria-hidden="true"></span>
+            }
+        </div>
+    }
+</nav>

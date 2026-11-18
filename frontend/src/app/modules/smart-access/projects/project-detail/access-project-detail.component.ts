@@ -10,11 +10,16 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { Subscription } from 'rxjs';
 import { smartAccessLoginFlow } from '../login-flow.util';
-import { isIncompleteSmartAccessWizard, resumeStepIndex } from '../setup/smart-access-setup-draft.util';
+import {
+    flowStatusTranslationKey,
+    isIncompleteSmartAccessWizard,
+    resumeStepIndex,
+} from '../setup/smart-access-setup-draft.util';
 import type { AccessProject, SmartAccessLoginSettings, SmartAccessSecurity, SmartAccessFlowIntegrations } from '../smart-access-projects.types';
 import { SmartAccessProjectsService } from '../smart-access-projects.service';
 import { AccessSignInPreviewComponent } from '../setup/preview/access-sign-in-preview.component';
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
+import { thresholdScoreBarClass } from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 
 interface BrandingPreview {
     logo?: string;
@@ -189,6 +194,10 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
         this._paramSub?.unsubscribe();
     }
 
+    flowStatusKey(): string {
+        return flowStatusTranslationKey(this.flow()?.status, 'smartAccessProjects.list');
+    }
+
     openSetup(step = 0): void {
         const id = this.project()?._id;
         if (!id) return;
@@ -217,9 +226,7 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     scoreBarClass(percent: number): string {
-        if (percent >= 85) return 'bg-emerald-500';
-        if (percent >= 70) return 'bg-amber-500';
-        return 'bg-rose-500';
+        return thresholdScoreBarClass(percent);
     }
 
     emptyOr(v: string | null | undefined): string {

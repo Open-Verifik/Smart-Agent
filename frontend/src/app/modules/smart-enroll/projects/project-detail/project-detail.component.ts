@@ -28,8 +28,18 @@ import {
     getRetentionModeLabel,
     policyFromStored,
 } from 'app/core/data-retention/retention.util';
-import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
-import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
+import {
+    calibrateArcFaceCompareThreshold,
+    documentFailureReasonKey,
+    livenessFailureReasonKey,
+    thresholdScoreBarClass,
+} from '../app-registration-record.utils';
+import {
+    flowStatusTranslationKey,
+    isIncompleteSmartAccessWizard,
+    isNumericStepValue,
+    resumeStepIndex,
+} from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import {
     enrollmentSegment,
@@ -362,22 +372,24 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
         if (isV3) {
             const liveness = (f?.liveness ?? {}) as Record<string, unknown>;
+            const rawCompareMin = liveness['compareMinScore'] as number | undefined;
             return {
                 kycType: (liveness['kycType'] as 'traditional' | 'zero_knowledge') ?? 'traditional',
                 attemptLimit: (liveness['attemptLimit'] as number) ?? 3,
                 minScore: pct(liveness['minScore'] as number | undefined),
-                compareMinScore: pct(liveness['compareMinScore'] as number | undefined),
+                compareMinScore: rawCompareMin != null ? pct(calibrateArcFaceCompareThreshold(rawCompareMin)) : 0,
                 searchMinScore: pct(liveness['searchMinScore'] as number | undefined),
                 searchMode: (liveness['searchMode'] as string) ?? 'FAST',
             };
         } else {
             const livenessV2 = ((f?.onboardingSettings as any)?.['liveness'] ?? {}) as Record<string, unknown>;
             const docV2 = ((f?.onboardingSettings as any)?.['document'] ?? {}) as Record<string, unknown>;
+            const rawCompareMin = docV2['compareMinScore'] as number | undefined;
             return {
                 kycType: 'traditional' as const,
                 attemptLimit: (livenessV2['maxAttempts'] as number) ?? 3,
                 minScore: pct(livenessV2['livenessMinScore'] as number | undefined),
-                compareMinScore: pct(docV2['compareMinScore'] as number | undefined),
+                compareMinScore: rawCompareMin != null ? pct(calibrateArcFaceCompareThreshold(rawCompareMin)) : 0,
                 searchMinScore: pct(livenessV2['searchMinScore'] as number | undefined),
                 searchMode: (livenessV2['searchMode'] as string) ?? 'FAST',
             };
@@ -513,6 +525,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         return `smartEnrollProjects.recordDetail.biometricReason.${livenessFailureReasonKey(reason)}`;
     }
 
+    flowStatusKey(): string {
+        return flowStatusTranslationKey(this.flow()?.status, 'smartEnrollProjects.list');
+    }
+
+    isNumericStep(step: string): boolean {
+        return isNumericStepValue(step);
+    }
+
     /** Percentage of all registrations, for the label beside the count. */
     funnelShare(count: number): number {
         const total = this.funnel()?.total ?? 0;
@@ -578,9 +598,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     /** Tailwind class for the colored bar in the liveness card. */
     scoreBarClass(percent: number): string {
-        if (percent >= 85) return 'bg-emerald-500';
-        if (percent >= 70) return 'bg-amber-500';
-        return 'bg-rose-500';
+        return thresholdScoreBarClass(percent);
     }
 
     /**

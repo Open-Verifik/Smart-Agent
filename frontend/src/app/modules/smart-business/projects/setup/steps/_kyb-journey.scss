@@ -1,3 +1,5 @@
+@use '../../../../../shared/setup-journey/threshold-slider' as *;
+
 :host {
     display: block;
 }
@@ -255,11 +257,20 @@
         border-color: #a8a29e;
     }
 
+    &:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
     mat-icon {
         width: 0.95rem;
         height: 0.95rem;
         font-size: 0.95rem;
     }
+}
+
+a.world-pill-btn {
+    text-decoration: none;
 }
 
 .country-chips {
@@ -300,6 +311,11 @@
     &:hover {
         background: #f5f5f4;
         color: #1c1917;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
     }
 
     mat-icon {
@@ -832,6 +848,501 @@ button.check-card__source {
     font-size: 0.72rem;
 }
 
+:host-context(.dark) {
+    color-scheme: dark;
+
+    .kyb-intro {
+        border-color: #1e293b;
+        background: linear-gradient(135deg, #0f172a 0%, #131c31 70%);
+
+        h2 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .kyb-intro__icon {
+        border: 1px solid #334155;
+        background: #1e293b;
+        color: #34d399;
+    }
+
+    .kyb-stage:not(:last-child)::before {
+        background: #334155;
+    }
+
+    .kyb-stage__marker {
+        border-color: #475569;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .kyb-panel {
+        border-color: #1e293b;
+        background: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .kyb-panel__header {
+        h3 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .kyb-panel__eyebrow {
+        color: #94a3b8;
+    }
+
+    .kyb-panel__status {
+        border-color: #334155;
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    .char-counter {
+        color: #94a3b8;
+
+        &--warning {
+            color: #fbbf24;
+        }
+
+        &--danger {
+            color: #fca5a5;
+        }
+    }
+
+    .info-note {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+        color: #cbd5e1;
+
+        mat-icon {
+            color: #94a3b8;
+        }
+
+        ::ng-deep strong {
+            color: #f8fafc;
+        }
+    }
+
+    .countries-box {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+    }
+
+    .countries-box__label {
+        color: #cbd5e1;
+    }
+
+    .world-pill-btn {
+        border-color: #475569;
+        background: #0f172a;
+        color: #f1f5f9;
+
+        &:hover {
+            background: #1e293b;
+            border-color: #64748b;
+        }
+
+        &:focus-visible {
+            outline-color: #60a5fa;
+        }
+    }
+
+    .country-chip {
+        border-color: #475569;
+        background: #0f172a;
+        color: #f1f5f9;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+
+    .country-chip__remove {
+        color: #94a3b8;
+
+        &:hover {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        &:focus-visible {
+            outline-color: #60a5fa;
+        }
+    }
+
+    .requirement-options {
+        ::ng-deep .mat-button-toggle {
+            border-color: #334155 !important;
+            background: rgba(30, 41, 59, 0.55);
+
+            &:hover {
+                border-color: #475569 !important;
+                background: #1e293b;
+            }
+        }
+
+        ::ng-deep .mat-button-toggle-checked {
+            border-color: #e2e8f0 !important;
+            background: #1e293b !important;
+            box-shadow: inset 0 0 0 1px #e2e8f0;
+
+            .requirement-option strong {
+                color: #ffffff;
+            }
+
+            .requirement-option small {
+                color: #cbd5e1;
+            }
+        }
+    }
+
+    .requirement-option {
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .choice-card {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+
+        &:hover {
+            border-color: #475569;
+            background: #1e293b;
+        }
+
+        &--active {
+            border-color: #e2e8f0;
+            background: #1e293b;
+            box-shadow: inset 0 0 0 1px #e2e8f0;
+
+            strong {
+                color: #ffffff;
+            }
+
+            small {
+                color: #cbd5e1;
+            }
+        }
+
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .setting-row {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+
+        strong {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .threshold-card {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+    }
+
+    .threshold-card__value {
+        strong {
+            color: #f8fafc;
+        }
+
+        span {
+            color: #94a3b8;
+        }
+    }
+
+    .threshold-card__bounds {
+        color: #94a3b8;
+    }
+
+    .threshold-card__help {
+        color: #cbd5e1;
+    }
+
+    .media-preview-box {
+        border-color: #475569;
+        background: rgba(30, 41, 59, 0.55);
+
+        ::ng-deep button[color='warn'].mat-mdc-outlined-button {
+            border-color: rgba(248, 113, 113, 0.45) !important;
+            color: #fca5a5 !important;
+
+            .mdc-button__label,
+            .mat-icon {
+                color: #fca5a5 !important;
+            }
+        }
+    }
+
+    .media-preview-box__thumb {
+        border-color: #334155;
+        background: #1e293b;
+    }
+
+    .media-preview-box__meta {
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .screening-option {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+
+        > mat-icon {
+            color: #94a3b8;
+        }
+
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .criminal-check-catalog {
+        border-color: #334155;
+        background: rgba(15, 23, 42, 0.7);
+    }
+
+    .criminal-check-catalog__intro {
+        span {
+            color: #60a5fa;
+        }
+
+        h4 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .check-scope {
+        border-color: #334155;
+        background: #1e293b;
+    }
+
+    .check-scope--international {
+        border-color: #1e40af;
+        background: rgba(15, 23, 42, 0.85);
+    }
+
+    .check-scope__header {
+        h5 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .check-scope__badge {
+        background: #334155;
+        color: #e2e8f0;
+    }
+
+    .check-scope--international > .check-scope__badge {
+        border-color: #2563eb;
+        background: #0f172a;
+        color: #93c5fd;
+    }
+
+    .check-card {
+        border-color: #334155;
+        background: #0f172a;
+
+        &:hover {
+            border-color: #64748b;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        }
+    }
+
+    .check-card--selected {
+        border-color: #60a5fa;
+        box-shadow: inset 0 0 0 1px #3b82f6;
+    }
+
+    .check-card__copy {
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .check-card__source {
+        background: #1e3a8a;
+        color: #dbeafe;
+    }
+
+    button.check-card__source:hover,
+    button.check-card__source:focus-visible {
+        background: #1d4ed8;
+        outline-color: #93c5fd;
+    }
+
+    .check-scope__empty {
+        border: 1px solid #334155;
+        background: #0f172a;
+        color: #94a3b8;
+    }
+
+    .field-error {
+        color: #fca5a5;
+    }
+
+    /* Angular Material outline form controls inside KYB dark panels */
+    .kyb-journey ::ng-deep .mat-mdc-form-field.mat-form-field-appearance-outline {
+        --fuse-primary: #60a5fa;
+        --fuse-warn: #f87171;
+        --mdc-outlined-text-field-input-text-color: #f8fafc;
+        --mdc-outlined-text-field-input-text-placeholder-color: #94a3b8;
+        --mdc-outlined-text-field-label-text-color: #cbd5e1;
+        --mdc-outlined-text-field-hover-label-text-color: #f8fafc;
+        --mdc-outlined-text-field-focus-label-text-color: #60a5fa;
+        --mdc-outlined-text-field-focus-outline-color: #60a5fa;
+        --mdc-outlined-text-field-caret-color: #60a5fa;
+        --mdc-outlined-text-field-disabled-input-text-color: rgba(148, 163, 184, 0.65);
+        --mdc-outlined-text-field-disabled-label-text-color: rgba(148, 163, 184, 0.65);
+        --mdc-outlined-text-field-error-label-text-color: #fca5a5;
+        --mdc-outlined-text-field-error-focus-label-text-color: #fca5a5;
+        --mdc-outlined-text-field-error-hover-label-text-color: #fecaca;
+        --mdc-outlined-text-field-error-outline-color: #f87171;
+        --mdc-outlined-text-field-error-focus-outline-color: #f87171;
+        --mdc-outlined-text-field-error-hover-outline-color: #fca5a5;
+        --mdc-outlined-text-field-error-caret-color: #f87171;
+        --mdc-outlined-text-field-error-supporting-text-color: #fca5a5;
+        --mat-select-enabled-trigger-text-color: #f8fafc;
+        --mat-select-placeholder-text-color: #94a3b8;
+        --mat-select-enabled-arrow-color: #cbd5e1;
+        --mat-select-focused-arrow-color: #60a5fa;
+
+        .mat-mdc-text-field-wrapper {
+            background-color: rgba(2, 6, 23, 0.55);
+            border-radius: 6px;
+        }
+
+        &:not(.mat-focused):not(.mat-form-field-invalid) {
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+                border-color: #64748b !important;
+            }
+
+            &:hover {
+                .mdc-notched-outline__leading,
+                .mdc-notched-outline__notch,
+                .mdc-notched-outline__trailing {
+                    border-color: #94a3b8 !important;
+                }
+            }
+        }
+
+        &.mat-focused:not(.mat-form-field-invalid) {
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+                border-color: #60a5fa !important;
+            }
+
+            .mdc-floating-label {
+                color: #60a5fa !important;
+            }
+        }
+
+        &.mat-form-field-invalid {
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+                border-color: #f87171 !important;
+            }
+
+            .mdc-floating-label {
+                color: #fca5a5 !important;
+            }
+        }
+
+        .mdc-floating-label {
+            color: #cbd5e1;
+        }
+
+        input.mat-mdc-input-element,
+        textarea.mat-mdc-input-element {
+            color: #f8fafc;
+            caret-color: #60a5fa;
+
+            &::placeholder {
+                color: #94a3b8 !important;
+            }
+
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus,
+            &:-webkit-autofill:active {
+                -webkit-text-fill-color: #f8fafc !important;
+                -webkit-box-shadow: 0 0 0 1000px #081021 inset !important;
+                box-shadow: 0 0 0 1000px #081021 inset !important;
+            }
+        }
+
+        .mat-mdc-select-value-text {
+            color: #f8fafc;
+        }
+
+        .mat-mdc-select-placeholder {
+            color: #94a3b8 !important;
+        }
+
+        .mat-mdc-select-arrow {
+            color: #cbd5e1 !important;
+        }
+
+        .mat-mdc-form-field-hint {
+            color: #94a3b8 !important;
+        }
+
+        .mat-mdc-form-field-error {
+            color: #fca5a5 !important;
+        }
+    }
+
+    .countries-box ::ng-deep .mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+        background-color: rgba(15, 23, 42, 0.85);
+    }
+}
+
 @media (max-width: 768px) {
     .kyb-stage {
         grid-template-columns: 1fr;
@@ -859,6 +1370,20 @@ button.check-card__source {
     .check-card-grid,
     .check-scope__header {
         grid-template-columns: 1fr;
+    }
+
+    .criminal-check-catalog__intro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        p {
+            text-align: left;
+        }
+    }
+
+    .check-scope__header p {
+        text-align: left;
     }
 }
 
