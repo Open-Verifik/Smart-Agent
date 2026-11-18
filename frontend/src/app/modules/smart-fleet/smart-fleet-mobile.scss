@@ -8,10 +8,12 @@
     --fleet-accent-ring: rgb(217 119 6 / 0.25);
 
     --fleet-surface: #ffffff;
+    --fleet-surface-elevated: #ffffff;
     --fleet-surface-muted: #fafaf9;
     --fleet-surface-subtle: #f5f5f4;
     --fleet-border: #e7e5e4;
     --fleet-text: #1c1917;
+    --fleet-text-primary: #1c1917;
     --fleet-text-muted: #57534e;
 
     --fleet-status-valid: #059669;
@@ -40,10 +42,12 @@
     --fleet-accent-ring: rgb(251 191 36 / 0.3);
 
     --fleet-surface: #111827;
+    --fleet-surface-elevated: #111827;
     --fleet-surface-muted: #030712;
     --fleet-surface-subtle: #1f2937;
     --fleet-border: #1f2937;
     --fleet-text: #f5f5f4;
+    --fleet-text-primary: #f5f5f4;
     --fleet-text-muted: #a8a29e;
 
     --fleet-status-valid: #34d399;
@@ -332,8 +336,8 @@ dialog.fleet-modal-dialog {
     padding: 0;
     border: 1px solid var(--fleet-border);
     border-radius: 1.25rem;
-    background: var(--fleet-surface-elevated);
-    color: var(--fleet-text-primary);
+    background-color: var(--fleet-surface, #ffffff);
+    color: var(--fleet-text, #1c1917);
     box-shadow: 0 24px 48px -12px rgb(12 10 9 / 0.36);
 }
 
@@ -351,7 +355,8 @@ dialog.fleet-modal-dialog[open] {
     gap: 1rem;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--fleet-border);
-    background: var(--fleet-surface-elevated);
+    background-color: var(--fleet-surface, #ffffff);
+    color: var(--fleet-text, #1c1917);
     flex-shrink: 0;
 }
 
@@ -359,6 +364,8 @@ dialog.fleet-modal-dialog[open] {
     padding: 1.25rem 1.5rem;
     overflow-y: auto;
     overscroll-behavior: contain;
+    background-color: var(--fleet-surface, #ffffff);
+    color: var(--fleet-text, #1c1917);
     flex: 1 1 auto;
 }
 
@@ -370,7 +377,8 @@ dialog.fleet-modal-dialog[open] {
     gap: 0.625rem;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--fleet-border);
-    background: var(--fleet-surface);
+    background-color: var(--fleet-surface-muted, #fafaf9);
+    color: var(--fleet-text, #1c1917);
     flex-shrink: 0;
 }
 
