@@ -2118,6 +2118,7 @@
         "list": {
             "newProjectTitle": "Nouveau projet HumanAuthn",
             "newProjectSubtitle": "Configurez un autre flux d’inscription avec son propre formulaire, HumanAuthn, stockage et branding.",
+            "paused": "En pause",
             "draft": "Brouillon",
             "active": "Actif",
             "demoMode": "Démo",
@@ -3365,6 +3366,10 @@
     "close": "Fermer",
     "save_changes": "Enregistrer les modifications",
     "smartEnrollCollections": {
+        "deprecationBannerTitle": "Collections 1:N héritées obsolètes",
+        "deprecationBannerSubtitle": "Les collections traditionnelles de reconnaissance faciale 1:N ont été remplacées par l’inscription biométrique HumanID respectueuse de la vie privée et sans divulgation de connaissance. Tous les nouveaux flux de vérification d’identité et de gestion d’accès doivent utiliser HumanAuthn.",
+        "deprecationBannerAction": "Découvrir l’inscription HumanID",
+        "deprecationBannerProjects": "Voir les projets SmartEnroll",
         "title": "Collections",
         "subtitle": "Organisez et gérez vos collections de reconnaissance faciale SmartEnroll.",
         "name": "Nom",
@@ -3418,6 +3423,10 @@
         "imageSearchDisabledHint": "La recherche par image n'est disponible que dans la vue SmartEnroll (Onboarding)."
     },
     "smartEnrollPeople": {
+        "deprecationBannerTitle": "Gestion des personnes héritée obsolète",
+        "deprecationBannerSubtitle": "Les dossiers de personnes inscrits en 1:N sont obsolètes au profit des identifiants biométriques HumanID sans divulgation de connaissance. Veuillez migrer les utilisateurs actifs vers l’inscription HumanAuthn.",
+        "deprecationBannerAction": "Découvrir l’inscription HumanID",
+        "deprecationBannerProjects": "Voir les projets SmartEnroll",
         "title": "Personnes",
         "subtitle": "Parcourez, recherchez et gérez les personnes inscrites via SmartEnroll.",
         "clearFilters": "Effacer les filtres",
@@ -3597,7 +3606,8 @@
             "liveness": "Selfie de détection du vivant",
             "form": "Formulaire",
             "end": "Parcours terminé",
-            "skipKYC": "KYC ignoré"
+            "skipKYC": "KYC ignoré",
+            "stepNumber": "Étape {{number}}"
         },
         "status": {
             "all": "Tous les statuts",
@@ -3640,7 +3650,8 @@
             "demoMode": "Démo",
             "menuSecurity": "Sécurité",
             "newProjectTitle": "Nouveau projet Smart Enroll",
-            "newProjectSubtitle": "Configurez un autre flux d'inscription avec son propre formulaire, ses documents, sa biométrie et son branding."
+            "newProjectSubtitle": "Configurez un autre flux d'inscription avec son propre formulaire, ses documents, sa biométrie et son branding.",
+            "paused": "En pause"
         },
         "securitySettings": {
             "title": "Paramètres de sécurité",
@@ -5298,25 +5309,25 @@
             "custom": "Custom"
         },
         "list": {
-            "draft": "Draft",
-            "active": "Active",
-            "loginMethods": "Login methods",
-            "whitelistConnect": "Whitelist & API",
-            "brandUi": "Brand & screens",
-            "members": "Members",
-            "addMember": "Add member",
-            "edit": "Edit",
-            "seeLogs": "See logs",
-            "menuEdit": "Open project",
-            "menuRecords": "Records",
-            "menuStaff": "Team & staff",
-            "moreActions": "More actions",
-            "menuLiveSignIn": "Open live sign-in",
-            "copySignInLink": "Copy sign-in link",
-            "neverLoggedIn": "Never logged in",
-            "openLiveSignIn": "Open live sign-in",
-            "newProjectTitle": "New Smart Access project",
-            "newProjectSubtitle": "Spin up another sign-in experience with its own login methods, whitelist and branding."
+            "draft": "Brouillon",
+            "active": "Actif",
+            "loginMethods": "Méthodes de connexion",
+            "whitelistConnect": "Liste blanche et API",
+            "brandUi": "Marque et écrans",
+            "members": "Membres",
+            "addMember": "Ajouter un membre",
+            "edit": "Modifier",
+            "seeLogs": "Voir les journaux",
+            "menuEdit": "Ouvrir le projet",
+            "menuRecords": "Enregistrements",
+            "menuStaff": "Équipe et personnel",
+            "moreActions": "Plus d’actions",
+            "menuLiveSignIn": "Ouvrir la connexion en direct",
+            "copySignInLink": "Copier le lien de connexion",
+            "neverLoggedIn": "Jamais connecté",
+            "openLiveSignIn": "Ouvrir la connexion en direct",
+            "newProjectTitle": "Nouveau projet Smart Access",
+            "newProjectSubtitle": "Créez une nouvelle expérience de connexion avec ses propres méthodes, sa liste blanche et son image de marque."
         },
         "preview": {
             "title": "Preview",
@@ -5386,7 +5397,7 @@
             "untitled": "Untitled project",
             "liveUrl": "Live sign-in URL",
             "liveUrlSubtitle": "Share this link with users so they can sign in to your application.",
-            "openSetup": "Open setup wizard",
+            "openSetup": "Ouvrir l’assistant de configuration",
             "copy": "Copy link",
             "editSection": "Edit",
             "editBrand": "Edit branding",
@@ -11908,7 +11919,7 @@
             "colKycStatus": "Statut KYC",
             "colBiometrics": "Biométrie & Liveness",
             "colActions": "Actions",
-            "livenessLabel": "Liveness",
+            "livenessLabel": "Vivacité",
             "matchLabel": "Concordance",
             "pendingCapture": "Capture en attente",
             "resendInviteTitle": "Renvoyer le lien de vérification par WhatsApp/E-mail",

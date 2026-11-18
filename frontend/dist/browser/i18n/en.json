@@ -2421,6 +2421,7 @@
         "list": {
             "newProjectTitle": "New HumanAuthn project",
             "newProjectSubtitle": "Set up another enrollment flow with its own form, HumanAuthn, storage and branding.",
+            "paused": "Paused",
             "draft": "Draft",
             "active": "Active",
             "demoMode": "Demo",
@@ -3912,7 +3913,8 @@
             "liveness": "Liveness selfie",
             "form": "Form",
             "end": "Finished the flow",
-            "skipKYC": "Skipped KYC"
+            "skipKYC": "Skipped KYC",
+            "stepNumber": "Step {{number}}"
         },
         "status": {
             "all": "All statuses",
@@ -3955,7 +3957,8 @@
             "demoMode": "Demo",
             "menuSecurity": "Security",
             "newProjectTitle": "New Smart Enroll project",
-            "newProjectSubtitle": "Set up another enrollment flow with its own signup, documents, biometrics and branding."
+            "newProjectSubtitle": "Set up another enrollment flow with its own signup, documents, biometrics and branding.",
+            "paused": "Paused"
         },
         "securitySettings": {
             "title": "Security Settings",

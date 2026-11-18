@@ -203,3 +203,18 @@ export const buildSmartAccessDraftPayload = (
     termsAndConditionsUrl: `${raw['termsAndConditionsUrl'] ?? ''}`,
     version: 3,
 });
+
+const TRANSLATABLE_FLOW_STATUSES = new Set(['active', 'draft', 'paused']);
+
+/** Resolve the translation key for a flow status badge, or empty string for unknown statuses. */
+export const flowStatusTranslationKey = (
+    status: string | null | undefined,
+    keyPrefix: string
+): string => {
+    const normalized = `${status || 'draft'}`.trim().toLowerCase();
+    return TRANSLATABLE_FLOW_STATUSES.has(normalized) ? `${keyPrefix}.${normalized}` : '';
+};
+
+/** True when a funnel or record step identifier is purely numeric (e.g. "2", "4", "5"). */
+export const isNumericStepValue = (step?: string | null): boolean =>
+    /^\d+$/.test(`${step || ''}`.trim());

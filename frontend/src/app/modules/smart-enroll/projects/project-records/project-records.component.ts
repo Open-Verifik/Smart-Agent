@@ -18,6 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { isFaceNoStorage, isFacePurged, pickEnrollmentFaceMedia } from '../app-registration-record.utils';
+import { isNumericStepValue } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
     AppRegistrationListFilters,
@@ -217,6 +218,17 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     formatDate(date?: string): string {
         if (!date) return '—';
         return DateTime.fromISO(date).toFormat('MMM dd, yyyy HH:mm');
+    }
+
+    statusLabelKey(status?: string): string {
+        if (!status) return '';
+        return STATUS_OPTIONS.includes(status as AppRegistrationStatus)
+            ? `smartEnrollProjects.status.${status}`
+            : '';
+    }
+
+    isNumericStep(step?: string): boolean {
+        return isNumericStepValue(step);
     }
 
     /**

@@ -2421,6 +2421,7 @@
         "list": {
             "newProjectTitle": "Nuevo proyecto HumanAuthn",
             "newProjectSubtitle": "Configura otro flujo de alta con su propio formulario, HumanAuthn, almacenamiento y branding.",
+            "paused": "Pausado",
             "draft": "Borrador",
             "active": "Activo",
             "demoMode": "Demo",
@@ -3912,7 +3913,8 @@
             "liveness": "Selfie de prueba de vida",
             "form": "Formulario",
             "end": "Terminó el flujo",
-            "skipKYC": "KYC omitido"
+            "skipKYC": "KYC omitido",
+            "stepNumber": "Paso {{number}}"
         },
         "status": {
             "all": "Todos los estados",
@@ -3955,7 +3957,8 @@
             "demoMode": "Demo",
             "menuSecurity": "Seguridad",
             "newProjectTitle": "Nuevo proyecto Smart Enroll",
-            "newProjectSubtitle": "Configura otro flujo de registro con su propio formulario, documentos, biometría y branding."
+            "newProjectSubtitle": "Configura otro flujo de registro con su propio formulario, documentos, biometría y branding.",
+            "paused": "Pausado"
         },
         "securitySettings": {
             "title": "Configuración de seguridad",
@@ -12125,8 +12128,8 @@
             "colKycStatus": "Estado KYC",
             "colBiometrics": "Biometría & Liveness",
             "colActions": "Acciones",
-            "livenessLabel": "Liveness",
-            "matchLabel": "Match",
+            "livenessLabel": "Prueba de vida",
+            "matchLabel": "Coincidencia",
             "pendingCapture": "Pendiente de captura",
             "resendInviteTitle": "Reenviar enlace de verificación por WhatsApp/Email",
             "copyInviteTitle": "Copiar enlace directo de verificación",

@@ -54,20 +54,16 @@
                                 <mat-icon class="!h-4 !w-4 mr-1">folder_open</mat-icon>
                                 {{ t('smartBusiness.common.viewRecords') }}
                             </button>
-                            @if (incompleteWizard()) {
-                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartBusiness.common.editWizard') }}
-                                </button>
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="continueSetup()">
-                                    {{ t('smartBusiness.common.continueSetup') }}
-                                </button>
-                            } @else {
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartBusiness.common.editWizard') }}
-                                </button>
-                            }
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="shrink-0 rounded-xl"
+                                (click)="incompleteWizard() ? continueSetup() : openSetup(0)"
+                            >
+                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                {{ t(incompleteWizard() ? 'smartBusiness.common.continueSetup' : 'smartBusiness.common.editWizard') }}
+                            </button>
                         </div>
                     }
                 </div>
