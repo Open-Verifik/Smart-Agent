@@ -66,7 +66,15 @@ const readPagination = <T>(
     };
 };
 
-export type FleetCheckType = 'soat' | 'rtm' | 'comparendos' | 'ownership' | 'claims' | 'custom';
+export type FleetCheckType =
+    | 'soat'
+    | 'rtm'
+    | 'comparendos'
+    | 'ownership'
+    | 'claims'
+    | 'driver_license'
+    | 'driver_fines'
+    | 'custom';
 
 export type FleetFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'custom';
 
@@ -163,11 +171,12 @@ export interface FleetAsset {
     updatedAt?: string;
 }
 
-export type FleetIdentifierFilter = 'plate' | 'plateOnly' | 'vin';
+export type FleetIdentifierFilter = 'plate' | 'plateOnly' | 'vin' | 'driverDoc';
 
 export type FleetCoverageFilter = 'valid' | 'due' | 'expired' | 'unknown';
 
 export interface FleetAssetFilters {
+    type?: 'vehicle' | 'driver';
     group?: string;
     isActive?: boolean;
     identifier?: FleetIdentifierFilter;
@@ -177,6 +186,7 @@ export interface FleetAssetFilters {
 }
 
 const assetFilterParams = (filters: FleetAssetFilters): Record<string, string | boolean> => ({
+    ...(filters.type ? { type: filters.type } : {}),
     ...(filters.group ? { group: filters.group } : {}),
     ...(filters.isActive !== undefined ? { isActive: filters.isActive } : {}),
     ...(filters.identifier ? { identifier: filters.identifier } : {}),
@@ -202,7 +212,7 @@ export interface FleetWatchRule {
     checkType: FleetCheckType;
     kind?: 'threshold' | 'delta';
     frequency?: FleetFrequency;
-    /** Day interval when frequency is `custom` (1–90). */
+    /** Day interval when frequency is `custom` (1-90). */
     intervalDays?: number | null;
     thresholdDays?: number;
     watchPath?: string | null;
@@ -236,8 +246,10 @@ export function parseFleetPhones(value: string): string[] {
         .filter((phone, index, list) => phone && list.indexOf(phone) === index);
 }
 
-/** True when this vehicle has the identifiers the check's endpoint actually needs. */
+/** True when this asset (vehicle or driver) has the identifiers the check's endpoint actually needs. */
 export function fleetAssetSupportsCheck(check: FleetAvailableCheck, asset: FleetAsset): boolean {
+    if (check.assetType && (asset.type || 'vehicle') !== check.assetType) return false;
+
     const value = (field: string) => {
         const raw = (asset as unknown as Record<string, unknown>)[field];
 
@@ -306,14 +318,20 @@ export interface FleetCreditBreakdown {
     featureCode: string;
     frequency: FleetFrequency;
     checksPerMonth: number;
+    listPricePerCheck?: number;
     pricePerCheck: number;
+    discountPercent?: number;
+    listCreditsPerAsset?: number;
     creditsPerAsset: number;
     assets?: number;
 }
 
 export interface FleetCreditEstimate {
     assetCount: number;
+    discountPercent?: number;
+    listCreditsPerAsset?: number;
     creditsPerAsset: number;
+    listTotalCredits?: number;
     totalCredits: number;
     breakdown: FleetCreditBreakdown[];
 }
@@ -327,7 +345,11 @@ export interface FleetRunway {
 
 export interface FleetExpiryEntry {
     asset: string;
+    type?: 'vehicle' | 'driver';
+    identifier?: string | null;
     plate?: string | null;
+    ownerDocumentType?: string | null;
+    ownerDocumentNumber?: string | null;
     nickname?: string | null;
     group?: string | null;
     checkType: FleetCheckType;
@@ -335,8 +357,20 @@ export interface FleetExpiryEntry {
     daysRemaining: number;
 }
 
+export interface FleetReadinessSummary {
+    compliant: number;
+    expiringSoon: number;
+    grounded: number;
+    unchecked: number;
+    scorePercent: number | null;
+    vehiclesActive: number;
+    driversActive: number;
+}
+
 export interface FleetDashboard {
+    sandboxMode?: boolean;
     assets: { total: number; active: number; limit: number; remaining: number };
+    readiness?: FleetReadinessSummary;
     plan: {
         _id: string;
         status: string;
@@ -376,6 +410,7 @@ export interface FleetSubscription {
     currency: string;
     interval: string;
     intervalCount: number;
+    endpointDiscountPercent?: number;
     startDate?: string;
     endDate?: string;
     autoRenew?: boolean;
@@ -397,6 +432,7 @@ export interface FleetPlanTier {
     code: string;
     minAssets: number;
     maxAssets: number;
+    endpointDiscountPercent?: number;
     name: string | null;
     description?: string | null;
     amount: number | null;
@@ -411,14 +447,29 @@ export interface FleetUsageReferenceLine {
     featureCode: string;
     frequency: FleetFrequency;
     checksPerMonth: number;
+    listPricePerCheck?: number;
     pricePerCheck: number;
+    discountPercent?: number;
+    listCreditsPerAsset?: number;
     creditsPerAsset: number;
+    plusPricePerCheck?: number;
+    businessPricePerCheck?: number;
+    plusCreditsPerAsset?: number;
+    businessCreditsPerAsset?: number;
 }
 
 export interface FleetPlanOverview {
     tiers: FleetPlanTier[];
     plan: (FleetSubscription & { tier: FleetPlanTierKey | null }) | null;
-    usage: { activeAssets: number; limit: number; freeLimit: number; maxSlots: number; enterpriseFrom: number };
+    usage: {
+        activeAssets: number;
+        limit: number;
+        freeLimit: number;
+        maxSlots: number;
+        enterpriseFrom: number;
+        enterpriseDiscountPercent?: number;
+        sandboxMode?: boolean;
+    };
     projectedMonthlyCredits: FleetCreditEstimate;
     /** Scheduled + manual monitoring runs (FeatureRunner), endpoints billed once per run. */
     monitoring: { since: string; credits: number; runs: number };
@@ -449,6 +500,7 @@ export interface FleetCheckCondition {
 
 export interface FleetAvailableCheck {
     checkType: FleetCheckType;
+    assetType?: 'vehicle' | 'driver';
     featureCode: string;
     featureCodeByPlate?: string;
     featureCodeByVin?: string;
@@ -536,6 +588,27 @@ export function compactFleetAssetPayload<T extends object>(asset: T): Partial<T>
     return payload;
 }
 
+export interface FleetSandboxSeedResult {
+    seeded?: boolean;
+    groupsCreated?: number;
+    assetsSeeded?: number;
+    vehiclesSeeded?: number;
+    driversSeeded?: number;
+    rulesSeeded?: number;
+    alertsCreated?: number;
+    [key: string]: unknown;
+}
+
+export interface FleetSandboxResetResult {
+    reset?: boolean;
+    assetsRemoved?: number;
+    alertsRemoved?: number;
+    snapshotsRemoved?: number;
+    rulesRemoved?: number;
+    groupsRemoved?: number;
+    [key: string]: unknown;
+}
+
 /**
  * Smart Fleet API client.
  *
@@ -559,11 +632,29 @@ export class SmartFleetService {
     dashboard = signal<FleetDashboard | null>(null);
     isLoadingDashboard = signal<boolean>(false);
 
+    /** Increments whenever sandbox demo data is seeded or reset so views can reload local state. */
+    sandboxRevision = signal<number>(0);
+
     /** True on the free plan, where rules can be set up but never run; null until known. */
     onFreePlan = signal<boolean | null>(null);
     private _planStatusRequested = false;
+    private _dashboardRequested = false;
 
     constructor(private _httpClient: HttpClient) {}
+
+    // ── Sandbox Mobility Lab ─────────────────────────────────────
+
+    seedSandboxDemo() {
+        return this._httpClient
+            .post<{ data: FleetSandboxSeedResult }>(`${environment.apiUrl}/v2/fleet/sandbox/seed`, {})
+            .pipe(tap(() => this.sandboxRevision.update((value) => value + 1)));
+    }
+
+    resetSandboxDemo() {
+        return this._httpClient
+            .post<{ data: FleetSandboxResetResult }>(`${environment.apiUrl}/v2/fleet/sandbox/reset`, {})
+            .pipe(tap(() => this.sandboxRevision.update((value) => value + 1)));
+    }
 
     // ── Subscription ─────────────────────────────────────────────
 
@@ -578,6 +669,13 @@ export class SmartFleetService {
         if (this._planStatusRequested) return;
         this._planStatusRequested = true;
         this.getPlanOverview().subscribe({ error: () => (this._planStatusRequested = false) });
+    }
+
+    /** Loads dashboard summary once per session for shared nav alert counts. */
+    ensureDashboard(): void {
+        if (this.dashboard() || this.isLoadingDashboard() || this._dashboardRequested) return;
+        this._dashboardRequested = true;
+        this.getDashboard().subscribe({ error: () => (this._dashboardRequested = false) });
     }
 
     /** Stripe Checkout for the first subscription; redirect to `data.url`. */
@@ -725,10 +823,10 @@ export class SmartFleetService {
     }
 
     /** Full list for the groups board. Does not replace the paginated table. */
-    listAssets(perPage = 200) {
+    listAssets(perPage = 200, filters: FleetAssetFilters = {}) {
         return this._httpClient.get<PaginatedResponse<FleetAsset>>(
             `${environment.apiUrl}/v2/fleet-assets`,
-            { params: { page: 1, perPage } }
+            { params: { page: 1, perPage, ...assetFilterParams(filters) } }
         );
     }
 

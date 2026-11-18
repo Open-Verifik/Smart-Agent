@@ -1,4 +1,273 @@
-/* Smart Fleet — mobile layout helpers (nav, buttons, tables, dialogs). */
+/* Smart Fleet - design tokens, responsive primitives, and mobile helpers. */
+
+:root,
+.fleet-shell {
+    --fleet-accent: #d97706;
+    --fleet-accent-strong: #b45309;
+    --fleet-accent-soft: #fff7ed;
+    --fleet-accent-ring: rgb(217 119 6 / 0.25);
+
+    --fleet-surface: #ffffff;
+    --fleet-surface-muted: #fafaf9;
+    --fleet-surface-subtle: #f5f5f4;
+    --fleet-border: #e7e5e4;
+    --fleet-text: #1c1917;
+    --fleet-text-muted: #57534e;
+
+    --fleet-status-valid: #059669;
+    --fleet-status-valid-soft: #ecfdf5;
+    --fleet-status-due: #d97706;
+    --fleet-status-due-soft: #fffbeb;
+    --fleet-status-expired: #dc2626;
+    --fleet-status-expired-soft: #fef2f2;
+
+    --fleet-scrollbar-thumb: #78716c;
+    --fleet-scrollbar-track: #f5f5f4;
+
+    accent-color: var(--fleet-accent);
+}
+
+.fleet-shell {
+    color-scheme: light;
+    scrollbar-color: var(--fleet-scrollbar-thumb) var(--fleet-scrollbar-track);
+}
+
+.dark,
+.dark .fleet-shell {
+    --fleet-accent: #fbbf24;
+    --fleet-accent-strong: #f59e0b;
+    --fleet-accent-soft: rgb(180 83 9 / 0.22);
+    --fleet-accent-ring: rgb(251 191 36 / 0.3);
+
+    --fleet-surface: #111827;
+    --fleet-surface-muted: #030712;
+    --fleet-surface-subtle: #1f2937;
+    --fleet-border: #1f2937;
+    --fleet-text: #f5f5f4;
+    --fleet-text-muted: #a8a29e;
+
+    --fleet-status-valid: #34d399;
+    --fleet-status-valid-soft: rgb(6 78 59 / 0.3);
+    --fleet-status-due: #fbbf24;
+    --fleet-status-due-soft: rgb(120 53 15 / 0.3);
+    --fleet-status-expired: #f87171;
+    --fleet-status-expired-soft: rgb(127 29 29 / 0.3);
+
+    --fleet-scrollbar-thumb: #9ca3af;
+    --fleet-scrollbar-track: #111827;
+}
+
+.dark .fleet-shell {
+    color-scheme: dark;
+    scrollbar-color: var(--fleet-scrollbar-thumb) var(--fleet-scrollbar-track);
+}
+
+.fleet-size-aware {
+    container-type: inline-size;
+}
+
+/* Responsive accessible table wrapper with sticky column headers and row headers */
+.fleet-table-region {
+    container-type: inline-size;
+    overflow: auto;
+    max-inline-size: 100%;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--fleet-scrollbar-thumb) var(--fleet-scrollbar-track);
+}
+
+@supports not (scrollbar-color: auto) {
+    .fleet-shell,
+    .fleet-table-region {
+        scrollbar-width: auto;
+    }
+
+    .fleet-shell::-webkit-scrollbar,
+    .fleet-table-region::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .fleet-shell::-webkit-scrollbar-thumb,
+    .fleet-table-region::-webkit-scrollbar-thumb {
+        background: var(--fleet-scrollbar-thumb);
+        border-radius: 9999px;
+    }
+
+    .fleet-shell::-webkit-scrollbar-track,
+    .fleet-table-region::-webkit-scrollbar-track {
+        background: var(--fleet-scrollbar-track);
+    }
+}
+
+.fleet-table-region:focus-visible {
+    outline: 2px solid var(--fleet-accent);
+    outline-offset: 2px;
+}
+
+.fleet-table-region table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.fleet-table-region thead th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background-color: var(--fleet-surface-muted);
+}
+
+.fleet-table-region tbody th[scope="row"],
+.fleet-sticky-cell {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    background-color: var(--fleet-surface);
+}
+
+.fleet-table-region thead th.fleet-sticky-cell {
+    z-index: 3;
+    background-color: var(--fleet-surface-muted);
+}
+
+/* Single-row ARIA tablist with horizontal scroll-snap and 3px Fleet Amber border indicator */
+.fleet-tablist {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: inline proximity;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.fleet-tablist::-webkit-scrollbar {
+    display: none;
+}
+
+.fleet-tablist [role="tab"] {
+    position: relative;
+    flex: none;
+    scroll-snap-align: start;
+    white-space: nowrap;
+    min-block-size: 2.75rem;
+}
+
+.fleet-tablist [role="tab"]:focus-visible {
+    outline: 2px solid var(--fleet-accent);
+    outline-offset: -2px;
+}
+
+.fleet-tablist [role="tab"][aria-selected="true"] {
+    color: var(--fleet-accent);
+}
+
+.fleet-tablist [role="tab"][aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    border-block-end: 3px solid var(--fleet-accent);
+}
+
+/* Skeleton shimmer */
+.fleet-skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: var(--fleet-surface-subtle);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .fleet-skeleton::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgb(255 255 255 / 0.55) 50%,
+            transparent 100%
+        );
+        animation: fleet-skeleton-shimmer 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    .dark .fleet-skeleton::after {
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgb(255 255 255 / 0.08) 50%,
+            transparent 100%
+        );
+    }
+}
+
+@keyframes fleet-skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Subtle tactile GPU-composited card and button micro-interactions */
+@media (prefers-reduced-motion: no-preference) {
+    .fleet-card-interactive {
+        transition:
+            transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 180ms ease;
+    }
+
+    .fleet-card-interactive:hover {
+        transform: translateY(-1px);
+    }
+
+    .fleet-card-interactive:active {
+        transform: scale(0.985);
+    }
+
+    .fleet-tactile-btn {
+        transition:
+            transform 140ms cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 140ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fleet-tactile-btn:active:not(:disabled) {
+        transform: scale(0.985);
+    }
+}
+
+/* Form constraint validation deferred until after user interaction */
+.fleet-field-error {
+    display: none;
+    margin-block-start: 0.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--fleet-status-expired);
+}
+
+.fleet-shell :is(input, select, textarea):is(:user-invalid, .user-invalid-fallback) {
+    border-color: var(--fleet-status-expired);
+    background-color: var(--fleet-status-expired-soft);
+}
+
+.fleet-shell :is(input, select, textarea):is(:user-invalid, .user-invalid-fallback) + .fleet-field-error,
+.fleet-shell .fleet-field:has(:is(input, select, textarea):is(:user-invalid, .user-invalid-fallback)) .fleet-field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.fleet-shell :is(input, select, textarea):is([required], [pattern], [minlength], [type="email"], [type="url"]):user-valid {
+    border-color: var(--fleet-status-valid);
+}
+
+.fleet-shell :is(input, select, textarea):focus-visible {
+    outline: 2px solid var(--fleet-accent);
+    outline-offset: 2px;
+}
 
 .fleet-nav-scroll {
     overflow-x: auto;
@@ -41,6 +310,83 @@
 }
 
 /* Fleet nav styles live in fleet-nav.component.ts */
+
+/* Native top-layer modal dialog (SmartFleet forms) */
+/* MANDATORY (both rules): without them, scrolling over the backdrop or inside the dialog scrolls the page behind it */
+dialog.fleet-modal-dialog:modal {
+    overscroll-behavior: contain;
+}
+
+dialog.fleet-modal-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background: rgb(12 10 9 / 0.62);
+    backdrop-filter: blur(4px);
+}
+
+dialog.fleet-modal-dialog {
+    margin: auto;
+    width: min(100% - 1.5rem, 48rem);
+    max-width: min(100% - 1.5rem, 48rem);
+    max-height: min(90dvh, 54rem);
+    padding: 0;
+    border: 1px solid var(--fleet-border);
+    border-radius: 1.25rem;
+    background: var(--fleet-surface-elevated);
+    color: var(--fleet-text-primary);
+    box-shadow: 0 24px 48px -12px rgb(12 10 9 / 0.36);
+}
+
+dialog.fleet-modal-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fleet-modal-dialog__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--fleet-border);
+    background: var(--fleet-surface-elevated);
+    flex-shrink: 0;
+}
+
+.fleet-modal-dialog__body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1 1 auto;
+}
+
+.fleet-modal-dialog__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.625rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--fleet-border);
+    background: var(--fleet-surface);
+    flex-shrink: 0;
+}
+
+@media (max-width: 639px) {
+    dialog.fleet-modal-dialog {
+        width: calc(100% - 1rem);
+        max-width: calc(100% - 1rem);
+        max-height: 94dvh;
+    }
+
+    .fleet-modal-dialog__header,
+    .fleet-modal-dialog__body,
+    .fleet-modal-dialog__footer {
+        padding-inline: 1rem;
+    }
+}
 
 /* Report PDF viewer: always full screen */
 .fleet-report-pdf-dialog-panel {
