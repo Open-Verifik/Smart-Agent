@@ -60,7 +60,12 @@ interface FieldDef {
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const DRIVER_DOCUMENT_TYPES = ['CC', 'CE', 'PA', 'PPT'] as const;
+const CO_DOCUMENT_TYPES = ['CC', 'NIT', 'CE', 'TI', 'PA', 'RC'] as const;
 const DRIVER_LICENSE_CATEGORIES = ['A2', 'B1', 'B2', 'C1', 'C2', 'C3'] as const;
+
+const ALERT_TYPE_KEY_OVERRIDES: Record<string, string> = {
+    fine_amount_changed: 'smartFleet.alerts.type_comparendo_amount_changed',
+};
 
 const OK_THRESHOLD_STATUSES: Record<string, string[]> = {
     soat: ['VIGENTE'],
@@ -169,6 +174,7 @@ export class FleetAssetDetailComponent implements OnInit, AfterViewInit {
     editDraft = signal<FleetAsset>({ country: 'co', type: 'vehicle', ownerDocumentType: 'CC' });
     countryOptions = signal<FleetCountryChoice[]>(mergeFleetCountries([{ code: 'co', available: true }]));
 
+    readonly coDocumentTypes = CO_DOCUMENT_TYPES;
     readonly driverDocumentTypes = DRIVER_DOCUMENT_TYPES;
     readonly driverLicenseCategories = DRIVER_LICENSE_CATEGORIES;
 
@@ -503,6 +509,13 @@ export class FleetAssetDetailComponent implements OnInit, AfterViewInit {
         if (type === 'PPT') return 'PPT';
 
         return this._transloco.translate(`smartFleet.assets.docType.${type}`);
+    }
+
+    alertTitle(alert: FleetAlert): string {
+        const key = ALERT_TYPE_KEY_OVERRIDES[alert.type] ?? `smartFleet.alerts.type_${alert.type}`;
+        const translated = this._transloco.translate(key);
+
+        return translated && translated !== key ? translated : alert.title;
     }
 
     getCountryFlag(country?: string | null): string {
