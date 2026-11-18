@@ -2118,6 +2118,7 @@
         "list": {
             "newProjectTitle": "Novo projeto HumanAuthn",
             "newProjectSubtitle": "Configure outro fluxo de cadastro com o seu próprio formulário, HumanAuthn, armazenamento e branding.",
+            "paused": "Pausado",
             "draft": "Rascunho",
             "active": "Ativo",
             "demoMode": "Demo",
@@ -3365,6 +3366,10 @@
     "close": "Fechar",
     "save_changes": "Guardar alterações",
     "smartEnrollCollections": {
+        "deprecationBannerTitle": "Coleções 1:N legadas descontinuadas",
+        "deprecationBannerSubtitle": "As coleções tradicionais de reconhecimento facial 1:N foram descontinuadas em favor do cadastro biométrico HumanID de conhecimento zero que preserva a privacidade. Todos os novos fluxos de verificação de identidade e acesso devem usar o HumanAuthn.",
+        "deprecationBannerAction": "Explorar cadastro HumanID",
+        "deprecationBannerProjects": "Ver projetos SmartEnroll",
         "title": "Coleções",
         "subtitle": "Organize e gere as suas coleções de reconhecimento facial SmartEnroll.",
         "name": "Nome",
@@ -3418,6 +3423,10 @@
         "imageSearchDisabledHint": "A pesquisa por imagem só está disponível na vista SmartEnroll (Onboarding)."
     },
     "smartEnrollPeople": {
+        "deprecationBannerTitle": "Gestão de pessoas legada descontinuada",
+        "deprecationBannerSubtitle": "Os registros de pessoas cadastradas em 1:N estão obsoletos em favor das credenciais biométricas HumanID de conhecimento zero. Migre os usuários ativos para o cadastro no HumanAuthn.",
+        "deprecationBannerAction": "Explorar cadastro HumanID",
+        "deprecationBannerProjects": "Ver projetos SmartEnroll",
         "title": "Pessoas",
         "subtitle": "Explore, pesquise e gere pessoas inscritas através do SmartEnroll.",
         "clearFilters": "Limpar filtros",
@@ -3597,7 +3606,8 @@
             "liveness": "Selfie de prova de vida",
             "form": "Formulário",
             "end": "Concluiu o fluxo",
-            "skipKYC": "KYC ignorado"
+            "skipKYC": "KYC ignorado",
+            "stepNumber": "Etapa {{number}}"
         },
         "status": {
             "all": "Todos os status",
@@ -3640,7 +3650,8 @@
             "demoMode": "Demo",
             "menuSecurity": "Segurança",
             "newProjectTitle": "Novo projeto Smart Enroll",
-            "newProjectSubtitle": "Configure outro fluxo de inscrição com o seu próprio formulário, documentos, biometria e marca."
+            "newProjectSubtitle": "Configure outro fluxo de inscrição com o seu próprio formulário, documentos, biometria e marca.",
+            "paused": "Pausado"
         },
         "securitySettings": {
             "title": "Configurações de segurança",
@@ -11941,7 +11952,7 @@
             "colKycStatus": "Status KYC",
             "colBiometrics": "Biometria e Liveness",
             "colActions": "Ações",
-            "livenessLabel": "Liveness",
+            "livenessLabel": "Prova de vida",
             "matchLabel": "Correspondência",
             "pendingCapture": "Captura pendente",
             "resendInviteTitle": "Reenviar link de verificação via WhatsApp/E-mail",

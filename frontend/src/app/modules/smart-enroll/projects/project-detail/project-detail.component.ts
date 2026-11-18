@@ -34,7 +34,12 @@ import {
     livenessFailureReasonKey,
     thresholdScoreBarClass,
 } from '../app-registration-record.utils';
-import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
+import {
+    flowStatusTranslationKey,
+    isIncompleteSmartAccessWizard,
+    isNumericStepValue,
+    resumeStepIndex,
+} from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import {
     enrollmentSegment,
@@ -518,6 +523,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     /** Translated label for a liveness failure reason bucket. */
     livenessFailureLabelKey(reason: string): string {
         return `smartEnrollProjects.recordDetail.biometricReason.${livenessFailureReasonKey(reason)}`;
+    }
+
+    flowStatusKey(): string {
+        return flowStatusTranslationKey(this.flow()?.status, 'smartEnrollProjects.list');
+    }
+
+    isNumericStep(step: string): boolean {
+        return isNumericStepValue(step);
     }
 
     /** Percentage of all registrations, for the label beside the count. */

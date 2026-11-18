@@ -81,26 +81,15 @@
                             </button>
 
                             <button
-                                mat-stroked-button
+                                mat-flat-button
+                                color="primary"
                                 type="button"
                                 class="shrink-0 rounded-xl"
-                                (click)="openSetup(0)"
+                                (click)="incompleteWizard() ? continueSetup() : openSetup(0)"
                             >
                                 <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                {{ t('humanAuthnProjects.list.openSetup') }}
+                                {{ t(incompleteWizard() ? 'humanAuthnProjects.setup.continue_setup' : 'humanAuthnProjects.list.openSetup') }}
                             </button>
-
-                            @if (incompleteWizard()) {
-                                <button
-                                    mat-flat-button
-                                    color="primary"
-                                    type="button"
-                                    class="shrink-0 rounded-xl"
-                                    (click)="continueSetup()"
-                                >
-                                    {{ t('humanAuthnProjects.setup.continue_setup') }}
-                                </button>
-                            }
                         </div>
                     }
                 </div>
