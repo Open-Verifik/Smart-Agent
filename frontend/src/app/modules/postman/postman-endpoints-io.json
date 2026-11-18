@@ -2,8 +2,8 @@
   "generatedAt": "2026-11-14T03:30:31.330Z",
   "source": "verifik-backend/scripts/app-features-final.json (AppFeature.docs used by Postman About tab)",
   "locale": "en",
-  "endpointCount": 458,
-  "withDocumentedResponses": 386,
+  "endpointCount": 459,
+  "withDocumentedResponses": 387,
   "withoutDocumentedResponses": [
     "feature_kyc_solution",
     "peru_identity_lookup",
@@ -276000,6 +276000,138 @@
           "body": "{\n  \"data\": { \"isDiplomatAbroad\": false },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
         }
       ]
-    }
-  ]
+    },
+{
+  	"code": "peru_api_vehicle_citv",
+  	"name": "Peru - Vehicle Technical Inspection (CITV)",
+  	"nameES": "Perú - Certificado de Inspección Técnica Vehicular",
+  	"country": "Peru",
+  	"category": "transit",
+  	"group": "apiRequest",
+  	"method": "GET",
+  	"url": "v2/pe/vehiculo/inspeccion-tecnica",
+  	"description": "Look up Peru MTC technical inspection certificates (CITV) by license plate. Returns the certifying company, certificate number, validity dates, inspection result, and status.",
+  	"price": 0.3,
+  	"isAvailable": true,
+  	"catalogHidden": false,
+  	"headers": [
+  		{
+  			"name": "Accept",
+  			"value": "application/json",
+  			"description": ""
+  		},
+  		{
+  			"name": "Authorization",
+  			"value": "Bearer <token>",
+  			"description": ""
+  		}
+  	],
+  	"input": {
+  		"dependencies": [
+  			{
+  				"field": "plate",
+  				"type": "String",
+  				"required": true,
+  				"enum": null,
+  				"default": null,
+  				"min": 5,
+  				"max": 8,
+  				"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+  			},
+  			{
+  				"field": "force",
+  				"type": "Boolean",
+  				"required": false,
+  				"enum": null,
+  				"default": null,
+  				"min": null,
+  				"max": null,
+  				"description": "Optional. Pass true or 1 to skip the stored result and query the MTC source again."
+  			}
+  		]
+  	},
+  	"responses": [
+  		{
+  			"status": "200",
+  			"label": "200",
+  			"body": "{\n  \"data\": {\n    \"plate\": \"V0R660\",\n    \"found\": true,\n    \"hasValidCertificate\": true,\n    \"latestCertificate\": {\n      \"certificateNumber\": \"C-2026-365-657-000392\",\n      \"status\": \"VIGENTE\",\n      \"result\": \"APROBADO\",\n      \"validFrom\": \"08/03/2026\",\n      \"validUntil\": \"08/03/2027\",\n      \"certifyingCompany\": \"CITV GRUPO J&L S.A.C.\",\n      \"serviceType\": \"PARTICULAR\"\n    },\n    \"certificates\": []\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+  		}
+  	],
+  	"descriptionES": "Consulta los certificados de inspección técnica vehicular (CITV) del MTC de Perú por placa. Devuelve la empresa certificadora, el número de certificado, la vigencia, el resultado y el estado.",
+  	"docs": {
+  		"en": {
+  			"title": "Peru - Vehicle Technical Inspection (CITV)",
+  			"description": "Look up Peru MTC technical inspection certificates by plate via GET /v2/pe/vehiculo/inspeccion-tecnica.",
+  			"overview": "Returns the latest CITV certificates registered for a Peruvian license **`plate`**, including the certifying company, certificate number, validity window, inspection result, and status.",
+  			"headers": [
+  				{
+  					"name": "Accept",
+  					"value": "application/json",
+  					"description": ""
+  				},
+  				{
+  					"name": "Authorization",
+  					"value": "Bearer <token>",
+  					"description": ""
+  				}
+  			],
+  			"params": [
+  				{
+  					"field": "plate",
+  					"description": "License plate to query, without spaces. Example: V0R660."
+  				},
+  				{
+  					"field": "force",
+  					"description": "Optional. true or 1 bypasses the stored result."
+  				}
+  			],
+  			"requestExamples": [],
+  			"responses": [
+  				{
+  					"status": "200",
+  					"label": "200",
+  					"body": "{\n  \"data\": {\n    \"plate\": \"V0R660\",\n    \"found\": true,\n    \"hasValidCertificate\": true,\n    \"latestCertificate\": {\n      \"certificateNumber\": \"C-2026-365-657-000392\",\n      \"status\": \"VIGENTE\",\n      \"result\": \"APROBADO\",\n      \"validFrom\": \"08/03/2026\",\n      \"validUntil\": \"08/03/2027\",\n      \"certifyingCompany\": \"CITV GRUPO J&L S.A.C.\",\n      \"serviceType\": \"PARTICULAR\"\n    },\n    \"certificates\": []\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+  				}
+  			],
+  			"notes": []
+  		},
+  		"es": {
+  			"title": "Perú - Certificado de Inspección Técnica Vehicular",
+  			"description": "Consulta los certificados de inspección técnica vehicular del MTC por placa mediante GET /v2/pe/vehiculo/inspeccion-tecnica.",
+  			"overview": "Devuelve los certificados CITV registrados para una **`placa`** de Perú, con la empresa certificadora, el número de certificado, la vigencia, el resultado de la inspección y el estado.",
+  			"headers": [
+  				{
+  					"name": "Accept",
+  					"value": "application/json",
+  					"description": ""
+  				},
+  				{
+  					"name": "Authorization",
+  					"value": "Bearer <token>",
+  					"description": ""
+  				}
+  			],
+  			"params": [
+  				{
+  					"field": "plate",
+  					"description": "Placa a consultar, sin espacios. Ejemplo: V0R660."
+  				},
+  				{
+  					"field": "force",
+  					"description": "Opcional. true o 1 omite el resultado guardado y consulta de nuevo al MTC."
+  				}
+  			],
+  			"requestExamples": [],
+  			"responses": [
+  				{
+  					"status": "200",
+  					"label": "200",
+  					"body": "{\n  \"data\": {\n    \"plate\": \"V0R660\",\n    \"found\": true,\n    \"hasValidCertificate\": true,\n    \"latestCertificate\": {\n      \"certificateNumber\": \"C-2026-365-657-000392\",\n      \"status\": \"VIGENTE\",\n      \"result\": \"APROBADO\",\n      \"validFrom\": \"08/03/2026\",\n      \"validUntil\": \"08/03/2027\"\n    },\n    \"certificates\": []\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+  				}
+  			],
+  			"notes": []
+  		}
+  	}
+  }
+]
 }

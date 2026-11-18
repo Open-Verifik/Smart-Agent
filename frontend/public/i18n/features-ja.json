@@ -1923,6 +1923,10 @@
         "peru_api_vehicle_setare_arequipa": {
             "title": "ペルー — アレキパ SETARE タクシー許可",
             "description": "GET /v2/pe/vehiculo/setare-arequipa によりペルー・アレキパで有効な SETARE タクシー運行許可を保有しているか確認します。"
+        },
+        "peru_api_vehicle_citv": {
+            "title": "車両技術検査証明書",
+            "description": "GET /v2/pe/vehiculo/inspeccion-tecnica でペルー MTC の車両技術検査証明書をナンバープレートから照会します。"
         }
     }
 }

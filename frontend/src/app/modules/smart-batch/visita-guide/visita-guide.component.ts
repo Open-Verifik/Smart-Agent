@@ -840,7 +840,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isLoadingFeatures = signal(false);
     featuresError = signal<string | null>(null);
     countrySearchQuery = signal('');
-    countrySort = signal<'sources' | 'alpha'>('sources');
     selectedLayoutSectionId = signal<string | null>(null);
     /** Copied block, image, or field. Paste in the menu creates the copy. */
     private readonly _layoutClipboard = signal<{
@@ -1135,14 +1134,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             }))
             .filter((country) => country.count > 0)
             .filter((country) => !query || country.name.toLowerCase().includes(query))
-            .sort((left, right) => {
-                if (this.countrySort() === 'alpha') {
-                    return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
-                }
-                const bySources = right.count - left.count;
-                if (bySources !== 0) return bySources;
-                return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
-            });
+            .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }));
     });
 
     private readonly _prepareCountryStep = effect(() => {

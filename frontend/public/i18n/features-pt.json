@@ -1923,6 +1923,10 @@
         "peru_api_vehicle_setare_arequipa": {
             "title": "Permissão de Táxi SETARE Arequipa",
             "description": "Valide se um veículo possui permissão de táxi SETARE ativa em Arequipa via GET /v2/pe/vehiculo/setare-arequipa."
+        },
+        "peru_api_vehicle_citv": {
+            "title": "Certificado de inspeção técnica veicular",
+            "description": "Consulte os certificados de inspeção técnica veicular do MTC no Peru pela placa via GET /v2/pe/vehiculo/inspeccion-tecnica."
         }
     }
 }
