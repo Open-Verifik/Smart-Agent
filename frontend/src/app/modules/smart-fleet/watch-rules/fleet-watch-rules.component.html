@@ -407,7 +407,7 @@
                     class="flex max-h-[90dvh] min-h-0 flex-col overflow-hidden"
                 >
                     <div class="fleet-modal-dialog__header">
-                        <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex min-w-0 flex-1 items-start gap-3">
                             <span
                                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
                             >
@@ -423,13 +423,12 @@
                             </div>
                         </div>
                         <button
-                            mat-icon-button
                             type="button"
                             (click)="closeRuleForm()"
                             [attr.aria-label]="'smartFleet.cancel' | transloco"
-                            class="!text-stone-500 hover:!text-stone-900 dark:!text-stone-400 dark:hover:!text-white"
+                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200/80 bg-stone-100/70 text-stone-500 transition-colors hover:bg-stone-200/80 hover:text-stone-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
                         >
-                            <mat-icon>close</mat-icon>
+                            <mat-icon class="icon-size-5">close</mat-icon>
                         </button>
                     </div>
 

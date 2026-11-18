@@ -190,6 +190,12 @@ type PlansView = 'current' | 'change' | 'select';
                 color: #1c1917;
             }
 
+            .fleet-shell.plans-container .feature-content .feature-value.text-emerald-700,
+            .fleet-shell.plans-container .plan-stat .stat-value.text-emerald-700,
+            .fleet-shell.plans-container .checkout-stats .stat-item .stat-value.text-emerald-700 {
+                color: #047857;
+            }
+
             .fleet-shell.plans-container .feature-icon.email,
             .fleet-shell.plans-container .feature-icon.whitelabel,
             .fleet-shell.plans-container .feature-icon.biometrics,
@@ -530,6 +536,12 @@ type PlansView = 'current' | 'change' | 'select';
             :host-context(.dark) .fleet-shell.plans-container .landing-slider-title,
             :host-context(.dark) .fleet-shell.plans-container .checkout-stats .stat-item .stat-value {
                 color: #ffffff;
+            }
+
+            :host-context(.dark) .fleet-shell.plans-container .feature-content .feature-value.text-emerald-700,
+            :host-context(.dark) .fleet-shell.plans-container .plan-stat .stat-value.text-emerald-700,
+            :host-context(.dark) .fleet-shell.plans-container .checkout-stats .stat-item .stat-value.text-emerald-700 {
+                color: #34d399;
             }
 
             :host-context(.dark) .fleet-shell.plans-container .feature-card,
