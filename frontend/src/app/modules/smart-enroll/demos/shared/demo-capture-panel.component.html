@@ -151,10 +151,35 @@
         </app-demo-scanner-shell>
     }
 
+    @if (multiPreviews.length > 0) {
+        <div class="flex flex-wrap gap-2.5 border-t border-stone-100 pt-4 dark:border-gray-800">
+            @for (thumb of multiPreviews; track $index) {
+                <div class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100 dark:border-gray-700 dark:bg-gray-800">
+                    <app-demo-raster-image
+                        [src]="thumb"
+                        alt=""
+                        [width]="80"
+                        [height]="80"
+                        className="h-20 w-20 object-cover"
+                    />
+                    <button
+                        type="button"
+                        (click)="multiPreviewRemoved.emit($index)"
+                        [attr.aria-label]="'smartEnrollDemos.common.removeItemAria' | transloco: { name: $index + 1 }"
+                        class="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-stone-900/75 text-white backdrop-blur-xs transition-colors hover:bg-stone-900"
+                    >
+                        <span class="material-symbols-outlined text-xs leading-none" aria-hidden="true">close</span>
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
     <input
         [id]="fileInputId"
         type="file"
         accept="image/*"
+        [attr.multiple]="multiple ? '' : null"
         class="sr-only"
         [disabled]="disabled"
         (change)="onInputChanged($event)"

@@ -3,30 +3,34 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnInit,
-    ViewChild,
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
-import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
-import { fileToBase64, isPersonAlreadySetError } from '../../services/biometrics-demo.util';
+import {
+    DEFAULT_FACE_SEARCH_MIN_SCORE,
+    DEFAULT_LIVENESS_MIN_SCORE,
+    FACE_SEARCH_SCORE_PRESETS,
+    LIVENESS_SCORE_PRESETS,
+    type ApiErrorResponse,
+} from '../../services/biometrics-demo.types';
+import {
+    filesToImagesAndPreviews,
+    isPersonAlreadySetError,
+    removeGalleryImageAt,
+} from '../../services/biometrics-demo.util';
 import { CreatePersonAlreadyExistsResultComponent } from '../../shared/create-person-already-exists-result.component';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoScoreSliderComponent } from '../../shared/demo-score-slider.component';
+import { DemoSearchModeToggleComponent } from '../../shared/demo-search-mode-toggle.component';
 import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
 import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
-import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
 import { CountryService } from 'app/core/services/country.service';
@@ -65,24 +69,22 @@ type Step = 'form' | 'processing' | 'result' | 'conflict';
         DemoPageShellComponent,
         DemoStageHeroComponent,
         DemoStageCardComponent,
+        DemoCapturePanelComponent,
+        DemoScoreSliderComponent,
+        DemoSearchModeToggleComponent,
         DemoRelatedDocsSectionComponent,
         CreatePersonAlreadyExistsResultComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoChooseOneCalloutComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
-        DemoRasterImageComponent,
-        FaceGuidedCameraComponent,
         DemoResultActionsComponent,
         DemoSandboxResultBannerComponent,
         NationalitySelectComponent,
     ],
     templateUrl: './create-person-with-liveness-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreatePersonWithLivenessDemoComponent implements OnInit {
-    @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+    readonly livenessPresets = LIVENESS_SCORE_PRESETS;
+    readonly searchPresets = FACE_SEARCH_SCORE_PRESETS;
 
     private _api = inject(BiometricsDemoApiService);
     private _router = inject(Router);
@@ -92,13 +94,14 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
 
     authChecked = false;
     step: Step = 'form';
+    captureMode: CaptureMethod = 'upload';
     name = '';
     gender: 'M' | 'F' = 'M';
     dob = '';
     collectionId = '';
     nationality = '';
-    livenessMinScore = 0.65;
-    minScore = 0.8;
+    livenessMinScore = DEFAULT_LIVENESS_MIN_SCORE;
+    minScore = DEFAULT_FACE_SEARCH_MIN_SCORE;
     searchMode: 'FAST' | 'ACCURATE' = 'FAST';
     images: string[] = [];
     previews: string[] = [];
@@ -118,7 +121,7 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
     date_of_birth: "1990-01-15",
     collection_id: "<collectionMongoId>",
     liveness_min_score: 0.65,
-    min_score: 0.8,
+    min_score: 0.65,
     search_mode: "FAST",
     nationality: "CO",
     images: ["<base64>", "<base64>"],
@@ -157,21 +160,18 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
         this._cdr.markForCheck();
     }
 
-    triggerFilePicker(): void {
-        this.fileInput?.nativeElement.click();
+    async onFilesPicked(files: File[]): Promise<void> {
+        const added = await filesToImagesAndPreviews(files);
+        if (!added.images.length) return;
+        this.images = [...this.images, ...added.images];
+        this.previews = [...this.previews, ...added.previews];
+        this._cdr.markForCheck();
     }
 
-    async onFilesSelected(event: Event): Promise<void> {
-        const input = event.target as HTMLInputElement;
-        const files = input.files;
-        if (!files?.length) return;
-
-        const fileList = Array.from(files);
-        const b64s = await Promise.all(fileList.map((f) => fileToBase64(f)));
-        const urls = fileList.map((f) => URL.createObjectURL(f));
-        this.images = [...this.images, ...b64s];
-        this.previews = [...this.previews, ...urls];
-        input.value = '';
+    onRemovePreview(index: number): void {
+        const next = removeGalleryImageAt(this.images, this.previews, index);
+        this.images = next.images;
+        this.previews = next.previews;
         this._cdr.markForCheck();
     }
 
@@ -220,8 +220,8 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
         this.dob = '';
         this.collectionId = '';
         this.nationality = '';
-        this.livenessMinScore = 0.65;
-        this.minScore = 0.8;
+        this.livenessMinScore = DEFAULT_LIVENESS_MIN_SCORE;
+        this.minScore = DEFAULT_FACE_SEARCH_MIN_SCORE;
         this.searchMode = 'FAST';
         this.images = [];
         this.previews = [];
