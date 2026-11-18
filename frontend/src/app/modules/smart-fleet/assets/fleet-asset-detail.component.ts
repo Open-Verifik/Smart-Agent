@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, inject, OnInit, signal, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +15,7 @@ import {
     mergeFleetCountries,
 } from '../fleet-country.util';
 import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetDialogBackdropTracker, syncModalDialog } from '../fleet-modal-dialog.util';
 import {
     FleetAlert,
     FleetAlertDelivery,
@@ -31,15 +32,16 @@ import { firstValueFrom } from 'rxjs';
 import { fleetReportFileName, pdfBlobFromResponse } from './fleet-vehicle-report.util';
 
 type DetailTab = 'report' | 'pdfs' | 'timeline' | 'alerts' | 'rules' | 'inspect';
+type DispatchStatus = 'compliant' | 'expiring' | 'grounded' | 'unchecked';
 
 /** One rendered row of a snapshot's normalized payload. */
 interface ReportRow {
-    label: string;
+    labelKey: string;
     value: string;
     variant: 'ok' | 'warning' | 'critical' | 'neutral';
 }
 
-/** A per-check section of the vehicle report, built from the newest snapshot. */
+/** A per-check section of the asset report, built from the newest snapshot. */
 interface ReportSection {
     checkType: FleetCheckType | string;
     observedAt?: string;
@@ -50,36 +52,77 @@ interface ReportSection {
     list?: Record<string, unknown>[];
 }
 
+interface FieldDef {
+    keys: string[];
+    labelKey: string;
+}
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+const DRIVER_DOCUMENT_TYPES = ['CC', 'CE', 'PA', 'PPT'] as const;
+const DRIVER_LICENSE_CATEGORIES = ['A2', 'B1', 'B2', 'C1', 'C2', 'C3'] as const;
+
+const OK_THRESHOLD_STATUSES: Record<string, string[]> = {
+    soat: ['VIGENTE'],
+    rtm: ['APROBADA', 'VIGENTE'],
+    driver_license: ['ACTIVA', 'VIGENTE'],
+};
+
+const CRITICAL_STATUS_VALUES = new Set([
+    'VENCIDO',
+    'VENCIDA',
+    'NO VIGENTE',
+    'SUSPENDIDA',
+    'SUSPENDIDO',
+    'CANCELADA',
+    'INACTIVA',
+    'RECHAZADA',
+]);
+
+const OK_STATUS_VALUES = new Set(['VIGENTE', 'APROBADA', 'ACTIVA', 'ACTIVO']);
+
 /**
- * Fields worth showing per check type, in display order. Anything not listed is dropped
- * rather than dumped, which is what kept the old report readable.
+ * Fields worth showing per check type, in display order. Supports both flattened fields
+ * and `normalized.current.*` structures returned by the backend normalizers.
  */
-const FIELD_MAP: Record<string, { key: string; label: string }[]> = {
+const FIELD_MAP: Record<string, FieldDef[]> = {
     soat: [
-        { key: 'policyNumber', label: 'policyNumber' },
-        { key: 'insurer', label: 'insurer' },
-        { key: 'issuedAt', label: 'issuedAt' },
-        { key: 'expiresAt', label: 'expiresAt' },
-        { key: 'status', label: 'status' },
+        { keys: ['policyNumber', 'id'], labelKey: 'smartFleet.field.policyNumber' },
+        { keys: ['insurer', 'issuer'], labelKey: 'smartFleet.field.insurer' },
+        { keys: ['issuedAt'], labelKey: 'smartFleet.field.issuedAt' },
+        { keys: ['expiresAt'], labelKey: 'smartFleet.field.expiresAt' },
+        { keys: ['status'], labelKey: 'smartFleet.field.status' },
     ],
     rtm: [
-        { key: 'certificateNumber', label: 'certificateNumber' },
-        { key: 'facility', label: 'facility' },
-        { key: 'issuedAt', label: 'issuedAt' },
-        { key: 'expiresAt', label: 'expiresAt' },
-        { key: 'status', label: 'status' },
+        { keys: ['certificateNumber', 'id'], labelKey: 'smartFleet.field.certificateNumber' },
+        { keys: ['facility', 'issuer'], labelKey: 'smartFleet.field.facility' },
+        { keys: ['issuedAt'], labelKey: 'smartFleet.field.issuedAt' },
+        { keys: ['expiresAt'], labelKey: 'smartFleet.field.expiresAt' },
+        { keys: ['status'], labelKey: 'smartFleet.field.status' },
     ],
     comparendos: [
-        { key: 'total', label: 'ticketCount' },
-        { key: 'totalAmount', label: 'totalAmount' },
+        { keys: ['total', 'count'], labelKey: 'smartFleet.field.ticketCount' },
+        { keys: ['totalAmount'], labelKey: 'smartFleet.field.totalAmount' },
     ],
     ownership: [
-        { key: 'ownerCount', label: 'ownerCount' },
-        { key: 'primaryOwner', label: 'primaryOwner' },
+        { keys: ['ownerCount'], labelKey: 'smartFleet.field.ownerCount' },
+        { keys: ['primaryOwner'], labelKey: 'smartFleet.field.primaryOwner' },
     ],
-    claims: [{ key: 'total', label: 'claimCount' }],
+    claims: [{ keys: ['total', 'count'], labelKey: 'smartFleet.field.claimCount' }],
+    driver_license: [
+        { keys: ['fullName'], labelKey: 'smartFleet.field.fullName' },
+        { keys: ['driverStatus'], labelKey: 'smartFleet.field.driverStatus' },
+        { keys: ['documentNumber', 'id'], labelKey: 'smartFleet.drivers.documentNumber' },
+        { keys: ['category'], labelKey: 'smartFleet.field.category' },
+        { keys: ['issuedAt'], labelKey: 'smartFleet.field.issuedAt' },
+        { keys: ['expiresAt'], labelKey: 'smartFleet.field.expiresAt' },
+        { keys: ['status'], labelKey: 'smartFleet.field.status' },
+        { keys: ['restrictions'], labelKey: 'smartFleet.field.restrictions' },
+    ],
+    driver_fines: [
+        { keys: ['total', 'count'], labelKey: 'smartFleet.field.ticketCount' },
+        { keys: ['totalAmount'], labelKey: 'smartFleet.field.totalAmount' },
+    ],
 };
 
 @Component({
@@ -100,13 +143,18 @@ const FIELD_MAP: Record<string, { key: string; label: string }[]> = {
     templateUrl: './fleet-asset-detail.component.html',
     encapsulation: ViewEncapsulation.None,
 })
-export class FleetAssetDetailComponent implements OnInit {
+export class FleetAssetDetailComponent implements OnInit, AfterViewInit {
     private _fleetService = inject(SmartFleetService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
     private _reports = inject(SmartReportService);
+    private _lastSandboxRevision = 0;
+    private _viewReady = signal(false);
+    private _editBackdrop = new FleetDialogBackdropTracker();
+
+    @ViewChild('editAssetDialog') private _editAssetDialog?: ElementRef<HTMLDialogElement>;
 
     assetId = signal<string>('');
     asset = signal<FleetAsset | null>(null);
@@ -118,11 +166,117 @@ export class FleetAssetDetailComponent implements OnInit {
     isChecking = signal(false);
     isSaving = signal(false);
     showEditForm = signal(false);
-    editDraft = signal<FleetAsset>({ country: 'co', type: 'vehicle' });
+    editDraft = signal<FleetAsset>({ country: 'co', type: 'vehicle', ownerDocumentType: 'CC' });
     countryOptions = signal<FleetCountryChoice[]>(mergeFleetCountries([{ code: 'co', available: true }]));
 
-    readonly tabs: DetailTab[] = ['report', 'pdfs', 'timeline', 'alerts', 'rules', 'inspect'];
+    readonly driverDocumentTypes = DRIVER_DOCUMENT_TYPES;
+    readonly driverLicenseCategories = DRIVER_LICENSE_CATEGORIES;
+
+    readonly allTabs: DetailTab[] = ['report', 'pdfs', 'timeline', 'alerts', 'rules', 'inspect'];
     activeTab = signal<DetailTab>('report');
+
+    isDriver = computed(() => this.asset()?.type === 'driver');
+
+    visibleTabs = computed<DetailTab[]>(() =>
+        this.isDriver() ? ['report', 'timeline', 'alerts', 'rules', 'inspect'] : this.allTabs
+    );
+
+    driverDocLabel = computed(() => {
+        const current = this.asset();
+
+        if (!current?.ownerDocumentNumber) return '-';
+
+        return `${current.ownerDocumentType || 'ID'} ${current.ownerDocumentNumber}`.trim();
+    });
+
+    licenseCategory = computed(() => {
+        const current = this.asset();
+        const metaCat = current?.metadata?.['licenseCategory'];
+
+        if (typeof metaCat === 'string' && metaCat.trim()) return metaCat.trim().toUpperCase();
+
+        const stateCat = current?.lastKnownState?.['driver_license']?.['category'];
+
+        return typeof stateCat === 'string' && stateCat.trim() ? stateCat.trim().toUpperCase() : null;
+    });
+
+    assignedPlate = computed(() => {
+        const raw = this.asset()?.metadata?.['assignedPlate'];
+
+        return typeof raw === 'string' && raw.trim() ? raw.trim().toUpperCase() : null;
+    });
+
+    headerTitle = computed(() => {
+        const current = this.asset();
+
+        if (!current) return '-';
+
+        if (current.type === 'driver') {
+            return current.nickname?.trim() || this.driverDocLabel();
+        }
+
+        return current.plate || current.vin || '-';
+    });
+
+    dispatchStatus = computed<DispatchStatus>(() => {
+        const current = this.asset();
+
+        if (!current) return 'unchecked';
+
+        const type = current.type === 'driver' ? 'driver' : 'vehicle';
+        const state = current.lastKnownState ?? {};
+        const thresholdChecks = type === 'driver' ? ['driver_license'] : ['soat', 'rtm'];
+        const deltaChecks = type === 'driver' ? ['driver_fines'] : ['comparendos', 'ownership', 'claims'];
+
+        let hasThresholdSignal = false;
+        let isGrounded = (current.alertCounts?.critical ?? 0) > 0;
+        let isExpiring = (current.alertCounts?.warning ?? 0) > 0;
+
+        for (const checkType of thresholdChecks) {
+            const entry = state[checkType];
+
+            if (!entry || typeof entry !== 'object') continue;
+
+            const status = typeof entry.status === 'string' ? entry.status.trim().toUpperCase() : null;
+            const okList = OK_THRESHOLD_STATUSES[checkType];
+            const hasExpiry = Boolean(entry.expiresAt);
+
+            if (hasExpiry || status) hasThresholdSignal = true;
+
+            if (status && okList && !okList.includes(status)) {
+                isGrounded = true;
+                continue;
+            }
+
+            if (!hasExpiry) continue;
+
+            const timestamp = new Date(String(entry.expiresAt)).getTime();
+
+            if (Number.isNaN(timestamp)) continue;
+
+            const days = Math.floor((timestamp - Date.now()) / MS_PER_DAY);
+
+            if (days < 0) {
+                isGrounded = true;
+            } else if (days <= 30) {
+                isExpiring = true;
+            }
+        }
+
+        if (type === 'driver' && (state['driver_fines']?.count ?? 0) > 0) isExpiring = true;
+        if (type === 'vehicle' && (state['comparendos']?.count ?? 0) > 0) isExpiring = true;
+
+        const hasDeltaSignal = deltaChecks.some((checkType) => Boolean(state[checkType]?.checkedAt));
+
+        if (!hasThresholdSignal && !hasDeltaSignal && !isGrounded && !isExpiring) {
+            return 'unchecked';
+        }
+
+        if (isGrounded) return 'grounded';
+        if (isExpiring) return 'expiring';
+
+        return 'compliant';
+    });
 
     savedReports = computed(() => savedReportsOf(this.asset()));
     downloadingReport = signal<string | null>(null);
@@ -131,6 +285,14 @@ export class FleetAssetDetailComponent implements OnInit {
 
     canSaveEdit = computed(() => {
         const draft = this.editDraft();
+
+        if (draft.type === 'driver') {
+            return Boolean(
+                draft.ownerDocumentType?.trim() &&
+                    draft.ownerDocumentNumber?.trim() &&
+                    draft.nickname?.trim()
+            );
+        }
 
         return Boolean(draft.plate?.trim() || draft.vin?.trim());
     });
@@ -166,15 +328,12 @@ export class FleetAssetDetailComponent implements OnInit {
             ...new Set(
                 active.map((rule) => {
                     if (rule.frequency === 'custom' && rule.intervalDays) {
-                        return this._transloco.translate(
-                            'smartFleet.rules.customFrequencySummary',
-                            { days: rule.intervalDays }
-                        );
+                        return this._transloco.translate('smartFleet.rules.customFrequencySummary', {
+                            days: rule.intervalDays,
+                        });
                     }
 
-                    return this._transloco.translate(
-                        `smartFleet.frequency.${rule.frequency || 'weekly'}`
-                    );
+                    return this._transloco.translate(`smartFleet.frequency.${rule.frequency || 'weekly'}`);
                 })
             ),
         ];
@@ -195,7 +354,10 @@ export class FleetAssetDetailComponent implements OnInit {
         return {
             asset: {
                 id: this.asset()?._id,
+                type: this.asset()?.type || 'vehicle',
                 plate: this.asset()?.plate,
+                ownerDocumentType: this.asset()?.ownerDocumentType,
+                ownerDocumentNumber: this.asset()?.ownerDocumentNumber,
                 country: this.asset()?.country,
                 nextCheckAt: this.asset()?.nextCheckAt,
                 lastCheckedAt: this.asset()?.lastCheckedAt,
@@ -228,6 +390,33 @@ export class FleetAssetDetailComponent implements OnInit {
         };
     });
 
+    constructor() {
+        effect(() => {
+            const revision = this._fleetService.sandboxRevision();
+
+            if (revision > 0 && revision !== this._lastSandboxRevision) {
+                this._lastSandboxRevision = revision;
+
+                if (this.assetId()) {
+                    this._load();
+                }
+            }
+        });
+
+        effect(() => {
+            const ready = this._viewReady();
+            const open = Boolean(this.showEditForm() && this.asset());
+
+            if (!ready) return;
+
+            syncModalDialog(this._editAssetDialog?.nativeElement, open);
+        });
+    }
+
+    ngAfterViewInit(): void {
+        this._viewReady.set(true);
+    }
+
     ngOnInit(): void {
         const id = this._route.snapshot.paramMap.get('id') ?? '';
 
@@ -236,13 +425,84 @@ export class FleetAssetDetailComponent implements OnInit {
         this._load();
 
         if (this._route.snapshot.queryParamMap.get('edit') === '1') {
-            // Wait for asset load; openEdit is also safe to call after _load fills asset.
             this.showEditForm.set(true);
         }
     }
 
     setActiveTab(tab: DetailTab): void {
         this.activeTab.set(tab);
+    }
+
+    onTabKeydown(event: KeyboardEvent): void {
+        const tabs = this.visibleTabs();
+        const currentIndex = tabs.indexOf(this.activeTab());
+
+        if (currentIndex === -1) return;
+
+        let nextIndex = -1;
+
+        if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+
+        if (nextIndex === -1) return;
+
+        event.preventDefault();
+        const nextTab = tabs[nextIndex];
+        this.setActiveTab(nextTab);
+
+        if (typeof document !== 'undefined') {
+            const el = document.getElementById(`fleet-detail-tab-${nextTab}`);
+
+            el?.focus();
+            el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
+    }
+
+    dispatchBadgeClasses(status: DispatchStatus): string {
+        switch (status) {
+            case 'compliant':
+                return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+            case 'expiring':
+                return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+            case 'grounded':
+                return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+            default:
+                return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
+        }
+    }
+
+    dispatchBadgeIcon(status: DispatchStatus): string {
+        switch (status) {
+            case 'compliant':
+                return 'verified';
+            case 'expiring':
+                return 'schedule';
+            case 'grounded':
+                return 'block';
+            default:
+                return 'hourglass_empty';
+        }
+    }
+
+    dispatchBadgeKey(status: DispatchStatus): string {
+        switch (status) {
+            case 'compliant':
+                return 'smartFleet.assets.statusCompliant';
+            case 'expiring':
+                return 'smartFleet.dashboard.readinessExpiringSoon';
+            case 'grounded':
+                return 'smartFleet.assets.statusGrounded';
+            default:
+                return 'smartFleet.dashboard.readinessNoData';
+        }
+    }
+
+    driverDocTypeLabel(type: string): string {
+        if (type === 'PPT') return 'PPT';
+
+        return this._transloco.translate(`smartFleet.assets.docType.${type}`);
     }
 
     getCountryFlag(country?: string | null): string {
@@ -258,7 +518,7 @@ export class FleetAssetDetailComponent implements OnInit {
 
         if (option.available) return base;
 
-        return `${base} — ${this._transloco.translate('smartFleet.assets.comingSoon')}`;
+        return `${base} - ${this._transloco.translate('smartFleet.assets.comingSoon')}`;
     }
 
     openEdit(): void {
@@ -273,9 +533,10 @@ export class FleetAssetDetailComponent implements OnInit {
             vin: current.vin || '',
             nickname: current.nickname || '',
             group: current.group || '',
-            ownerDocumentType: current.ownerDocumentType || '',
+            ownerDocumentType: current.ownerDocumentType || (current.type === 'driver' ? 'CC' : ''),
             ownerDocumentNumber: current.ownerDocumentNumber || '',
             notes: current.notes || '',
+            metadata: { ...(current.metadata ?? {}) },
         });
         this.showEditForm.set(true);
     }
@@ -284,8 +545,42 @@ export class FleetAssetDetailComponent implements OnInit {
         this.showEditForm.set(false);
     }
 
+    onEditDialogNativeClose(): void {
+        if (this.showEditForm()) {
+            this.showEditForm.set(false);
+        }
+    }
+
+    onEditDialogPointerDown(event: PointerEvent): void {
+        this._editBackdrop.onPointerDown(event, this._editAssetDialog?.nativeElement);
+    }
+
+    onEditDialogPointerUp(event: PointerEvent): void {
+        if (this._editBackdrop.shouldDismissOnPointerUp(event, this._editAssetDialog?.nativeElement)) {
+            this.cancelEdit();
+        }
+    }
+
     updateEditDraft(field: keyof FleetAsset, value: string): void {
         this.editDraft.update((draft) => ({ ...draft, [field]: value }));
+    }
+
+    editMetadataString(key: string): string {
+        const val = this.editDraft().metadata?.[key];
+
+        return typeof val === 'string' ? val : '';
+    }
+
+    updateEditMetadata(key: string, value: string): void {
+        this.editDraft.update((draft) => {
+            const nextMeta = { ...(draft.metadata ?? {}) };
+            const trimmed = value.trim();
+
+            if (trimmed) nextMeta[key] = key === 'assignedPlate' ? trimmed.toUpperCase() : trimmed;
+            else delete nextMeta[key];
+
+            return { ...draft, metadata: nextMeta };
+        });
     }
 
     setEditCountry(code: string): void {
@@ -296,45 +591,63 @@ export class FleetAssetDetailComponent implements OnInit {
         this.updateEditDraft('country', code);
     }
 
-    saveEdit(): void {
+    saveEdit(event?: Event): void {
+        if (event?.currentTarget instanceof HTMLFormElement && !event.currentTarget.checkValidity()) {
+            event.currentTarget.reportValidity();
+            return;
+        }
+
         if (!this.canSaveEdit() || this.isSaving()) return;
 
         const draft = this.editDraft();
+        const isDriver = draft.type === 'driver';
 
         this.isSaving.set(true);
 
-        this._fleetService
-            .updateAsset(this.assetId(), {
-                country: draft.country,
-                plate: draft.plate,
-                vin: draft.vin,
-                nickname: draft.nickname,
-                group: draft.group,
-                ownerDocumentType: draft.ownerDocumentType,
-                ownerDocumentNumber: draft.ownerDocumentNumber,
-                notes: draft.notes,
-            })
-            .subscribe({
-                next: (response) => {
-                    this.isSaving.set(false);
-                    this.showEditForm.set(false);
-                    this.asset.set(response.data);
-                    this._snackBar.open(
-                        this._transloco.translate('smartFleet.assets.updated'),
-                        undefined,
-                        { duration: 3000 }
-                    );
-                },
-                error: (err) => {
-                    this.isSaving.set(false);
-                    console.error('[SmartFleet] updateAsset error', err);
-                    this._snackBar.open(
-                        this._transloco.translate('smartFleet.assets.updateFailed'),
-                        undefined,
-                        { duration: 5000 }
-                    );
-                },
-            });
+        const payload: Partial<FleetAsset> = isDriver
+            ? {
+                  country: draft.country,
+                  nickname: draft.nickname,
+                  group: draft.group || null,
+                  ownerDocumentType: draft.ownerDocumentType,
+                  ownerDocumentNumber: draft.ownerDocumentNumber,
+                  notes: draft.notes,
+                  metadata: draft.metadata,
+              }
+            : {
+                  country: draft.country,
+                  plate: draft.plate,
+                  vin: draft.vin,
+                  nickname: draft.nickname,
+                  group: draft.group || null,
+                  ownerDocumentType: draft.ownerDocumentType,
+                  ownerDocumentNumber: draft.ownerDocumentNumber,
+                  notes: draft.notes,
+              };
+
+        this._fleetService.updateAsset(this.assetId(), payload).subscribe({
+            next: (response) => {
+                this.isSaving.set(false);
+                this.showEditForm.set(false);
+                this.asset.set(response.data);
+                this._snackBar.open(
+                    this._transloco.translate(
+                        isDriver ? 'smartFleet.drivers.updated' : 'smartFleet.assets.updated'
+                    ),
+                    undefined,
+                    { duration: 3000 }
+                );
+            },
+            error: (err) => {
+                this.isSaving.set(false);
+                console.error('[SmartFleet] updateAsset error', err);
+                this._snackBar.open(
+                    this._transloco.translate('smartFleet.assets.updateFailed'),
+                    undefined,
+                    { duration: 5000 }
+                );
+            },
+        });
     }
 
     private _loadCountries(): void {
@@ -450,9 +763,9 @@ export class FleetAssetDetailComponent implements OnInit {
             case 'critical':
                 return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
             case 'warning':
-                return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+                return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
             default:
-                return 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300';
+                return 'bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-300';
         }
     }
 
@@ -470,9 +783,11 @@ export class FleetAssetDetailComponent implements OnInit {
     }
 
     formatDate(value?: string | null): string {
-        if (!value) return '—';
+        if (!value) return '-';
 
-        return new Date(value).toLocaleString();
+        const date = new Date(value);
+
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
     }
 
     deliverySummary(alert: FleetAlert): string {
@@ -480,9 +795,7 @@ export class FleetAssetDetailComponent implements OnInit {
             return this._transloco.translate('smartFleet.detail.noDeliveries');
         }
 
-        return alert.deliveries
-            .map((delivery) => `${delivery.channel}: ${delivery.status}`)
-            .join(', ');
+        return alert.deliveries.map((delivery) => `${delivery.channel}: ${delivery.status}`).join(', ');
     }
 
     deliveryClasses(delivery: FleetAlertDelivery): string {
@@ -494,7 +807,7 @@ export class FleetAssetDetailComponent implements OnInit {
             case 'skipped':
                 return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
             default:
-                return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+                return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
         }
     }
 
@@ -531,11 +844,55 @@ export class FleetAssetDetailComponent implements OnInit {
     cell(row: Record<string, unknown>, column: string): string {
         const value = row[column];
 
-        if (value === null || value === undefined) return '—';
+        if (value === null || value === undefined) return '-';
 
         if (typeof value === 'object') return JSON.stringify(value);
 
         return String(value);
+    }
+
+    snapshotSummary(snapshot: FleetSnapshot): string {
+        if (snapshot.isSuccessful === false) return '';
+
+        const normalized = (snapshot.normalized ?? {}) as Record<string, unknown>;
+        const current =
+            normalized['current'] && typeof normalized['current'] === 'object'
+                ? (normalized['current'] as Record<string, unknown>)
+                : null;
+
+        if (
+            snapshot.checkType === 'driver_license' ||
+            snapshot.checkType === 'soat' ||
+            snapshot.checkType === 'rtm'
+        ) {
+            const parts: string[] = [];
+            const category = normalized['category'] ?? current?.['category'];
+            const status = normalized['status'] ?? current?.['status'];
+            const expiresAt = normalized['expiresAt'] ?? current?.['expiresAt'];
+
+            if (category) parts.push(String(category));
+            if (status) parts.push(String(status));
+            if (expiresAt) {
+                const date = new Date(String(expiresAt));
+
+                parts.push(Number.isNaN(date.getTime()) ? String(expiresAt) : date.toLocaleDateString());
+            }
+
+            return parts.join(' · ');
+        }
+
+        if (snapshot.checkType === 'comparendos' || snapshot.checkType === 'driver_fines') {
+            const count = Number(normalized['total'] ?? normalized['count'] ?? 0);
+            const totalAmount = Number(normalized['totalAmount'] ?? 0);
+
+            if (count === 0) return this._transloco.translate('smartFleet.assets.finesClearChip');
+
+            const finesLabel = this._transloco.translate('smartFleet.assets.finesChip', { count });
+
+            return totalAmount > 0 ? `${finesLabel} · ${totalAmount.toLocaleString()}` : finesLabel;
+        }
+
+        return '';
     }
 
     private _load(): void {
@@ -545,6 +902,10 @@ export class FleetAssetDetailComponent implements OnInit {
             next: (response) => {
                 this.asset.set(response.data);
                 this.isLoading.set(false);
+
+                if (response.data?.type === 'driver' && this.activeTab() === 'pdfs') {
+                    this.activeTab.set('report');
+                }
 
                 if (this.showEditForm() && response.data) {
                     this.openEdit();
@@ -559,9 +920,7 @@ export class FleetAssetDetailComponent implements OnInit {
         this._fleetService.getAssetTimeline(this.assetId(), { limit: 60 }).subscribe({
             next: (response) => {
                 const payload = response.data;
-                const snapshots = Array.isArray(payload)
-                    ? payload
-                    : (payload?.snapshots ?? []);
+                const snapshots = Array.isArray(payload) ? payload : (payload?.snapshots ?? []);
 
                 this.snapshots.set(snapshots);
             },
@@ -580,8 +939,7 @@ export class FleetAssetDetailComponent implements OnInit {
     }
 
     ruleScopeLabel(rule: FleetWatchRule): string {
-        const assetId =
-            typeof rule.asset === 'string' ? rule.asset : rule.asset?._id || null;
+        const assetId = typeof rule.asset === 'string' ? rule.asset : rule.asset?._id || null;
 
         if (assetId) return this._transloco.translate('smartFleet.rules.scopeAsset');
 
@@ -599,12 +957,10 @@ export class FleetAssetDetailComponent implements OnInit {
     }
 
     private _loadAlerts(): void {
-        this._fleetService
-            .getAlerts({ asset: this.assetId(), status: 'all', perPage: 50 })
-            .subscribe({
-                next: (response) => this.alerts.set(response.data ?? []),
-                error: (err) => console.error('[SmartFleet] getAlerts error', err),
-            });
+        this._fleetService.getAlerts({ asset: this.assetId(), status: 'all', perPage: 50 }).subscribe({
+            next: (response) => this.alerts.set(response.data ?? []),
+            error: (err) => console.error('[SmartFleet] getAlerts error', err),
+        });
     }
 
     /**
@@ -625,28 +981,86 @@ export class FleetAssetDetailComponent implements OnInit {
         return 'ok';
     }
 
+    private _variantForField(key: string, value: unknown, checkType: string): ReportRow['variant'] {
+        if (key === 'expiresAt') return this._variantForExpiry(value);
+
+        if (key === 'status' || key === 'driverStatus') {
+            const upper = String(value).trim().toUpperCase();
+
+            if (CRITICAL_STATUS_VALUES.has(upper)) return 'critical';
+            if (OK_STATUS_VALUES.has(upper)) return 'ok';
+        }
+
+        if (
+            (checkType === 'comparendos' || checkType === 'driver_fines') &&
+            (key === 'total' || key === 'count' || key === 'totalAmount')
+        ) {
+            return Number(value) > 0 ? 'warning' : 'ok';
+        }
+
+        return 'neutral';
+    }
+
+    private _formatFieldValue(key: string, value: unknown): string {
+        if (typeof value === 'object') return JSON.stringify(value);
+
+        if (key === 'issuedAt' || key === 'expiresAt') {
+            const date = new Date(String(value));
+
+            if (!Number.isNaN(date.getTime())) return date.toLocaleDateString();
+        }
+
+        if (key === 'totalAmount' && typeof value === 'number') {
+            return value.toLocaleString();
+        }
+
+        return String(value);
+    }
+
     private _buildSection(snapshot: FleetSnapshot): ReportSection {
         const normalized = (snapshot.normalized ?? {}) as Record<string, unknown>;
+        const current =
+            normalized['current'] && typeof normalized['current'] === 'object'
+                ? (normalized['current'] as Record<string, unknown>)
+                : null;
         const fields = FIELD_MAP[snapshot.checkType] ?? [];
 
         const rows: ReportRow[] = [];
 
         for (const field of fields) {
-            const value = normalized[field.key];
+            let matchedKey = field.keys[0];
+            let value: unknown;
+
+            for (const candidateKey of field.keys) {
+                const candidate = normalized[candidateKey] ?? current?.[candidateKey];
+
+                if (candidate !== null && candidate !== undefined && candidate !== '') {
+                    matchedKey = candidateKey;
+                    value = candidate;
+                    break;
+                }
+            }
+
+            if (value === undefined && snapshot.checkType === 'ownership') {
+                const owners = Array.isArray(normalized['owners'])
+                    ? (normalized['owners'] as Record<string, unknown>[])
+                    : [];
+
+                if (matchedKey === 'ownerCount' && owners.length) value = owners.length;
+                if (matchedKey === 'primaryOwner' && owners[0]?.['fullName']) value = owners[0]['fullName'];
+            }
 
             if (value === null || value === undefined || value === '') continue;
 
             rows.push({
-                label: field.label,
-                value: typeof value === 'object' ? JSON.stringify(value) : String(value),
-                variant: field.key === 'expiresAt' ? this._variantForExpiry(value) : 'neutral',
+                labelKey: field.labelKey,
+                value: this._formatFieldValue(matchedKey, value),
+                variant: this._variantForField(matchedKey, value, snapshot.checkType),
             });
         }
 
-        // The array payloads (tickets, owners, claims) are what the old renderer refused to
-        // draw, so they get a real table here.
-        const listKey = ['comparendos', 'owners', 'claims', 'items'].find((key) =>
-            Array.isArray(normalized[key])
+        const listKey = ['comparendos', 'owners', 'claims', 'items'].find(
+            (key) => Array.isArray(normalized[key]) && (normalized[key] as unknown[]).length > 0
         );
 
         return {

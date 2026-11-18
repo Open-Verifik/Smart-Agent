@@ -19,15 +19,16 @@
                 ></mat-icon>
                 <a
                     routerLink="/smart-fleet/assets"
+                    [queryParams]="isDriver() ? { type: 'driver' } : null"
                     class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ 'smartFleet.nav.assets' | transloco }}</a
+                    >{{ (isDriver() ? 'smartFleet.drivers.title' : 'smartFleet.nav.assets') | transloco }}</a
                 >
                 <mat-icon
                     class="icon-size-4 mx-2 text-stone-400"
                     svgIcon="heroicons_solid:chevron-right"
                 ></mat-icon>
                 <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                    asset()?.plate || asset()?.vin || '—'
+                    headerTitle()
                 }}</span>
             </div>
 
@@ -37,6 +38,7 @@
                         mat-icon-button
                         type="button"
                         routerLink="/smart-fleet/assets"
+                        [queryParams]="isDriver() ? { type: 'driver' } : null"
                         [matTooltip]="'smartFleet.back' | transloco"
                         class="shrink-0 !text-stone-600 dark:!text-stone-300"
                     >
@@ -44,24 +46,66 @@
                     </button>
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
-                            <h1
-                                class="font-mono text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl"
+                            <span
+                                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+                                aria-hidden="true"
                             >
-                                {{ asset()?.plate || asset()?.vin || '—' }}
+                                <mat-icon class="icon-size-5">{{ isDriver() ? 'badge' : 'directions_car' }}</mat-icon>
+                            </span>
+                            <h1
+                                class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl"
+                                [class.font-mono]="!isDriver()"
+                            >
+                                {{ headerTitle() }}
                             </h1>
                             <span
+                                *ngIf="isDriver() && asset()?.ownerDocumentNumber"
+                                class="rounded-lg bg-stone-100 px-2.5 py-1 font-mono text-xs font-semibold text-stone-800 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                {{ driverDocLabel() }}
+                            </span>
+                            <span
+                                *ngIf="isDriver() && licenseCategory() as cat"
+                                class="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300"
+                            >
+                                {{ 'smartFleet.drivers.licenseCategory' | transloco }}: {{ cat }}
+                            </span>
+                            <span
+                                *ngIf="isDriver() && assignedPlate() as plate"
+                                class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1 font-mono text-xs font-semibold text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                            >
+                                <mat-icon class="icon-size-3.5 text-stone-400">directions_car</mat-icon>
+                                {{ plate }}
+                            </span>
+                            <span
                                 *ngIf="asset()"
-                                class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
                             >
                                 <span aria-hidden="true">{{
                                     getCountryFlag(asset()?.country || 'co')
                                 }}</span>
                                 {{ countryLabel(asset()?.country) }}
                             </span>
+                            <span
+                                *ngIf="asset()"
+                                class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold uppercase tracking-wide"
+                                [ngClass]="dispatchBadgeClasses(dispatchStatus())"
+                            >
+                                <mat-icon class="icon-size-4" aria-hidden="true">{{
+                                    dispatchBadgeIcon(dispatchStatus())
+                                }}</mat-icon>
+                                {{ dispatchBadgeKey(dispatchStatus()) | transloco }}
+                            </span>
                         </div>
-                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                            {{ asset()?.nickname || asset()?.group || '' }}
-                        </p>
+                        <div class="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                            <span *ngIf="!isDriver() && asset()?.nickname">{{ asset()?.nickname }}</span>
+                            <span
+                                *ngIf="asset()?.group"
+                                class="inline-flex items-center rounded-lg bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700 dark:bg-gray-800 dark:text-stone-300"
+                            >
+                                {{ asset()?.group }}
+                            </span>
+                        </div>
                         <div
                             class="mt-3 flex flex-wrap gap-3 text-xs text-stone-600 dark:text-stone-300"
                             *ngIf="asset()"
@@ -76,7 +120,7 @@
                                 }}</strong>
                             </span>
                             <span
-                                class="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-indigo-900 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-200"
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200"
                                 [matTooltip]="scheduleHint()"
                             >
                                 <mat-icon class="icon-size-4">schedule</mat-icon>
@@ -95,24 +139,18 @@
                     <button
                         mat-stroked-button
                         type="button"
-                        (click)="showEditForm() ? cancelEdit() : openEdit()"
-                        class="w-full rounded-xl !px-5 !py-2 sm:w-auto"
+                        (click)="openEdit()"
+                        class="fleet-tactile-btn w-full rounded-xl !px-5 !py-2 sm:w-auto"
                     >
-                        <mat-icon class="mr-2 icon-size-5">{{
-                            showEditForm() ? 'close' : 'edit'
-                        }}</mat-icon>
-                        {{
-                            (showEditForm() ? 'smartFleet.cancel' : 'smartFleet.assets.edit')
-                                | transloco
-                        }}
+                        <mat-icon class="mr-2 icon-size-5">edit</mat-icon>
+                        {{ 'smartFleet.assets.edit' | transloco }}
                     </button>
                     <button
                         mat-flat-button
-                        color="primary"
                         type="button"
                         [disabled]="isChecking()"
                         (click)="checkNow()"
-                        class="w-full rounded-xl !px-6 !py-2 sm:w-auto"
+                        class="fleet-tactile-btn w-full rounded-xl !bg-amber-600 !px-6 !py-2 !text-white hover:!bg-amber-700 dark:!bg-amber-500 dark:!text-gray-950 dark:hover:!bg-amber-400 sm:w-auto"
                     >
                         <mat-spinner *ngIf="isChecking()" diameter="18" class="mr-2"></mat-spinner>
                         <mat-icon *ngIf="!isChecking()" class="mr-2 icon-size-5">refresh</mat-icon>
@@ -121,16 +159,21 @@
                 </div>
             </div>
 
-            <div class="fleet-detail-tabs flex flex-wrap gap-1">
+            <div
+                role="tablist"
+                class="fleet-tablist border-b border-stone-200 dark:border-gray-800"
+                [attr.aria-label]="headerTitle()"
+                (keydown)="onTabKeydown($event)"
+            >
                 <button
-                    *ngFor="let tab of tabs"
+                    *ngFor="let tab of visibleTabs()"
                     type="button"
+                    role="tab"
+                    [id]="'fleet-detail-tab-' + tab"
+                    [attr.aria-selected]="activeTab() === tab"
+                    [attr.tabindex]="activeTab() === tab ? 0 : -1"
                     (click)="setActiveTab(tab)"
-                    class="rounded-xl px-4 py-2 text-sm font-medium transition-colors"
-                    [class.bg-stone-900]="activeTab() === tab"
-                    [class.text-white]="activeTab() === tab"
-                    [class.text-stone-600]="activeTab() !== tab"
-                    [class.hover:bg-stone-100]="activeTab() !== tab"
+                    class="px-4 py-2.5 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
                 >
                     {{ 'smartFleet.detail.tab.' + tab | transloco }}
                 </button>
@@ -140,28 +183,78 @@
 
     <main class="fleet-shell__main flex flex-auto flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-8 md:py-10">
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-            <div class="flex justify-center py-16" *ngIf="isLoading() && !asset()">
-                <mat-spinner diameter="40"></mat-spinner>
+            <div class="grid gap-4" *ngIf="isLoading() && !asset()">
+                <div class="rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+                    <div class="fleet-skeleton h-5 w-44"></div>
+                    <div class="mt-4 space-y-3">
+                        <div class="fleet-skeleton h-10 w-full"></div>
+                        <div class="fleet-skeleton h-10 w-full"></div>
+                        <div class="fleet-skeleton h-10 w-3/4"></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Edit vehicle -->
-            <div
-                *ngIf="showEditForm() && asset()"
-                class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            <!-- Edit asset / driver modal dialog -->
+            <dialog
+                #editAssetDialog
+                class="fleet-modal-dialog"
+                aria-labelledby="fleet-detail-edit-title"
+                (close)="onEditDialogNativeClose()"
+                (pointerdown)="onEditDialogPointerDown($event)"
+                (pointerup)="onEditDialogPointerUp($event)"
             >
-                <h2 class="text-base font-semibold text-stone-900 dark:text-white">
-                    {{ 'smartFleet.assets.editAsset' | transloco }}
-                </h2>
-                <div class="mt-4 grid gap-4 md:grid-cols-3">
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                <form
+                    *ngIf="showEditForm() && asset()"
+                    (submit)="saveEdit($event)"
+                    class="flex max-h-[90dvh] min-h-0 flex-col overflow-hidden"
+                >
+                    <div class="fleet-modal-dialog__header">
+                        <div class="flex min-w-0 items-start gap-3">
+                            <span
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
+                            >
+                                <mat-icon class="icon-size-5">{{
+                                    editDraft().type === 'driver' ? 'badge' : 'directions_car'
+                                }}</mat-icon>
+                            </span>
+                            <div class="min-w-0">
+                                <h2 id="fleet-detail-edit-title" class="text-base font-semibold text-stone-900 dark:text-white">
+                                    {{
+                                        (editDraft().type === 'driver'
+                                            ? 'smartFleet.drivers.editDriver'
+                                            : 'smartFleet.assets.editAsset') | transloco
+                                    }}
+                                </h2>
+                                <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                                    {{ headerTitle() }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            mat-icon-button
+                            type="button"
+                            (click)="cancelEdit()"
+                            [attr.aria-label]="'smartFleet.cancel' | transloco"
+                            class="!text-stone-500 hover:!text-stone-900 dark:!text-stone-400 dark:hover:!text-white"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="fleet-modal-dialog__body">
+
+                <div class="mt-4 grid gap-4 md:grid-cols-3" *ngIf="editDraft().type === 'driver'; else editVehicleFields">
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-country" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
                             'smartFleet.assets.country' | transloco
-                        }}</span>
+                        }}</label>
                         <select
+                            id="detail-edit-driver-country"
                             [ngModel]="editDraft().country"
                             (ngModelChange)="setEditCountry($event)"
                             name="editCountry"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
                         >
                             <option
                                 *ngFor="let option of countryOptions()"
@@ -171,119 +264,288 @@
                                 {{ countryOptionLabel(option) }}
                             </option>
                         </select>
-                    </label>
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
-                            'smartFleet.assets.plate' | transloco
-                        }}</span>
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-name" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">
+                            {{ 'smartFleet.drivers.fullName' | transloco }} <span aria-hidden="true">*</span>
+                        </label>
                         <input
+                            id="detail-edit-driver-name"
                             type="text"
-                            [ngModel]="editDraft().plate"
-                            (ngModelChange)="updateEditDraft('plate', $event)"
-                            name="editPlate"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                            [placeholder]="editPlaceholders().plate"
-                        />
-                    </label>
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
-                            'smartFleet.assets.nickname' | transloco
-                        }}</span>
-                        <input
-                            type="text"
+                            required
                             [ngModel]="editDraft().nickname"
                             (ngModelChange)="updateEditDraft('nickname', $event)"
                             name="editNickname"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="'smartFleet.drivers.fullNamePlaceholder' | transloco"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
                         />
-                    </label>
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                        <span class="fleet-field-error">
+                            <mat-icon class="icon-size-4" aria-hidden="true">error_outline</mat-icon>
+                            {{ 'smartFleet.drivers.fullName' | transloco }}
+                        </span>
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-group" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
                             'smartFleet.assets.group' | transloco
-                        }}</span>
+                        }}</label>
                         <input
+                            id="detail-edit-driver-group"
                             type="text"
                             [ngModel]="editDraft().group"
                             (ngModelChange)="updateEditDraft('group', $event)"
                             name="editGroup"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
                         />
-                    </label>
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
-                            'smartFleet.assets.documentType' | transloco
-                        }}</span>
-                        <input
-                            type="text"
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-doc-type" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">
+                            {{ 'smartFleet.drivers.documentType' | transloco }} <span aria-hidden="true">*</span>
+                        </label>
+                        <select
+                            id="detail-edit-driver-doc-type"
+                            required
                             [ngModel]="editDraft().ownerDocumentType"
                             (ngModelChange)="updateEditDraft('ownerDocumentType', $event)"
                             name="editDocType"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                            [placeholder]="editPlaceholders().documentType"
-                        />
-                    </label>
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
-                            'smartFleet.assets.documentNumber' | transloco
-                        }}</span>
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                        >
+                            <option *ngFor="let type of driverDocumentTypes" [value]="type">
+                                {{ driverDocTypeLabel(type) }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-doc-number" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">
+                            {{ 'smartFleet.drivers.documentNumber' | transloco }} <span aria-hidden="true">*</span>
+                        </label>
                         <input
+                            id="detail-edit-driver-doc-number"
                             type="text"
+                            required
+                            minlength="4"
+                            autocorrect="off"
+                            autocapitalize="none"
+                            spellcheck="false"
                             [ngModel]="editDraft().ownerDocumentNumber"
                             (ngModelChange)="updateEditDraft('ownerDocumentNumber', $event)"
                             name="editDocNumber"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="'smartFleet.drivers.documentNumberPlaceholder' | transloco"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
                         />
-                    </label>
-                    <label class="flex flex-col gap-1">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
-                            'smartFleet.assets.vin' | transloco
-                        }}</span>
+                        <span class="fleet-field-error">
+                            <mat-icon class="icon-size-4" aria-hidden="true">error_outline</mat-icon>
+                            {{ 'smartFleet.drivers.documentRequired' | transloco }}
+                        </span>
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-category" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                            'smartFleet.drivers.licenseCategory' | transloco
+                        }}</label>
+                        <select
+                            id="detail-edit-driver-category"
+                            [ngModel]="editMetadataString('licenseCategory')"
+                            (ngModelChange)="updateEditMetadata('licenseCategory', $event)"
+                            name="editLicenseCategory"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                        >
+                            <option value="">-</option>
+                            <option *ngFor="let category of driverLicenseCategories" [value]="category">
+                                {{ category }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1">
+                        <label for="detail-edit-driver-plate" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                            'smartFleet.assets.plate' | transloco
+                        }}</label>
                         <input
+                            id="detail-edit-driver-plate"
                             type="text"
-                            [ngModel]="editDraft().vin"
-                            (ngModelChange)="updateEditDraft('vin', $event)"
-                            name="editVin"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            autocorrect="off"
+                            autocapitalize="characters"
+                            spellcheck="false"
+                            [ngModel]="editMetadataString('assignedPlate')"
+                            (ngModelChange)="updateEditMetadata('assignedPlate', $event)"
+                            name="editAssignedPlate"
+                            [placeholder]="editPlaceholders().plate"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
                         />
-                    </label>
-                    <label class="flex flex-col gap-1 md:col-span-3">
-                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                    </div>
+                    <div class="fleet-field flex flex-col gap-1 md:col-span-2">
+                        <label for="detail-edit-driver-notes" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
                             'smartFleet.assets.notes' | transloco
-                        }}</span>
+                        }}</label>
                         <input
+                            id="detail-edit-driver-notes"
                             type="text"
                             [ngModel]="editDraft().notes"
                             (ngModelChange)="updateEditDraft('notes', $event)"
                             name="editNotes"
-                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
                         />
-                    </label>
+                    </div>
                 </div>
-                <div class="fleet-form-actions mt-4 flex justify-end gap-2">
-                    <button
-                        mat-stroked-button
-                        type="button"
-                        (click)="cancelEdit()"
-                        class="rounded-xl"
-                    >
-                        {{ 'smartFleet.cancel' | transloco }}
-                    </button>
-                    <button
-                        mat-flat-button
-                        color="primary"
-                        type="button"
-                        [disabled]="!canSaveEdit() || isSaving()"
-                        (click)="saveEdit()"
-                        class="rounded-xl !px-6 !py-2"
-                    >
-                        <mat-spinner *ngIf="isSaving()" diameter="18" class="mr-2"></mat-spinner>
-                        {{ 'smartFleet.assets.save' | transloco }}
-                    </button>
-                </div>
-            </div>
 
-            <!-- Vehicle report: newest snapshot per check, rendered from the shared model -->
-            <ng-container *ngIf="activeTab() === 'report'">
+                <ng-template #editVehicleFields>
+                    <div class="mt-4 grid gap-4 md:grid-cols-3">
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-country" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.country' | transloco
+                            }}</label>
+                            <select
+                                id="detail-edit-country"
+                                [ngModel]="editDraft().country"
+                                (ngModelChange)="setEditCountry($event)"
+                                name="editCountry"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            >
+                                <option
+                                    *ngFor="let option of countryOptions()"
+                                    [value]="option.code"
+                                    [disabled]="!option.available"
+                                >
+                                    {{ countryOptionLabel(option) }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-plate" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.plate' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-plate"
+                                type="text"
+                                autocorrect="off"
+                                autocapitalize="characters"
+                                spellcheck="false"
+                                [ngModel]="editDraft().plate"
+                                (ngModelChange)="updateEditDraft('plate', $event)"
+                                name="editPlate"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                                [placeholder]="editPlaceholders().plate"
+                            />
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-nickname" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.nickname' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-nickname"
+                                type="text"
+                                [ngModel]="editDraft().nickname"
+                                (ngModelChange)="updateEditDraft('nickname', $event)"
+                                name="editNickname"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            />
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-group" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.group' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-group"
+                                type="text"
+                                [ngModel]="editDraft().group"
+                                (ngModelChange)="updateEditDraft('group', $event)"
+                                name="editGroup"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            />
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-doc-type" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.documentType' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-doc-type"
+                                type="text"
+                                autocorrect="off"
+                                autocapitalize="characters"
+                                spellcheck="false"
+                                [ngModel]="editDraft().ownerDocumentType"
+                                (ngModelChange)="updateEditDraft('ownerDocumentType', $event)"
+                                name="editDocType"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                                [placeholder]="editPlaceholders().documentType"
+                            />
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-doc-number" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.documentNumber' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-doc-number"
+                                type="text"
+                                autocorrect="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                [ngModel]="editDraft().ownerDocumentNumber"
+                                (ngModelChange)="updateEditDraft('ownerDocumentNumber', $event)"
+                                name="editDocNumber"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            />
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1">
+                            <label for="detail-edit-vin" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.vin' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-vin"
+                                type="text"
+                                autocorrect="off"
+                                autocapitalize="characters"
+                                spellcheck="false"
+                                [ngModel]="editDraft().vin"
+                                (ngModelChange)="updateEditDraft('vin', $event)"
+                                name="editVin"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            />
+                        </div>
+                        <div class="fleet-field flex flex-col gap-1 md:col-span-2">
+                            <label for="detail-edit-notes" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
+                                'smartFleet.assets.notes' | transloco
+                            }}</label>
+                            <input
+                                id="detail-edit-notes"
+                                type="text"
+                                [ngModel]="editDraft().notes"
+                                (ngModelChange)="updateEditDraft('notes', $event)"
+                                name="editNotes"
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            />
+                        </div>
+                    </div>
+                </ng-template>
+                    </div>
+
+                    <div class="fleet-modal-dialog__footer fleet-form-actions">
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            (click)="cancelEdit()"
+                            class="rounded-xl"
+                        >
+                            {{ 'smartFleet.cancel' | transloco }}
+                        </button>
+                        <button
+                            mat-flat-button
+                            type="submit"
+                            [disabled]="isSaving()"
+                            class="fleet-tactile-btn rounded-xl !bg-amber-600 !px-6 !py-2 !text-white hover:!bg-amber-700 dark:!bg-amber-500 dark:!text-gray-950 dark:hover:!bg-amber-400"
+                        >
+                            <mat-spinner *ngIf="isSaving()" diameter="18" class="mr-2"></mat-spinner>
+                            {{ 'smartFleet.assets.save' | transloco }}
+                        </button>
+                    </div>
+                </form>
+            </dialog>
+
+            <!-- Asset report: newest snapshot per check, rendered from the shared model -->
+            <div
+                *ngIf="activeTab() === 'report'"
+                role="tabpanel"
+                aria-labelledby="fleet-detail-tab-report"
+                class="flex flex-col gap-6"
+            >
                 <p
                     class="rounded-2xl border border-stone-200/90 bg-white px-5 py-12 text-center text-sm text-stone-500 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-stone-400"
                     *ngIf="!report().length"
@@ -293,7 +555,7 @@
 
                 <div
                     *ngFor="let section of report()"
-                    class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                    class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                 >
                     <div
                         class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800"
@@ -319,7 +581,7 @@
                                 <td
                                     class="w-2/5 px-5 py-2.5 text-xs uppercase text-stone-500 dark:text-stone-400"
                                 >
-                                    {{ 'smartFleet.field.' + row.label | transloco }}
+                                    {{ row.labelKey | transloco }}
                                 </td>
                                 <td
                                     class="px-5 py-2.5 text-sm font-semibold"
@@ -331,43 +593,63 @@
                         </tbody>
                     </table>
 
-                    <!-- Array payloads: the old renderer refused these outright -->
                     <div
                         class="border-t border-stone-200/90 dark:border-gray-800"
                         *ngIf="section.list?.length"
                     >
-                        <div class="fleet-table-wrap fleet-table-wrap--bleed md:mx-0 md:px-0">
-                        <table class="w-full">
-                            <thead class="bg-stone-50 dark:bg-gray-950/50">
-                                <tr class="text-left text-xs font-medium uppercase text-stone-500">
-                                    <th
-                                        class="px-5 py-2.5"
-                                        *ngFor="let column of listColumns(section.list)"
-                                    >
-                                        {{ column }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-stone-200/90 dark:divide-gray-800">
-                                <tr *ngFor="let row of section.list" class="text-sm">
-                                    <td
-                                        class="px-5 py-2 text-stone-700 dark:text-stone-300"
-                                        *ngFor="let column of listColumns(section.list)"
-                                    >
-                                        {{ cell(row, column) }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div
+                            tabindex="0"
+                            role="region"
+                            [attr.aria-label]="'smartFleet.checkType.' + section.checkType | transloco"
+                            class="fleet-table-region"
+                        >
+                            <table class="w-full text-left">
+                                <caption class="sr-only">
+                                    {{ 'smartFleet.checkType.' + section.checkType | transloco }}
+                                </caption>
+                                <thead class="bg-stone-50 dark:bg-gray-950/50">
+                                    <tr class="text-left text-xs font-medium uppercase text-stone-500 dark:text-stone-400">
+                                        <th
+                                            scope="col"
+                                            class="border-b border-stone-200/90 px-5 py-2.5 dark:border-gray-800"
+                                            [class.fleet-sticky-cell]="first"
+                                            *ngFor="let column of listColumns(section.list); let first = first"
+                                        >
+                                            {{ column }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of section.list" class="text-sm">
+                                        <ng-container *ngFor="let column of listColumns(section.list); let first = first">
+                                            <th
+                                                *ngIf="first"
+                                                scope="row"
+                                                class="fleet-sticky-cell border-b border-stone-200/90 px-5 py-2 font-medium text-stone-900 dark:border-gray-800 dark:text-white"
+                                            >
+                                                {{ cell(row, column) }}
+                                            </th>
+                                            <td
+                                                *ngIf="!first"
+                                                class="border-b border-stone-200/90 px-5 py-2 text-stone-700 dark:border-gray-800 dark:text-stone-300"
+                                            >
+                                                {{ cell(row, column) }}
+                                            </td>
+                                        </ng-container>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </ng-container>
+            </div>
 
             <!-- Snapshot timeline -->
             <div
-                class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                 *ngIf="activeTab() === 'timeline'"
+                role="tabpanel"
+                aria-labelledby="fleet-detail-tab-timeline"
+                class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
             >
                 <p
                     class="px-5 py-12 text-center text-sm text-stone-500 dark:text-stone-400"
@@ -375,58 +657,71 @@
                 >
                     {{ 'smartFleet.detail.noSnapshots' | transloco }}
                 </p>
-                <div class="fleet-table-wrap fleet-table-wrap--bleed md:mx-0 md:px-0" *ngIf="snapshots().length">
-                <table class="w-full">
-                    <thead class="bg-stone-50 dark:bg-gray-950/50">
-                        <tr class="text-left text-xs font-medium uppercase text-stone-500">
-                            <th class="px-5 py-3">{{ 'smartFleet.detail.observedAt' | transloco }}</th>
-                            <th class="px-5 py-3">{{ 'smartFleet.detail.check' | transloco }}</th>
-                            <th class="px-5 py-3">{{ 'smartFleet.detail.result' | transloco }}</th>
-                            <th class="px-5 py-3">{{ 'smartFleet.detail.credits' | transloco }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-200/90 dark:divide-gray-800">
-                        <tr *ngFor="let snapshot of snapshots()" class="text-sm">
-                            <td class="px-5 py-2.5 text-xs text-stone-500 dark:text-stone-400">
-                                {{ formatDate(snapshot.observedAt) }}
-                            </td>
-                            <td class="px-5 py-2.5 text-stone-700 dark:text-stone-300">
-                                {{ 'smartFleet.checkType.' + snapshot.checkType | transloco }}
-                            </td>
-                            <td class="px-5 py-2.5">
-                                <span
-                                    class="rounded-full px-2 py-0.5 text-xs font-medium"
-                                    [class.bg-emerald-100]="snapshot.isSuccessful"
-                                    [class.text-emerald-700]="snapshot.isSuccessful"
-                                    [class.bg-red-100]="!snapshot.isSuccessful"
-                                    [class.text-red-700]="!snapshot.isSuccessful"
-                                >
-                                    {{
-                                        (snapshot.isSuccessful
-                                            ? 'smartFleet.detail.ok'
-                                            : 'smartFleet.detail.failed'
-                                        ) | transloco
-                                    }}
-                                </span>
-                                <span
-                                    class="ml-2 text-xs text-red-500"
-                                    *ngIf="!snapshot.isSuccessful"
-                                    >{{ snapshotErrorText(snapshot) }}</span
-                                >
-                            </td>
-                            <td class="px-5 py-2.5 text-stone-600 dark:text-stone-300">
-                                {{ snapshot.creditsSpent ?? 0 }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div
+                    tabindex="0"
+                    role="region"
+                    [attr.aria-label]="'smartFleet.detail.tab.timeline' | transloco"
+                    class="fleet-table-region"
+                    *ngIf="snapshots().length"
+                >
+                    <table class="w-full text-left">
+                        <caption class="sr-only">{{ 'smartFleet.detail.tab.timeline' | transloco }}</caption>
+                        <thead class="bg-stone-50 dark:bg-gray-950/50">
+                            <tr class="text-left text-xs font-medium uppercase text-stone-500 dark:text-stone-400">
+                                <th scope="col" class="fleet-sticky-cell border-b border-stone-200/90 px-5 py-3 dark:border-gray-800">{{ 'smartFleet.detail.observedAt' | transloco }}</th>
+                                <th scope="col" class="border-b border-stone-200/90 px-5 py-3 dark:border-gray-800">{{ 'smartFleet.detail.check' | transloco }}</th>
+                                <th scope="col" class="border-b border-stone-200/90 px-5 py-3 dark:border-gray-800">{{ 'smartFleet.detail.result' | transloco }}</th>
+                                <th scope="col" class="border-b border-stone-200/90 px-5 py-3 dark:border-gray-800">{{ 'smartFleet.detail.credits' | transloco }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let snapshot of snapshots()" class="text-sm">
+                                <th scope="row" class="fleet-sticky-cell border-b border-stone-200/90 px-5 py-2.5 text-xs font-normal text-stone-500 dark:border-gray-800 dark:text-stone-400">
+                                    {{ formatDate(snapshot.observedAt) }}
+                                </th>
+                                <td class="border-b border-stone-200/90 px-5 py-2.5 text-stone-700 dark:border-gray-800 dark:text-stone-300">
+                                    <span class="font-medium text-stone-900 dark:text-white">{{ 'smartFleet.checkType.' + snapshot.checkType | transloco }}</span>
+                                    <span *ngIf="snapshotSummary(snapshot) as summary" class="mt-0.5 block text-xs text-stone-500 dark:text-stone-400">
+                                        {{ summary }}
+                                    </span>
+                                </td>
+                                <td class="border-b border-stone-200/90 px-5 py-2.5 dark:border-gray-800">
+                                    <span
+                                        class="rounded-lg px-2 py-0.5 text-xs font-medium"
+                                        [ngClass]="
+                                            snapshot.isSuccessful !== false
+                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                        "
+                                    >
+                                        {{
+                                            (snapshot.isSuccessful !== false
+                                                ? 'smartFleet.detail.ok'
+                                                : 'smartFleet.detail.failed'
+                                            ) | transloco
+                                        }}
+                                    </span>
+                                    <span
+                                        class="ml-2 text-xs text-red-500 dark:text-red-400"
+                                        *ngIf="snapshot.isSuccessful === false"
+                                        >{{ snapshotErrorText(snapshot) }}</span
+                                    >
+                                </td>
+                                <td class="border-b border-stone-200/90 px-5 py-2.5 text-stone-600 dark:border-gray-800 dark:text-stone-300">
+                                    {{ snapshot.creditsSpent ?? 0 }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- Alerts -->
             <div
-                class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                 *ngIf="activeTab() === 'alerts'"
+                role="tabpanel"
+                aria-labelledby="fleet-detail-tab-alerts"
+                class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
             >
                 <p
                     class="px-5 py-12 text-center text-sm text-stone-500 dark:text-stone-400"
@@ -440,7 +735,7 @@
                         class="flex flex-wrap items-start gap-3 px-5 py-4"
                     >
                         <span
-                            class="rounded-full px-2 py-0.5 text-xs font-semibold uppercase"
+                            class="rounded-lg px-2 py-0.5 text-xs font-semibold uppercase"
                             [ngClass]="severityClasses(alert.severity)"
                             >{{ 'smartFleet.severity.' + alert.severity | transloco }}</span
                         >
@@ -457,7 +752,7 @@
                             <div class="mt-2 flex flex-wrap gap-1.5">
                                 <span
                                     *ngFor="let delivery of alert.deliveries || []"
-                                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                    class="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-medium"
                                     [ngClass]="deliveryClasses(delivery)"
                                     [matTooltip]="delivery.error || delivery.target || ''"
                                 >
@@ -491,8 +786,10 @@
 
             <!-- Rules scoped to this asset -->
             <div
-                class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                 *ngIf="activeTab() === 'rules'"
+                role="tabpanel"
+                aria-labelledby="fleet-detail-tab-rules"
+                class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
             >
                 <div
                     class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800"
@@ -507,10 +804,9 @@
                     </div>
                     <a
                         mat-flat-button
-                        color="primary"
                         [routerLink]="createRuleLink()"
                         [queryParams]="createRuleQuery()"
-                        class="rounded-xl !px-4 !py-2"
+                        class="fleet-tactile-btn rounded-xl !bg-amber-600 !px-4 !py-2 !text-white hover:!bg-amber-700 dark:!bg-amber-500 dark:!text-gray-950 dark:hover:!bg-amber-400"
                     >
                         <mat-icon class="mr-1 icon-size-5">add</mat-icon>
                         {{ 'smartFleet.rules.addRule' | transloco }}
@@ -524,7 +820,7 @@
                     <a
                         [routerLink]="createRuleLink()"
                         [queryParams]="createRuleQuery()"
-                        class="font-semibold text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
+                        class="font-semibold text-amber-700 underline underline-offset-4 dark:text-amber-400"
                         >{{ 'smartFleet.rules.createOne' | transloco }}</a
                     >
                 </p>
@@ -538,11 +834,11 @@
                             rule.name || ('smartFleet.checkType.' + rule.checkType | transloco)
                         }}</span>
                         <span
-                            class="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-200"
+                            class="rounded-lg bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
                             >{{ ruleScopeLabel(rule) }}</span
                         >
                         <span
-                            class="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium uppercase text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                            class="rounded-lg bg-stone-100 px-2 py-0.5 text-xs font-medium uppercase text-stone-600 dark:bg-gray-800 dark:text-stone-300"
                             >{{ 'smartFleet.frequency.' + rule.frequency | transloco }}</span
                         >
                         <span
@@ -555,11 +851,11 @@
                         >
                         <span
                             *ngFor="let channel of rule.channels || []"
-                            class="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                            class="rounded-lg bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600 dark:bg-gray-800 dark:text-stone-300"
                             >{{ 'smartFleet.channel.' + channel | transloco }}</span
                         >
                         <a
-                            class="ml-auto text-xs font-semibold text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
+                            class="ml-auto text-xs font-semibold text-amber-700 underline underline-offset-4 dark:text-amber-400"
                             [routerLink]="createRuleLink()"
                             [queryParams]="editRuleQuery(rule)"
                             >{{ 'smartFleet.rules.edit' | transloco }}</a
@@ -568,10 +864,12 @@
                 </div>
             </div>
 
-            <!-- Generated PDFs -->
+            <!-- Generated PDFs (vehicles only) -->
             <div
+                *ngIf="activeTab() === 'pdfs' && !isDriver()"
+                role="tabpanel"
+                aria-labelledby="fleet-detail-tab-pdfs"
                 class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                *ngIf="activeTab() === 'pdfs'"
             >
                 <div class="border-b border-stone-200/90 px-5 py-4 dark:border-gray-800">
                     <h2 class="text-sm font-semibold text-stone-900 dark:text-white">
@@ -592,7 +890,7 @@
                         *ngFor="let report of savedReports()"
                         class="flex flex-wrap items-center gap-3 px-5 py-3"
                     >
-                        <mat-icon class="icon-size-6 text-rose-600">picture_as_pdf</mat-icon>
+                        <mat-icon class="icon-size-6 text-amber-600 dark:text-amber-400">picture_as_pdf</mat-icon>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-medium text-stone-900 dark:text-white">
                                 {{ report.templateName || ('smartFleet.detail.pdfsNoTemplate' | transloco) }}
@@ -604,7 +902,7 @@
                         <button
                             mat-icon-button
                             type="button"
-                            class="!text-rose-600"
+                            class="!text-amber-600 dark:!text-amber-400"
                             [disabled]="downloadingReport() !== null"
                             [matTooltip]="'smartFleet.assets.reportDownload' | transloco"
                             (click)="downloadSavedReport(report)"
@@ -620,8 +918,10 @@
 
             <!-- Developer inspect -->
             <div
-                class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                 *ngIf="activeTab() === 'inspect'"
+                role="tabpanel"
+                aria-labelledby="fleet-detail-tab-inspect"
+                class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
             >
                 <div
                     class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800"
@@ -645,7 +945,7 @@
                     </button>
                 </div>
                 <pre
-                    class="max-h-[32rem] overflow-auto px-5 py-4 text-xs leading-relaxed text-stone-700 dark:text-stone-300"
+                    class="max-h-[32rem] overflow-auto px-5 py-4 font-mono text-xs leading-relaxed text-stone-700 dark:text-stone-300"
                     >{{ inspectJson() }}</pre
                 >
             </div>
