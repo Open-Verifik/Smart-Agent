@@ -70781,14 +70781,14 @@
     },
     {
       "code": "face_recognition_liveness_score",
-      "name": "Global - Liveness Score (OpenCV)",
-      "nameES": "Global - Puntaje de Vitalidad (OpenCV)",
+      "name": "Global - Liveness Score",
+      "nameES": "Global - Puntaje de Vitalidad",
       "country": "world",
       "category": "AntiSpoofing",
       "group": "faceRecognition",
       "method": "POST",
       "url": "v2/face-recognition/liveness-score",
-      "description": "OpenCV-only liveness score (no Zelf arbitrage)",
+      "description": "Direct liveness score (no Zelf arbitrage)",
       "price": 0.4,
       "isAvailable": true,
       "catalogHidden": false,
@@ -70886,7 +70886,7 @@
           }
         }
       ],
-      "descriptionES": "Puntaje de vitalidad solo OpenCV (sin arbitraje Zelf)",
+      "descriptionES": "Puntaje de vitalidad directo (sin arbitraje Zelf)",
       "docs": {
         "en": {
           "title": "Liveness Score",
@@ -71069,9 +71069,9 @@
           ]
         },
         "fr": {
-          "title": "Mondial — Global - Liveness Score (OpenCV)",
-          "description": "Service officiel de vérification et de validation pour Mondial : OpenCV-only liveness score (no Zelf arbitrage)",
-          "overview": "Service officiel de vérification et de validation pour Mondial : OpenCV-only liveness score (no Zelf arbitrage)",
+          "title": "Mondial — Global - Liveness Score",
+          "description": "Service officiel de vérification et de validation pour Mondial : Direct liveness score (no Zelf arbitrage)",
+          "overview": "Service officiel de vérification et de validation pour Mondial : Direct liveness score (no Zelf arbitrage)",
           "headers": [
             {
               "name": "Content-Type",
@@ -71159,9 +71159,9 @@
           ]
         },
         "ja": {
-          "title": "グローバル — Global - Liveness Score (OpenCV)",
-          "description": "グローバル向けの公式検証および身元確認サービス：OpenCV-only liveness score (no Zelf arbitrage)",
-          "overview": "グローバル向けの公式検証および身元確認サービス：OpenCV-only liveness score (no Zelf arbitrage)",
+          "title": "グローバル — Global - Liveness Score",
+          "description": "グローバル向けの公式検証および身元確認サービス：Direct liveness score (no Zelf arbitrage)",
+          "overview": "グローバル向けの公式検証および身元確認サービス：Direct liveness score (no Zelf arbitrage)",
           "headers": [
             {
               "name": "Content-Type",
@@ -71249,9 +71249,9 @@
           ]
         },
         "ko": {
-          "title": "글로벌 — Global - Liveness Score (OpenCV)",
-          "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: OpenCV-only liveness score (no Zelf arbitrage)",
-          "overview": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: OpenCV-only liveness score (no Zelf arbitrage)",
+          "title": "글로벌 — Global - Liveness Score",
+          "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: Direct liveness score (no Zelf arbitrage)",
+          "overview": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: Direct liveness score (no Zelf arbitrage)",
           "headers": [
             {
               "name": "Content-Type",
@@ -71339,9 +71339,9 @@
           ]
         },
         "pt": {
-          "title": "Global — Global - Liveness Score (OpenCV)",
-          "description": "Serviço oficial de verificação e validação para Global: OpenCV-only liveness score (no Zelf arbitrage)",
-          "overview": "Serviço oficial de verificação e validação para Global: OpenCV-only liveness score (no Zelf arbitrage)",
+          "title": "Global — Global - Liveness Score",
+          "description": "Serviço oficial de verificação e validação para Global: Direct liveness score (no Zelf arbitrage)",
+          "overview": "Serviço oficial de verificação e validação para Global: Direct liveness score (no Zelf arbitrage)",
           "headers": [
             {
               "name": "Content-Type",
@@ -71429,9 +71429,9 @@
           ]
         },
         "zh": {
-          "title": "全球 — Global - Liveness Score (OpenCV)",
-          "description": "全球官方数据核验与身份验证服务：OpenCV-only liveness score (no Zelf arbitrage)",
-          "overview": "全球官方数据核验与身份验证服务：OpenCV-only liveness score (no Zelf arbitrage)",
+          "title": "全球 — Global - Liveness Score",
+          "description": "全球官方数据核验与身份验证服务：Direct liveness score (no Zelf arbitrage)",
+          "overview": "全球官方数据核验与身份验证服务：Direct liveness score (no Zelf arbitrage)",
           "headers": [
             {
               "name": "Content-Type",
@@ -163859,8 +163859,8 @@
       "code": "face_recognition_compare_with_liveness",
       "name": "Global - Face Comparison With Liveness",
       "nameES": "Global - Comparación Facial Con Liveness",
-      "description": "1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
-      "descriptionES": "Comparación facial 1:1 seguida de liveness OpenCV sobre la imagen probe (secuencial).",
+      "description": "1:1 face compare followed by liveness on the probe image (sequential).",
+      "descriptionES": "Comparación facial 1:1 seguida de liveness sobre la imagen probe (secuencial).",
       "price": 0.4,
       "smartCheckPrice": 0.5,
       "feeType": "credits",
@@ -163917,7 +163917,7 @@
       ],
       "statusCheck": {
         "enabled": true,
-        "notes": "Sequential compare + OpenCV liveness; dedicated SKU (price aligned with compare_live 0.4 / smartCheck 0.5)",
+        "notes": "Sequential compare + liveness; dedicated SKU (price aligned with compare_live 0.4 / smartCheck 0.5)",
         "latencyBudgetMs": 45000,
         "hardTimeoutMs": 90000,
         "intervalMinutes": 180,
@@ -164148,8 +164148,8 @@
         },
         "fr": {
           "title": "Mondial — Global - Face Comparison With Liveness",
-          "description": "Service officiel de vérification et de validation pour Mondial : 1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
-          "overview": "Service officiel de vérification et de validation pour Mondial : 1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
+          "description": "Service officiel de vérification et de validation pour Mondial : 1:1 face compare followed by liveness on the probe image (sequential).",
+          "overview": "Service officiel de vérification et de validation pour Mondial : 1:1 face compare followed by liveness on the probe image (sequential).",
           "headers": [
             {
               "name": "Content-Type",
@@ -164246,8 +164246,8 @@
         },
         "ja": {
           "title": "グローバル — Global - Face Comparison With Liveness",
-          "description": "グローバル向けの公式検証および身元確認サービス：1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
-          "overview": "グローバル向けの公式検証および身元確認サービス：1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
+          "description": "グローバル向けの公式検証および身元確認サービス：1:1 face compare followed by liveness on the probe image (sequential).",
+          "overview": "グローバル向けの公式検証および身元確認サービス：1:1 face compare followed by liveness on the probe image (sequential).",
           "headers": [
             {
               "name": "Content-Type",
@@ -164344,8 +164344,8 @@
         },
         "ko": {
           "title": "글로벌 — Global - Face Comparison With Liveness",
-          "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: 1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
-          "overview": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: 1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
+          "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: 1:1 face compare followed by liveness on the probe image (sequential).",
+          "overview": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: 1:1 face compare followed by liveness on the probe image (sequential).",
           "headers": [
             {
               "name": "Content-Type",
@@ -164442,8 +164442,8 @@
         },
         "pt": {
           "title": "Global — Global - Face Comparison With Liveness",
-          "description": "Serviço oficial de verificação e validação para Global: 1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
-          "overview": "Serviço oficial de verificação e validação para Global: 1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
+          "description": "Serviço oficial de verificação e validação para Global: 1:1 face compare followed by liveness on the probe image (sequential).",
+          "overview": "Serviço oficial de verificação e validação para Global: 1:1 face compare followed by liveness on the probe image (sequential).",
           "headers": [
             {
               "name": "Content-Type",
@@ -164540,8 +164540,8 @@
         },
         "zh": {
           "title": "全球 — Global - Face Comparison With Liveness",
-          "description": "全球官方数据核验与身份验证服务：1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
-          "overview": "全球官方数据核验与身份验证服务：1:1 face compare followed by OpenCV liveness on the probe image (sequential).",
+          "description": "全球官方数据核验与身份验证服务：1:1 face compare followed by liveness on the probe image (sequential).",
+          "overview": "全球官方数据核验与身份验证服务：1:1 face compare followed by liveness on the probe image (sequential).",
           "headers": [
             {
               "name": "Content-Type",

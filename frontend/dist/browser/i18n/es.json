@@ -9904,7 +9904,7 @@
             "paramLivenessMin": "liveness_min_score",
             "paramLivenessMinDesc": "0.5–1",
             "paramMinScore": "min_score",
-            "paramMinScoreDesc": "Umbral interno de búsqueda, 0.5–1",
+            "paramMinScoreDesc": "Umbral interno de búsqueda, 0.50–0.75 (0.65 por defecto)",
             "paramSearchMode": "search_mode",
             "paramSearchModeDesc": "FAST o ACCURATE",
             "paramNationality": "nationality",
@@ -10108,7 +10108,7 @@
             "apiRefEndpoint": "POST /v2/face-recognition/search",
             "apiRefEndpointDesc": "Identificación 1:N: devuelve candidatos ordenados por puntuación de similitud.",
             "paramImagesDesc": "Array de imágenes faciales en base64 (misma persona; se sugieren hasta ~3)",
-            "paramMinScoreDesc": "Umbral de coincidencia (p. ej. 0,2–1,0)",
+            "paramMinScoreDesc": "Umbral de coincidencia (0.50–0.75; 0.65 por defecto)",
             "paramSearchModeDesc": "FAST o ACCURATE",
             "paramCollectionIdDesc": "Limitar la búsqueda a una colección",
             "paramMaxResultsDesc": "Tope de coincidencias devueltas (si se omite, aplica el valor por defecto de la API)",
@@ -10176,7 +10176,7 @@
             "paramImageDesc": "Una sola imagen de consulta en base64",
             "paramOsDesc": "ANDROID, IOS o DESKTOP",
             "paramLivenessMinDesc": "Umbral de vida (0,5–1,0)",
-            "paramMinScoreDesc": "Umbral de coincidencia (0,5–1,0 según documentación)",
+            "paramMinScoreDesc": "Umbral de coincidencia (0.50–0.75; 0.65 por defecto)",
             "paramSearchModeDesc": "FAST o ACCURATE",
             "paramCollectionIdDesc": "Limitar la búsqueda a una colección",
             "bulletApiClient": "Esta demo usa searchLivePerson de @humanauthn/api-client con tu token de sesión.",
@@ -10242,7 +10242,7 @@
             "apiRefEndpointDesc": "Similar a la búsqueda en vivo, pero sin paso de vida: úsala cuando el usuario ya está en sesión autenticada o de confianza.",
             "paramImageDesc": "Una sola imagen de consulta en base64",
             "paramOsDesc": "ANDROID, IOS o DESKTOP",
-            "paramMinScoreDesc": "Umbral de coincidencia (0,5–1,0)",
+            "paramMinScoreDesc": "Umbral de coincidencia (0.50–0.75; 0.65 por defecto)",
             "paramSearchModeDesc": "FAST o ACCURATE",
             "paramCollectionIdDesc": "Limitar la búsqueda a una colección",
             "bulletApiClient": "Esta demo usa searchActiveUser de @humanauthn/api-client con tu token de sesión.",
@@ -10350,7 +10350,7 @@
             "heroTitleComplete": "Búsqueda completada",
             "heroTitleInitial": "Buscar recortes",
             "heroSubtitleComplete": "Los resultados aparecen abajo. Restablece para otra búsqueda.",
-            "heroSubtitleInitial": "Búsqueda 1:N con recortes faciales (regiones pequeñas). min_score debe estar entre 0,5 y 1.",
+            "heroSubtitleInitial": "Búsqueda 1:N con recortes faciales (regiones pequeñas). min_score va de 0.50 a 0.75 (0.65 por defecto).",
             "minScoreLabel": "Puntuación mín. {{score}}",
             "searchModeLabel": "Modo de búsqueda",
             "collectionIdLabel": "ID de colección",
@@ -10368,12 +10368,12 @@
             "resultTitle": "Resultados de búsqueda",
             "reset": "Restablecer",
             "apiRefSummary": "Referencia API: búsqueda facial 1:N (recortes)",
-            "apiRefLead": "(búsqueda 1:N con recortes faciales; min_score es 0,5–1, distinto de la búsqueda estándar).",
+            "apiRefLead": "(búsqueda 1:N con recortes faciales; min_score es 0.50–0.75).",
             "apiRefBody": "URL base https://api.verifik.co. Envía una o más entradas en images en base64 o URLs HTTPS (la API puede obtener las URLs en el servidor). Opcionalmente collection_id y max_results.",
             "apiRefEndpoint": "POST /v2/face-recognition/search/crops",
             "apiRefEndpointDesc": "Devuelve candidatos ordenados en data, misma forma general que /face-recognition/search.",
             "paramImagesDesc": "Recortes faciales (base64 y/o URLs HTTPS), mismo sujeto",
-            "paramMinScoreDesc": "0,5–1",
+            "paramMinScoreDesc": "0.50–0.75 (0.65 por defecto)",
             "paramSearchModeDesc": "FAST o ACCURATE",
             "paramCollectionIdDesc": "Limitar la búsqueda a una colección",
             "paramMaxResultsDesc": "Tope de coincidencias devueltas",
@@ -10382,7 +10382,7 @@
             "relatedDocs": {
                 "0": {
                     "title": "Búsqueda facial (1:N)",
-                    "description": "Búsqueda en galería con imágenes completas; suelo de min_score más bajo (0,2–1).",
+                    "description": "Búsqueda en galería con imágenes completas (min_score 0.50–0.75).",
                     "badge": "POST"
                 },
                 "1": {
@@ -10575,15 +10575,6 @@
             "tabCamera": "Cámara en vivo",
             "dropzoneHint": "Arrastra una foto JPEG o PNG aquí o haz clic para seleccionarla."
         },
-        "guidedCamera": {
-            "loadingModels": "Cargando detección facial…",
-            "idleExplainer": "Usa la cámara guiada para capturar automáticamente al alinear tu rostro.",
-            "openCamera": "Abrir cámara",
-            "startingCamera": "Iniciando…",
-            "photoCaptured": "Foto capturada",
-            "holdStill": "Mantén la posición…",
-            "alignFace": "Centra tu rostro en el encuadre"
-        },
         "verifyFace": {
             "headerTitle": "Verificar rostro",
             "heroTitleComplete": "Verificación completada",
@@ -10613,7 +10604,7 @@
             "apiRefEndpointDesc": "1:1 frente a una persona inscrita conocida: devuelve data.match con puntuación si se cumple el umbral.",
             "paramIdDesc": "Id MongoDB de la persona inscrita",
             "paramImagesDesc": "Array de imágenes faciales en base64 (mismo sujeto)",
-            "paramMinScoreDesc": "Umbral de coincidencia (0,5–1)",
+            "paramMinScoreDesc": "Umbral de coincidencia (0.60–0.75; 0.70 por defecto)",
             "paramSearchModeDesc": "FAST o ACCURATE",
             "paramCollectionIdDesc": "Ámbito de colección opcional",
             "bulletApiClient": "Esta demo usa verifyFace de @humanauthn/api-client con tu token de sesión.",
@@ -11754,26 +11745,80 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
+            "responseHeaders": [
+                "Criticidad",
+                "Atención",
+                "Revisión",
+                "Escalamiento",
+                "Solución"
+            ],
             "responseRows": {
-                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
-                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
+                "critical": [
+                    "Crítico",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "urgent": [
+                    "Urgente",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "medium": [
+                    "Medio",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ],
+                "normal": [
+                    "Normal",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
+            "availabilityHeaders": [
+                "Producto",
+                "Disponibilidad",
+                "Notas"
+            ],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
+                "smartAccessComm": [
+                    "SmartAccess (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll (Escaneo de docs)",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -11796,8 +11841,16 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% o mayor",
+                    "Sin crédito",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% o menor",
+                    "Compensación",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -11833,9 +11886,15 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": ["Cobro", "Ausente de cobro"],
+            "billingHeaders": [
+                "Cobro",
+                "Ausente de cobro"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",
