@@ -26,6 +26,10 @@ import {
     isIncompleteSmartAccessWizard,
     resumeStepIndex,
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
+import {
+    calibrateArcFaceCompareThreshold,
+    DEFAULT_ARCFACE_COMPARE_MIN_SCORE,
+} from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
 import { Subscription } from 'rxjs';
@@ -311,8 +315,10 @@ export class BusinessProjectDetailComponent implements OnInit, OnDestroy {
             requireLiveness: reps?.requireLiveness !== false,
             requireDocumentScan: reps?.requireDocumentScan !== false,
             notificationChannel: reps?.notificationChannel || 'both',
-            livenessMinScore: reps?.livenessMinScore ? Math.round(reps.livenessMinScore * 100) : 70,
-            compareMinScore: reps?.compareMinScore ? Math.round(reps.compareMinScore * 100) : 75,
+            livenessMinScore: reps?.livenessMinScore ? Math.round(reps.livenessMinScore * 100) : 65,
+            compareMinScore: Math.round(
+                calibrateArcFaceCompareThreshold(reps?.compareMinScore, DEFAULT_ARCFACE_COMPARE_MIN_SCORE) * 100
+            ),
         };
     });
 

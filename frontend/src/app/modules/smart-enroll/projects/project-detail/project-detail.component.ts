@@ -32,6 +32,7 @@ import {
     calibrateArcFaceCompareThreshold,
     documentFailureReasonKey,
     livenessFailureReasonKey,
+    thresholdScoreBarClass,
 } from '../app-registration-record.utils';
 import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
@@ -595,9 +596,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     /** Tailwind class for the colored bar in the liveness card. */
     scoreBarClass(percent: number): string {
-        if (percent >= 85) return 'bg-emerald-500';
-        if (percent >= 70) return 'bg-amber-500';
-        return 'bg-rose-500';
+        return thresholdScoreBarClass(percent);
     }
 
     /**
