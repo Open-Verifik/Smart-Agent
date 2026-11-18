@@ -209,7 +209,7 @@
                     class="flex max-h-[90dvh] min-h-0 flex-col overflow-hidden"
                 >
                     <div class="fleet-modal-dialog__header">
-                        <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex min-w-0 flex-1 items-start gap-3">
                             <span
                                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
                             >
@@ -232,13 +232,12 @@
                         </div>
 
                         <button
-                            mat-icon-button
                             type="button"
                             (click)="cancelEdit()"
                             [attr.aria-label]="'smartFleet.cancel' | transloco"
-                            class="!text-stone-500 hover:!text-stone-900 dark:!text-stone-400 dark:hover:!text-white"
+                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200/80 bg-stone-100/70 text-stone-500 transition-colors hover:bg-stone-200/80 hover:text-stone-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
                         >
-                            <mat-icon>close</mat-icon>
+                            <mat-icon class="icon-size-5">close</mat-icon>
                         </button>
                     </div>
 
@@ -455,18 +454,33 @@
                             <label for="detail-edit-doc-type" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
                                 'smartFleet.assets.documentType' | transloco
                             }}</label>
-                            <input
+                            <select
+                                *ngIf="(editDraft().country || 'co') === 'co'; else editDocTypeTextInput"
                                 id="detail-edit-doc-type"
-                                type="text"
-                                autocorrect="off"
-                                autocapitalize="characters"
-                                spellcheck="false"
-                                [ngModel]="editDraft().ownerDocumentType"
+                                [ngModel]="editDraft().ownerDocumentType || ''"
                                 (ngModelChange)="updateEditDraft('ownerDocumentType', $event)"
                                 name="editDocType"
-                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
-                                [placeholder]="editPlaceholders().documentType"
-                            />
+                                class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                            >
+                                <option value="">-</option>
+                                <option *ngFor="let type of coDocumentTypes" [value]="type">
+                                    {{ 'smartFleet.assets.docType.' + type | transloco }}
+                                </option>
+                            </select>
+                            <ng-template #editDocTypeTextInput>
+                                <input
+                                    id="detail-edit-doc-type"
+                                    type="text"
+                                    autocorrect="off"
+                                    autocapitalize="characters"
+                                    spellcheck="false"
+                                    [ngModel]="editDraft().ownerDocumentType"
+                                    (ngModelChange)="updateEditDraft('ownerDocumentType', $event)"
+                                    name="editDocType"
+                                    class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-amber-500 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-amber-400"
+                                    [placeholder]="editPlaceholders().documentType"
+                                />
+                            </ng-template>
                         </div>
                         <div class="fleet-field flex flex-col gap-1">
                             <label for="detail-edit-doc-number" class="text-xs font-medium uppercase text-stone-500 dark:text-stone-400">{{
@@ -741,7 +755,7 @@
                         >
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-semibold text-stone-900 dark:text-white">
-                                {{ alert.title }}
+                                {{ alertTitle(alert) }}
                             </p>
                             <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                                 {{ alert.message }}
@@ -757,7 +771,7 @@
                                     [matTooltip]="delivery.error || delivery.target || ''"
                                 >
                                     {{ 'smartFleet.channel.' + delivery.channel | transloco }}:
-                                    {{ delivery.status }}
+                                    {{ 'smartFleet.alerts.delivery.' + delivery.status | transloco }}
                                 </span>
                                 <span
                                     *ngIf="!alert.deliveries?.length"
