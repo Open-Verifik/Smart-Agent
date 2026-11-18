@@ -34,7 +34,12 @@ import {
     livenessFailureReasonKey,
     thresholdScoreBarClass,
 } from '../app-registration-record.utils';
-import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
+import {
+    flowStatusTranslationKey,
+    isIncompleteSmartAccessWizard,
+    isNumericStepValue,
+    resumeStepIndex,
+} from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import {
     enrollmentSegment,
@@ -520,22 +525,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         return `smartEnrollProjects.recordDetail.biometricReason.${livenessFailureReasonKey(reason)}`;
     }
 
+    flowStatusKey(): string {
+        return flowStatusTranslationKey(this.flow()?.status, 'smartEnrollProjects.list');
+    }
+
+    isNumericStep(step: string): boolean {
+        return isNumericStepValue(step);
+    }
+
     /** Percentage of all registrations, for the label beside the count. */
     funnelShare(count: number): number {
         const total = this.funnel()?.total ?? 0;
 
         return total > 0 ? Math.round((count / total) * 100) : 0;
-    }
-
-    connectSmartAccess(): void {
-        const id = this.project()?._id;
-        if (!id) return;
-        void this._router.navigate(['/smart-access/projects/new/setup/0'], {
-            queryParams: {
-                linkProject: id,
-                flowType: 'SMART_ENROLL',
-            },
-        });
     }
 
     goToStaff(): void {

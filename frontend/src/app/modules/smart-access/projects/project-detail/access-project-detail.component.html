@@ -43,20 +43,16 @@
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openRecords()">
                                 {{ t('smartAccessProjects.viewRecords') }}
                             </button>
-                            @if (incompleteWizard()) {
-                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartAccessProjects.detail.openSetup') }}
-                                </button>
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="continueSetup()">
-                                    {{ t('smartAccessProjects.setup.continue_setup') }}
-                                </button>
-                            } @else {
-                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                    {{ t('smartAccessProjects.detail.openSetup') }}
-                                </button>
-                            }
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="shrink-0 rounded-xl"
+                                (click)="incompleteWizard() ? continueSetup() : openSetup(0)"
+                            >
+                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                {{ t(incompleteWizard() ? 'smartAccessProjects.setup.continue_setup' : 'smartAccessProjects.detail.openSetup') }}
+                            </button>
                         </div>
                     }
                 </div>
@@ -120,7 +116,11 @@
                                                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
                                                     : 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'"
                                             >
-                                                {{ flow()?.status || 'draft' }}
+                                                @if (flowStatusKey(); as statusKey) {
+                                                    {{ t(statusKey) }}
+                                                } @else {
+                                                    {{ flow()?.status }}
+                                                }
                                             </span>
                                             <!-- Edit branding pill -->
                                             <button
@@ -336,12 +336,7 @@
 
                             <div class="flex flex-wrap gap-2">
                                 <!-- Source mode badge -->
-                                @if (security.source === 'VERIFIK_PROJECTS') {
-                                    <span class="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-200">
-                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">hub</mat-icon>
-                                        {{ t('smartAccessProjects.detail.source_VERIFIK_PROJECTS') }}
-                                    </span>
-                                } @else if (security.source === 'API') {
+                                @if (security.source === 'API') {
                                     <span class="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-200">
                                         <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">api</mat-icon>
                                         {{ t('smartAccessProjects.detail.source_API') }}
@@ -358,7 +353,7 @@
                                     </span>
                                 } @else {
                                     <span class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-500 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-400">
-                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">public</mat-icon>
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">remove_circle_outline</mat-icon>
                                         {{ t('smartAccessProjects.detail.source_NONE') }}
                                     </span>
                                 }
@@ -386,107 +381,6 @@
                                 </p>
                             }
                         </section>
-
-                        <!-- ════════════════════════════════════════
-                             4b. Linked enrollment projects
-                        ════════════════════════════════════════ -->
-                        @if (security.source === 'VERIFIK_PROJECTS' || security.source === 'SMART_ENROLL' || linkedProjects().length > 0) {
-                            <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40">
-                                <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
-                                    <div>
-                                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                                            {{ t('smartAccessProjects.detail.linkedProjectsTitle') }}
-                                        </h2>
-                                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                            {{ t('smartAccessProjects.detail.linkedProjectsSubtitle') }}
-                                        </p>
-                                    </div>
-                                    <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(2)">
-                                        <mat-icon class="!h-4 !w-4">edit</mat-icon>
-                                        {{ t('smartAccessProjects.detail.editSection') }}
-                                    </button>
-                                </header>
-
-                                @if (linkedProjects().length === 0) {
-                                    <p class="text-xs text-stone-500 dark:text-stone-400">
-                                        {{ t('smartAccessProjects.detail.noLinkedProjects') }}
-                                    </p>
-                                } @else {
-                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                        @for (lp of linkedProjects(); track lp._id) {
-                                            <a
-                                                [routerLink]="getProjectRouterLink(lp)"
-                                                class="group flex flex-col justify-between rounded-xl border border-stone-200/80 bg-stone-50/60 p-4 transition-all hover:border-primary-500 hover:bg-stone-50 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900/50 dark:hover:border-primary-400"
-                                            >
-                                                <div class="flex items-start justify-between gap-2">
-                                                    <div class="min-w-0">
-                                                        <div class="flex items-center gap-2">
-                                                            <h3 class="truncate text-sm font-semibold text-stone-900 group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
-                                                                {{ lp.name || lp._id }}
-                                                            </h3>
-                                                            @if (lp.isPrimarySignUp) {
-                                                                <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
-                                                                    {{ t('smartAccessProjects.setup.whitelist.primary_signup_badge') }}
-                                                                </span>
-                                                            }
-                                                        </div>
-                                                        <p class="mt-0.5 font-mono text-[11px] text-stone-400 dark:text-stone-500 truncate">
-                                                            {{ lp._id }}
-                                                        </p>
-                                                    </div>
-                                                    <mat-icon class="!h-4 !w-4 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-600 dark:group-hover:text-primary-400">open_in_new</mat-icon>
-                                                </div>
-
-                                                <!-- Metadata chips -->
-                                                <div class="mt-3 flex flex-wrap items-center gap-1.5">
-                                                    <!-- Product type chip -->
-                                                    <span
-                                                        class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium"
-                                                        [ngClass]="lp.flowType === 'humanAuthn'
-                                                            ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300'
-                                                            : lp.target === 'business'
-                                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-                                                            : 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'"
-                                                    >
-                                                        <mat-icon class="!h-3 !w-3 !text-[12px]">{{ lp.flowType === 'humanAuthn' ? 'fingerprint' : lp.target === 'business' ? 'business' : 'person' }}</mat-icon>
-                                                        {{ lp.flowType === 'humanAuthn'
-                                                            ? t('smartAccessProjects.setup.whitelist.product_human_authn')
-                                                            : lp.target === 'business'
-                                                            ? t('smartAccessProjects.setup.whitelist.product_smart_business')
-                                                            : t('smartAccessProjects.setup.whitelist.product_smart_enroll') }}
-                                                    </span>
-
-                                                    <!-- Status chip -->
-                                                    <span
-                                                        class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
-                                                        [ngClass]="lp.status === 'active'
-                                                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
-                                                            : 'bg-stone-200 text-stone-700 dark:bg-gray-800 dark:text-stone-300'"
-                                                    >
-                                                        {{ lp.status || 'draft' }}
-                                                    </span>
-
-                                                    <!-- Biometric capability pill -->
-                                                    <span
-                                                        class="inline-flex items-center gap-1 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600 dark:bg-gray-800 dark:text-stone-300"
-                                                    >
-                                                        <mat-icon class="!h-3 !w-3 !text-[12px]">verified_user</mat-icon>
-                                                        {{ getBiometricCapabilityLabel(lp) }}
-                                                    </span>
-
-                                                    @if (lp.allowSignUpRedirect) {
-                                                        <span class="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                                                            <mat-icon class="!h-3 !w-3 !text-[12px]">how_to_reg</mat-icon>
-                                                            {{ t('smartAccessProjects.setup.whitelist.allow_signup_badge') }}
-                                                        </span>
-                                                    }
-                                                </div>
-                                            </a>
-                                        }
-                                    </div>
-                                }
-                            </section>
-                        }
 
                         <!-- ════════════════════════════════════════
                              5. Post-login (integrations)

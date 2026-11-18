@@ -2118,6 +2118,7 @@
         "list": {
             "newProjectTitle": "새 HumanAuthn 프로젝트",
             "newProjectSubtitle": "자체 폼, HumanAuthn, 저장소, 브랜딩으로 다른 가입 플로우를 설정하세요.",
+            "paused": "일시중지",
             "draft": "초안",
             "active": "활성",
             "demoMode": "데모",
@@ -3365,6 +3366,10 @@
     "close": "닫기",
     "save_changes": "변경 사항 저장",
     "smartEnrollCollections": {
+        "deprecationBannerTitle": "기존 1:N 컬렉션 지원 종료",
+        "deprecationBannerSubtitle": "기존 1:N 얼굴 인식 컬렉션은 개인정보를 보호하는 영지식 HumanID 생체 등록으로 대체되었습니다. 모든 신규 신원 확인 및 접근 관리 워크플로는 HumanAuthn을 사용해야 합니다.",
+        "deprecationBannerAction": "HumanID 등록 살펴보기",
+        "deprecationBannerProjects": "SmartEnroll 프로젝트 보기",
         "title": "컬렉션",
         "subtitle": "SmartEnroll 얼굴 인식 컬렉션을 구성하고 관리합니다.",
         "name": "이름",
@@ -3418,6 +3423,10 @@
         "imageSearchDisabledHint": "이미지 검색은 SmartEnroll(온보딩) 보기에서만 사용할 수 있습니다."
     },
     "smartEnrollPeople": {
+        "deprecationBannerTitle": "기존 인물 관리 지원 종료",
+        "deprecationBannerSubtitle": "기존 1:N 등록 인물 기록은 영지식 HumanID 생체 인증 자격 증명으로 대체되었습니다. 활성 사용자를 HumanAuthn 등록으로 마이그레이션하세요.",
+        "deprecationBannerAction": "HumanID 등록 살펴보기",
+        "deprecationBannerProjects": "SmartEnroll 프로젝트 보기",
         "title": "사람",
         "subtitle": "SmartEnroll을 통해 등록된 사람을 탐색, 검색 및 관리합니다.",
         "clearFilters": "필터 지우기",
@@ -3597,7 +3606,8 @@
             "liveness": "라이브니스 셀피",
             "form": "양식",
             "end": "절차 완료",
-            "skipKYC": "KYC 건너뜀"
+            "skipKYC": "KYC 건너뜀",
+            "stepNumber": "단계 {{number}}"
         },
         "status": {
             "all": "모든 상태",
@@ -3640,7 +3650,8 @@
             "demoMode": "데모",
             "menuSecurity": "보안",
             "newProjectTitle": "새 Smart Enroll 프로젝트",
-            "newProjectSubtitle": "자체 가입, 문서, 생체 인증 및 브랜딩을 갖춘 또 다른 등록 흐름을 설정합니다."
+            "newProjectSubtitle": "자체 가입, 문서, 생체 인증 및 브랜딩을 갖춘 또 다른 등록 흐름을 설정합니다.",
+            "paused": "일시중지"
         },
         "securitySettings": {
             "title": "보안 설정",
