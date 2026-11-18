@@ -37,6 +37,31 @@ export const blobToRawBase64 = async (blob: Blob): Promise<string> => {
 
 export const fileToBase64 = async (file: File | Blob): Promise<string> => blobToRawBase64(file);
 
+/** Convert picked/dropped image files into parallel base64 payloads and object-URL previews. */
+export const filesToImagesAndPreviews = async (
+    files: readonly File[]
+): Promise<{ images: string[]; previews: string[] }> => {
+    const valid = files.filter((f) => !f.type || f.type.startsWith('image/'));
+    if (!valid.length) return { images: [], previews: [] };
+    const images = await Promise.all(valid.map((f) => fileToBase64(f)));
+    const previews = valid.map((f) => URL.createObjectURL(f));
+    return { images, previews };
+};
+
+/** Remove an entry at `index` from parallel image/preview arrays, revoking any object URL. */
+export const removeGalleryImageAt = (
+    images: readonly string[],
+    previews: readonly string[],
+    index: number
+): { images: string[]; previews: string[] } => {
+    const url = previews[index];
+    if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+    return {
+        images: images.filter((_, i) => i !== index),
+        previews: previews.filter((_, i) => i !== index),
+    };
+};
+
 export const imageUrlToRawBase64 = async (url: string): Promise<string> => {
     const resolved =
         typeof window !== 'undefined' && url.startsWith('/')

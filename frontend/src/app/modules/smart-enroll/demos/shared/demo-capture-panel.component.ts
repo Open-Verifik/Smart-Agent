@@ -45,12 +45,16 @@ export class DemoCapturePanelComponent {
     @Input() remountKey: string | number = 1;
     @Input() hideCameraExplainer = false;
     @Input() captureMode: CaptureMethod = 'upload';
+    @Input() multiple = false;
+    @Input() multiPreviews: readonly string[] = [];
 
     @Output() captureModeChange = new EventEmitter<CaptureMethod>();
     @Output() filePicked = new EventEmitter<File>();
+    @Output() filesPicked = new EventEmitter<File[]>();
     @Output() captured = new EventEmitter<{ dataUrl: string; base64: string }>();
     @Output() captureError = new EventEmitter<string>();
     @Output() cleared = new EventEmitter<void>();
+    @Output() multiPreviewRemoved = new EventEmitter<number>();
 
     isDragging = false;
 
@@ -65,9 +69,13 @@ export class DemoCapturePanelComponent {
 
     onInputChanged(event: Event): void {
         const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (!file) return;
-        this.filePicked.emit(file);
+        const files = Array.from(input.files ?? []);
+        if (!files.length) return;
+        if (this.multiple) {
+            this.filesPicked.emit(files);
+        } else {
+            this.filePicked.emit(files[0]);
+        }
         input.value = '';
     }
 
@@ -97,9 +105,13 @@ export class DemoCapturePanelComponent {
             this._cdr.markForCheck();
             return;
         }
-        const file = event.dataTransfer?.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-            this.filePicked.emit(file);
+        const imageFiles = Array.from(event.dataTransfer?.files ?? []).filter((f) => f.type.startsWith('image/'));
+        if (imageFiles.length) {
+            if (this.multiple) {
+                this.filesPicked.emit(imageFiles);
+            } else {
+                this.filePicked.emit(imageFiles[0]);
+            }
         }
         this._cdr.markForCheck();
     }
