@@ -8868,6 +8868,7 @@
             "identifierHint": "Puedes guardar el vehículo solo con la placa. Para una consulta oficial completa agrega el documento del propietario o usa el VIN.",
             "docType": {
                 "CC": "CC · Cédula de ciudadanía",
+                "NIT": "NIT · Identificación tributaria",
                 "CE": "CE · Cédula de extranjería",
                 "TI": "TI · Tarjeta de identidad",
                 "PA": "PA · Pasaporte",

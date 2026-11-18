@@ -951,7 +951,7 @@
                         {{ t('smartFleet.plans.creditsBreakdownHint') }}
                     </p>
                     <ul class="mt-3 space-y-2">
-                        @for (line of creditBreakdown(); track line.featureCode) {
+                        @for (line of creditBreakdown(); track line.featureCode + ':' + line.frequency) {
                             <li
                                 class="flex flex-col gap-1 border-b border-stone-200/80 pb-2 last:border-0 dark:border-gray-700/80 sm:flex-row sm:items-center sm:justify-between"
                             >

@@ -8384,6 +8384,7 @@
             "modeVinHint": "The chassis code",
             "docType": {
                 "CC": "CC · Citizenship ID",
+                "NIT": "NIT · Tax ID",
                 "CE": "CE · Foreigner ID",
                 "TI": "TI · Identity card",
                 "PA": "PA · Passport",

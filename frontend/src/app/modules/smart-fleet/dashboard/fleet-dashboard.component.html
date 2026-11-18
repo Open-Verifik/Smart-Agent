@@ -1164,7 +1164,14 @@
                                         <span
                                             class="rounded-lg bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
                                         >
-                                            {{ planData.status }}
+                                            {{
+                                                (planData.paymentFailedAt
+                                                    ? 'smartFleet.plans.statusPaymentFailed'
+                                                    : planData.cancelAtPeriodEnd
+                                                      ? 'smartFleet.plans.statusCancelling'
+                                                      : 'smartFleet.plans.statusActive'
+                                                ) | transloco
+                                            }}
                                         </span>
                                     } @else if (isSandboxMode()) {
                                         <span

@@ -3,7 +3,7 @@
  */
 
 export function syncModalDialog(dialog: HTMLDialogElement | undefined | null, open: boolean): void {
-    if (!dialog) return;
+    if (!dialog || !dialog.isConnected) return;
 
     if (open && !dialog.open) {
         dialog.showModal();
@@ -39,6 +39,10 @@ export class FleetDialogBackdropTracker {
     }
 
     private _isOutside(event: PointerEvent, dialog: HTMLDialogElement): boolean {
+        if (event.target !== dialog) return false;
+
+        if (event.clientX === 0 && event.clientY === 0) return false;
+
         const rect = dialog.getBoundingClientRect();
 
         return (
