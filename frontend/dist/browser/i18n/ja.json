@@ -2118,6 +2118,7 @@
         "list": {
             "newProjectTitle": "新しいHumanAuthnプロジェクト",
             "newProjectSubtitle": "独自のフォーム、HumanAuthn、保存、ブランディングで別の登録フローを設定します。",
+            "paused": "一時停止",
             "draft": "下書き",
             "active": "有効",
             "demoMode": "デモ",
@@ -3365,6 +3366,10 @@
     "close": "閉じる",
     "save_changes": "変更を保存",
     "smartEnrollCollections": {
+        "deprecationBannerTitle": "従来の 1:N コレクションは非推奨になりました",
+        "deprecationBannerSubtitle": "従来の 1:N 顔認識コレクションは廃止され、プライバシーを保護するゼロ知識 HumanID 生体登録へ移行しました。今後の本人確認およびアクセス管理ワークフローでは HumanAuthn をご使用ください。",
+        "deprecationBannerAction": "HumanID 登録を見る",
+        "deprecationBannerProjects": "SmartEnroll プロジェクトを見る",
         "title": "コレクション",
         "subtitle": "SmartEnroll の顔認識コレクションを整理・管理します。",
         "name": "名前",
@@ -3418,6 +3423,10 @@
         "imageSearchDisabledHint": "画像検索は SmartEnroll（オンボーディング）ビューでのみ利用できます。"
     },
     "smartEnrollPeople": {
+        "deprecationBannerTitle": "従来の人物管理は非推奨になりました",
+        "deprecationBannerSubtitle": "従来の 1:N 登録人物レコードは廃止され、ゼロ知識 HumanID 生体認証クレデンシャルへ移行しました。アクティブなユーザーを HumanAuthn 登録へ移行してください。",
+        "deprecationBannerAction": "HumanID 登録を見る",
+        "deprecationBannerProjects": "SmartEnroll プロジェクトを見る",
         "title": "人物",
         "subtitle": "SmartEnroll で登録された人物を閲覧、検索、管理します。",
         "clearFilters": "フィルターをクリア",
@@ -3597,7 +3606,8 @@
             "liveness": "ライブネス自撮り",
             "form": "フォーム",
             "end": "フローを完了",
-            "skipKYC": "KYCをスキップ"
+            "skipKYC": "KYCをスキップ",
+            "stepNumber": "ステップ {{number}}"
         },
         "status": {
             "all": "すべてのステータス",
@@ -3640,7 +3650,8 @@
             "demoMode": "デモ",
             "menuSecurity": "セキュリティ",
             "newProjectTitle": "新しい Smart Enroll プロジェクト",
-            "newProjectSubtitle": "独自のサインアップ、書類、バイオメトリクス、ブランドを備えた別の登録フローを設定します。"
+            "newProjectSubtitle": "独自のサインアップ、書類、バイオメトリクス、ブランドを備えた別の登録フローを設定します。",
+            "paused": "一時停止"
         },
         "securitySettings": {
             "title": "セキュリティ設定",
