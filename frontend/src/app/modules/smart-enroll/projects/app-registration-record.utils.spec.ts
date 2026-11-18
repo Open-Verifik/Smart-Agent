@@ -173,6 +173,48 @@ describe('documentFailureReasonKey', () => {
     });
 });
 
+describe('resolveCompareStatus & exact liveness boundary', () => {
+    it('honors stored passed:false and compare_min_score on historical OpenCV failures', () => {
+        const historicalFailedWithFlag = {
+            documentValidation: { _id: 'dv1' },
+            biometricValidation: { _id: 'bv1' },
+            documentFace: { base64: 'x' },
+            compareFaceVerification: {
+                result: { score: 0.78, compare_min_score: 0.85, passed: false },
+            },
+            projectFlow: { liveness: { compareMinScore: 0.85, minScore: 0.65 } },
+        } as unknown as AppRegistrationDetail;
+
+        expect(resolveCompareStatus(historicalFailedWithFlag)).toBe('failed');
+        expect(canRerunCompare(historicalFailedWithFlag)).toBe(true);
+
+        const historicalFailedByStoredMin = {
+            documentValidation: { _id: 'dv2' },
+            biometricValidation: { _id: 'bv2' },
+            compareFaceVerification: {
+                result: { score: 0.78, compare_min_score: 0.85 },
+            },
+            projectFlow: { liveness: { compareMinScore: 0.85, minScore: 0.65 } },
+        } as unknown as AppRegistrationDetail;
+
+        expect(resolveCompareStatus(historicalFailedByStoredMin)).toBe('failed');
+    });
+
+    it('mirrors backend completeness by flagging livenessScore <= resolvedLivenessMin as livenessFailed', () => {
+        const record = {
+            status: 'NEEDS_MANUAL_VERIFICATION',
+            documentValidation: { _id: 'dv1' },
+            biometricValidation: { _id: 'bv1', livenessScore: 0.65 },
+            person: { livenessScore: 0.65 },
+            compareFaceVerification: { result: { score: 0.75, passed: true } },
+            projectFlow: { steps: { document: 'mandatory', liveness: 'mandatory' }, liveness: { minScore: 0.65, compareMinScore: 0.7 } },
+        } as unknown as AppRegistrationDetail;
+
+        const reasons = buildManualVerificationReasons(record);
+        expect(reasons.some((r) => r.key.endsWith('livenessFailed'))).toBe(true);
+    });
+});
+
 describe('livenessScoreBand', () => {
     it('separates a capture that nearly passed from one that looks like a screen', () => {
         expect(livenessScoreBand(58, 65)).toBe('nearMiss');
