@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, computed, inject, signal, ViewEncapsulation } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    Input,
+    OnInit,
+    signal,
+    ViewEncapsulation,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +23,7 @@ import {
     FleetAvailableCheck,
     FleetChannel,
     FleetCheckEndpointPath,
+    FleetCheckType,
     FleetFrequency,
     FleetSnapshot,
     FleetWatchRule,
@@ -34,7 +44,7 @@ interface MonitorCard {
     webhookUrl: string;
     smsRecipients: string;
     whatsappRecipients: string;
-    /** Library rules can stay blank and be assigned to a compatible vehicle later. */
+    /** Library rules can stay blank and be assigned to a compatible asset later. */
     assignAssetId: string;
 }
 
@@ -68,6 +78,7 @@ export class FleetAssetRulesBoardComponent implements OnInit {
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
 
+    private _lastSandboxRevision = 0;
     private _assetId = '';
 
     @Input()
@@ -96,22 +107,33 @@ export class FleetAssetRulesBoardComponent implements OnInit {
         return this._groupName;
     }
 
-    /** Rules saved with no vehicle, so they can be assigned afterwards. */
+    /** Rules saved with no asset, so they can be assigned afterwards. */
     @Input() library = false;
+
+    constructor() {
+        effect(() => {
+            const revision = this._fleetService.sandboxRevision();
+
+            if (revision > 0 && revision !== this._lastSandboxRevision) {
+                this._lastSandboxRevision = revision;
+                this._load();
+            }
+        });
+    }
 
     ngOnInit(): void {
         if (!this._assetId && !this._groupName) this._load();
     }
 
     asset = signal<FleetAsset | null>(null);
-    /** Vehicles currently in the group this rule covers. */
+    /** Assets currently in the group this rule covers. */
     covered = signal<FleetAsset[]>([]);
-    /** Vehicles a test can run against when the rule is not tied to one asset. */
+    /** Assets a test can run against when the rule is not tied to one asset. */
     testPool = signal<FleetAsset[]>([]);
     testAssetId = signal('');
     testingCheck = signal<string | null>(null);
     testResult = signal<RuleTestView | null>(null);
-    /** Group or fleet rules that already apply to the open vehicle. */
+    /** Group or fleet rules that already apply to the open asset. */
     inherited = signal<FleetWatchRule[]>([]);
     checks = signal<FleetAvailableCheck[]>([]);
     monitored = signal<MonitorCard[]>([]);
@@ -123,13 +145,23 @@ export class FleetAssetRulesBoardComponent implements OnInit {
     readonly channelOptions: FleetChannel[] = ['email', 'webhook', 'inApp', 'sms', 'whatsapp'];
 
     channelTone(channel: FleetChannel, selected: boolean): string {
-        return selected ? 'bg-white/20 text-white' : fleetChannelTone(channel);
+        return selected
+            ? 'bg-white/20 text-white dark:bg-gray-950/15 dark:text-gray-950'
+            : fleetChannelTone(channel);
     }
 
     available = computed(() => {
         const used = new Set(this.monitored().map((card) => card.check.checkType));
+        const unused = this.checks().filter((check) => !used.has(check.checkType));
 
-        return this.checks().filter((check) => !used.has(check.checkType));
+        if (!this.assetId) return unused;
+
+        return [...unused].sort((left, right) => {
+            const leftReady = this.isReady(left) ? 0 : 1;
+            const rightReady = this.isReady(right) ? 0 : 1;
+
+            return leftReady - rightReady;
+        });
     });
 
     canSave = computed(() => {
@@ -156,10 +188,72 @@ export class FleetAssetRulesBoardComponent implements OnInit {
         return this.asset()?.group || null;
     }
 
-    plateLabel(): string {
-        const asset = this.asset();
+    checkAssetType(check?: { checkType: string; assetType?: 'vehicle' | 'driver' } | null): 'vehicle' | 'driver' {
+        if (check?.assetType === 'driver' || check?.assetType === 'vehicle') {
+            return check.assetType;
+        }
 
-        return asset?.plate || asset?.vin || '—';
+        if (check?.checkType === 'driver_license' || check?.checkType === 'driver_fines') {
+            return 'driver';
+        }
+
+        return 'vehicle';
+    }
+
+    checkAssetTypeForType(checkType: FleetCheckType): 'vehicle' | 'driver' {
+        const match = this.checks().find((entry) => entry.checkType === checkType);
+
+        return this.checkAssetType(match ?? { checkType });
+    }
+
+    assetTypeLabelKey(entityType: 'vehicle' | 'driver'): string {
+        return entityType === 'driver'
+            ? 'smartFleet.assets.assetTypeDriver'
+            : 'smartFleet.assets.assetTypeVehicle';
+    }
+
+    thresholdLabelKey(checkType: FleetCheckType): string {
+        if (checkType === 'soat') return 'smartFleet.rules.thresholdDaysSoat';
+
+        if (checkType === 'rtm') return 'smartFleet.rules.thresholdDaysRtm';
+
+        if (checkType === 'driver_license') return 'smartFleet.rules.thresholdDaysDriverLicense';
+
+        return 'smartFleet.rules.thresholdDays';
+    }
+
+    assetLabel(asset?: FleetAsset | null): string {
+        if (!asset) return '-';
+
+        if (asset.type === 'driver') {
+            const doc = asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '';
+
+            if (asset.nickname && doc) return `${asset.nickname} (${doc})`;
+
+            return asset.nickname || doc || '-';
+        }
+
+        return asset.plate || asset.vin || asset.nickname || '-';
+    }
+
+    assetShortLabel(asset?: FleetAsset | null): string {
+        if (!asset) return '-';
+
+        if (asset.type === 'driver') {
+            const doc = asset.ownerDocumentNumber
+                ? `${asset.ownerDocumentType || 'ID'} ${asset.ownerDocumentNumber}`.trim()
+                : '';
+
+            return asset.nickname || doc || '-';
+        }
+
+        return asset.plate || asset.vin || asset.nickname || '-';
+    }
+
+    plateLabel(): string {
+        return this.assetShortLabel(this.asset());
     }
 
     endpointLabel(check: FleetAvailableCheck): string {
@@ -182,7 +276,21 @@ export class FleetAssetRulesBoardComponent implements OnInit {
 
     blockedReason(check: FleetAvailableCheck): string {
         const asset = this.asset();
-        const plateOnly = Boolean(asset?.plate?.trim()) && !asset?.ownerDocumentNumber?.trim() && !asset?.vin?.trim();
+        const assetType = asset?.type === 'driver' ? 'driver' : 'vehicle';
+        const expectedType = this.checkAssetType(check);
+
+        if (asset && assetType !== expectedType) {
+            return `${this._transloco.translate('smartFleet.rules.scope')}: ${this._transloco.translate(
+                this.assetTypeLabelKey(expectedType)
+            )}`;
+        }
+
+        if (expectedType === 'driver') {
+            return this._transloco.translate('smartFleet.drivers.documentRequired');
+        }
+
+        const plateOnly =
+            Boolean(asset?.plate?.trim()) && !asset?.ownerDocumentNumber?.trim() && !asset?.vin?.trim();
         const needsDocument = (check.requiresByPlate || check.endpoints?.byPlate?.requires || []).includes(
             'ownerDocumentNumber'
         );
@@ -268,7 +376,7 @@ export class FleetAssetRulesBoardComponent implements OnInit {
     }
 
     /**
-     * Persist this card, then run the vehicle's checks now. The server only executes
+     * Persist this card, then run the asset's checks now. The server only executes
      * saved rules, so the test writes this one before calling check-now.
      */
     test(card: MonitorCard): void {
@@ -277,10 +385,20 @@ export class FleetAssetRulesBoardComponent implements OnInit {
         if (!vehicle?._id || !this.canTest(card)) return;
 
         if (!fleetAssetSupportsCheck(card.check, vehicle)) {
+            const expectedType = this.checkAssetType(card.check);
+            const vehicleType = vehicle.type === 'driver' ? 'driver' : 'vehicle';
+
             this.testResult.set({
                 checkType: card.check.checkType,
                 tone: 'warn',
-                message: this._transloco.translate('smartFleet.rules.notReadyPlateOnly'),
+                message:
+                    vehicleType !== expectedType
+                        ? `${this._transloco.translate('smartFleet.rules.scope')}: ${this._transloco.translate(
+                              this.assetTypeLabelKey(expectedType)
+                          )}`
+                        : expectedType === 'driver'
+                          ? this._transloco.translate('smartFleet.drivers.documentRequired')
+                          : this._transloco.translate('smartFleet.rules.notReadyPlateOnly'),
                 rows: [],
             });
 
@@ -377,7 +495,9 @@ export class FleetAssetRulesBoardComponent implements OnInit {
               : this._fleetService.listWatchRules();
 
         forkJoin({
-            asset: this.assetId ? this._fleetService.getAsset(this.assetId) : of(null),
+            asset: this.assetId
+                ? this._fleetService.getAsset(this.assetId).pipe(catchError(() => of(null)))
+                : of(null),
             checks: this._fleetService.getAvailableChecks('co'),
             rules: rulesRequest,
             fleet: this.mode() === 'asset' ? of(null) : this._fleetService.listAssets(),
@@ -484,6 +604,7 @@ export class FleetAssetRulesBoardComponent implements OnInit {
     private _cardFromRule(rule: FleetWatchRule, catalog: FleetAvailableCheck[]): MonitorCard {
         const check = catalog.find((entry) => entry.checkType === rule.checkType) ?? {
             checkType: rule.checkType,
+            assetType: this.checkAssetType({ checkType: rule.checkType }),
             featureCode: rule.featureCode || rule.checkType,
             kind: rule.kind || 'delta',
             defaultThresholdDays: rule.thresholdDays ?? null,
@@ -545,7 +666,7 @@ export class FleetAssetRulesBoardComponent implements OnInit {
         check: { settled?: boolean; reason?: string | null; checkTypes?: string[] } | undefined,
         snapshot: FleetSnapshot | null
     ): void {
-        const plate = vehicle.plate || vehicle.vin || '—';
+        const plate = this.assetShortLabel(vehicle);
         const rows = this._snapshotRows(snapshot);
         const failed = snapshot?.isSuccessful === false;
         const settled = Boolean(check?.settled);
