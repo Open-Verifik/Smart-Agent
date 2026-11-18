@@ -2965,8 +2965,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/compare",
 			"verifikPath": "/v2/face-recognition/compare",
 			"method": "POST",
-			"description": "[DEPRECATED] 1:1 face comparison to verify identity. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "1:1 face comparison to verify identity",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -2999,8 +2998,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/compare-live",
 			"verifikPath": "/v2/face-recognition/compare-live",
 			"method": "POST",
-			"description": "[DEPRECATED] 1:1 comparison with live probe and liveness threshold. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "1:1 comparison with live probe and liveness threshold",
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3043,8 +3041,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/liveness",
 			"verifikPath": "/v2/face-recognition/liveness",
 			"method": "POST",
-			"description": "[DEPRECATED] Detect if a face is live or from a static image/video. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Detect if a face is live or from a static image/video",
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3072,8 +3069,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/liveness-score",
 			"verifikPath": "/v2/face-recognition/liveness-score",
 			"method": "POST",
-			"description": "[DEPRECATED] Legacy liveness score endpoint. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Direct liveness score (without multi-engine arbitrage)",
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3101,8 +3097,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/persons/search-live-face",
 			"verifikPath": "/v2/face-recognition/persons/search-live-face",
 			"method": "POST",
-			"description": "[DEPRECATED] Enroll a person with liveness into a collection. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Enroll a person with liveness into a collection",
 			"country": "world",
 			"priceUsd": 0.53,
 			"parameters": {
@@ -3176,8 +3171,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/persons",
 			"verifikPath": "/v2/face-recognition/persons",
 			"method": "POST",
-			"description": "[DEPRECATED] Enroll a person into one or more face collections. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Enroll a person into one or more face collections",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -3228,8 +3222,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/persons/@monitor.personId",
 			"verifikPath": "/v2/face-recognition/persons/@monitor.personId",
 			"method": "POST",
-			"description": "[DEPRECATED] Delete an enrolled face person by id. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Delete an enrolled face person by id",
 			"country": "world",
 			"priceUsd": 0.00001,
 			"parameters": {
@@ -3252,8 +3245,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/collections",
 			"verifikPath": "/v2/face-recognition/collections",
 			"method": "POST",
-			"description": "[DEPRECATED] Create a face recognition collection. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Create a face recognition collection",
 			"country": "world",
 			"priceUsd": 0.0001,
 			"parameters": {
@@ -3280,8 +3272,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/detect",
 			"verifikPath": "/v2/face-recognition/detect",
 			"method": "POST",
-			"description": "[DEPRECATED] Detect and extract faces from images. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Detect and extract faces from images",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -3322,8 +3313,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/search",
 			"verifikPath": "/v2/face-recognition/search",
 			"method": "POST",
-			"description": "[DEPRECATED] Search for a face in a collection (1:N identification). Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Search for a face in a collection (1:N identification)",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -4678,8 +4668,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/face-validation",
 			"verifikPath": "/v2/face-recognition/face-validation",
 			"method": "POST",
-			"description": "[DEPRECATED] Detect and validate the presence of a human face in an image. Deprecated in favor of modern privacy-preserving human_id_* (HumanAuthn) and biometrics_* tools.",
-			"deprecated": true,
+			"description": "Detect and validate the presence of a human face in an image. Useful as a pre-step for liveness or face-compare flows; returns face bounding boxes and quality signals.",
 			"country": "world",
 			"priceUsd": 0.01,
 			"parameters": {

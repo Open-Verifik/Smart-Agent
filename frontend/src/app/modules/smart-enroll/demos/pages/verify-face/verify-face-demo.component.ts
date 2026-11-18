@@ -3,28 +3,26 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnInit,
-    ViewChild,
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
+import {
+    DEFAULT_FACE_COMPARE_MIN_SCORE,
+    FACE_COMPARE_SCORE_PRESETS,
+    type ApiErrorResponse,
+} from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
-import { fileToBase64 } from '../../services/biometrics-demo.util';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { filesToImagesAndPreviews, removeGalleryImageAt } from '../../services/biometrics-demo.util';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoScoreSliderComponent } from '../../shared/demo-score-slider.component';
+import { DemoSearchModeToggleComponent } from '../../shared/demo-search-mode-toggle.component';
 import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
 import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
-import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 
 const DOCS_BASE = 'https://docs.verifik.co';
 
@@ -47,31 +45,28 @@ const RELATED_DOC_HREFS = [
         DemoPageShellComponent,
         DemoStageHeroComponent,
         DemoStageCardComponent,
+        DemoCapturePanelComponent,
+        DemoScoreSliderComponent,
+        DemoSearchModeToggleComponent,
         DemoRelatedDocsSectionComponent,
-        DemoChooseOneCalloutComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
-        DemoRasterImageComponent,
-        FaceGuidedCameraComponent,
     ],
     templateUrl: './verify-face-demo.component.html',
     styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerifyFaceDemoComponent implements OnInit {
-    @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+    readonly scorePresets = FACE_COMPARE_SCORE_PRESETS;
 
     private _api = inject(BiometricsDemoApiService);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
 
     authChecked = false;
+    captureMode: CaptureMethod = 'upload';
     personId = '';
     images: string[] = [];
     previews: string[] = [];
-    minScore = 0.75;
+    minScore = DEFAULT_FACE_COMPARE_MIN_SCORE;
     searchMode: 'FAST' | 'ACCURATE' = 'FAST';
     collectionId = '';
     loading = false;
@@ -98,21 +93,18 @@ export class VerifyFaceDemoComponent implements OnInit {
         this._cdr.markForCheck();
     }
 
-    triggerFilePicker(): void {
-        this.fileInput?.nativeElement.click();
+    async onFilesPicked(files: File[]): Promise<void> {
+        const added = await filesToImagesAndPreviews(files);
+        if (!added.images.length) return;
+        this.images = [...this.images, ...added.images];
+        this.previews = [...this.previews, ...added.previews];
+        this._cdr.markForCheck();
     }
 
-    async onFilesSelected(event: Event): Promise<void> {
-        const input = event.target as HTMLInputElement;
-        const files = input.files;
-        if (!files?.length) return;
-
-        const fileList = Array.from(files);
-        const b64s = await Promise.all(fileList.map((f) => fileToBase64(f)));
-        const urls = fileList.map((f) => URL.createObjectURL(f));
-        this.images = [...this.images, ...b64s];
-        this.previews = [...this.previews, ...urls];
-        input.value = '';
+    onRemovePreview(index: number): void {
+        const next = removeGalleryImageAt(this.images, this.previews, index);
+        this.images = next.images;
+        this.previews = next.previews;
         this._cdr.markForCheck();
     }
 
