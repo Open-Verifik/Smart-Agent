@@ -163,8 +163,8 @@ export class BusinessSetupService {
                 requireLiveness: true,
                 requireDocumentScan: true,
                 notificationChannel: 'both',
-                livenessMinScore: 0.85,
-                compareMinScore: 0.85,
+                livenessMinScore: 0.65,
+                compareMinScore: 0.7,
             },
             integrations: {
                 redirectUrl: '',

@@ -126,7 +126,7 @@
                                 </div>
                             </div>
 
-                            <mat-slider min="0.52" max="0.95" step="0.01" discrete class="threshold-card__slider">
+                            <mat-slider min="0.52" max="0.9" step="0.01" discrete class="threshold-card__slider">
                                 <input matSliderThumb formControlName="livenessMinScore" />
                             </mat-slider>
 
@@ -138,24 +138,51 @@
                         <div class="threshold-card">
                             <div class="threshold-card__top">
                                 <div>
-                                    <strong class="block text-sm font-semibold text-stone-900 dark:text-slate-100">
+                                    <label [for]="compareSliderId" class="block cursor-pointer text-sm font-semibold text-stone-900 dark:text-slate-100">
                                         {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore') }}
-                                    </strong>
+                                    </label>
                                     <span class="text-xs text-stone-500 dark:text-slate-400">
                                         {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreSubtitle') }}
                                     </span>
                                 </div>
                                 <div class="threshold-card__value">
                                     <strong>{{ compareMinScoreDisplay }}</strong>
-                                    <span>{{ t('smartEnrollProjects.setup.liveness.actualScore') }}</span>
+                                    <span>{{ t('smartEnrollProjects.setup.liveness.actualScore') }} · {{ compareMinScoreUnitValue.toFixed(2) }}</span>
                                 </div>
                             </div>
 
-                            <mat-slider min="0.65" max="0.95" step="0.01" discrete class="threshold-card__slider">
-                                <input matSliderThumb formControlName="compareMinScore" />
-                            </mat-slider>
+                            <input
+                                [id]="compareSliderId"
+                                type="range"
+                                min="0.6"
+                                max="0.75"
+                                step="0.01"
+                                formControlName="compareMinScore"
+                                [attr.aria-describedby]="compareHelpId"
+                                [attr.aria-valuetext]="compareMinScoreDisplay"
+                                [style.--slider-progress]="compareMinScoreProgressPercent + '%'"
+                                class="threshold-range-input"
+                            />
 
-                            <p class="threshold-card__help">
+                            <div
+                                class="threshold-presets"
+                                role="group"
+                                [attr.aria-label]="t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore')"
+                            >
+                                @for (preset of compareThresholdPresets; track preset.value) {
+                                    <button
+                                        type="button"
+                                        (click)="setCompareMinScorePreset(preset.value)"
+                                        class="threshold-preset"
+                                        [class.is-active]="isComparePresetActive(preset.value)"
+                                        [attr.aria-pressed]="isComparePresetActive(preset.value)"
+                                    >
+                                        {{ preset.labelKey | transloco }} · {{ preset.value.toFixed(2) }}
+                                    </button>
+                                }
+                            </div>
+
+                            <p [id]="compareHelpId" class="threshold-card__help">
                                 {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreHelp') }}
                             </p>
                         </div>

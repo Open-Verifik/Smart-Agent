@@ -97,6 +97,17 @@ export const calibrateSliderCompareThreshold = (
 ): number => Math.round(calibrateArcFaceCompareThreshold(value, fallback) * 100) / 100;
 
 /**
+ * Color class for configured threshold bars (liveness 52–90%, compare 60–75%, search 70–95%).
+ * Native ArcFace presets at Standard/Balanced/Strict (>=65%) render emerald; Relaxed (60–64%)
+ * renders amber; permissive (<58%) renders rose.
+ */
+export const thresholdScoreBarClass = (percent: number): string => {
+    if (percent >= 65) return 'bg-emerald-500';
+    if (percent >= 58) return 'bg-amber-500';
+    return 'bg-rose-500';
+};
+
+/**
  * Calibrates legacy OpenCV compare thresholds (> 0.75..0.95) into the native
  * ArcFace cosine similarity scale (0.65..0.75, FAR_1E4..FAR_1E6), matching
  * `verifik-backend/Repositories/OpenCV/helpers/compare-threshold.helper.js`.
@@ -185,11 +196,22 @@ export type CompareStatus = 'passed' | 'failed' | 'missingDocumentFace' | 'notRu
 export const resolveCompareStatus = (record: AppRegistrationDetail | null): CompareStatus => {
     if (!record) return 'notApplicable';
 
-    const compare = record.compareFaceVerification as { result?: { score?: number } } | null | undefined;
-    const score = compare?.result?.score;
+    const compare = record.compareFaceVerification as
+        | { result?: { score?: number; passed?: boolean; compare_min_score?: number } }
+        | null
+        | undefined;
+    const result = compare?.result;
+    const score = result?.score;
 
     if (score != null) {
-        return normalizeUnitScore(score) >= resolveCompareMinScoreUnit(record) - 0.001 ? 'passed' : 'failed';
+        if (result?.passed === false) return 'failed';
+        if (result?.passed === true) return 'passed';
+
+        const storedMin =
+            result?.compare_min_score != null
+                ? normalizeUnitScore(result.compare_min_score)
+                : resolveCompareMinScoreUnit(record);
+        return normalizeUnitScore(score) >= storedMin - 0.001 ? 'passed' : 'failed';
     }
 
     // The compare needs a scanned document and a captured selfie. Without both the step is

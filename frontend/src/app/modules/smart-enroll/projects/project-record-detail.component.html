@@ -1317,7 +1317,13 @@
                                                     </div>
                                                     <div class="record-progress-track mt-2">
                                                         <div
-                                                            class="record-progress-fill bg-emerald-500"
+                                                            class="record-progress-fill"
+                                                            [ngClass]="
+                                                                r.biometricValidation?.status === 'failed' ||
+                                                                (minLiv != null && livenessDisplayPercent() < minLiv)
+                                                                    ? 'bg-red-500'
+                                                                    : 'bg-emerald-500'
+                                                            "
                                                             [style.width.%]="livenessDisplayPercent()"
                                                         ></div>
                                                     </div>
@@ -1393,7 +1399,11 @@
                                                 <span class="font-semibold tabular-nums text-stone-900 dark:text-white">{{ compareScore() }}%</span>
                                             </div>
                                             <div class="record-progress-track mt-2">
-                                                <div class="record-progress-fill bg-indigo-500" [style.width.%]="compareScore()"></div>
+                                                <div
+                                                    class="record-progress-fill"
+                                                    [ngClass]="cmpStatus === 'failed' ? 'bg-red-500' : 'bg-emerald-500'"
+                                                    [style.width.%]="compareScore()"
+                                                ></div>
                                             </div>
                                             @if (minPct != null) {
                                                 <div class="mt-4 flex items-center justify-between gap-2 text-sm">
