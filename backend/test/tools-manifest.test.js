@@ -54,26 +54,21 @@ describe("Smart-Agent Tools Manifest & OpenAPI Verification", () => {
 		assert.equal(tool.parameters.properties.os.default, "DESKTOP");
 	});
 
-	it("marks all legacy OpenCV face_recognition_* tools as deprecated", () => {
+	it("registers all face_recognition_* tools as active without legacy deprecation or OpenCV mentions", () => {
 		const faceTools = manifest.endpoints.filter((e) => e.id.startsWith("face_recognition_"));
 		assert.ok(faceTools.length >= 11, `Expected at least 11 face_recognition tools, found ${faceTools.length}`);
 
 		for (const tool of faceTools) {
-			assert.equal(tool.deprecated, true, `Tool ${tool.id} should have deprecated: true`);
-			assert.match(
+			assert.equal(tool.deprecated, undefined, `Tool ${tool.id} should not be deprecated`);
+			assert.doesNotMatch(
 				tool.description,
-				/DEPRECATED/,
-				`Tool ${tool.id} description should indicate deprecation`
-			);
-			assert.match(
-				tool.description,
-				/human_id_\*|biometrics_\*/,
-				`Tool ${tool.id} description should advise upgrading to modern tools`
+				/DEPRECATED|OpenCV/i,
+				`Tool ${tool.id} description should not indicate deprecation or OpenCV`
 			);
 		}
 	});
 
-	it("generates valid OpenAPI specification with deprecated operations and typed schemas", () => {
+	it("generates valid OpenAPI specification with active face_recognition operations and typed schemas", () => {
 		const openapi = buildOpenApiFromManifest(manifest, { publicOrigin: "https://ai.verifik.co" });
 		assert.equal(openapi.openapi, "3.0.3");
 		assert.ok(openapi.paths, "paths object must be populated");
@@ -110,9 +105,9 @@ describe("Smart-Agent Tools Manifest & OpenAPI Verification", () => {
 		assert.equal(decryptSchema.properties.humanID.type, "string");
 		assert.deepEqual(decryptSchema.properties.os.enum, ["DESKTOP", "ANDROID", "IOS"]);
 
-		// Deprecated compare route
+		// Active compare route
 		const compareOp = openapi.paths["/api/face-recognition/compare"]?.post;
 		assert.ok(compareOp, "POST /api/face-recognition/compare must exist");
-		assert.equal(compareOp.deprecated, true, "compare operation must have deprecated: true");
+		assert.equal(compareOp.deprecated, undefined, "compare operation must not be deprecated");
 	});
 });

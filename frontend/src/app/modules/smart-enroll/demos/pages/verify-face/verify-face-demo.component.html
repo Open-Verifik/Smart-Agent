@@ -17,111 +17,120 @@
     }
 
     @if (!authChecked) {
-        <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
+        <div class="h-60 rounded-2xl bg-stone-200/70 animate-pulse dark:bg-gray-800"></div>
     } @else {
-        <div class="space-y-5">
-        <div class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
-            <app-demo-stage-card
-                number="01"
-                [title]="'smartEnrollDemos.demoStage.personTitle' | transloco"
-                [help]="'smartEnrollDemos.demoStage.verifyHelp' | transloco"
-            >
-            <div class="space-y-5">
-            <div>
-                <label class="block text-sm font-semibold text-on-surface mb-1.5" for="verify-person-id">
-                    {{ 'smartEnrollDemos.verifyFace.personIdLabel' | transloco }}
-                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                </label>
-                <input id="verify-person-id" type="text" required [(ngModel)]="personId" name="personId" [placeholder]="'smartEnrollDemos.verifyFace.personPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
-            </div>
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+                <div class="lg:col-span-5">
+                    <app-demo-stage-card
+                        number="01"
+                        [title]="'smartEnrollDemos.demoStage.personTitle' | transloco"
+                        [help]="'smartEnrollDemos.demoStage.verifyHelp' | transloco"
+                    >
+                        <div class="space-y-5">
+                            <div>
+                                <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="verify-person-id">
+                                    {{ 'smartEnrollDemos.verifyFace.personIdLabel' | transloco }}
+                                    <span class="text-red-600 dark:text-red-400" aria-hidden="true">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                                </label>
+                                <input
+                                    id="verify-person-id"
+                                    type="text"
+                                    required
+                                    [(ngModel)]="personId"
+                                    name="personId"
+                                    autocorrect="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    [placeholder]="'smartEnrollDemos.verifyFace.personPlaceholder' | transloco"
+                                    class="demo-input"
+                                />
+                            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div>
-                    <label class="block text-[0.6875rem] font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="verify-min-score">
-                        {{ 'smartEnrollDemos.verifyFace.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
-                    </label>
-                    <div class="flex items-center gap-4">
-                        <input
-                            id="verify-min-score"
-                            type="range"
-                            min="0.5"
-                            max="1"
-                            step="0.01"
-                            [(ngModel)]="minScore"
-                            name="minScore"
-                            class="demo-range-input flex-1"
-                        />
-                        <span class="text-sm font-mono text-primary w-14 shrink-0 tabular-nums">{{ minScore.toFixed(2) }}</span>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.verifyFace.searchModeLabel' | transloco }}</label>
-                    <select [(ngModel)]="searchMode" name="searchMode" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary/60">
-                        <option value="FAST">FAST</option>
-                        <option value="ACCURATE">ACCURATE</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.verifyFace.collectionIdLabel' | transloco }}</label>
-                    <input type="text" [(ngModel)]="collectionId" name="collectionId" [placeholder]="'smartEnrollDemos.verifyFace.optionalPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
-                </div>
-            </div>
-            </div>
-            </app-demo-stage-card>
+                            <div class="border-t border-stone-100 pt-5 dark:border-gray-800">
+                                <app-demo-score-slider
+                                    inputId="verify-min-score"
+                                    name="minScore"
+                                    [label]="'smartEnrollDemos.verifyFace.minScoreLabel' | transloco: { score: minScore.toFixed(2) }"
+                                    [min]="0.6"
+                                    [max]="0.75"
+                                    [step]="0.01"
+                                    [(value)]="minScore"
+                                    [presets]="scorePresets"
+                                />
+                            </div>
 
-            <app-demo-stage-card
-                number="02"
-                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
-                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
-            >
-            <div class="space-y-5">
-                <app-demo-choose-one-callout [description]="'smartEnrollDemos.verifyFace.chooseOneDescription' | transloco" />
-                <section aria-labelledby="verify-face-camera-heading">
-                    <app-demo-capture-option-heading label="A" id="verify-face-camera-heading" [title]="'smartEnrollDemos.verifyFace.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.verifyFace.cameraSubtitle' | transloco" />
-                    <app-demo-scanner-shell>
-                        <div class="flex min-h-0 flex-1 flex-col">
-                            <app-face-guided-camera [fillFrame]="true" [hideIdleExplainer]="true" [captureSuccessFeedbackMs]="750" (captured)="onFaceCapture($event)" />
+                            <div class="border-t border-stone-100 pt-5 dark:border-gray-800">
+                                <app-demo-search-mode-toggle
+                                    labelId="verify-search-mode-label"
+                                    [label]="'smartEnrollDemos.verifyFace.searchModeLabel' | transloco"
+                                    [(mode)]="searchMode"
+                                />
+                            </div>
+
+                            <div class="border-t border-stone-100 pt-5 dark:border-gray-800">
+                                <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="verify-collection-id">
+                                    {{ 'smartEnrollDemos.verifyFace.collectionIdLabel' | transloco }}
+                                </label>
+                                <input
+                                    id="verify-collection-id"
+                                    type="text"
+                                    [(ngModel)]="collectionId"
+                                    name="collectionId"
+                                    [placeholder]="'smartEnrollDemos.verifyFace.optionalPlaceholder' | transloco"
+                                    class="demo-input"
+                                />
+                            </div>
+
+                            <button type="button" (click)="handleVerify()" [disabled]="!personId || !images.length || loading" class="demo-btn-primary">
+                                {{ (loading ? 'smartEnrollDemos.verifyFace.verifying' : 'smartEnrollDemos.verifyFace.verify') | transloco }}
+                            </button>
+
+                            @if (error) {
+                                <div role="alert" class="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+                                    <span class="material-symbols-outlined text-sm" aria-hidden="true">error_outline</span>
+                                    {{ error }}
+                                </div>
+                            }
                         </div>
-                    </app-demo-scanner-shell>
-                </section>
-                <app-demo-or-divider />
-                <section aria-labelledby="verify-face-upload-heading">
-                    <app-demo-capture-option-heading label="B" id="verify-face-upload-heading" [title]="'smartEnrollDemos.verifyFace.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.verifyFace.uploadSubtitle' | transloco" />
-                    <app-demo-upload-image-button (clicked)="triggerFilePicker()" [primaryText]="images.length ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length }) : ('smartEnrollDemos.common.uploadFaceImages' | transloco)" [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco" icon="add_photo_alternate" />
-                </section>
+                    </app-demo-stage-card>
+                </div>
+
+                <div class="lg:col-span-7">
+                    <app-demo-capture-panel
+                        fileInputId="verify-face-upload-file"
+                        stepBadge="02"
+                        [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                        [subtitle]="'smartEnrollDemos.verifyFace.chooseOneDescription' | transloco"
+                        [multiple]="true"
+                        [multiPreviews]="previews"
+                        [uploadTitle]="'smartEnrollDemos.verifyFace.uploadTitle' | transloco"
+                        [uploadHint]="'smartEnrollDemos.faceComparison.dropzoneHint' | transloco"
+                        [uploadButtonLabel]="
+                            images.length
+                                ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length })
+                                : ('smartEnrollDemos.common.uploadFaceImages' | transloco)
+                        "
+                        [cameraFooterText]="'smartEnrollDemos.verifyFace.cameraSubtitle' | transloco"
+                        [disabled]="loading"
+                        [(captureMode)]="captureMode"
+                        (filesPicked)="onFilesPicked($event)"
+                        (captured)="onFaceCapture($event)"
+                        (captureError)="error = $event"
+                        (multiPreviewRemoved)="onRemovePreview($event)"
+                    />
+                </div>
             </div>
-
-            @if (previews.length > 0) {
-                <div class="flex flex-wrap gap-2">
-                    @for (preview of previews; track $index) {
-                        <app-demo-raster-image [src]="preview" alt="" [width]="80" [height]="80" className="w-20 h-20 object-cover rounded-lg border border-frost" />
-                    }
-                </div>
-            }
-
-            <button type="button" (click)="handleVerify()" [disabled]="!personId || !images.length || loading" class="demo-btn-primary">
-                {{ (loading ? 'smartEnrollDemos.verifyFace.verifying' : 'smartEnrollDemos.verifyFace.verify') | transloco }}
-            </button>
-
-            <input #fileInput type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" />
-
-            @if (error) {
-                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
-                    <span class="material-symbols-outlined text-sm">error_outline</span>
-                    {{ error }}
-                </div>
-            }
-
-            </app-demo-stage-card>
-        </div>
 
             @if (result) {
-                <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-3">
+                <div class="space-y-3 rounded-2xl border border-stone-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
                     <div class="flex items-center justify-between">
-                        <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.verifyFace.resultTitle' | transloco }}</p>
-                        <button type="button" (click)="reset()" class="text-xs text-primary underline">{{ 'smartEnrollDemos.verifyFace.reset' | transloco }}</button>
+                        <p class="font-bold text-stone-900 dark:text-white">{{ 'smartEnrollDemos.verifyFace.resultTitle' | transloco }}</p>
+                        <button type="button" (click)="reset()" class="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">
+                            {{ 'smartEnrollDemos.verifyFace.reset' | transloco }}
+                        </button>
                     </div>
-                    <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ result | json }}</pre>
+                    <pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-stone-100 p-3 font-mono text-[0.65rem] text-stone-900 dark:bg-gray-800 dark:text-stone-100">{{ result | json }}</pre>
                 </div>
             }
         </div>

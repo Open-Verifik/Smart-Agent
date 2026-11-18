@@ -31,202 +31,158 @@
     }
 
     @if (!authChecked) {
-        <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
+        <div class="h-60 rounded-2xl bg-stone-200/70 animate-pulse dark:bg-gray-800"></div>
     } @else if (step === 'form') {
-        <form (ngSubmit)="handleSubmit()" class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
-            <app-demo-stage-card
-                number="01"
-                [title]="'smartEnrollDemos.personForm.identityTitle' | transloco"
-                [help]="'smartEnrollDemos.personForm.identityHelp' | transloco"
-            >
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div class="sm:col-span-2">
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="plv-name">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.fullNameLabel' | transloco }}
-                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                        </label>
-                        <input
-                            id="plv-name"
-                            type="text"
-                            required
-                            [(ngModel)]="name"
-                            name="name"
-                            [placeholder]="'smartEnrollDemos.createPersonWithLiveness.namePlaceholder' | transloco"
-                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant/50 focus:border-primary/60"
-                        />
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="plv-gender">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.genderLabel' | transloco }}
-                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                        </label>
-                        <select
-                            id="plv-gender"
-                            [(ngModel)]="gender"
-                            name="gender"
-                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary/60"
-                        >
-                            <option value="M">{{ 'smartEnrollDemos.common.male' | transloco }}</option>
-                            <option value="F">{{ 'smartEnrollDemos.common.female' | transloco }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="plv-dob">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.dobLabel' | transloco }}
-                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                        </label>
-                        <input
-                            id="plv-dob"
-                            type="date"
-                            required
-                            [(ngModel)]="dob"
-                            name="dob"
-                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary/60"
-                        />
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="plv-nat">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.nationalityLabel' | transloco }}
-                        </label>
-                        <app-nationality-select inputId="plv-nat" name="nationality" [(ngModel)]="nationality" />
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="plv-col">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.collectionIdLabel' | transloco }}
-                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                        </label>
-                        <input
-                            id="plv-col"
-                            type="text"
-                            required
-                            [(ngModel)]="collectionId"
-                            name="collectionId"
-                            [placeholder]="'smartEnrollDemos.createPersonWithLiveness.collectionIdPlaceholder' | transloco"
-                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant/50 focus:border-primary/60"
-                        />
-                    </div>
-                </div>
-            </app-demo-stage-card>
-
-            <app-demo-stage-card
-                number="02"
-                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
-                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
-            >
-                <div class="mb-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-                    <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.livenessMinLabel' | transloco: { score: livenessMinScore.toFixed(2) } }}
-                        </label>
-                        <input
-                            type="range"
-                            min="0.5"
-                            max="1"
-                            step="0.01"
-                            [(ngModel)]="livenessMinScore"
-                            name="livenessMinScore"
-                            class="w-full"
-                        />
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.matchMinLabel' | transloco: { score: minScore.toFixed(2) } }}
-                        </label>
-                        <input type="range" min="0.5" max="1" step="0.01" [(ngModel)]="minScore" name="minScore" class="w-full" />
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="plv-search-mode">
-                            {{ 'smartEnrollDemos.createPersonWithLiveness.searchModeLabel' | transloco }}
-                        </label>
-                        <select
-                            id="plv-search-mode"
-                            [(ngModel)]="searchMode"
-                            name="searchMode"
-                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-sm text-on-surface outline-none focus:border-primary/60"
-                        >
-                            <option value="FAST">FAST</option>
-                            <option value="ACCURATE">ACCURATE</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mb-3 space-y-5">
-                    <app-demo-choose-one-callout
-                        [description]="'smartEnrollDemos.createPersonWithLiveness.chooseOneDescription' | transloco"
-                    />
-                    <section aria-labelledby="create-person-live-camera-heading">
-                        <app-demo-capture-option-heading
-                            label="A"
-                            id="create-person-live-camera-heading"
-                            [title]="'smartEnrollDemos.createPersonWithLiveness.cameraTitle' | transloco"
-                            [subtitle]="'smartEnrollDemos.createPersonWithLiveness.cameraSubtitle' | transloco"
-                        />
-                        <app-demo-scanner-shell>
-                            <div class="flex min-h-0 flex-1 flex-col">
-                                <app-face-guided-camera
-                                    [fillFrame]="true"
-                                    [hideIdleExplainer]="true"
-                                    [captureSuccessFeedbackMs]="750"
-                                    (captured)="onFaceCapture($event)"
-                                />
-                            </div>
-                        </app-demo-scanner-shell>
-                    </section>
-                    <app-demo-or-divider />
-                    <section aria-labelledby="create-person-live-upload-heading">
-                        <app-demo-capture-option-heading
-                            label="B"
-                            id="create-person-live-upload-heading"
-                            [title]="'smartEnrollDemos.createPersonWithLiveness.uploadTitle' | transloco"
-                            [subtitle]="'smartEnrollDemos.createPersonWithLiveness.uploadSubtitle' | transloco"
-                        />
-                        <app-demo-upload-image-button
-                            (clicked)="triggerFilePicker()"
-                            [primaryText]="
-                                images.length
-                                    ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length })
-                                    : ('smartEnrollDemos.common.uploadFaceImages' | transloco)
-                            "
-                            [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco"
-                            icon="add_photo_alternate"
-                        />
-                    </section>
-                </div>
-                @if (previews.length > 0) {
-                    <div class="mb-3 flex flex-wrap gap-2">
-                        @for (preview of previews; track $index) {
-                            <app-demo-raster-image
-                                [src]="preview"
-                                alt=""
-                                [width]="80"
-                                [height]="80"
-                                className="w-20 h-20 object-cover rounded-lg border border-frost"
+        <form (ngSubmit)="handleSubmit()" class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+            <div class="space-y-6 lg:col-span-5">
+                <app-demo-stage-card
+                    number="01"
+                    [title]="'smartEnrollDemos.personForm.identityTitle' | transloco"
+                    [help]="'smartEnrollDemos.personForm.identityHelp' | transloco"
+                >
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="plv-name">
+                                {{ 'smartEnrollDemos.createPersonWithLiveness.fullNameLabel' | transloco }}
+                                <span class="text-red-600 dark:text-red-400" aria-hidden="true">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                            </label>
+                            <input
+                                id="plv-name"
+                                type="text"
+                                required
+                                autocomplete="name"
+                                [(ngModel)]="name"
+                                name="name"
+                                [placeholder]="'smartEnrollDemos.createPersonWithLiveness.namePlaceholder' | transloco"
+                                class="demo-input"
                             />
-                        }
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="plv-gender">
+                                {{ 'smartEnrollDemos.createPersonWithLiveness.genderLabel' | transloco }}
+                                <span class="text-red-600 dark:text-red-400" aria-hidden="true">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                            </label>
+                            <select
+                                id="plv-gender"
+                                [(ngModel)]="gender"
+                                name="gender"
+                                class="demo-input"
+                            >
+                                <option value="M">{{ 'smartEnrollDemos.common.male' | transloco }}</option>
+                                <option value="F">{{ 'smartEnrollDemos.common.female' | transloco }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="plv-dob">
+                                {{ 'smartEnrollDemos.createPersonWithLiveness.dobLabel' | transloco }}
+                                <span class="text-red-600 dark:text-red-400" aria-hidden="true">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                            </label>
+                            <input
+                                id="plv-dob"
+                                type="date"
+                                required
+                                autocomplete="bday"
+                                [(ngModel)]="dob"
+                                name="dob"
+                                class="demo-input"
+                            />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="plv-nat">
+                                {{ 'smartEnrollDemos.createPersonWithLiveness.nationalityLabel' | transloco }}
+                            </label>
+                            <app-nationality-select inputId="plv-nat" name="nationality" [(ngModel)]="nationality" />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="mb-2 block text-xs font-semibold text-stone-800 dark:text-stone-200" for="plv-col">
+                                {{ 'smartEnrollDemos.createPersonWithLiveness.collectionIdLabel' | transloco }}
+                                <span class="text-red-600 dark:text-red-400" aria-hidden="true">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                            </label>
+                            <input
+                                id="plv-col"
+                                type="text"
+                                required
+                                autocorrect="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                [(ngModel)]="collectionId"
+                                name="collectionId"
+                                [placeholder]="'smartEnrollDemos.createPersonWithLiveness.collectionIdPlaceholder' | transloco"
+                                class="demo-input"
+                            />
+                        </div>
                     </div>
-                }
-                <input
-                    #fileInput
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    class="hidden"
-                    (change)="onFilesSelected($event)"
-                />
-            </app-demo-stage-card>
 
-            @if (error) {
-                <div class="flex items-center gap-2 rounded-lg border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error xl:col-span-2">
-                    <span class="material-symbols-outlined text-sm">error_outline</span>
-                    {{ error }}
-                </div>
-            }
-            <button
-                type="submit"
-                [disabled]="!images.length || nationalityBlocked"
-                class="demo-btn-primary xl:col-span-2"
-            >
-                {{ 'smartEnrollDemos.createPersonWithLiveness.submit' | transloco }}
-            </button>
+                    <div class="mt-5 space-y-5 border-t border-stone-100 pt-5 dark:border-gray-800">
+                        <app-demo-score-slider
+                            inputId="plv-liveness-min"
+                            name="livenessMinScore"
+                            [label]="'smartEnrollDemos.createPersonWithLiveness.livenessMinLabel' | transloco: { score: livenessMinScore.toFixed(2) }"
+                            [min]="0.52"
+                            [max]="1"
+                            [step]="0.01"
+                            [(value)]="livenessMinScore"
+                            [presets]="livenessPresets"
+                        />
+
+                        <app-demo-score-slider
+                            inputId="plv-min-score"
+                            name="minScore"
+                            [label]="'smartEnrollDemos.createPersonWithLiveness.matchMinLabel' | transloco: { score: minScore.toFixed(2) }"
+                            [min]="0.5"
+                            [max]="0.75"
+                            [step]="0.01"
+                            [(value)]="minScore"
+                            [presets]="searchPresets"
+                        />
+
+                        <app-demo-search-mode-toggle
+                            labelId="plv-search-mode-label"
+                            [label]="'smartEnrollDemos.createPersonWithLiveness.searchModeLabel' | transloco"
+                            [(mode)]="searchMode"
+                        />
+                    </div>
+
+                    @if (error) {
+                        <div role="alert" class="mt-5 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+                            <span class="material-symbols-outlined text-sm" aria-hidden="true">error_outline</span>
+                            {{ error }}
+                        </div>
+                    }
+
+                    <button
+                        type="submit"
+                        [disabled]="!images.length || nationalityBlocked"
+                        class="demo-btn-primary mt-5"
+                    >
+                        {{ 'smartEnrollDemos.createPersonWithLiveness.submit' | transloco }}
+                    </button>
+                </app-demo-stage-card>
+            </div>
+
+            <div class="lg:col-span-7">
+                <app-demo-capture-panel
+                    fileInputId="create-person-live-upload-file"
+                    stepBadge="02"
+                    [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                    [subtitle]="'smartEnrollDemos.createPersonWithLiveness.chooseOneDescription' | transloco"
+                    [multiple]="true"
+                    [multiPreviews]="previews"
+                    [uploadTitle]="'smartEnrollDemos.createPersonWithLiveness.uploadTitle' | transloco"
+                    [uploadHint]="'smartEnrollDemos.faceComparison.dropzoneHint' | transloco"
+                    [uploadButtonLabel]="
+                        images.length
+                            ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length })
+                            : ('smartEnrollDemos.common.uploadFaceImages' | transloco)
+                    "
+                    [cameraFooterText]="'smartEnrollDemos.createPersonWithLiveness.cameraSubtitle' | transloco"
+                    [(captureMode)]="captureMode"
+                    (filesPicked)="onFilesPicked($event)"
+                    (captured)="onFaceCapture($event)"
+                    (captureError)="error = $event"
+                    (multiPreviewRemoved)="onRemovePreview($event)"
+                />
+            </div>
         </form>
     } @else if (step === 'processing') {
         <div class="flex flex-col items-center justify-center py-20 gap-4">

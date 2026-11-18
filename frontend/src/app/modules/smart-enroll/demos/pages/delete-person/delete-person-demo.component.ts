@@ -90,6 +90,7 @@ const redactThumbnailsForDebug = (value: unknown): unknown => {
         PersonSingleSelectComponent,
     ],
     templateUrl: './delete-person-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePersonDemoComponent implements OnInit {
