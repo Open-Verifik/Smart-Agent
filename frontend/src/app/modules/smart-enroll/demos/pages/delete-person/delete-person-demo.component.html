@@ -37,7 +37,7 @@
     }
 
     @if (!authChecked) {
-        <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
+        <div class="h-60 rounded-2xl bg-stone-200/70 animate-pulse dark:bg-gray-800"></div>
     } @else if (step === 'form') {
         <form (ngSubmit)="handleSubmit()" class="space-y-5">
             <app-demo-stage-card

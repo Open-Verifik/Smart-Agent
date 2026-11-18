@@ -3,9 +3,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnInit,
-    ViewChild,
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -13,22 +11,20 @@ import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import type { ApiErrorResponse, FaceCollectionListItem } from '../../services/biometrics-demo.types';
-import { fileToBase64, isPersonAlreadySetError } from '../../services/biometrics-demo.util';
+import {
+    filesToImagesAndPreviews,
+    isPersonAlreadySetError,
+    removeGalleryImageAt,
+} from '../../services/biometrics-demo.util';
 import { CollectionMultiSelectComponent } from '../../shared/collection-multi-select.component';
 import { CreatePersonAlreadyExistsResultComponent } from '../../shared/create-person-already-exists-result.component';
 import { CreatePersonResultComponent } from '../../shared/create-person-result.component';
-import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
-import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
-import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
+import { DemoCapturePanelComponent, type CaptureMethod } from '../../shared/demo-capture-panel.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
 import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
 import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
-import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
-import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
-import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
-import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { CountryService } from 'app/core/services/country.service';
 import {
     NationalitySelectComponent,
@@ -63,25 +59,18 @@ type Step = 'form' | 'processing' | 'result' | 'conflict';
         DemoPageShellComponent,
         DemoStageHeroComponent,
         DemoStageCardComponent,
+        DemoCapturePanelComponent,
         DemoRelatedDocsSectionComponent,
         CollectionMultiSelectComponent,
         CreatePersonResultComponent,
         CreatePersonAlreadyExistsResultComponent,
-        DemoCaptureOptionHeadingComponent,
-        DemoChooseOneCalloutComponent,
-        DemoOrDividerComponent,
-        DemoScannerShellComponent,
-        DemoUploadImageButtonComponent,
-        DemoRasterImageComponent,
-        FaceGuidedCameraComponent,
         NationalitySelectComponent,
     ],
     templateUrl: './create-person-demo.component.html',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreatePersonDemoComponent implements OnInit {
-    @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
-
     private _api = inject(BiometricsDemoApiService);
     private _router = inject(Router);
     private _transloco = inject(TranslocoService);
@@ -90,6 +79,7 @@ export class CreatePersonDemoComponent implements OnInit {
 
     authChecked = false;
     step: Step = 'form';
+    captureMode: CaptureMethod = 'upload';
     name = '';
     gender: 'M' | 'F' = 'M';
     dob = '';
@@ -191,21 +181,18 @@ export class CreatePersonDemoComponent implements OnInit {
         this.appendCapturedImage(event.dataUrl, event.base64);
     }
 
-    triggerFilePicker(): void {
-        this.fileInput?.nativeElement.click();
+    async onFilesPicked(files: File[]): Promise<void> {
+        const added = await filesToImagesAndPreviews(files);
+        if (!added.images.length) return;
+        this.images = [...this.images, ...added.images];
+        this.previews = [...this.previews, ...added.previews];
+        this._cdr.markForCheck();
     }
 
-    async onFilesSelected(event: Event): Promise<void> {
-        const input = event.target as HTMLInputElement;
-        const files = input.files;
-        if (!files?.length) return;
-
-        const fileList = Array.from(files);
-        const b64s = await Promise.all(fileList.map((f) => fileToBase64(f)));
-        const urls = fileList.map((f) => URL.createObjectURL(f));
-        this.images = [...this.images, ...b64s];
-        this.previews = [...this.previews, ...urls];
-        input.value = '';
+    onRemovePreview(index: number): void {
+        const next = removeGalleryImageAt(this.images, this.previews, index);
+        this.images = next.images;
+        this.previews = next.previews;
         this._cdr.markForCheck();
     }
 

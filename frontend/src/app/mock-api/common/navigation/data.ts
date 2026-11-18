@@ -175,8 +175,31 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         icon: 'heroicons_outline:squares-2x2',
                         link: '/smart-enroll/document-templates',
                     },
-                    // Legacy OpenCV 1:N views (collections, people, biometrics-api) retired in Phase 3
-                    // in favor of privacy-preserving HumanID biometric enrollment.
+                    // Legacy OpenCV 1:N views replaced cleanly below — restored on local InsightFace/ArcFace engine
+                    {
+                        id: 'smart-enroll-collections',
+                        title: 'nav.collections',
+                        subtitle: 'nav.collections_subtitle',
+                        type: 'basic',
+                        icon: 'heroicons_outline:folder',
+                        link: '/smart-enroll/collections',
+                    },
+                    {
+                        id: 'smart-enroll-people',
+                        title: 'nav.people',
+                        subtitle: 'nav.people_subtitle',
+                        type: 'basic',
+                        icon: 'heroicons_outline:user-group',
+                        link: '/smart-enroll/people',
+                    },
+                    {
+                        id: 'smart-enroll-api',
+                        title: 'nav.biometrics_api',
+                        subtitle: 'nav.biometrics_api_subtitle',
+                        type: 'basic',
+                        icon: 'heroicons_outline:command-line',
+                        link: '/smart-enroll/api',
+                    },
                     {
                         id: 'smart-enroll-demos',
                         title: 'nav.demos',
@@ -553,8 +576,30 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:document-text',
                 link: '/smart-enroll/smart-scan',
             },
-            // Legacy OpenCV 1:N views (collections, people, biometrics-api) retired in Phase 3
-            // in favor of privacy-preserving HumanID biometric enrollment.
+            {
+                id: 'smart-enroll-collections',
+                title: 'nav.collections',
+                subtitle: 'nav.collections_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:folder',
+                link: '/smart-enroll/collections',
+            },
+            {
+                id: 'smart-enroll-people',
+                title: 'nav.people',
+                subtitle: 'nav.people_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:user-group',
+                link: '/smart-enroll/people',
+            },
+            {
+                id: 'smart-enroll-api',
+                title: 'nav.biometrics_api',
+                subtitle: 'nav.biometrics_api_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:command-line',
+                link: '/smart-enroll/api',
+            },
             {
                 id: 'smart-enroll-demos',
                 title: 'nav.demos',
