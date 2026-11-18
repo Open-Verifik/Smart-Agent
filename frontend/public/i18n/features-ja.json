@@ -1927,6 +1927,10 @@
         "peru_api_vehicle_citv": {
             "title": "車両技術検査証明書",
             "description": "GET /v2/pe/vehiculo/inspeccion-tecnica でペルー MTC の車両技術検査証明書をナンバープレートから照会します。"
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "車両差押命令（SATリマ）",
+            "description": "GET /v2/pe/vehiculo/captura-lima でリマの SAT による車両差押命令をナンバープレートから照会します。"
         }
     }
 }

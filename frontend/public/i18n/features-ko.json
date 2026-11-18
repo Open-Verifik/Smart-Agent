@@ -1927,6 +1927,10 @@
         "peru_api_vehicle_citv": {
             "title": "차량 기술검사 증명서",
             "description": "GET /v2/pe/vehiculo/inspeccion-tecnica로 페루 MTC 차량 기술검사 증명서를 번호판으로 조회합니다."
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "차량 압류 명령 (SAT 리마)",
+            "description": "GET /v2/pe/vehiculo/captura-lima로 리마 SAT 차량 압류 명령 여부를 번호판으로 조회합니다."
         }
     }
 }

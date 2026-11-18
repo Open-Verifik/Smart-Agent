@@ -967,6 +967,22 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "certificates"
         ]
     },
+    "peru_api_vehicle_sat_captura": {
+        "inputs": [
+            "plate"
+        ],
+        "outputs": [
+            "plate",
+            "hasCaptureOrder",
+            "message",
+            "reportDate",
+            "orders",
+            "concept",
+            "amount",
+            "status",
+            "documentNumber"
+        ]
+    },
     "peru_api_vehicle_soat": {
         "inputs": [
             "plate"

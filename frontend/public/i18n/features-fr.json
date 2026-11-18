@@ -1927,6 +1927,10 @@
         "peru_api_vehicle_citv": {
             "title": "Certificat d'inspection technique des véhicules",
             "description": "Consultez les certificats d'inspection technique du MTC au Pérou par plaque via GET /v2/pe/vehiculo/inspeccion-tecnica."
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "Ordre de capture de véhicule (SAT Lima)",
+            "description": "Vérifiez si un véhicule a un ordre de capture du SAT de Lima par plaque via GET /v2/pe/vehiculo/captura-lima."
         }
     }
 }

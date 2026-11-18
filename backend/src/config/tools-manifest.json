@@ -831,9 +831,28 @@
 						"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
 					}
 				},
-				"required": [
-					"plate"
-				]
+				"required": ["plate"]
+			}
+		},
+		{
+			"id": "peru_api_vehicle_sat_captura",
+			"name": "Peru - Vehicle Capture Order (SAT Lima)",
+			"category": "Peru - Vehicle Capture Order (SAT Lima)",
+			"url": "https://ai.verifik.co/api/pe/vehiculo/captura-lima",
+			"verifikPath": "/v2/pe/vehiculo/captura-lima",
+			"method": "GET",
+			"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. A plate with no order is a successful response.",
+			"country": "Peru",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+					}
+				},
+				"required": ["plate"]
 			}
 		},
 		{

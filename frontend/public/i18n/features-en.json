@@ -1927,6 +1927,10 @@
         "peru_api_vehicle_citv": {
             "title": "Vehicle Technical Inspection (CITV)",
             "description": "Look up Peru MTC technical inspection certificates by plate via GET /v2/pe/vehiculo/inspeccion-tecnica."
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "Vehicle Capture Order (SAT Lima)",
+            "description": "Look up a SAT Lima vehicle capture order by plate via GET /v2/pe/vehiculo/captura-lima."
         }
     }
 }

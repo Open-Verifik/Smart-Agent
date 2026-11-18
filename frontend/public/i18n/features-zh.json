@@ -1927,6 +1927,10 @@
         "peru_api_vehicle_citv": {
             "title": "车辆技术检验证书",
             "description": "通过 GET /v2/pe/vehiculo/inspeccion-tecnica 按车牌查询秘鲁 MTC 车辆技术检验证书。"
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "车辆扣押令（利马 SAT）",
+            "description": "通过 GET /v2/pe/vehiculo/captura-lima 按车牌查询利马 SAT 是否对该车辆发出扣押令。"
         }
     }
 }

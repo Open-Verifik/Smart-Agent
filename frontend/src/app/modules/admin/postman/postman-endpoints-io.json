@@ -2,8 +2,8 @@
   "generatedAt": "2026-11-14T03:30:31.448Z",
   "source": "verifik-backend/scripts/app-features-final.json (AppFeature.docs used by Postman About tab)",
   "locale": "en",
-  "endpointCount": 459,
-  "withDocumentedResponses": 387,
+  "endpointCount": 460,
+  "withDocumentedResponses": 388,
   "withoutDocumentedResponses": [
     "feature_kyc_solution",
     "peru_identity_lookup",
@@ -276131,6 +276131,144 @@
   			"notes": []
   		}
   	}
-  }
+  },
+{
+	"code": "peru_api_vehicle_sat_captura",
+	"name": "Peru - Vehicle Capture Order (SAT Lima)",
+	"nameES": "Perú - Orden de Captura Vehicular (SAT Lima)",
+	"country": "Peru",
+	"category": "transit",
+	"group": "apiRequest",
+	"method": "GET",
+	"url": "v2/pe/vehiculo/captura-lima",
+	"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. Returns the official message, the report date, and the debt rows when an order exists.",
+	"price": 0.3,
+	"isAvailable": true,
+	"catalogHidden": false,
+	"headers": [
+		{
+			"name": "Accept",
+			"value": "application/json",
+			"description": ""
+		},
+		{
+			"name": "Authorization",
+			"value": "Bearer <token>",
+			"description": ""
+		}
+	],
+	"input": {
+		"dependencies": [
+			{
+				"field": "plate",
+				"type": "String",
+				"required": true,
+				"enum": null,
+				"default": null,
+				"min": 5,
+				"max": 8,
+				"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+			},
+			{
+				"field": "force",
+				"type": "Boolean",
+				"required": false,
+				"enum": null,
+				"default": null,
+				"min": null,
+				"max": null,
+				"description": "Optional. Pass true or 1 to skip the stored result and query SAT Lima again."
+			}
+		]
+	},
+	"responses": [
+		{
+			"status": "200",
+			"label": "200",
+			"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+		}
+	],
+	"descriptionES": "Consulta si un vehículo tiene orden de captura del SAT de Lima por placa. Devuelve el mensaje oficial, la fecha del informe y el detalle de la deuda cuando existe una orden.",
+	"docs": {
+		"en": {
+			"title": "Peru - Vehicle Capture Order (SAT Lima)",
+			"description": "Look up a SAT Lima vehicle capture order by plate via GET /v2/pe/vehiculo/captura-lima.",
+			"overview": "Asks the public SAT Lima form whether a **`plate`** has a capture order in the province of Lima. A plate with no order is a successful response: `hasCaptureOrder` is false and `orders` is empty. When an order exists, `orders` lists the debt rows reported by SAT, including the concept, amount, and status.",
+			"headers": [
+				{
+					"name": "Accept",
+					"value": "application/json",
+					"description": ""
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer <token>",
+					"description": ""
+				}
+			],
+			"params": [
+				{
+					"field": "plate",
+					"description": "License plate to query, without spaces. Example: V0R660."
+				},
+				{
+					"field": "force",
+					"description": "Optional. true or 1 bypasses the stored result."
+				}
+			],
+			"requestExamples": [],
+			"responses": [
+				{
+					"status": "200",
+					"label": "200",
+					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+				}
+			],
+			"notes": [
+				"The lookup covers the province of Lima only.",
+				"In sandbox mode, ABC10001 has a capture order and ABC10002 does not."
+			]
+		},
+		"es": {
+			"title": "Perú - Orden de Captura Vehicular (SAT Lima)",
+			"description": "Consulta la orden de captura vehicular del SAT de Lima por placa mediante GET /v2/pe/vehiculo/captura-lima.",
+			"overview": "Consulta en el formulario público del SAT de Lima si una **`placa`** tiene orden de captura en la provincia de Lima. Una placa sin orden es una respuesta exitosa: `hasCaptureOrder` es false y `orders` queda vacío. Cuando hay orden, `orders` trae las filas de deuda que reporta el SAT, con el concepto, el importe y el estado.",
+			"headers": [
+				{
+					"name": "Accept",
+					"value": "application/json",
+					"description": ""
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer <token>",
+					"description": ""
+				}
+			],
+			"params": [
+				{
+					"field": "plate",
+					"description": "Placa a consultar, sin espacios. Ejemplo: V0R660."
+				},
+				{
+					"field": "force",
+					"description": "Opcional. true o 1 omite el resultado guardado y consulta de nuevo al SAT."
+				}
+			],
+			"requestExamples": [],
+			"responses": [
+				{
+					"status": "200",
+					"label": "200",
+					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+				}
+			],
+			"notes": [
+				"La consulta cubre solo la provincia de Lima.",
+				"En modo sandbox, ABC10001 tiene orden de captura y ABC10002 no."
+			]
+		}
+	}
+}
 ]
 }
