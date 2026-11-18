@@ -33,7 +33,10 @@ import {
     isIncompleteSmartAccessWizard,
     resumeStepIndex,
 } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
-import { calibrateArcFaceCompareThreshold } from 'app/modules/smart-enroll/projects/app-registration-record.utils';
+import {
+    calibrateArcFaceCompareThreshold,
+    thresholdScoreBarClass,
+} from 'app/modules/smart-enroll/projects/app-registration-record.utils';
 import type {
     HumanAuthnProject,
     HumanAuthnProjectFlow,
@@ -346,9 +349,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     scoreBarClass(score: number): string {
-        if (score >= 85) return 'bg-emerald-500';
-        if (score >= 70) return 'bg-amber-500';
-        return 'bg-rose-500';
+        return thresholdScoreBarClass(score);
     }
 
     /** Opens the override editor. Face images keep their saved mode. */
