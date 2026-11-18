@@ -92,7 +92,7 @@ type DispatchStatus = 'compliant' | 'expiring' | 'grounded' | 'unchecked';
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** Document types accepted by the Colombia vehicle lookup. */
-const CO_DOCUMENT_TYPES = ['CC', 'CE', 'TI', 'PA', 'RC'] as const;
+const CO_DOCUMENT_TYPES = ['CC', 'NIT', 'CE', 'TI', 'PA', 'RC'] as const;
 
 /** Document types accepted for drivers. */
 const DRIVER_DOCUMENT_TYPES = ['CC', 'CE', 'PA', 'PPT'] as const;
