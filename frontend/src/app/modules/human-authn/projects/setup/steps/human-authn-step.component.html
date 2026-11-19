@@ -176,14 +176,14 @@
                                             </div>
                                             <div class="threshold-card__value">
                                                 <strong>{{ compareMinScoreDisplayValue }}</strong>
-                                                <span>{{ compareMinScoreUnitValue.toFixed(2) }} · 60%–75%</span>
+                                                <span>{{ compareMinScoreUnitValue.toFixed(2) }} · 60%–95%</span>
                                             </div>
                                         </div>
                                         <input
                                             [id]="compareSliderId"
                                             type="range"
                                             min="0.6"
-                                            max="0.75"
+                                            max="0.95"
                                             step="0.01"
                                             formControlName="compareMinScore"
                                             [attr.aria-describedby]="compareHelpId"

@@ -82,13 +82,13 @@ export const scoreToPercent = (score: number | string | null | undefined): numbe
 
 export type ManualVerificationReason = { key: string; params?: Record<string, unknown> };
 
-export const DEFAULT_ARCFACE_COMPARE_MIN_SCORE = 0.7;
+export const DEFAULT_ARCFACE_COMPARE_MIN_SCORE = 0.75;
 
 export const FACE_COMPARE_THRESHOLD_PRESETS = [
-    { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.6 },
-    { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.65 },
-    { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.7 },
-    { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.75 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.65 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.7 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.75 },
+    { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.85 },
 ] as const;
 
 export const calibrateSliderCompareThreshold = (
@@ -97,20 +97,20 @@ export const calibrateSliderCompareThreshold = (
 ): number => Math.round(calibrateArcFaceCompareThreshold(value, fallback) * 100) / 100;
 
 /**
- * Color class for configured threshold bars (liveness 52–90%, compare 60–75%, search 70–95%).
- * Native ArcFace presets at Standard/Balanced/Strict (>=65%) render emerald; Relaxed (60–64%)
- * renders amber; permissive (<58%) renders rose.
+ * Color class for configured threshold bars (liveness 52–90%, compare 60–95%, search 70–95%).
+ * Normalized (1 + cos) / 2 thresholds at Balanced/Strict (>=75%) render emerald;
+ * Standard/Relaxed (65–74%) render amber; permissive (<65%) render rose.
  */
 export const thresholdScoreBarClass = (percent: number): string => {
-    if (percent >= 65) return 'bg-emerald-500';
-    if (percent >= 58) return 'bg-amber-500';
+    if (percent >= 75) return 'bg-emerald-500';
+    if (percent >= 65) return 'bg-amber-500';
     return 'bg-rose-500';
 };
 
 /**
- * Calibrates legacy OpenCV compare thresholds (> 0.75..0.95) into the native
- * ArcFace cosine similarity scale (0.65..0.75, FAR_1E4..FAR_1E6), matching
- * `verifik-backend/Repositories/OpenCV/helpers/compare-threshold.helper.js`.
+ * Normalizes compare thresholds onto the canonical [0.60, 0.95] unit scale without shrinking,
+ * matching `verifik-backend/Repositories/OpenCV/helpers/compare-threshold.helper.js`
+ * where engine scores use `(1 + cos) / 2`.
  */
 export const calibrateArcFaceCompareThreshold = (
     value: unknown,
@@ -120,18 +120,7 @@ export const calibrateArcFaceCompareThreshold = (
     const num = Number(value);
     if (!Number.isFinite(num) || num <= 0) return fallback;
     const numeric = num > 1 && num <= 100 ? num / 100 : num;
-    if (numeric <= 0.75) {
-        return Math.max(0.6, Math.min(0.75, numeric));
-    }
-    if (numeric <= 0.85) {
-        const mapped = 0.65 + ((Math.max(0.8, numeric) - 0.8) / 0.05) * 0.05;
-        return Math.max(0.65, Math.min(0.7, Number(mapped.toFixed(4))));
-    }
-    if (numeric <= 0.95) {
-        const mapped = 0.7 + ((numeric - 0.85) / 0.1) * 0.05;
-        return Math.max(0.7, Math.min(0.75, Number(mapped.toFixed(4))));
-    }
-    return Math.min(0.95, numeric);
+    return Math.max(0.6, Math.min(0.95, Number(numeric.toFixed(4))));
 };
 
 /** Face-compare threshold from project flow (v3: liveness.compareMinScore; v2: onboardingSettings.document.compareMinScore). */
