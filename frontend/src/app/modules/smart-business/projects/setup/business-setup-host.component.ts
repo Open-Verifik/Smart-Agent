@@ -331,7 +331,7 @@ export class BusinessSetupHostComponent implements OnInit, OnDestroy {
                     ],
                     compareMinScore: [
                         calibrateSliderCompareThreshold(defaultFlow.representativesPolicy?.compareMinScore),
-                        [Validators.required, Validators.min(0.6), Validators.max(0.75)],
+                        [Validators.required, Validators.min(0.6), Validators.max(0.95)],
                     ],
                 }),
                 integrations: this._fb.group({

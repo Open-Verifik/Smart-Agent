@@ -932,6 +932,8 @@ export class SmartReportService {
     private _scoreProfiles: Observable<ScoreProfileOption[]> | null = null;
     reports = signal<SmartReport[]>([]);
     isLoading = signal(false);
+    /** Drops a template list that started before the latest save. */
+    private _templateListEpoch = 0;
 
     constructor(private _httpClient: HttpClient) {}
 
@@ -941,6 +943,7 @@ export class SmartReportService {
 
     getTemplates(configId?: string): Observable<SmartReportTemplate[]> {
         this.isLoading.set(true);
+        const epoch = ++this._templateListEpoch;
         let params: Record<string, string> = {};
         if (configId) {
             params = { batchConfiguration: configId };
@@ -953,10 +956,14 @@ export class SmartReportService {
                 map((res) => res.data),
                 tap({
                     next: (templates) => {
+                        if (epoch !== this._templateListEpoch) return;
                         this.templates.set(templates);
                         this.isLoading.set(false);
                     },
-                    error: () => this.isLoading.set(false),
+                    error: () => {
+                        if (epoch !== this._templateListEpoch) return;
+                        this.isLoading.set(false);
+                    },
                 })
             );
     }
@@ -1034,9 +1041,7 @@ export class SmartReportService {
                 return throwError(() => err);
             }),
             map((res) => res.data),
-            tap((newTemplate) => {
-                this.templates.update((list) => [newTemplate, ...list]);
-            })
+            tap((newTemplate) => this._adoptTemplate(newTemplate))
         );
     }
 
@@ -1070,10 +1075,27 @@ export class SmartReportService {
                 return throwError(() => err);
             }),
             map((res) => res.data),
-            tap((updated) => {
-                this.templates.update((list) => list.map((t) => (t._id === id ? updated : t)));
-            })
+            tap((updated) => this._adoptTemplate({ ...updated, _id: updated._id || id }))
         );
+    }
+
+    /** Keep a saved template in the list, ahead of any list request still in flight. */
+    retainTemplate(template: SmartReportTemplate): void {
+        this._adoptTemplate(template);
+    }
+
+    private _adoptTemplate(template: SmartReportTemplate): void {
+        this._templateListEpoch += 1;
+        const id = template._id;
+        this.templates.update((list) => {
+            if (!id) return [template, ...list];
+            const index = list.findIndex((item) => item._id === id);
+            if (index < 0) return [template, ...list];
+            const current = list[index];
+            const next = { ...current, ...template, name: template.name?.trim() || current.name };
+            return list.map((item, itemIndex) => (itemIndex === index ? next : item));
+        });
+        this.isLoading.set(false);
     }
 
     deleteTemplate(id: string): Observable<any> {

@@ -571,7 +571,7 @@ describe('PreviewVerifyShellComponent Submitted screen (Requirement R3) & Previe
         expect(component.activeScreen).toBe('submitted');
     });
 
-    it('simulates countdown timer decrementing and looping in submitted screen', () => {
+    it('simulates countdown timer decrementing once to 0 without looping in submitted screen', () => {
         vi.useFakeTimers();
         try {
             component.view = 'liveness-result';
@@ -585,11 +585,18 @@ describe('PreviewVerifyShellComponent Submitted screen (Requirement R3) & Previe
             vi.advanceTimersByTime(2000);
             expect(component.previewRedirectSeconds).toBe(4);
 
-            // Reaching 1s then next tick loops back to 7s
+            // Reaching 1s then 0s stops cleanly instead of looping back to 7s
             vi.advanceTimersByTime(3000);
             expect(component.previewRedirectSeconds).toBe(1);
 
             vi.advanceTimersByTime(1000);
+            expect(component.previewRedirectSeconds).toBe(0);
+
+            vi.advanceTimersByTime(5000);
+            expect(component.previewRedirectSeconds).toBe(0);
+
+            // Manual replay resets back to 7s
+            component.replayRedirectPreview();
             expect(component.previewRedirectSeconds).toBe(7);
         } finally {
             vi.useRealTimers();
@@ -968,6 +975,8 @@ describe('Challenger 2 Adversarial Stress Suite (R1-R4 Edge Cases)', () => {
                 'smart_enroll.verify.submittedStatusProtected',
                 'smart_enroll.verify.submittedContinueBtn',
                 'smart_enroll.verify.submittedRedirecting',
+                'smart_enroll.verify.submittedPreviewRedirectDone',
+                'smart_enroll.verify.submittedPreviewReplay',
                 // Screens navigation
                 'smart_enroll.verify.screens.consent',
                 'smart_enroll.verify.screens.contact',

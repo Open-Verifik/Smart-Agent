@@ -190,7 +190,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                     ],
                     compareMinScore: [
                         calibrateSliderCompareThreshold(flow.humanAuthn?.compareMinScore),
-                        [Validators.min(0.6), Validators.max(0.75)],
+                        [Validators.min(0.6), Validators.max(0.95)],
                     ],
                     verifierKey: [flow.humanAuthn?.verifierKey || '', [Validators.maxLength(128)]],
                     publicDataKeys: [this._defaultPublicDataKeys(flow)],

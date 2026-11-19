@@ -1923,6 +1923,14 @@
         "peru_api_vehicle_setare_arequipa": {
             "title": "페루 — SETARE 아레키파 택시 면허",
             "description": "GET /v2/pe/vehiculo/setare-arequipa를 통해 페루 아레키파에서 차량이 유효한 SETARE 택시 운행 허가를 보유하고 있는지 확인합니다."
+        },
+        "peru_api_vehicle_citv": {
+            "title": "차량 기술검사 증명서",
+            "description": "GET /v2/pe/vehiculo/inspeccion-tecnica로 페루 MTC 차량 기술검사 증명서를 번호판으로 조회합니다."
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "차량 압류 명령 (SAT 리마)",
+            "description": "GET /v2/pe/vehiculo/captura-lima로 리마 SAT 차량 압류 명령 여부를 번호판으로 조회합니다. 공식 메시지, 보고일, 각 채무의 항목·금액·기간·문서번호를 반환합니다."
         }
     }
 }

@@ -88,6 +88,7 @@ import {
     REPORT_SHEET_Z_PEEK,
     REPORT_UI_Z_MARQUEE,
 } from '../report-design-z-index.constants';
+import { placeSheetFlow, SheetFlowInput, SheetFlowSlice } from './report-sheet-flow';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
 
@@ -608,6 +609,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
     pages = signal<ReportSection[][]>([[]]);
+
+    /** Drawn pages when a table continues. The saved frames stay as the author left them. */
+    private readonly _sheetFlow = signal<SheetFlowSlice[] | null>(null);
+    private readonly _flowRowCache = new Map<string, number[]>();
+    private readonly _flowChromeCache = new Map<string, number>();
+    private _flowPasses = 0;
 
     private isResizing = false;
     private isRotating = false;
@@ -2242,7 +2249,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             pointerId: event.pointerId,
             startClientX: event.clientX,
             startClientY: event.clientY,
-            startFrame: this.displayFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
+            startFrame: this._visualFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
             scrollTopAtStart: this._dragViewport()?.scrollTop ?? 0,
             active: false,
             cellKey,
@@ -2563,7 +2570,14 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 /* Window listeners still follow the pointer if capture is unavailable. */
             }
             if (this.editingText()) this.commitInlineEdit();
-            drag.companions = this._dragCompanions(drag.id);
+            const dragged = this._sectionById(drag.id);
+            const visual = dragged && this._primarySlice(drag.id) ? this._visualFrame(dragged) : null;
+            if (visual) drag.startFrame = visual;
+            drag.companions = this._dragCompanions(drag.id).map((mate) => {
+                const section = this._sectionById(mate.id);
+                const mateVisual = section && this._primarySlice(mate.id) ? this._visualFrame(section) : null;
+                return mateVisual ? { ...mate, startFrame: mateVisual } : mate;
+            });
             drag.overlayMates = this.selectedSectionIds().includes(drag.id) ? this._groupOverlayMates() : [];
             this.draggingSectionId.set(drag.id);
             this._groupDragIds.set([drag.id, ...drag.companions.map((mate) => mate.id)]);
@@ -2623,7 +2637,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const updates = [...changedIds]
             .map((id) => {
                 const frame = live[id];
-                return frame ? { id, frame } : null;
+                return frame ? { id, frame: this._authoredFrameFromVisual(id, frame) } : null;
             })
             .filter((item): item is { id: string; frame: ReportSectionFrame } => Boolean(item));
         this._stopSectionDragListeners();
@@ -2664,9 +2678,32 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     visiblePages(): ReportSection[][] {
-        const pages = this.pages();
+        const pages = this._flowPages() ?? this.pages();
         if (!this.thumbnailMode()) return pages;
         return pages.length ? [pages[0]] : [[]];
+    }
+
+    private _flowPages(): ReportSection[][] | null {
+        const flow = this._sheetFlow();
+        if (!flow?.length) return null;
+        const authored = this.pages();
+        const maxFlow = flow.reduce((max, slice) => Math.max(max, slice.page), 0);
+        const count = Math.max(authored.length, maxFlow + 1, 1);
+        const byId = new Map((this.template().sections ?? []).map((section) => [section.id, section]));
+        const placed = new Set(flow.map((slice) => slice.sectionId));
+        const pages: ReportSection[][] = Array.from({ length: count }, () => []);
+        const ordered = [...flow].sort((left, right) => left.page - right.page || left.y - right.y);
+        for (const slice of ordered) {
+            const section = byId.get(slice.sectionId);
+            if (section) pages[slice.page].push(section);
+        }
+        authored.forEach((page, index) => {
+            if (index >= count) return;
+            for (const section of page) {
+                if (!placed.has(section.id)) pages[index].push(section);
+            }
+        });
+        return pages;
     }
 
     private _pagesFromFrames(sections: ReportSection[]): ReportSection[][] {
@@ -2846,18 +2883,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.paperSizeMm().height * MM_TO_PX;
     }
 
-    /** Extra sheet height so a full list is not cut off by the page edge. */
-    designPageStretchPx(pageIndex: number): number | null {
-        if (!this.reorderable() || this.thumbnailMode() || this.printCapture()) return null;
-        const base = this.pageHeightPx();
-        let bottom = 0;
-        for (const section of this.template().sections ?? []) {
-            if (isReportPageAnchor(section)) continue;
-            const frame = this.displayFrame(section);
-            if (!frame || (frame.page ?? 0) !== pageIndex) continue;
-            bottom = Math.max(bottom, (Number(frame.y) || 0) + (Number(frame.height) || 0) + 24);
-        }
-        return bottom > base + 4 ? Math.ceil(bottom) : null;
+    /**
+     * The sheet stays the paper size. A long table continues on the next page
+     * instead of stretching this one.
+     */
+    designPageStretchPx(_pageIndex: number): number | null {
+        return null;
     }
 
     /** Last usable Y before the footer / bottom margin. */
@@ -2956,18 +2987,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         );
     }
 
-    sectionDesignTop(section: ReportSection): number | null {
+    sectionDesignTop(section: ReportSection, pageIndex?: number): number | null {
+        const slice = this._flowSlice(section.id, pageIndex);
+        if (slice) return Math.round(slice.y);
         const y = Number(this.displayFrame(section)?.y);
         return Number.isFinite(y) ? Math.round(y) : null;
     }
 
-    sectionDesignHeight(section: ReportSection): number | null {
+    sectionDesignHeight(section: ReportSection, pageIndex?: number): number | null {
+        const slice = this._flowSlice(section.id, pageIndex);
+        if (slice) return Math.round(slice.height);
         const height = Number(this.displayFrame(section)?.height);
         return Number.isFinite(height) && height > 0 ? Math.round(height) : null;
     }
 
     /** Body rows the design sample has. The PDF keeps this box until the count changes. */
-    sectionDesignRows(section: ReportSection): number | null {
+    sectionDesignRows(section: ReportSection, pageIndex?: number): number | null {
+        const window = this.flowRowWindow(section.id, pageIndex);
+        if (window) return Math.max(0, window.end - window.start);
         const type = section.type;
         if (
             type !== 'dataTable' &&
@@ -3016,19 +3053,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return [];
     }
 
-    sectionHostStyle(section: ReportSection): Record<string, string> {
+    sectionHostStyle(section: ReportSection, pageIndex?: number): Record<string, string> {
         const frame = this.displayFrame(section);
         if (!this.hasFreeLayout() || !frame) return {};
+        const slice = this._flowSlice(section.id, pageIndex);
+        const dragging =
+            this.draggingSectionId() === section.id || this._groupDragIds().includes(section.id);
+        const useSlice = Boolean(slice && (slice.continuation || !dragging));
         const x = Number(frame.x);
-        const y = Number(frame.y);
+        const y = useSlice && slice ? slice.y : Number(frame.y);
+        const drawnHeight = useSlice && slice ? slice.height : Number(frame.height);
         if (!Number.isFinite(x) || !Number.isFinite(y)) return {};
         const scales = this._scaleFactors;
         const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
-        const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
+        const height = drawnHeight > 0 ? drawnHeight / scales.y : 0;
         const rotation = this.sectionRotation(section);
-        const dragging = this.draggingSectionId() === section.id || this._groupDragIds().includes(section.id);
         const hug = this.hugsText(section);
-        const moveRing = this.showsSectionMoveHand(section) && this.showsSectionOutline(section);
+        const moveRing = this.showsSectionMoveHand(section) && this.showsSectionOutline(section) && !slice?.continuation;
         const style: Record<string, string> = {
             position: 'absolute',
             top: `${y / scales.y}px`,
@@ -3036,7 +3077,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             zIndex: dragging
                 ? String(REPORT_SHEET_Z_DRAG)
                 : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
-            pointerEvents: this._sectionPointer(section),
+            pointerEvents: slice?.continuation ? 'none' : this._sectionPointer(section),
         };
         if (this.isLayerHidden(`sec:${section.id}`) && !this.isLayerPeeked(`sec:${section.id}`)) style['visibility'] = 'hidden';
         if (this.isLayerPeeked(`sec:${section.id}`)) style['zIndex'] = String(REPORT_SHEET_Z_PEEK);
@@ -3774,13 +3815,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
      * After the sheet paints, store the content height so the selection ring,
      * drag box and PDF use the same size as the data on the block.
      */
-    private _scheduleContentFit(): void {
-        if (!this.reorderable() || this.thumbnailMode() || this.printCapture() || this._sectionDrag) return;
+    private _scheduleContentFit(followUp = false): void {
+        if (!followUp) this._flowPasses = 0;
+        if (this.thumbnailMode() || this._sectionDrag) return;
+        if (!this.reorderable() && !this.printCapture() && !this.fullContent()) return;
         if (this._contentFitFrameId !== null) cancelAnimationFrame(this._contentFitFrameId);
+        const fitFrames = this.reorderable() && !this.printCapture();
         this._contentFitFrameId = requestAnimationFrame(() => {
             this._contentFitFrameId = requestAnimationFrame(() => {
                 this._contentFitFrameId = null;
-                this._fitContentBoxHeights();
+                if (fitFrames) this._fitContentBoxHeights();
+                this._layoutSheetFlow();
             });
         });
     }
@@ -3808,6 +3853,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     !section ||
                     this._locksFrameHeight(section) ||
                     this.hugsText(section) ||
+                    this._splitsAcrossSheets(section) ||
                     !frames.has(id)
                 ) {
                     return;
@@ -3834,7 +3880,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const delta = item.height - item.current;
             frame.height = item.height;
             const growingSection = byId.get(item.id);
-            if (delta <= 4 || (growingSection && this.sectionHasRichTable(growingSection))) continue;
+            if (growingSection && this.sectionHasRichTable(growingSection)) {
+                const room = this.contentBottomLimitPx() - (Number(frame.y) || 0);
+                if (room > 24) frame.height = Math.min(frame.height, room);
+                continue;
+            }
+            if (delta <= 4) continue;
             const page = frame.page ?? 0;
             for (const [otherId, other] of frames) {
                 if (otherId === item.id || (other.page ?? 0) !== page) continue;
@@ -3867,6 +3918,349 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (other && otherFrame) updates.push({ id: other.id, frame: { ...otherFrame } });
         }
         this.sectionFramesChange.emit(updates);
+    }
+
+    /** A later slice of the same table. It is not a separate block. */
+    flowContinuation(section: ReportSection, pageIndex?: number): boolean {
+        return this._flowSlice(section.id, pageIndex)?.continuation === true;
+    }
+
+    /** The drawn size is the slice, so the resize handles would fight the split. */
+    flowLocksResize(section: ReportSection): boolean {
+        return this._splitsAcrossSheets(section) && this._primarySlice(section.id) != null;
+    }
+
+    flowRowIndex(section: ReportSection, pageIndex: number | undefined, localIndex: number): number {
+        const window = this.flowRowWindow(section.id, pageIndex);
+        return (window?.start ?? 0) + localIndex;
+    }
+
+    flowRowWindow(sectionId: string, pageIndex?: number): { start: number; end: number } | null {
+        const slice = this._flowSlice(sectionId, pageIndex);
+        if (!slice || slice.rowEnd < 0 || slice.rowEnd <= slice.rowStart) return null;
+        return { start: slice.rowStart, end: slice.rowEnd };
+    }
+
+    repeaterRecords(section: ReportSection, pageIndex?: number): Record<string, any>[] {
+        const records = this.structuralRecords(section);
+        const shown = this.fullContent() ? records : records.slice(0, 2);
+        return this._windowRows(shown, section.id, pageIndex);
+    }
+
+    tableRows(section: ReportSection, pageIndex?: number): { key: string; label: string; value: string }[] {
+        return this._windowRows(this.resolveTableData(section), section.id, pageIndex);
+    }
+
+    private _windowRows<T>(rows: T[], sectionId: string, pageIndex?: number): T[] {
+        const window = this.flowRowWindow(sectionId, pageIndex);
+        return window ? rows.slice(window.start, window.end) : rows;
+    }
+
+    private _splitsAcrossSheets(section: ReportSection | undefined): boolean {
+        return (
+            section?.type === 'dataTable' ||
+            section?.type === 'table' ||
+            section?.type === 'repeater' ||
+            section?.type === 'keyValueGrid' ||
+            section?.type === 'card'
+        );
+    }
+
+    /** Rows of one table inside a grid, limited to the rows that belong on this sheet. */
+    flowChunkRows<T>(section: ReportSection, rows: T[], chunkKey: string, pageIndex?: number): T[] {
+        const offset = this.chunkTableOffset(section, chunkKey);
+        const window = this.flowRowWindow(section.id, pageIndex);
+        if (!window) return rows;
+        const start = Math.max(0, window.start - offset);
+        const end = Math.min(rows.length, window.end - offset);
+        return end > start ? rows.slice(start, end) : [];
+    }
+
+    flowChunkRowIndex(section: ReportSection, pageIndex: number | undefined, chunkKey: string, localIndex: number): number {
+        const offset = this.chunkTableOffset(section, chunkKey);
+        const window = this.flowRowWindow(section.id, pageIndex);
+        if (!window) return offset + localIndex;
+        return Math.max(window.start, offset) + localIndex;
+    }
+
+    private chunkTableOffset(section: ReportSection, chunkKey: string): number {
+        let count = 0;
+        for (const chunk of this.sheetChunks(section)) {
+            if (chunk.kind !== 'table') continue;
+            if (chunk.table.key === chunkKey) return count;
+            count += chunk.table.rows.length;
+        }
+        return count;
+    }
+
+    private _sectionById(id: string): ReportSection | null {
+        return (this.template().sections ?? []).find((section) => section.id === id) ?? null;
+    }
+
+    private _flowSlice(sectionId: string, pageIndex?: number): SheetFlowSlice | null {
+        if (pageIndex == null || !sectionId) return null;
+        return this._sheetFlow()?.find((slice) => slice.sectionId === sectionId && slice.page === pageIndex) ?? null;
+    }
+
+    private _primarySlice(sectionId: string): SheetFlowSlice | null {
+        const flow = this._sheetFlow();
+        if (!flow || !sectionId) return null;
+        return flow.find((slice) => slice.sectionId === sectionId && !slice.continuation) ?? flow.find((slice) => slice.sectionId === sectionId) ?? null;
+    }
+
+    private _visualFrame(section: ReportSection): ReportSectionFrame | null {
+        const frame = section.frame ?? this.displayFrame(section);
+        if (!frame) return null;
+        const slice = this._primarySlice(section.id);
+        if (!slice) return { ...frame };
+        return { ...frame, page: slice.page, y: slice.y, height: slice.height };
+    }
+
+    private _authoredFrameFromVisual(id: string, visual: ReportSectionFrame): ReportSectionFrame {
+        const shift = this._primarySlice(id)?.shift ?? 0;
+        const authored = this._sectionById(id)?.frame;
+        const pageH = this.pageHeightPx() || 1;
+        const visualGlobal = (visual.page ?? 0) * pageH + (Number(visual.y) || 0);
+        const authoredGlobal = Math.max(0, visualGlobal - shift);
+        const page = Math.floor(authoredGlobal / pageH);
+        return {
+            ...visual,
+            page,
+            y: authoredGlobal - page * pageH,
+            height: authored?.height ?? visual.height,
+        };
+    }
+
+    private _renderedRowCount(section: ReportSection): number {
+        if (section.type === 'dataTable' || section.type === 'repeater') {
+            const count = this.structuralRecords(section).length;
+            return this.fullContent() ? count : Math.min(count, 2);
+        }
+        if (section.type === 'table') return this.resolveTableData(section).length;
+        if (section.type === 'keyValueGrid' || section.type === 'card') {
+            return this.sheetChunks(section).reduce(
+                (sum, chunk) => sum + (chunk.kind === 'table' ? chunk.table.rows.length : 0),
+                0
+            );
+        }
+        return 0;
+    }
+
+    private _flowBoxWidth(section: ReportSection, frame: ReportSectionFrame): number {
+        const width = Number(frame.width) || 0;
+        const text = `${section.label || ''} ${section.dataPath || ''} ${section.staticContent || ''}`;
+        if (section.id.startsWith('fecha-') || (section.type === 'field' && /fecha|consultedAt|generatedAt/i.test(text))) {
+            return Math.min(width || 320, 320);
+        }
+        return width;
+    }
+
+    private _offsetWithin(node: HTMLElement, host: HTMLElement): number {
+        let y = 0;
+        let current: HTMLElement | null = node;
+        while (current && current !== host) {
+            y += current.offsetTop;
+            const parent = current.offsetParent as HTMLElement | null;
+            if (!parent || (parent !== host && !host.contains(parent))) return node.offsetTop;
+            current = parent;
+        }
+        return y;
+    }
+
+    /** The clip hides the rows that do not fit. Let them lay out, then put the box back. */
+    private _releaseFlowHosts(sectionId: string, read: () => void): void {
+        const saved = this._flowHosts(sectionId).map((host) => {
+            const clip = host.querySelector(':scope > [data-section-clip]') as HTMLElement | null;
+            const snap = {
+                host,
+                clip,
+                height: host.style.height,
+                maxHeight: host.style.maxHeight,
+                overflow: host.style.overflow,
+                clipHeight: clip?.style.height ?? '',
+                clipMaxHeight: clip?.style.maxHeight ?? '',
+                clipOverflow: clip?.style.overflow ?? '',
+                clipPosition: clip?.style.position ?? '',
+                clipInset: clip?.style.inset ?? '',
+            };
+            host.style.height = 'auto';
+            host.style.maxHeight = 'none';
+            host.style.overflow = 'visible';
+            if (clip) {
+                clip.style.position = 'relative';
+                clip.style.height = 'auto';
+                clip.style.maxHeight = 'none';
+                clip.style.overflow = 'visible';
+                clip.style.inset = 'auto';
+            }
+            return snap;
+        });
+        saved.forEach((snap) => void snap.host.offsetHeight);
+        try {
+            read();
+        } finally {
+            for (const snap of saved) {
+                snap.host.style.height = snap.height;
+                snap.host.style.maxHeight = snap.maxHeight;
+                snap.host.style.overflow = snap.overflow;
+                if (!snap.clip) continue;
+                snap.clip.style.height = snap.clipHeight;
+                snap.clip.style.maxHeight = snap.clipMaxHeight;
+                snap.clip.style.overflow = snap.clipOverflow;
+                snap.clip.style.position = snap.clipPosition;
+                snap.clip.style.inset = snap.clipInset;
+            }
+        }
+    }
+
+    private _flowHosts(sectionId: string): HTMLElement[] {
+        const hosts: HTMLElement[] = [];
+        const selector = `[data-report-section][data-section-id="${CSS.escape(sectionId)}"]`;
+        for (const page of this._reportPages?.toArray() ?? []) {
+            page.nativeElement.querySelectorAll(selector).forEach((node) => hosts.push(node as HTMLElement));
+        }
+        return hosts;
+    }
+
+    private _measureFlowRows(sectionId: string, scale: number): Map<number, number> {
+        const found = new Map<number, number>();
+        for (const host of this._flowHosts(sectionId)) {
+            const tagged = Array.from(host.querySelectorAll('[data-flow-row]')).filter(
+                (node) => !(node as HTMLElement).closest('td, th')
+            ) as HTMLElement[];
+            const rows = tagged.length
+                ? tagged
+                : (Array.from(host.querySelectorAll('tbody tr, [data-repeat-item]')).filter(
+                      (node) => !(node as HTMLElement).closest('td, th')
+                  ) as HTMLElement[]);
+            rows.forEach((row, index) => {
+                const taggedIndex = Number(row.getAttribute('data-flow-row'));
+                const key = Number.isFinite(taggedIndex) ? taggedIndex : index;
+                const height = row.offsetHeight * scale;
+                if (height > 0) found.set(key, height);
+            });
+        }
+        return found;
+    }
+
+    private _measureFlowChrome(sectionId: string, scale: number): number {
+        for (const host of this._flowHosts(sectionId)) {
+            const row = host.querySelector('[data-flow-row], tbody tr, [data-repeat-item]') as HTMLElement | null;
+            if (!row || row.closest('td, th')) continue;
+            const style = getComputedStyle(host);
+            const chrome =
+                this._offsetWithin(row, host) +
+                (parseFloat(style.paddingBottom) || 0) +
+                (parseFloat(style.borderBottomWidth) || 0);
+            if (chrome > 0) {
+                const canonical = chrome * scale;
+                this._flowChromeCache.set(sectionId, canonical);
+                return canonical;
+            }
+        }
+        return this._flowChromeCache.get(sectionId) ?? 0;
+    }
+
+    /** Measure rows, then keep each sheet at paper size and continue the table. */
+    private _layoutSheetFlow(): void {
+        if (this._sectionDrag || this._sectionResize || this._cellResize) return;
+        if (!this.hasFreeLayout() || this.thumbnailMode()) return;
+        const pageH = this.pageHeightPx();
+        const pages = this._reportPages?.toArray() ?? [];
+        if (!pageH || !pages.length) return;
+
+        const scale = this._scaleFactors.y || 1;
+        const items: SheetFlowInput[] = [];
+        let incomplete = false;
+
+        for (const section of this.template().sections ?? []) {
+            if (!section?.id || isReportPageAnchor(section)) continue;
+            const frame = section.frame;
+            if (!frame || !Number.isFinite(Number(frame.x)) || !Number.isFinite(Number(frame.y))) continue;
+            const height = Math.max(1, Number(frame.height) || Number(frame.minHeight) || 24);
+            const authoredPage = frame.page ?? 0;
+            const authoredY = Number(frame.y) || 0;
+            let rowHeights: number[] = [];
+            let chrome = 0;
+            if (this._splitsAcrossSheets(section)) {
+                const expected = this._renderedRowCount(section);
+                let measured = new Map<number, number>();
+                this._releaseFlowHosts(section.id, () => {
+                    measured = this._measureFlowRows(section.id, scale);
+                    chrome = this._measureFlowChrome(section.id, scale);
+                });
+                if ((this._flowRowCache.get(section.id)?.length ?? 0) !== expected) this._flowRowCache.delete(section.id);
+                const cached = this._flowRowCache.get(section.id) ?? [];
+                if (expected > 1 && measured.size === 0 && cached.length !== expected) {
+                    incomplete = true;
+                } else if (expected > 0 || measured.size > 0) {
+                    const count = Math.max(expected, measured.size, cached.length);
+                    const known = [...measured.values(), ...cached].filter((rowHeight) => rowHeight > 0);
+                    const average = known.length
+                        ? known.reduce((sum, rowHeight) => sum + rowHeight, 0) / known.length
+                        : 22 * scale;
+                    rowHeights = Array.from({ length: count }, (_, index) => measured.get(index) || cached[index] || average);
+                    if (measured.size >= count) this._flowRowCache.set(section.id, rowHeights.slice());
+                }
+            }
+            const natural = rowHeights.length
+                ? chrome + rowHeights.reduce((sum, rowHeight) => sum + rowHeight, 0)
+                : height;
+            items.push({
+                sectionId: section.id,
+                authoredPage,
+                authoredY,
+                top: authoredPage * pageH + authoredY,
+                height,
+                natural,
+                growable: rowHeights.length > 0,
+                left: Number(frame.x) || 0,
+                width: this._flowBoxWidth(section, frame),
+                chrome,
+                rowHeights,
+            });
+        }
+
+        if (incomplete) {
+            if (this._sheetFlow() !== null) this._sheetFlow.set(null);
+            if (this._flowPasses < 3) {
+                this._flowPasses += 1;
+                this._scheduleContentFit(true);
+            }
+            return;
+        }
+
+        const next = placeSheetFlow(items, pageH, this.contentBottomLimitPx(), PAGE_INSET_PX);
+        if (this._sameFlow(next)) {
+            this._flowPasses = 0;
+            return;
+        }
+        this._sheetFlow.set(next.length ? next : null);
+        if (this._flowPasses < 2) {
+            this._flowPasses += 1;
+            this._scheduleContentFit(true);
+        } else {
+            this._flowPasses = 0;
+        }
+    }
+
+    private _sameFlow(next: SheetFlowSlice[]): boolean {
+        const prev = this._sheetFlow();
+        if (!prev?.length) return next.length === 0;
+        if (prev.length !== next.length) return false;
+        return prev.every((slice, index) => {
+            const other = next[index];
+            return (
+                other.sectionId === slice.sectionId &&
+                other.page === slice.page &&
+                other.continuation === slice.continuation &&
+                other.rowStart === slice.rowStart &&
+                other.rowEnd === slice.rowEnd &&
+                Math.abs(other.y - slice.y) <= 1 &&
+                Math.abs(other.height - slice.height) <= 2 &&
+                Math.abs(other.shift - slice.shift) <= 1
+            );
+        });
     }
 
     /**
@@ -4815,10 +5209,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     /** Two rows are enough to show shape without reproducing the document. */
-    structuralSampleRows(section: ReportSection): string[][] {
+    structuralSampleRows(section: ReportSection, pageIndex?: number): string[][] {
         const columns = this.structuralColumns(section);
         const records = this.structuralRecords(section);
-        const shown = this.fullContent() ? records : records.slice(0, 2);
+        const shown = this._windowRows(this.fullContent() ? records : records.slice(0, 2), section.id, pageIndex);
 
         return shown
             .map((record) =>
@@ -5697,7 +6091,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         clone.style.zoom = '1';
         clone.style.transform = 'none';
         this._pinPrintedLayout(paper, clone, Number(paper.getAttribute('data-report-page-index') || 0));
-        return `<div class="print-sheet">${clone.outerHTML}</div>`;
+        return `<div class="print-sheet" data-paper-height="${Math.round(this.pageHeightPx())}">${clone.outerHTML}</div>`;
     }
 
     private _pinPrintedLayout(source: HTMLElement, clone: HTMLElement, pageIndex = 0): void {
