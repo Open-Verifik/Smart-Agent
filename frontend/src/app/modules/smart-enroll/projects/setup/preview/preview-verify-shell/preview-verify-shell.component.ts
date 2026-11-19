@@ -202,8 +202,8 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
             clearInterval(this._redirectInterval);
         }
         this._redirectInterval = setInterval(() => {
-            if (this.activeScreen === 'submitted') {
-                this.previewRedirectSeconds = this.previewRedirectSeconds <= 1 ? 7 : this.previewRedirectSeconds - 1;
+            if (this.activeScreen === 'submitted' && this.previewRedirectSeconds > 0) {
+                this.previewRedirectSeconds -= 1;
                 this._cdr.markForCheck();
             }
         }, 1000);
@@ -212,6 +212,9 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['view'] && !changes['view'].firstChange) {
             this.activeScreen = this._mapViewToScreen(this.view);
+            if (this.activeScreen === 'submitted') {
+                this.previewRedirectSeconds = 7;
+            }
             this.sheet = null;
         }
         if (changes['flowOrder'] && !changes['flowOrder'].firstChange && this.view === 'signup') {
@@ -431,6 +434,9 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
             this.activeScreen = 'selfie';
         } else {
             this.activeScreen = this.humanAuthn ? 'humanId' : 'submitted';
+            if (this.activeScreen === 'submitted') {
+                this.previewRedirectSeconds = 7;
+            }
         }
         this.sheet = null;
         this._cdr.markForCheck();
@@ -440,6 +446,11 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
         this.activeScreen = this.flowOrder === 'consent_first' ? 'consent' : 'contact';
         this.previewRedirectSeconds = 7;
         this.sheet = null;
+        this._cdr.markForCheck();
+    }
+
+    replayRedirectPreview(): void {
+        this.previewRedirectSeconds = 7;
         this._cdr.markForCheck();
     }
 
@@ -457,6 +468,9 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
         const idx = order.indexOf(this.activeScreen);
         const nextIdx = idx >= 0 ? (idx + 1) % order.length : 0;
         this.activeScreen = order[nextIdx];
+        if (this.activeScreen === 'submitted') {
+            this.previewRedirectSeconds = 7;
+        }
         this.sheet = null;
         this._cdr.markForCheck();
     }
@@ -466,6 +480,9 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
         const idx = order.indexOf(this.activeScreen);
         const prevIdx = idx > 0 ? idx - 1 : order.length - 1;
         this.activeScreen = order[prevIdx];
+        if (this.activeScreen === 'submitted') {
+            this.previewRedirectSeconds = 7;
+        }
         this.sheet = null;
         this._cdr.markForCheck();
     }
