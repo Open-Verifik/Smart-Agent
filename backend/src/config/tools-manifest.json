@@ -814,6 +814,48 @@
 			}
 		},
 		{
+			"id": "peru_api_vehicle_citv",
+			"name": "Peru - Vehicle Technical Inspection (CITV)",
+			"category": "Peru - Vehicle Technical Inspection (CITV)",
+			"url": "https://ai.verifik.co/api/pe/vehiculo/inspeccion-tecnica",
+			"verifikPath": "/v2/pe/vehiculo/inspeccion-tecnica",
+			"method": "GET",
+			"description": "Look up Peru MTC technical inspection certificates (CITV) by license plate. Returns the certifying company, certificate number, validity dates, inspection result, and status.",
+			"country": "Peru",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+					}
+				},
+				"required": ["plate"]
+			}
+		},
+		{
+			"id": "peru_api_vehicle_sat_captura",
+			"name": "Peru - Vehicle Capture Order (SAT Lima)",
+			"category": "Peru - Vehicle Capture Order (SAT Lima)",
+			"url": "https://ai.verifik.co/api/pe/vehiculo/captura-lima",
+			"verifikPath": "/v2/pe/vehiculo/captura-lima",
+			"method": "GET",
+			"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. Returns the official message, the report date, and each debt row with concept, amount, period, and document number. A plate with no order is a successful response.",
+			"country": "Peru",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+					}
+				},
+				"required": ["plate"]
+			}
+		},
+		{
 			"id": "colombia_api_simit_subpoenas",
 			"name": "Colombia - SIMIT - Fines",
 			"category": "Colombia - SIMIT - Fines",

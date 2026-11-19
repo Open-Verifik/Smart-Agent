@@ -1923,6 +1923,14 @@
         "peru_api_vehicle_setare_arequipa": {
             "title": "Permiso de Taxi SETARE Arequipa",
             "description": "Valida si un vehículo cuenta con permiso de operación SETARE vigente para servicio de taxi en Arequipa, Perú mediante GET /v2/pe/vehiculo/setare-arequipa."
+        },
+        "peru_api_vehicle_citv": {
+            "title": "Certificado de Inspección Técnica Vehicular",
+            "description": "Consulta los certificados de inspección técnica vehicular del MTC de Perú por placa mediante GET /v2/pe/vehiculo/inspeccion-tecnica."
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "Orden de Captura Vehicular (SAT Lima)",
+            "description": "Consulta si un vehículo tiene orden de captura del SAT de Lima por placa mediante GET /v2/pe/vehiculo/captura-lima. Devuelve el mensaje oficial, la fecha del informe y cada deuda con concepto, importe, periodo y documento."
         }
     }
 }
