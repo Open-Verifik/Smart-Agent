@@ -450,7 +450,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                 minScore: [currentData?.liveness?.minScore || 0.65, [Validators.min(0.52), Validators.max(0.9)]],
                 compareMinScore: [
                     calibrateSliderCompareThreshold(currentData?.liveness?.compareMinScore),
-                    [Validators.min(0.6), Validators.max(0.75)],
+                    [Validators.min(0.6), Validators.max(0.95)],
                 ],
                 searchMinScore: [currentData?.liveness?.searchMinScore || 0.85, [Validators.min(0.7), Validators.max(1)]],
                 searchMode: [currentData?.liveness?.searchMode || 'FAST'],
@@ -508,7 +508,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                     minScore: [currentData?.liveness?.minScore || 0.65, [Validators.min(0.52), Validators.max(0.9)]],
                     compareMinScore: [
                         calibrateSliderCompareThreshold(currentData?.representatives?.liveness?.compareMinScore),
-                        [Validators.min(0.6), Validators.max(0.75)],
+                        [Validators.min(0.6), Validators.max(0.95)],
                     ],
                     searchMinScore: [
                         currentData?.representatives?.liveness?.searchMinScore || 0.85,
@@ -790,7 +790,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             'information.showTermsAndConditions': [],
             'liveness.attemptLimit': [Validators.required],
             'liveness.minScore': [Validators.required, Validators.min(0.52), Validators.max(0.9)],
-            'liveness.compareMinScore': [Validators.required, Validators.min(0.6), Validators.max(0.75)],
+            'liveness.compareMinScore': [Validators.required, Validators.min(0.6), Validators.max(0.95)],
             'liveness.searchMinScore': [Validators.required, Validators.min(0.7), Validators.max(1)],
             'liveness.searchMode': [Validators.required],
         };
@@ -836,7 +836,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         const map: Record<string, any[]> = {
             attemptLimit: [Validators.required],
             minScore: [Validators.required, Validators.min(0.52), Validators.max(0.9)],
-            compareMinScore: [Validators.required, Validators.min(0.6), Validators.max(0.75)],
+            compareMinScore: [Validators.required, Validators.min(0.6), Validators.max(0.95)],
             searchMinScore: [Validators.required, Validators.min(0.7), Validators.max(1)],
             searchMode: [Validators.required],
         };

@@ -638,12 +638,21 @@
                         </button>
 
                         <div class="submitted-redirect-wrap">
-                            <p class="submitted-redirect-text">
-                                {{ t('smart_enroll.verify.submittedRedirecting', { seconds: previewRedirectSeconds }) }}
+                            <p class="submitted-redirect-text" [class.submitted-redirect-done]="previewRedirectSeconds === 0">
+                                @if (previewRedirectSeconds > 0) {
+                                    {{ t('smart_enroll.verify.submittedRedirecting', { seconds: previewRedirectSeconds }) }}
+                                } @else {
+                                    {{ t('smart_enroll.verify.submittedPreviewRedirectDone') }}
+                                }
                             </p>
                             <div class="submitted-progress-track" aria-hidden="true">
                                 <div class="submitted-progress-fill" [style.width.%]="((7 - previewRedirectSeconds) / 7) * 100"></div>
                             </div>
+                            @if (previewRedirectSeconds === 0) {
+                                <button type="button" class="submitted-replay-btn" (click)="replayRedirectPreview()">
+                                    {{ t('smart_enroll.verify.submittedPreviewReplay') }}
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
