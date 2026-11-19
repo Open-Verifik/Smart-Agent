@@ -144,6 +144,22 @@
     white-space: nowrap;
 }
 
+.basic-setup-panel__status--lang {
+    gap: 0.35rem;
+    font-weight: 500;
+
+    mat-icon {
+        width: 0.9rem;
+        height: 0.9rem;
+        font-size: 0.9rem;
+        color: #78716c;
+    }
+
+    strong {
+        font-weight: 600;
+    }
+}
+
 .panel-body {
     display: flex;
     flex-direction: column;
@@ -302,6 +318,131 @@
         width: 0.9rem;
         height: 0.9rem;
         font-size: 0.9rem;
+    }
+}
+
+:host-context(.dark) {
+    color-scheme: dark;
+
+    .basic-setup-intro {
+        border-color: #1e293b;
+        background: linear-gradient(135deg, #0f172a 0%, #131c31 70%);
+
+        h2 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .basic-setup-intro__icon {
+        border: 1px solid #334155;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .basic-setup-stage:not(:last-child)::before {
+        background: #334155;
+    }
+
+    .basic-setup-stage__marker {
+        border-color: #475569;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .basic-setup-panel {
+        border-color: #1e293b;
+        background: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .basic-setup-panel__header {
+        h3 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .basic-setup-panel__eyebrow {
+        color: #94a3b8;
+    }
+
+    .basic-setup-panel__status {
+        border-color: #334155;
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    .basic-setup-panel__status--lang mat-icon {
+        color: #94a3b8;
+    }
+
+    .char-counter {
+        color: #94a3b8;
+
+        &--warning {
+            color: #fbbf24;
+        }
+
+        &--danger {
+            color: #fca5a5;
+        }
+    }
+
+    .language-note {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+        color: #cbd5e1;
+
+        mat-icon {
+            color: #94a3b8;
+        }
+    }
+
+    .countries-box {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+
+        ::ng-deep .mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+            background-color: rgba(15, 23, 42, 0.85);
+        }
+    }
+
+    .countries-box__label {
+        color: #cbd5e1;
+    }
+
+    .world-pill-btn {
+        border-color: #475569;
+        background: #0f172a;
+        color: #f1f5f9;
+
+        &:hover {
+            background: #1e293b;
+            border-color: #64748b;
+        }
+    }
+
+    .country-chip {
+        border-color: #475569;
+        background: #0f172a;
+        color: #f1f5f9;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+
+    .country-chip__remove {
+        color: #94a3b8;
+
+        &:hover {
+            background: #1e293b;
+            color: #f8fafc;
+        }
     }
 }
 

@@ -333,6 +333,150 @@
     flex-shrink: 0;
 }
 
+:host-context(.dark) {
+    color-scheme: dark;
+
+    .liveness-intro {
+        border-color: #1e293b;
+        background: linear-gradient(135deg, #0f172a 0%, #131c31 70%);
+
+        h2 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .liveness-intro__icon {
+        border: 1px solid #334155;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .liveness-stage:not(:last-child)::before {
+        background: #334155;
+    }
+
+    .liveness-stage__marker {
+        border-color: #475569;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .liveness-panel {
+        border-color: #1e293b;
+        background: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .liveness-panel__header {
+        h3 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .liveness-panel__eyebrow {
+        color: #94a3b8;
+    }
+
+    .liveness-panel__status {
+        border-color: #334155;
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    .requirement-options {
+        ::ng-deep .mat-button-toggle {
+            border-color: #334155 !important;
+            background: rgba(30, 41, 59, 0.55);
+
+            &:hover {
+                border-color: #475569 !important;
+                background: #1e293b;
+            }
+        }
+
+        ::ng-deep .mat-button-toggle-checked {
+            border-color: #e2e8f0 !important;
+            background: #1e293b !important;
+            box-shadow: inset 0 0 0 1px #e2e8f0;
+
+            .requirement-option strong {
+                color: #ffffff;
+            }
+
+            .requirement-option small {
+                color: #cbd5e1;
+            }
+        }
+    }
+
+    .requirement-option {
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .disabled-stage {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+        color: #94a3b8;
+    }
+
+    .threshold-card {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+    }
+
+    .threshold-card__value {
+        strong {
+            color: #f8fafc;
+        }
+
+        span,
+        .threshold-card__label {
+            color: #94a3b8;
+        }
+    }
+
+    .threshold-card__bounds {
+        color: #94a3b8;
+    }
+
+    .threshold-card__help {
+        color: #cbd5e1;
+    }
+
+    .threshold-card__warning {
+        border-color: rgba(251, 191, 36, 0.35);
+        background: rgba(120, 53, 15, 0.35);
+        color: #fcd34d;
+    }
+
+    .setting-row {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+
+        strong {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+}
+
 @media (max-width: 768px) {
     .liveness-stage {
         grid-template-columns: 1fr;
