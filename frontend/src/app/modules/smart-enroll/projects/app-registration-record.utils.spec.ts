@@ -309,27 +309,27 @@ describe('retention detection helpers', () => {
     });
 });
 
-describe('ArcFace compare threshold calibration on legacy flows', () => {
-    it('maps legacy OpenCV flow thresholds cleanly onto the 0.60–0.75 ArcFace range', () => {
-        expect(calibrateArcFaceCompareThreshold(0.85)).toBe(0.7);
-        expect(calibrateArcFaceCompareThreshold(0.9)).toBe(0.725);
-        expect(calibrateArcFaceCompareThreshold(0.95)).toBe(0.75);
+describe('Normalized compare threshold preservation on flows', () => {
+    it('preserves normalized flow thresholds cleanly across 0.60–0.95 without shrinking', () => {
+        expect(calibrateArcFaceCompareThreshold(0.85)).toBe(0.85);
+        expect(calibrateArcFaceCompareThreshold(0.9)).toBe(0.9);
+        expect(calibrateArcFaceCompareThreshold(0.95)).toBe(0.95);
         expect(calibrateArcFaceCompareThreshold(0.65)).toBe(0.65);
-        expect(calibrateArcFaceCompareThreshold(null)).toBe(0.7);
+        expect(calibrateArcFaceCompareThreshold(null)).toBe(0.75);
     });
 
-    it('avoids false staleThreshold or faceCompareFailed reasons on calibrated 0.85 flows', () => {
+    it('avoids false staleThreshold or faceCompareFailed reasons on 0.85 flows', () => {
         const record = {
             status: 'NEEDS_MANUAL_VERIFICATION',
             projectFlow: flow,
             compareFaceVerification: {
-                result: { score: 0.78, compare_min_score: 0.7, passed: true },
+                result: { score: 0.88, compare_min_score: 0.85, passed: true },
             },
             biometricValidation: { status: 'validated', livenessScore: 0.82 },
         } as unknown as AppRegistrationDetail;
 
-        expect(resolveCompareMinScoreUnit(record)).toBe(0.7);
-        expect(compareMinScoreDisplayPercent(record)).toBe(70);
+        expect(resolveCompareMinScoreUnit(record)).toBe(0.85);
+        expect(compareMinScoreDisplayPercent(record)).toBe(85);
         const reasonKeys = buildManualVerificationReasons(record).map((r) => r.key);
         expect(reasonKeys).not.toContain('smartEnrollProjects.recordDetail.manualReason.staleThreshold');
         expect(reasonKeys).not.toContain('smartEnrollProjects.recordDetail.manualReason.faceCompareFailed');

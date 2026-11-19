@@ -193,7 +193,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     // --- Section 3: HumanAuthn Biometrics Protocol Preview ---
     humanAuthnPreview = computed(() => {
         const ha = this.flow()?.humanAuthn ?? {};
-        const score = Math.round(calibrateArcFaceCompareThreshold(ha.compareMinScore, 0.7) * 100);
+        const score = Math.round(calibrateArcFaceCompareThreshold(ha.compareMinScore, 0.75) * 100);
         return {
             mode: ha.mode || 'standard',
             tolerance: ha.tolerance || 'REGULAR',
