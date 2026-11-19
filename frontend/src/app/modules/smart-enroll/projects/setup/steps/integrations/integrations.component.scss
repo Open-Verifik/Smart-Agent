@@ -473,6 +473,214 @@
     color: #b91c1c;
 }
 
+:host-context(.dark) {
+    color-scheme: dark;
+
+    .integrations-intro {
+        border-color: #1e293b;
+        background: linear-gradient(135deg, #0f172a 0%, #131c31 70%);
+
+        h2 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .integrations-intro__icon {
+        border: 1px solid #334155;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .integrations-stage:not(:last-child)::before {
+        background: #334155;
+    }
+
+    .integrations-stage__marker {
+        border-color: #475569;
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .integrations-panel {
+        border-color: #1e293b;
+        background: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .integrations-panel__header {
+        h3 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+
+    .integrations-panel__eyebrow {
+        color: #94a3b8;
+    }
+
+    .integrations-panel__status {
+        border-color: #334155;
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    .url-preview-card {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+        color: #cbd5e1;
+
+        mat-icon {
+            color: #94a3b8;
+        }
+
+        ::ng-deep strong {
+            color: #f8fafc;
+        }
+    }
+
+    .url-preview-card--error {
+        border-color: rgba(248, 113, 113, 0.45);
+        background: rgba(127, 29, 29, 0.35);
+        color: #fecaca;
+
+        mat-icon,
+        ::ng-deep strong {
+            color: #fecaca;
+        }
+    }
+
+    .field-error {
+        color: #fca5a5;
+    }
+
+    .action-btn {
+        border-color: #475569;
+        background: #1e293b;
+        color: #f8fafc;
+
+        &:hover:not(:disabled) {
+            background: #334155;
+            border-color: #64748b;
+        }
+    }
+
+    .action-btn--primary {
+        border-color: #f8fafc;
+        background: #f8fafc;
+        color: #0f172a;
+
+        &:hover:not(:disabled) {
+            background: #e2e8f0;
+            border-color: #e2e8f0;
+        }
+    }
+
+    .empty-webhook-banner {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+        color: #cbd5e1;
+    }
+
+    .empty-webhook-banner__text mat-icon {
+        color: #94a3b8;
+    }
+
+    .empty-webhook-banner__cta {
+        border-color: #475569;
+        background: #0f172a;
+        color: #f1f5f9;
+
+        &:hover {
+            background: #1e293b;
+            border-color: #64748b;
+        }
+    }
+
+    .requirement-options {
+        ::ng-deep .mat-button-toggle {
+            border-color: #334155 !important;
+            background: rgba(30, 41, 59, 0.55);
+
+            &:hover {
+                border-color: #475569 !important;
+                background: #1e293b;
+            }
+        }
+
+        ::ng-deep .mat-button-toggle-checked {
+            border-color: #e2e8f0 !important;
+            background: #1e293b !important;
+            box-shadow: inset 0 0 0 1px #e2e8f0;
+
+            .requirement-option strong {
+                color: #ffffff;
+            }
+
+            .requirement-option small {
+                color: #cbd5e1;
+            }
+        }
+    }
+
+    .requirement-option {
+        strong {
+            color: #f8fafc;
+        }
+
+        small {
+            color: #94a3b8;
+        }
+    }
+
+    .source-note {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+        color: #cbd5e1;
+
+        mat-icon {
+            color: #94a3b8;
+        }
+    }
+
+    .api-config-box {
+        border-color: #334155;
+        background: rgba(30, 41, 59, 0.55);
+    }
+
+    .api-test-divider {
+        background: #334155;
+    }
+
+    .api-test-caption {
+        color: #94a3b8;
+    }
+
+    .code-card {
+        span {
+            color: #94a3b8;
+        }
+
+        pre {
+            border-color: #334155;
+            background: #020617;
+            color: #e2e8f0;
+        }
+    }
+
+    .code-card--error pre {
+        border-color: rgba(248, 113, 113, 0.45);
+        background: rgba(127, 29, 29, 0.35);
+        color: #fecaca;
+    }
+}
+
 @media (max-width: 768px) {
     .integrations-stage {
         grid-template-columns: 1fr;

@@ -745,7 +745,8 @@ button.check-card__source {
         color: #d1d5db;
     }
 
-    .check-scope__badge--floating {
+    .check-scope__badge--floating,
+    .check-scope--international > .check-scope__badge {
         border-color: #1d4ed8;
         background: #111827;
         color: #bfdbfe;

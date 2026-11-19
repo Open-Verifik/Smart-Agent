@@ -8,16 +8,16 @@
                     (click)="onStepClick(i)"
                     [ngClass]="{
                         'bg-stone-900 text-white dark:bg-white dark:text-stone-900': i === stepIndex,
-                        'text-stone-500': i !== stepIndex,
+                        'text-stone-500 dark:text-stone-300': i !== stepIndex,
                         'hover:bg-stone-100 dark:hover:bg-gray-800': i !== stepIndex && canNavigate && canNavigateToStep(i),
-                        'opacity-50 cursor-not-allowed': !canNavigate || !canNavigateToStep(i)
+                        'opacity-60 cursor-not-allowed': !canNavigate || !canNavigateToStep(i)
                     }"
                     class="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold tracking-tight transition-colors"
                 >
                     <span
                         [ngClass]="{
                             'bg-white/20 text-white dark:bg-stone-900/15 dark:text-stone-900': i === stepIndex,
-                            'bg-stone-100 text-stone-500 dark:bg-gray-800': i !== stepIndex
+                            'bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300': i !== stepIndex
                         }"
                         class="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold"
                     >
