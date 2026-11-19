@@ -5,9 +5,11 @@
             <!-- 1. Full name -->
             <section
                 class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                [class.border-stone-200]="!formGroup?.get('fullName')?.errors"
-                [class.dark:border-gray-700]="!formGroup?.get('fullName')?.errors"
-                [class.border-red-500]="formGroup?.get('fullName')?.errors"
+                [ngClass]="
+                    formGroup?.get('fullName')?.errors
+                        ? 'border-red-500'
+                        : 'border-stone-200 dark:border-gray-700'
+                "
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
@@ -33,9 +35,11 @@
             <!-- 2. Phone -->
             <section
                 class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                [class.border-stone-200]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
-                [class.dark:border-gray-700]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
-                [class.border-red-500]="formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [ngClass]="
+                    formGroup?.errors?.['atLeastOneContactMethodRequired']
+                        ? 'border-red-500'
+                        : 'border-stone-200 dark:border-gray-700'
+                "
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
@@ -86,7 +90,7 @@
                                 >
                                     <mat-select-trigger>
                                         <span class="font-semibold">{{ formGroup?.get('countryCode')?.value }}</span>
-                                        <span class="ml-2 text-stone-500">{{ selectedCountryName }}</span>
+                                        <span class="ml-2 text-stone-500 dark:text-stone-400">{{ selectedCountryName }}</span>
                                     </mat-select-trigger>
 
                                     <!-- Search row, kept inside the panel like client-panel -->
@@ -100,7 +104,7 @@
                                         <input
                                             #countryCodeSearchInput
                                             type="text"
-                                            class="w-full bg-transparent text-sm outline-none placeholder:text-stone-400"
+                                            class="w-full bg-transparent text-sm text-stone-900 outline-none placeholder:text-stone-400 dark:text-white"
                                             [placeholder]="t('smartEnrollProjects.setup.signupForm.phone.searchCountry')"
                                             [value]="countryCodeSearchTerm"
                                             (click)="$event.stopPropagation()"
@@ -121,7 +125,7 @@
                                     @for (c of filteredPhoneCountryCodes; track trackByPhoneCountryCode($index, c)) {
                                         <mat-option [value]="c.code">
                                             <span class="font-semibold">{{ c.code }}</span>
-                                            <span class="ml-2 text-stone-500">{{ c.name }}</span>
+                                            <span class="ml-2 text-stone-500 dark:text-stone-400">{{ c.name }}</span>
                                         </mat-option>
                                     }
                                 </mat-select>
@@ -140,9 +144,11 @@
             <!-- 3. Email -->
             <section
                 class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                [class.border-stone-200]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
-                [class.dark:border-gray-700]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
-                [class.border-red-500]="formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [ngClass]="
+                    formGroup?.errors?.['atLeastOneContactMethodRequired']
+                        ? 'border-red-500'
+                        : 'border-stone-200 dark:border-gray-700'
+                "
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
@@ -184,9 +190,11 @@
             @if (formType === 'personal') {
                 <section
                     class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
-                    [class.border-stone-200]="!formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']"
-                    [class.dark:border-gray-700]="!formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']"
-                    [class.border-red-500]="formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']"
+                    [ngClass]="
+                        formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']
+                            ? 'border-red-500'
+                            : 'border-stone-200 dark:border-gray-700'
+                    "
                     [class.opacity-50]="isNotRequired"
                     [class.pointer-events-none]="isNotRequired"
                 >

@@ -23,8 +23,12 @@
                             <h3>{{ t('smartEnrollProjects.setup.basicSetup.identity.title') }}</h3>
                             <p>{{ t('smartEnrollProjects.setup.basicSetup.identity.subtitle') }}</p>
                         </div>
-                        <span class="basic-setup-panel__status">
-                            {{ defaultLanguageLabel }}
+                        <span class="basic-setup-panel__status basic-setup-panel__status--lang">
+                            <mat-icon aria-hidden="true">translate</mat-icon>
+                            <span>
+                                {{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguage') }}:
+                                <strong>{{ defaultLanguageLabel }}</strong>
+                            </span>
                         </span>
                     </header>
 
