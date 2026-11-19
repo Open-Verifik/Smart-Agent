@@ -1692,6 +1692,108 @@
         ]
       }
     },
+    "/api/pe/vehiculo/inspeccion-tecnica": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "peru_api_vehicle_citv",
+        "summary": "Peru - Vehicle Technical Inspection (CITV)",
+        "description": "Look up Peru MTC technical inspection certificates (CITV) by license plate. Returns the certifying company, certificate number, validity dates, inspection result, and status.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+          }
+        ]
+      }
+    },
+    "/api/pe/vehiculo/captura-lima": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "peru_api_vehicle_sat_captura",
+        "summary": "Peru - Vehicle Capture Order (SAT Lima)",
+        "description": "Look up whether a vehicle has a SAT Lima capture order by license plate. Returns the official message, the report date, and each debt row with concept, amount, period, and document number. A plate with no order is a successful response.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+          }
+        ]
+      }
+    },
     "/api/co/simit/comparendos": {
       "post": {
         "tags": [

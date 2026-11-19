@@ -460,7 +460,7 @@ export class SmartBusinessCompanyRecordDetailComponent implements OnInit, OnDest
     }
 
     /**
-     * Opens the in-screen Representative KYC view (rendering SmartEnroll's ProjectRecordDetailComponent)
+     * Opens the in-screen Representative KYC view
      * and updates the browser URL to:
      * /smart-business/projects/:projectId/records/:recordId/app-registration/:appRegistrationId
      */

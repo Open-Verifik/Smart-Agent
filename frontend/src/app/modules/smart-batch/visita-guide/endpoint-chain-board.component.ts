@@ -217,7 +217,8 @@ const collectArrayPaths = (
     host: { class: 'flex min-h-0 flex-1 flex-col' },
     template: `
         <ng-template #flowCoach let-text="text" let-closable="closable">
-            <div class="flex items-start gap-2.5 rounded-[18px] border border-sky-300 bg-white px-3 py-2.5 shadow-[0_10px_24px_rgba(37,99,175,0.14)] dark:border-sky-700 dark:bg-gray-900">
+            <div class="rounded-[18px] border border-sky-300 bg-white px-3 py-2.5 shadow-[0_10px_24px_rgba(37,99,175,0.14)] dark:border-sky-700 dark:bg-gray-900">
+            <div class="flex items-start gap-2.5">
                 <svg viewBox="0 0 64 64" class="h-9 w-9 shrink-0" aria-hidden="true">
                     <g fill="#1e40af">
                         <rect x="29.25" y="1.5" width="5.5" height="9" rx="2.75" />
@@ -235,7 +236,20 @@ const collectArrayPaths = (
                     <rect x="25.6" y="46.3" width="12.8" height="3.15" rx="1.2" fill="#38bdf8" />
                     <rect x="26.3" y="51" width="11.4" height="3" rx="1.2" fill="#2563eb" />
                 </svg>
-                <p class="min-w-0 flex-1 text-[13px] leading-snug text-slate-800 dark:text-slate-100">{{ text }}</p>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[13px] leading-snug text-slate-800 dark:text-slate-100">{{ text }}</p>
+                    <button
+                        type="button"
+                        class="pointer-events-auto mt-1.5 inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[12px] font-semibold text-sky-800 hover:bg-sky-100 dark:bg-sky-950 dark:text-sky-100 dark:hover:bg-sky-900"
+                        [attr.aria-label]="(coachDemoOpen() ? 'visitaGuide.flowCoachDemoHide' : 'visitaGuide.flowCoachDemo') | transloco"
+                        [attr.aria-expanded]="coachDemoOpen()"
+                        (pointerdown)="$event.stopPropagation()"
+                        (click)="toggleCoachDemo(); $event.stopPropagation()"
+                    >
+                        <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">{{ coachDemoOpen() ? 'expand_less' : 'play_arrow' }}</mat-icon>
+                        {{ (coachDemoOpen() ? 'visitaGuide.flowCoachDemoHide' : 'visitaGuide.flowCoachDemo') | transloco }}
+                    </button>
+                </div>
                 @if (closable) {
                     <button
                         type="button"
@@ -247,6 +261,42 @@ const collectArrayPaths = (
                         <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
                     </button>
                 }
+            </div>
+            @if (coachDemoOpen()) {
+                <div
+                    class="pointer-events-auto relative mt-2 aspect-[96/70] overflow-hidden rounded-xl border border-sky-100 bg-slate-950 dark:border-sky-900"
+                    (pointerdown)="$event.stopPropagation()"
+                    (click)="$event.preventDefault(); $event.stopPropagation()"
+                    (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
+                >
+                    <video
+                        #coachVideo
+                        class="pointer-events-none absolute inset-0 h-full w-full object-contain"
+                        src="/media/flow-coach-add.mp4"
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        disablePictureInPicture
+                        tabindex="-1"
+                        [attr.aria-label]="'visitaGuide.flowCoachDemo' | transloco"
+                        (loadeddata)="onCoachDemoReady()"
+                        (playing)="onCoachDemoReady()"
+                        (error)="onCoachDemoReady()"
+                    ></video>
+                    <div class="absolute inset-0 z-10" aria-hidden="true"></div>
+                    @if (coachDemoLoading()) {
+                        <div
+                            class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-slate-950"
+                            role="status"
+                            [attr.aria-label]="'visitaGuide.flowCoachDemoLoading' | transloco"
+                        >
+                            <mat-spinner diameter="32"></mat-spinner>
+                            <span class="text-xs font-medium text-slate-300">{{ 'visitaGuide.flowCoachDemoLoading' | transloco }}</span>
+                        </div>
+                    }
+                </div>
+            }
             </div>
         </ng-template>
         <div class="relative flex min-h-0 flex-1 flex-col" cdkDropListGroup>
@@ -307,11 +357,37 @@ const collectArrayPaths = (
                             </button>
                         </div>
                     </div>
+                    <ol
+                        class="pointer-events-none absolute inset-x-3 top-[4.5rem] z-20 flex items-center gap-1 overflow-x-auto rounded-2xl border border-white/80 bg-white/95 px-2 py-1 shadow-[0_8px_22px_rgba(37,99,175,0.1)] dark:border-gray-700 dark:bg-gray-900/95"
+                        [attr.aria-label]="'visitaGuide.flowGuideLabel' | transloco"
+                    >
+                        @for (step of flowGuideSteps; track step.id) {
+                            <li class="flex shrink-0 items-center gap-1">
+                                @if (step.id > 1) {
+                                    <span class="px-0.5 text-slate-300 dark:text-slate-600" aria-hidden="true">›</span>
+                                }
+                                <span
+                                    class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 text-[12px] font-medium"
+                                    [ngClass]="guideStepClass(step.id)"
+                                    [attr.aria-current]="guideStepCurrent(step.id) ? 'step' : null"
+                                >
+                                    <span
+                                        class="inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold"
+                                        [ngClass]="guideStepBadgeClass(step.id)"
+                                    >{{ guideStepDone(step.id) ? '✓' : step.id }}</span>
+                                    {{ step.key | transloco }}
+                                </span>
+                            </li>
+                        }
+                    </ol>
                     @if (showFlowCoach()) {
                         <div
-                            class="flow-coach absolute left-4 top-[4.75rem] z-20 w-[min(22rem,calc(100%-2rem))]"
+                            class="flow-coach absolute left-4 top-[7.75rem]"
+                            [class.z-20]="!coachDemoOpen()"
+                            [class.z-40]="coachDemoOpen()"
+                            [class.is-demo]="coachDemoOpen()"
                             [class.is-leaving]="flowCoachLeaving()"
-                            [class.pointer-events-none]="!resultSources().length || flowCoachLeaving()"
+                            [class.pointer-events-none]="(!resultSources().length && !coachDemoOpen()) || flowCoachLeaving()"
                         >
                             <ng-container *ngTemplateOutlet="flowCoach; context: { text: (coachTextKey() | transloco), closable: coachStep() !== 'add' }"></ng-container>
                         </div>
@@ -1302,8 +1378,12 @@ const collectArrayPaths = (
                 transition: none;
             }
             .flow-coach {
+                width: min(22rem, calc(100% - 2rem));
                 opacity: 1;
-                transition: opacity 320ms ease;
+                transition: opacity 320ms ease, width 220ms ease;
+            }
+            .flow-coach.is-demo {
+                width: min(34rem, calc(100% - 2rem));
             }
             .flow-coach.is-leaving {
                 opacity: 0;
@@ -1427,6 +1507,14 @@ export class EndpointChainBoardComponent {
     canvasContextMenu = signal<{ x: number; y: number } | null>(null);
     flowCoachHidden = signal(false);
     flowCoachLeaving = signal(false);
+    coachDemoOpen = signal(false);
+    coachDemoLoading = signal(false);
+    private readonly _coachVideo = viewChild<ElementRef<HTMLVideoElement>>('coachVideo');
+    private readonly _coachDemoReadyEffect = effect(() => {
+        const video = this._coachVideo()?.nativeElement;
+        if (!video || !this.coachDemoOpen()) return;
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) this.onCoachDemoReady();
+    });
     private _coachHideTimer: ReturnType<typeof setTimeout> | null = null;
     libraryCentered = signal(true);
     configOpen = signal(false);
@@ -1591,6 +1679,7 @@ export class EndpointChainBoardComponent {
             }
             this.flowCoachLeaving.set(false);
             this.flowCoachHidden.set(false);
+            this.coachDemoOpen.set(false);
         });
     });
 
@@ -1982,6 +2071,47 @@ export class EndpointChainBoardComponent {
         return this.graph().nodes.filter((node) => node.kind === 'endpoint');
     }
 
+    readonly flowGuideSteps = [
+        { id: 1, key: 'visitaGuide.flowGuideStep1' },
+        { id: 2, key: 'visitaGuide.flowGuideStep2' },
+        { id: 3, key: 'visitaGuide.flowGuideStep3' },
+        { id: 4, key: 'visitaGuide.flowGuideStep4' },
+    ] as const;
+
+    flowGuideStep(): 1 | 2 | 3 | 4 {
+        const status = this.flowStatus();
+        const sourcesAdded = status.checks[1]?.ok;
+        const inputsConfigured = status.checks[0]?.ok;
+        if (!sourcesAdded) return 1;
+        if (!inputsConfigured) return 2;
+        if (!status.ready) return 3;
+        return 4;
+    }
+
+    guideStepCurrent(id: number): boolean {
+        return this.flowGuideStep() === id;
+    }
+
+    guideStepDone(id: number): boolean {
+        return this.flowGuideStep() > id;
+    }
+
+    guideStepUpcoming(id: number): boolean {
+        return this.flowGuideStep() < id;
+    }
+
+    guideStepClass(id: number): string {
+        if (this.guideStepCurrent(id)) return 'bg-sky-600 text-white';
+        if (this.guideStepDone(id)) return 'text-emerald-700 dark:text-emerald-300';
+        return 'text-slate-500';
+    }
+
+    guideStepBadgeClass(id: number): string {
+        if (this.guideStepCurrent(id)) return 'bg-white/25';
+        if (this.guideStepDone(id)) return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200';
+        return 'bg-slate-100 text-slate-600 dark:bg-gray-800';
+    }
+
     coachStep(): 'add' | 'connect' | 'fix' | 'ready' {
         const total = this.endpointNodes().length;
         if (!total) return 'add';
@@ -2005,6 +2135,16 @@ export class EndpointChainBoardComponent {
     showFlowCoach(): boolean {
         if (this.coachStep() === 'add') return !this.libraryOpen();
         return !this.flowCoachHidden();
+    }
+
+    toggleCoachDemo(): void {
+        const open = !this.coachDemoOpen();
+        if (open) this.coachDemoLoading.set(true);
+        this.coachDemoOpen.set(open);
+    }
+
+    onCoachDemoReady(): void {
+        this.coachDemoLoading.set(false);
     }
 
     hideFlowCoach(): void {
