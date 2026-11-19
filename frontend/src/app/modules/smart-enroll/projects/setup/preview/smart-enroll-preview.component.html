@@ -8,10 +8,7 @@
     <ng-template #previewShell let-inModal="inModal">
         <div
             class="flex h-full w-full flex-col overflow-hidden bg-white dark:bg-gray-900"
-            [class.rounded-2xl]="!inModal"
-            [class.border]="!inModal"
-            [class.border-stone-200]="!inModal"
-            [class.dark:border-gray-700]="!inModal"
+            [ngClass]="!inModal ? 'rounded-2xl border border-stone-200 dark:border-gray-700' : ''"
         >
             <!-- Header toolbar -->
             <div class="relative z-20 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-white p-4 dark:bg-gray-900 md:p-5">
@@ -42,11 +39,11 @@
                     <button
                         type="button"
                         class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-                        [class.bg-stone-100]="deviceType === 'desktop'"
-                        [class.text-stone-900]="deviceType === 'desktop'"
-                        [class.dark:bg-gray-800]="deviceType === 'desktop'"
-                        [class.dark:text-white]="deviceType === 'desktop'"
-                        [class.text-stone-500]="deviceType !== 'desktop'"
+                        [ngClass]="
+                            deviceType === 'desktop'
+                                ? 'bg-stone-100 text-stone-900 dark:bg-gray-800 dark:text-white'
+                                : 'text-stone-500 dark:text-stone-400'
+                        "
                         (click)="setDeviceType('desktop')"
                     >
                         {{ t('smart_enroll.preview.desktop') }}
@@ -54,11 +51,11 @@
                     <button
                         type="button"
                         class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-                        [class.bg-stone-100]="deviceType === 'tablet'"
-                        [class.text-stone-900]="deviceType === 'tablet'"
-                        [class.dark:bg-gray-800]="deviceType === 'tablet'"
-                        [class.dark:text-white]="deviceType === 'tablet'"
-                        [class.text-stone-500]="deviceType !== 'tablet'"
+                        [ngClass]="
+                            deviceType === 'tablet'
+                                ? 'bg-stone-100 text-stone-900 dark:bg-gray-800 dark:text-white'
+                                : 'text-stone-500 dark:text-stone-400'
+                        "
                         (click)="setDeviceType('tablet')"
                     >
                         {{ t('smart_enroll.preview.tablet') }}
@@ -66,11 +63,11 @@
                     <button
                         type="button"
                         class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-                        [class.bg-stone-100]="deviceType === 'mobile'"
-                        [class.text-stone-900]="deviceType === 'mobile'"
-                        [class.dark:bg-gray-800]="deviceType === 'mobile'"
-                        [class.dark:text-white]="deviceType === 'mobile'"
-                        [class.text-stone-500]="deviceType !== 'mobile'"
+                        [ngClass]="
+                            deviceType === 'mobile'
+                                ? 'bg-stone-100 text-stone-900 dark:bg-gray-800 dark:text-white'
+                                : 'text-stone-500 dark:text-stone-400'
+                        "
                         (click)="setDeviceType('mobile')"
                     >
                         {{ t('smart_enroll.preview.mobile') }}
