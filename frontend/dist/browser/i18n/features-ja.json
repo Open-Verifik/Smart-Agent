@@ -1923,6 +1923,14 @@
         "peru_api_vehicle_setare_arequipa": {
             "title": "ペルー — アレキパ SETARE タクシー許可",
             "description": "GET /v2/pe/vehiculo/setare-arequipa によりペルー・アレキパで有効な SETARE タクシー運行許可を保有しているか確認します。"
+        },
+        "peru_api_vehicle_citv": {
+            "title": "車両技術検査証明書",
+            "description": "GET /v2/pe/vehiculo/inspeccion-tecnica でペルー MTC の車両技術検査証明書をナンバープレートから照会します。"
+        },
+        "peru_api_vehicle_sat_captura": {
+            "title": "車両差押命令（SATリマ）",
+            "description": "GET /v2/pe/vehiculo/captura-lima でリマの SAT による車両差押命令をナンバープレートから照会します。公式メッセージ、報告日、各債務の項目・金額・期間・文書番号を返します。"
         }
     }
 }
