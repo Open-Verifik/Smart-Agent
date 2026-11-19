@@ -25,6 +25,8 @@
     "GET /api/pe/vehiculo/placa",
     "GET /api/v3/pe/vehiculo/placa",
     "GET /api/pe/vehiculo/soat",
+    "GET /api/pe/vehiculo/inspeccion-tecnica",
+    "GET /api/pe/vehiculo/captura-lima",
     "POST /api/co/simit/comparendos",
     "POST /api/co/procuraduria/antecedentes",
     "GET /api/cr/cedula",
