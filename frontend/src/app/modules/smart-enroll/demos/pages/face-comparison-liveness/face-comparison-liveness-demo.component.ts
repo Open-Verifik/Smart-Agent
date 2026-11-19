@@ -57,10 +57,10 @@ export class FaceComparisonLivenessDemoComponent implements OnInit, OnDestroy {
         'smartEnrollDemos.faceComparisonLiveness.stepAnalyze',
     ] as const;
     readonly thresholdPresets = [
-        { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.6 },
-        { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.65 },
-        { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.7 },
-        { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.75 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetRelaxed', value: 0.65 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetStandard', value: 0.7 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetBalanced', value: 0.75 },
+        { labelKey: 'smartEnrollDemos.faceComparison.presetStrict', value: 0.85 },
     ] as const;
 
     authChecked = false;

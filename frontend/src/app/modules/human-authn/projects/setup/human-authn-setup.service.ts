@@ -162,7 +162,7 @@ export class HumanAuthnSetupService {
                 livenessAtCreation: false,
                 outputFormat: 'string',
                 tolerance: 'REGULAR',
-                compareMinScore: 0.7,
+                compareMinScore: 0.75,
                 verifierKey: '',
                 publicDataKeys: ['fullName'],
             },

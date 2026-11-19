@@ -118,7 +118,7 @@ export class RepresentativesPolicyComponent implements OnInit, OnChanges {
     }
 
     get compareMinScoreProgressPercent(): number {
-        return Math.max(0, Math.min(100, ((this.compareMinScoreUnitValue - 0.6) / 0.15) * 100));
+        return Math.max(0, Math.min(100, ((this.compareMinScoreUnitValue - 0.6) / 0.35) * 100));
     }
 
     isComparePresetActive(presetValue: number): boolean {
