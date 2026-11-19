@@ -179,7 +179,7 @@
                                 @if (saving()) {
                                     <mat-spinner diameter="18" class="mr-2 inline-block"></mat-spinner>
                                 }
-                                {{ t('smartEnrollProjects.setup.continue') }}
+                                {{ stepIndex < steps.length - 1 ? t('smartEnrollProjects.setup.continue') : t('smartEnrollProjects.setup.finish') }}
                             </button>
                         </div>
                         </div>

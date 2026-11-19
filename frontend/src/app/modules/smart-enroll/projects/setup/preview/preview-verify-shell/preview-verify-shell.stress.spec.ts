@@ -219,7 +219,7 @@ describe('Challenger 1 Stress Harness — Requirement R3 (Submitted Page & Count
         component.ngOnDestroy();
     });
 
-    it('stress-tests countdown timer through multiple full 7-second rollover cycles', () => {
+    it('stress-tests countdown timer completing once at 0 without looping and resetting on manual replay', () => {
         vi.useFakeTimers();
         try {
             component.view = 'liveness-result';
@@ -227,24 +227,26 @@ describe('Challenger 1 Stress Harness — Requirement R3 (Submitted Page & Count
             expect(component.activeScreen).toBe('submitted');
             expect(component.previewRedirectSeconds).toBe(7);
 
-            // Cycle 1: 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1 -> 7
-            const expectedSequence = [6, 5, 4, 3, 2, 1, 7];
+            // Single countdown: 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1 -> 0
+            const expectedSequence = [6, 5, 4, 3, 2, 1, 0];
             for (const expected of expectedSequence) {
                 vi.advanceTimersByTime(1000);
                 expect(component.previewRedirectSeconds).toBe(expected);
             }
 
-            // Cycle 2: another 7 seconds
-            for (const expected of expectedSequence) {
-                vi.advanceTimersByTime(1000);
-                expect(component.previewRedirectSeconds).toBe(expected);
-            }
+            // Stays at 0 indefinitely (no infinite loop)
+            vi.advanceTimersByTime(15000);
+            expect(component.previewRedirectSeconds).toBe(0);
 
-            // Cycle 3: another 7 seconds
+            // Manual replay runs another single 7 -> 0 countdown
+            component.replayRedirectPreview();
+            expect(component.previewRedirectSeconds).toBe(7);
             for (const expected of expectedSequence) {
                 vi.advanceTimersByTime(1000);
                 expect(component.previewRedirectSeconds).toBe(expected);
             }
+            vi.advanceTimersByTime(5000);
+            expect(component.previewRedirectSeconds).toBe(0);
         } finally {
             vi.useRealTimers();
         }
