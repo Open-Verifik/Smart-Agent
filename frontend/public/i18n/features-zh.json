@@ -1930,7 +1930,7 @@
         },
         "peru_api_vehicle_sat_captura": {
             "title": "车辆扣押令（利马 SAT）",
-            "description": "通过 GET /v2/pe/vehiculo/captura-lima 按车牌查询利马 SAT 是否对该车辆发出扣押令。"
+            "description": "通过 GET /v2/pe/vehiculo/captura-lima 按车牌查询利马 SAT 是否对该车辆发出扣押令。返回官方说明、报告日期，以及每笔债务的项目、金额、期间和文书编号。"
         }
     }
 }

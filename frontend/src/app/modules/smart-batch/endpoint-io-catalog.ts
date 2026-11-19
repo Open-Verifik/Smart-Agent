@@ -980,7 +980,9 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "concept",
             "amount",
             "status",
-            "documentNumber"
+            "period",
+            "documentNumber",
+            "date"
         ]
     },
     "peru_api_vehicle_soat": {

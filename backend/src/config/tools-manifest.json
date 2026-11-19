@@ -841,7 +841,7 @@
 			"url": "https://ai.verifik.co/api/pe/vehiculo/captura-lima",
 			"verifikPath": "/v2/pe/vehiculo/captura-lima",
 			"method": "GET",
-			"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. A plate with no order is a successful response.",
+			"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. Returns the official message, the report date, and each debt row with concept, amount, period, and document number. A plate with no order is a successful response.",
 			"country": "Peru",
 			"priceUsd": 0.3,
 			"parameters": {

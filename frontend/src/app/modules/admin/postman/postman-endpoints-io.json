@@ -276141,7 +276141,7 @@
 	"group": "apiRequest",
 	"method": "GET",
 	"url": "v2/pe/vehiculo/captura-lima",
-	"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. Returns the official message, the report date, and the debt rows when an order exists.",
+	"description": "Look up whether a vehicle has a SAT Lima capture order by license plate. Returns the official message, the report date, and each debt row with its concept, amount, period, and document number.",
 	"price": 0.3,
 	"isAvailable": true,
 	"catalogHidden": false,
@@ -276167,7 +276167,7 @@
 				"default": null,
 				"min": 5,
 				"max": 8,
-				"description": "Vehicle license plate, 5 to 8 letters or digits, for example V0R660."
+				"description": "Vehicle license plate, 5 to 8 letters or digits. F1E120 has a capture order. V0R660 does not."
 			},
 			{
 				"field": "force",
@@ -276184,16 +276184,21 @@
 	"responses": [
 		{
 			"status": "200",
-			"label": "200",
-			"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+			"label": "No capture order",
+			"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": {\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+		},
+		{
+			"status": "200",
+			"label": "Capture order",
+			"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": true,\n    \"message\": \"El vehículo de placa F1E120 TIENE ORDEN DE CAPTURA por los siguientes conceptos:\",\n    \"orders\": [\n      {\n        \"concept\": \"Imp. Vehicular\",\n        \"amount\": \"S/ 505.86\",\n        \"status\": \"\",\n        \"period\": \"2016\",\n        \"documentNumber\": \"11614986590\",\n        \"date\": \"\",\n        \"plate\": \"F1E120\"\n      }\n    ],\n    \"plate\": \"F1E120\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": {\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
 		}
 	],
-	"descriptionES": "Consulta si un vehículo tiene orden de captura del SAT de Lima por placa. Devuelve el mensaje oficial, la fecha del informe y el detalle de la deuda cuando existe una orden.",
+	"descriptionES": "Consulta si un vehículo tiene orden de captura del SAT de Lima por placa. Devuelve el mensaje oficial, la fecha del informe y cada deuda con concepto, importe, periodo y número de documento.",
 	"docs": {
 		"en": {
 			"title": "Peru - Vehicle Capture Order (SAT Lima)",
 			"description": "Look up a SAT Lima vehicle capture order by plate via GET /v2/pe/vehiculo/captura-lima.",
-			"overview": "Asks the public SAT Lima form whether a **`plate`** has a capture order in the province of Lima. A plate with no order is a successful response: `hasCaptureOrder` is false and `orders` is empty. When an order exists, `orders` lists the debt rows reported by SAT, including the concept, amount, and status.",
+			"overview": "Asks SAT Lima whether a **`plate`** has a capture order in the province of Lima. A plate with no order is a successful response: `hasCaptureOrder` is false and `orders` is empty. When an order exists, `message` is the official SAT text and each item in `orders` includes `concept`, `amount` in soles, `period`, and `documentNumber`. `status` is filled only when SAT sends one. `columns` keeps the original labels from the source.",
 			"headers": [
 				{
 					"name": "Accept",
@@ -276209,7 +276214,7 @@
 			"params": [
 				{
 					"field": "plate",
-					"description": "License plate to query, without spaces. Example: V0R660."
+					"description": "License plate to query, without spaces. F1E120 has a capture order. V0R660 does not."
 				},
 				{
 					"field": "force",
@@ -276220,19 +276225,26 @@
 			"responses": [
 				{
 					"status": "200",
-					"label": "200",
-					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+					"label": "No capture order",
+					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": {\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+				},
+				{
+					"status": "200",
+					"label": "Capture order",
+					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": true,\n    \"message\": \"El vehículo de placa F1E120 TIENE ORDEN DE CAPTURA por los siguientes conceptos:\",\n    \"orders\": [\n      {\n        \"concept\": \"Imp. Vehicular\",\n        \"amount\": \"S/ 505.86\",\n        \"status\": \"\",\n        \"period\": \"2016\",\n        \"documentNumber\": \"11614986590\",\n        \"date\": \"\",\n        \"plate\": \"F1E120\"\n      }\n    ],\n    \"plate\": \"F1E120\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": {\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
 				}
 			],
 			"notes": [
 				"The lookup covers the province of Lima only.",
+				"A plate without an order still returns HTTP 200.",
+				"F1E120 is a plate with a capture order. V0R660 is a plate without one.",
 				"In sandbox mode, ABC10001 has a capture order and ABC10002 does not."
 			]
 		},
 		"es": {
 			"title": "Perú - Orden de Captura Vehicular (SAT Lima)",
 			"description": "Consulta la orden de captura vehicular del SAT de Lima por placa mediante GET /v2/pe/vehiculo/captura-lima.",
-			"overview": "Consulta en el formulario público del SAT de Lima si una **`placa`** tiene orden de captura en la provincia de Lima. Una placa sin orden es una respuesta exitosa: `hasCaptureOrder` es false y `orders` queda vacío. Cuando hay orden, `orders` trae las filas de deuda que reporta el SAT, con el concepto, el importe y el estado.",
+			"overview": "Consulta en el SAT de Lima si una **`placa`** tiene orden de captura en la provincia de Lima. Una placa sin orden es una respuesta exitosa: `hasCaptureOrder` es false y `orders` queda vacío. Cuando hay orden, `message` trae el texto oficial del SAT y cada elemento de `orders` incluye `concept`, `amount` en soles, `period` y `documentNumber`. `status` se llena solo cuando el SAT lo envía. `columns` conserva las etiquetas originales de la fuente.",
 			"headers": [
 				{
 					"name": "Accept",
@@ -276248,7 +276260,7 @@
 			"params": [
 				{
 					"field": "plate",
-					"description": "Placa a consultar, sin espacios. Ejemplo: V0R660."
+					"description": "Placa a consultar, sin espacios. F1E120 tiene orden de captura. V0R660 no."
 				},
 				{
 					"field": "force",
@@ -276259,12 +276271,19 @@
 			"responses": [
 				{
 					"status": "200",
-					"label": "200",
-					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": { \"message\": \"Certified by Verifik.co\" }\n}"
+					"label": "Sin orden de captura",
+					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": false,\n    \"message\": \"El vehículo de placa V0R660 no tiene orden de captura en la provincia de Lima.\",\n    \"orders\": [],\n    \"plate\": \"V0R660\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": {\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+				},
+				{
+					"status": "200",
+					"label": "Con orden de captura",
+					"body": "{\n  \"data\": {\n    \"hasCaptureOrder\": true,\n    \"message\": \"El vehículo de placa F1E120 TIENE ORDEN DE CAPTURA por los siguientes conceptos:\",\n    \"orders\": [\n      {\n        \"concept\": \"Imp. Vehicular\",\n        \"amount\": \"S/ 505.86\",\n        \"status\": \"\",\n        \"period\": \"2016\",\n        \"documentNumber\": \"11614986590\",\n        \"date\": \"\",\n        \"plate\": \"F1E120\"\n      }\n    ],\n    \"plate\": \"F1E120\",\n    \"reportDate\": \"17/11/2026\"\n  },\n  \"signature\": {\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
 				}
 			],
 			"notes": [
 				"La consulta cubre solo la provincia de Lima.",
+				"Una placa sin orden también responde HTTP 200.",
+				"F1E120 es una placa con orden de captura. V0R660 es una placa sin orden.",
 				"En modo sandbox, ABC10001 tiene orden de captura y ABC10002 no."
 			]
 		}

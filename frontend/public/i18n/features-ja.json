@@ -1930,7 +1930,7 @@
         },
         "peru_api_vehicle_sat_captura": {
             "title": "車両差押命令（SATリマ）",
-            "description": "GET /v2/pe/vehiculo/captura-lima でリマの SAT による車両差押命令をナンバープレートから照会します。"
+            "description": "GET /v2/pe/vehiculo/captura-lima でリマの SAT による車両差押命令をナンバープレートから照会します。公式メッセージ、報告日、各債務の項目・金額・期間・文書番号を返します。"
         }
     }
 }

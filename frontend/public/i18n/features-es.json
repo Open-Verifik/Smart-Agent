@@ -1930,7 +1930,7 @@
         },
         "peru_api_vehicle_sat_captura": {
             "title": "Orden de Captura Vehicular (SAT Lima)",
-            "description": "Consulta si un vehículo tiene orden de captura del SAT de Lima por placa mediante GET /v2/pe/vehiculo/captura-lima."
+            "description": "Consulta si un vehículo tiene orden de captura del SAT de Lima por placa mediante GET /v2/pe/vehiculo/captura-lima. Devuelve el mensaje oficial, la fecha del informe y cada deuda con concepto, importe, periodo y documento."
         }
     }
 }
