@@ -1352,6 +1352,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             logo: this.logoDataUrl(),
             pageSize: this.pageSize(),
             orientation: this.orientation(),
+            layoutVersion: 2,
         };
         return {
             ...base,
@@ -10283,6 +10284,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             batchConfiguration:
                 this.designSource() === 'simulated' ? undefined : (configId ?? draft.batchConfiguration),
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,
+            ...(Number(draft.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
         };
 
         const isSystemTemplate = draft.type === 'System';

@@ -343,7 +343,18 @@ export interface SmartReportTemplate {
     nameKey?: string;
     descriptionKey?: string;
     clonedFromSystemKey?: string;
-    presetSteps?: { appFeatureCode: string; sequence: number }[];
+    presetSteps?: {
+        appFeatureCode: string;
+        sequence: number;
+        parameterDefaults?: Record<string, unknown>;
+        inputFieldMapping?: Record<string, string>;
+        queryMode?: string;
+    }[];
+    /**
+     * 2 when the template was designed in the current editor.
+     * Older saves omit it and keep the coordinates they were given.
+     */
+    layoutVersion?: number;
     batchConfiguration?: string | BatchConfigurationRef;
     client?: string;
 

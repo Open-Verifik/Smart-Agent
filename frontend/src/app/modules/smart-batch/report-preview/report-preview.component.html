@@ -480,6 +480,7 @@
                         [attr.data-design-top]="sectionDesignTop(section, pageIndex)"
                         [attr.data-design-height]="sectionDesignHeight(section, pageIndex)"
                         [attr.data-design-rows]="sectionDesignRows(section, pageIndex)"
+                        [attr.data-design-sized]="designSized(section) ? '1' : null"
                         [attr.data-flow]="sectionFlowsInPrint(section) ? '1' : null"
                         [class.relative]="!hasFreeLayout()"
                         [class.absolute]="hasFreeLayout()"
@@ -583,7 +584,7 @@
                             !isShapeSection(section) &&
                             !isLayerQuiet('sec:' + section.id) &&
                             selectedSectionId() === section.id &&
-                            !selectedCellKey() &&
+                            (!selectedCellKey() || stretchesAsTable(section)) &&
                             !draggingSectionId()
                         ) {
                             @if (isTextBlock(section)) {
@@ -608,7 +609,7 @@
                                     (pointerdown)="startSectionResize(section, $event, 'se')"
                                 ></button>
                             }
-                            @if ((!isTextBlock(section) || sectionHasRichTable(section)) && !flowLocksResize(section) && !flowContinuation(section, pageIndex)) {
+                            @if ((!isTextBlock(section) || sectionHasRichTable(section)) && !flowContinuation(section, pageIndex)) {
                             @for (handle of blockResizeHandles; track handle.id) {
                                 <button
                                     type="button"
@@ -630,7 +631,12 @@
                             <div class="pointer-events-none absolute bottom-0 left-1 right-1 z-20 h-1 rounded-full bg-indigo-500"></div>
                         }
                         @if (keepsDrawnFrame(section)) {
-                            <div data-section-clip class="absolute inset-0 overflow-hidden">
+                            <div
+                                data-section-clip
+                                class="absolute inset-0"
+                                [class.overflow-hidden]="!flowSliceKeepsEdge(section, pageIndex)"
+                                [class.overflow-visible]="flowSliceKeepsEdge(section, pageIndex)"
+                            >
                                 <ng-container
                                     [ngTemplateOutlet]="sectionBody"
                                     [ngTemplateOutletContext]="{ section: section, measure: false, pageIndex: pageIndex }"
@@ -1502,6 +1508,8 @@
                             [class.cursor-pointer]="clickable() && !reorderable()"
                             [class.report-move-hand]="showsCellMoveHand(section, chunk.table.key)"
                             [style.background-color]="tableFill(section, chunk.table.key)"
+                            [style.width.px]="columnWidth(section, chunk.table.key)"
+                            [style.min-height.px]="cellMinHeight(section, chunk.table.key)"
                             [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
                             [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
                             (click)="onCellActivate(section, chunk.table.key, 'cell', $event)"
@@ -1514,6 +1522,10 @@
                                     [ngTemplateOutletContext]="{ mode: 'cell' }"
                                 ></ng-container>
                             }
+                            <ng-container
+                                [ngTemplateOutlet]="cellResizeHandles"
+                                [ngTemplateOutletContext]="{ section: section, key: chunk.table.key, axes: 'wy', measure: measure }"
+                            ></ng-container>
                             @if (tableLabel(section, chunk.table); as tableTitle) {
                                 <p
                                     class="mb-1.5 min-w-0 truncate tracking-wide"
@@ -1776,6 +1788,8 @@
                             [class.cursor-pointer]="clickable() && !reorderable()"
                             [class.report-move-hand]="showsCellMoveHand(section, chunk.table.key)"
                             [style.background-color]="tableFill(section, chunk.table.key)"
+                            [style.width.px]="columnWidth(section, chunk.table.key)"
+                            [style.min-height.px]="cellMinHeight(section, chunk.table.key)"
                             [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
                             [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
                             (click)="onCellActivate(section, chunk.table.key, 'cell', $event)"
@@ -1788,6 +1802,10 @@
                                     [ngTemplateOutletContext]="{ mode: 'cell' }"
                                 ></ng-container>
                             }
+                            <ng-container
+                                [ngTemplateOutlet]="cellResizeHandles"
+                                [ngTemplateOutletContext]="{ section: section, key: chunk.table.key, axes: 'wy', measure: measure }"
+                            ></ng-container>
                             @if (tableLabel(section, chunk.table); as tableTitle) {
                                 <p
                                     class="mb-1.5 min-w-0 truncate tracking-wide"
