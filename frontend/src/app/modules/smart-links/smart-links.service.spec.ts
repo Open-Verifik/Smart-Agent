@@ -149,4 +149,24 @@ describe('SmartLinksService', () => {
         expect(httpMock.get.mock.calls[0][0]).toMatch(/\/v2\/webhooks$/);
         expect(hooks).toEqual([{ _id: 'wh_1', name: 'Ops Webhook' }]);
     });
+
+    it('handles non-array projectFlows returned by POST /v3/projects without throwing', () => {
+        const { service } = createService();
+        const postResponse = {
+            _id: 'proj_created_1',
+            name: 'My Hub',
+            projectFlows: '69c999000000000000000001',
+        } as any;
+
+        expect(() => service.extractSmartLinkFlow(postResponse)).not.toThrow();
+        expect(service.extractSmartLinkFlow(postResponse)).toBeNull();
+        expect(service.extractSmartLinkFlowId(postResponse)).toBe('69c999000000000000000001');
+
+        const singleObjResponse = {
+            _id: 'proj_created_2',
+            projectFlows: { _id: 'flow_obj_1', type: 'smartlink', slug: 'my-hub' },
+        } as any;
+        expect(service.extractSmartLinkFlow(singleObjResponse)?._id).toBe('flow_obj_1');
+        expect(service.extractSmartLinkFlowId(singleObjResponse)).toBe('flow_obj_1');
+    });
 });

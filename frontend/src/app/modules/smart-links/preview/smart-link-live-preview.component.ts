@@ -100,7 +100,12 @@ export class SmartLinkLivePreviewComponent implements OnInit, OnChanges {
         if (this.form) {
             return (this.form.get('projectFlow')?.value as Record<string, any>) || {};
         }
-        const flow = (this.project?.projectFlows || []).find((f) => f.type === 'smartlink');
+        const rawFlows = this.project?.projectFlows as unknown;
+        const flow = Array.isArray(rawFlows)
+            ? rawFlows.find((f) => f && typeof f === 'object' && (f as { type?: string }).type === 'smartlink')
+            : rawFlows && typeof rawFlows === 'object' && (rawFlows as { type?: string }).type === 'smartlink'
+              ? rawFlows
+              : undefined;
         return (flow as Record<string, any>) || {};
     }
 

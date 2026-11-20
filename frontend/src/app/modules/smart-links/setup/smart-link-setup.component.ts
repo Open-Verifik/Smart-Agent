@@ -738,11 +738,24 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
             next: (saved) => {
                 this.saving.set(false);
                 if (saved) {
-                    this.project = saved;
                     const flow = this._service.extractSmartLinkFlow(saved);
-                    if (flow?._id) {
-                        this.form.get('projectFlow._id')?.setValue(flow._id, { emitEvent: false });
+                    const flowId = this._service.extractSmartLinkFlowId(saved);
+                    if (flowId) {
+                        this.form.get('projectFlow._id')?.setValue(flowId, { emitEvent: false });
                     }
+                    const fallbackFlow =
+                        payload.projectFlows?.[0] || this._service.createDefaultDraft().projectFlows![0];
+                    this.project = flow
+                        ? saved
+                        : {
+                              ...saved,
+                              projectFlows: [
+                                  {
+                                      ...fallbackFlow,
+                                      ...(flowId ? { _id: flowId } : {}),
+                                  },
+                              ],
+                          };
                     if (saved._id) {
                         this.projectId = saved._id;
                         this._loadedId = saved._id;
@@ -763,9 +776,13 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
             },
             error: (err) => {
                 this.saving.set(false);
-                const msg = err?.error?.message || this._t('smartLinks.setup.saveError');
+                const rawMsg = `${err?.error?.message || ''}`;
+                const isDuplicate = err?.status === 409 || /E11000|duplicate/i.test(rawMsg);
+                const msg = isDuplicate
+                    ? this._t('smartLinks.setup.duplicateNameError')
+                    : rawMsg || this._t('smartLinks.setup.saveError');
                 this.saveError.set(msg);
-                this._snack.open(msg, this._t('close'), { duration: 3500 });
+                this._snack.open(msg, this._t('close'), { duration: 4000 });
                 this._cdr.markForCheck();
             },
         });

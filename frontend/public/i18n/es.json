@@ -13192,7 +13192,8 @@
                     "e": "Trust Blue Card",
                     "f": "Kinetic Bold"
                 }
-            }
+            },
+            "duplicateNameError": "Ya existe un proyecto con este nombre en tu espacio de trabajo. Elige otro nombre o edita el proyecto existente."
         },
         "preview": {
             "title": "Vista previa",

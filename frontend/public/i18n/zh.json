@@ -13260,7 +13260,8 @@
                     "e": "Trust Blue Card",
                     "f": "Kinetic Bold"
                 }
-            }
+            },
+            "duplicateNameError": "工作区中已存在同名项目。请使用其他名称或编辑现有项目。"
         },
         "preview": {
             "title": "实时预览",

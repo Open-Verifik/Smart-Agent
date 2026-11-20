@@ -13260,7 +13260,8 @@
                     "e": "Trust Blue Card",
                     "f": "Kinetic Bold"
                 }
-            }
+            },
+            "duplicateNameError": "같은 이름의 프로젝트가 이미 워크스페이스에 있습니다. 다른 이름을 입력하거나 기존 프로젝트를 편집하세요."
         },
         "preview": {
             "title": "실시간 미리보기",

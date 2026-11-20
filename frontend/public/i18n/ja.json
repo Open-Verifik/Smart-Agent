@@ -13260,7 +13260,8 @@
                     "e": "Trust Blue Card",
                     "f": "Kinetic Bold"
                 }
-            }
+            },
+            "duplicateNameError": "この名前のプロジェクトはすでにワークスペースに存在します。別の名前を入力するか、既存のプロジェクトを編集してください。"
         },
         "preview": {
             "title": "ライブプレビュー",

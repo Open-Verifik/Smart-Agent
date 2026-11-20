@@ -13227,7 +13227,8 @@
                     "e": "Trust Blue Card",
                     "f": "Kinetic Bold"
                 }
-            }
+            },
+            "duplicateNameError": "Un projet portant ce nom existe deja dans votre espace. Choisissez un autre nom ou modifiez le projet existant."
         },
         "preview": {
             "title": "Apercu en direct",

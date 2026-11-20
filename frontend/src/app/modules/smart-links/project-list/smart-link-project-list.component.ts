@@ -185,8 +185,15 @@ export class SmartLinkProjectListComponent implements OnInit {
         };
         this._service.updateSmartLinkProject(project._id, updated).subscribe({
             next: (saved) => {
+                const populatedFlow = this._service.extractSmartLinkFlow(saved);
+                const merged: SmartLinkProject = {
+                    ...project,
+                    ...(saved || {}),
+                    status: nextStatus,
+                    projectFlows: [populatedFlow || { ...flow, status: nextStatus }],
+                };
                 this.projects.update((list) =>
-                    list.map((p) => (p._id === project._id ? saved || updated : p))
+                    list.map((p) => (p._id === project._id ? merged : p))
                 );
                 this._cdr.markForCheck();
             },

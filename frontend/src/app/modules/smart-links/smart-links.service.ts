@@ -87,8 +87,31 @@ export class SmartLinksService {
     }
 
     extractSmartLinkFlow(project: SmartLinkProject | null | undefined): SmartLinkProjectFlow | null {
-        const flows = project?.projectFlows || [];
-        return flows.find((f) => f.type === 'smartlink') ?? null;
+        const raw = (project as { projectFlows?: unknown } | null | undefined)?.projectFlows;
+        if (Array.isArray(raw)) {
+            return (
+                raw.find(
+                    (f): f is SmartLinkProjectFlow =>
+                        Boolean(f && typeof f === 'object' && (f as { type?: string }).type === 'smartlink')
+                ) ?? null
+            );
+        }
+        if (raw && typeof raw === 'object' && (raw as { type?: string }).type === 'smartlink') {
+            return raw as SmartLinkProjectFlow;
+        }
+        const single = (project as { projectFlow?: unknown } | null | undefined)?.projectFlow;
+        if (single && typeof single === 'object' && (single as { type?: string }).type === 'smartlink') {
+            return single as SmartLinkProjectFlow;
+        }
+        return null;
+    }
+
+    extractSmartLinkFlowId(project: SmartLinkProject | null | undefined): string {
+        const flow = this.extractSmartLinkFlow(project);
+        if (flow?._id) return `${flow._id}`.trim();
+        const raw = (project as { projectFlows?: unknown } | null | undefined)?.projectFlows;
+        if (typeof raw === 'string' && raw.trim()) return raw.trim();
+        return '';
     }
 
     buildPublicLinkUrl(project: SmartLinkProject): string {
@@ -192,7 +215,7 @@ export class SmartLinksService {
                 map((res) => {
                     const payload = res?.data;
                     const rows = Array.isArray(payload) ? payload : payload?.docs ?? [];
-                    return rows.filter((p) => (p.projectFlows || []).some((f) => f.type === 'smartlink'));
+                    return rows.filter((p) => Boolean(this.extractSmartLinkFlow(p)));
                 })
             );
     }
@@ -265,8 +288,8 @@ export class SmartLinksService {
                     };
 
                     for (const proj of rows) {
-                        const flows: any[] = proj.projectFlows || [];
-                        if (flows.some((f) => f.type === 'smartlink')) continue;
+                        const flows: any[] = Array.isArray(proj.projectFlows) ? proj.projectFlows : [];
+                        if (flows.some((f) => f?.type === 'smartlink')) continue;
                         if (flows.some((f) => f.type === 'humanAuthn') || proj.target === 'humanAuthn') {
                             grouped.humanAuthn.push({
                                 _id: proj._id,
