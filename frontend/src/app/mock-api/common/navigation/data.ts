@@ -356,6 +356,23 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 ],
             },
             {
+                id: 'smart-links',
+                title: 'nav.smart_links',
+                type: 'collapsable',
+                icon: 'heroicons_outline:link',
+                classes: { wrapper: 'nav-product nav-product--link' },
+                children: [
+                    {
+                        id: 'smart-links-projects',
+                        title: 'nav.smart_links_projects',
+                        subtitle: 'nav.smart_links_projects_subtitle',
+                        type: 'basic',
+                        icon: 'heroicons_outline:sparkles',
+                        link: '/smart-links/projects',
+                    },
+                ],
+            },
+            {
                 id: 'smart-monitor',
                 title: 'nav.smart_monitor',
                 type: 'collapsable',
@@ -754,6 +771,23 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:credit-card',
                 link: '/smart-access/plans',
+            },
+        ],
+    },
+    {
+        id: 'smart-links',
+        title: 'nav.smart_links',
+        type: 'collapsable',
+        icon: 'heroicons_outline:link',
+        classes: { wrapper: 'nav-product nav-product--link' },
+        children: [
+            {
+                id: 'smart-links-projects',
+                title: 'nav.smart_links_projects',
+                subtitle: 'nav.smart_links_projects_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:sparkles',
+                link: '/smart-links/projects',
             },
         ],
     },

@@ -179,7 +179,10 @@
         "smart_business_document_templates_subtitle": "Corporate document types & AI OCR schemas",
         "smart_enroll_document_templates_subtitle": "Identity document types & AI OCR schemas",
         "smart_fleet_drivers": "Drivers",
-        "smart_fleet_drivers_subtitle": "Driver license and fine eligibility"
+        "smart_fleet_drivers_subtitle": "Driver license and fine eligibility",
+        "smart_links": "Smart Link",
+        "smart_links_projects": "Smart Links",
+        "smart_links_projects_subtitle": "Unified verification links, QR & AI handoffs"
     },
     "plateReport": {
         "title": "Vehicle report",
@@ -12970,6 +12973,201 @@
             "sourceInsurance": "Mandatory insurance",
             "sourceVehicle": "Vehicle registry",
             "sourceCompanies": "Company registry"
+        }
+    },
+    "smartLinks": {
+        "badge": "Unified Trust Router",
+        "list": {
+            "title": "SmartLink Hubs",
+            "subtitle": "One intelligent URL & QR code that routes individuals, businesses, HumanID proofs, and returning users automatically.",
+            "createCta": "Create SmartLink",
+            "searchPlaceholder": "Search by name or slug...",
+            "signInCta": "Sign In",
+            "loading": "Loading SmartLink hubs...",
+            "loadError": "Unable to load SmartLink hubs right now.",
+            "emptyTitle": "Launch your first SmartLink in 60 seconds",
+            "emptySubtitle": "Connect your SmartEnroll, SmartBusiness, HumanAuthn, and SmartAccess flows behind one shareable link and AI-ready session API.",
+            "mintTest": "Mint Test Link",
+            "setup": "Setup",
+            "openHub": "Open Hub"
+        },
+        "actions": {
+            "back": "Back",
+            "backToList": "All SmartLinks",
+            "copy": "Copy",
+            "copyUrl": "Copy public URL",
+            "copied": "Copied!",
+            "next": "Next Step",
+            "prev": "Previous",
+            "refresh": "Refresh",
+            "retry": "Retry",
+            "revoke": "Revoke"
+        },
+        "modes": {
+            "personal": {
+                "label": "Personal KYC",
+                "hint": "Verify individual identity with document & face"
+            },
+            "business": {
+                "label": "Business KYB",
+                "hint": "Onboard companies and authorized representatives"
+            },
+            "humanId": {
+                "label": "HumanID",
+                "hint": "Zero-storage biometric Proof-of-Human"
+            },
+            "access": {
+                "label": "SmartAccess",
+                "hint": "Passwordless biometric login for returning users"
+            }
+        },
+        "completionModes": {
+            "redirect": "Web Redirect (?sessionCode)",
+            "receipt": "Return-to-Chat Receipt + PDF",
+            "postMessage": "Embedded Modal (postMessage)"
+        },
+        "mintModal": {
+            "title": "Signed Session Link",
+            "minting": "Generating signed session & QR...",
+            "signedUrl": "Signed Single-Use URL",
+            "shortCode": "Session Code"
+        },
+        "analytics": {
+            "created": "Created",
+            "opened": "Opened",
+            "routed": "Routed",
+            "completed": "Completed",
+            "conversion": "Conversion"
+        },
+        "detail": {
+            "configureBtn": "Configure Studio",
+            "signedOnly": "Signed links only",
+            "publicSlugOpen": "Public static URL enabled",
+            "qrCaption": "Scan to open verification",
+            "mintTitle": "Mint Signed Verification Session",
+            "modeLabel": "Requested Mode",
+            "completionLabel": "Completion Handoff",
+            "prefillEmail": "Prefill Email",
+            "prefillPhone": "Prefill Phone",
+            "externalRef": "External Reference ID",
+            "ttlMinutes": "TTL (minutes)",
+            "mintBtn": "Generate Signed URL & QR",
+            "recentSessions": "Recent Sessions",
+            "noSessions": "No verification sessions minted yet.",
+            "colCode": "Short Code",
+            "colState": "State",
+            "colMode": "Mode",
+            "colChannel": "Channel",
+            "tabs": {
+                "sessions": "Sessions & Mint",
+                "dispatch": "Quick Send & CSV",
+                "kit": "Developer & AI Kit"
+            }
+        },
+        "dispatch": {
+            "quickTitle": "Quick Send Single Link",
+            "channel": "Channel",
+            "recipient": "Recipient (Email or Phone)",
+            "name": "Recipient Name",
+            "campaign": "Campaign Tag",
+            "sendBtn": "Send Verification Link",
+            "csvTitle": "Bulk CSV Dispatch",
+            "csvHint": "Columns: email,phone,countryCode,name,externalRefId",
+            "batchDone": "Dispatched {{sent}} of {{total}} links.",
+            "sendCsvBtn": "Launch CSV Campaign"
+        },
+        "kit": {
+            "title": "Ready-to-Ship Developer & AI Agent Kit",
+            "subtitle": "Copy ready-made instructions for Cursor, Claude, Lovable, MCP servers, or backend services.",
+            "copyBtn": "Copy Snippet",
+            "tabPrompt": "AI Agent Prompt",
+            "tabMcp": "MCP Tool",
+            "tabEmbed": "Web Modal Embed",
+            "tabCurl": "cURL & Exchange"
+        },
+        "setup": {
+            "newTitle": "Create SmartLink Studio",
+            "editTitle": "Edit SmartLink Studio",
+            "subtitle": "Configure routing, step-up rules, completion handoffs, and live Styles A-F branding.",
+            "saveBtn": "Save SmartLink",
+            "saving": "Saving...",
+            "nameRequired": "Please enter a SmartLink project name before saving.",
+            "savedToast": "SmartLink configuration saved.",
+            "saveError": "Could not save SmartLink. Verify inputs and try again.",
+            "steps": {
+                "s0": "Foundations",
+                "s1": "Linked Engines",
+                "s2": "Routing & Step-Up",
+                "s3": "Integrations & AI",
+                "s4": "Appearance"
+            },
+            "step0": {
+                "title": "Core Identity & Entry Mode",
+                "nameLabel": "SmartLink Name",
+                "namePlaceholder": "e.g. Acme Global Onboarding",
+                "slugLabel": "Custom Slug",
+                "autoSlug": "From Name",
+                "contactEmail": "Contact Email",
+                "defaultLanguage": "Default Language",
+                "modesLabel": "Supported Verification Modes",
+                "defaultModeLabel": "Default Entry Mode",
+                "promptMode": "Let user choose (Mode Picker)",
+                "completionLabel": "Default Completion Mode"
+            },
+            "step1": {
+                "title": "Bind Underlying Verification Engines",
+                "subtitle": "Connect existing projects from your workspace. Leave blank for any mode you do not use.",
+                "none": "Not linked"
+            },
+            "step2": {
+                "title": "Auto-Detection & Step-Up Security Policy",
+                "autoDetect": "Automatically route returning verified users to SmartAccess or Step-Up",
+                "stepUpEnabled": "Enable Step-Up triggers for expired IDs and periodic checks",
+                "requireSigned": "Require cryptographically signed session URLs (disable static public slug)",
+                "reverifyFaceDays": "Re-verify liveness every N days",
+                "kybRecertifyDays": "Recertify KYB every N days",
+                "ttlMinutes": "Default session TTL (minutes)",
+                "maxUses": "Max completions per link (0 = unlimited)",
+                "allowedCountries": "Allowed Countries (comma-separated or All)"
+            },
+            "step3": {
+                "title": "Completion Handoff & AI Kit",
+                "redirectUrl": "Redirect Callback URL",
+                "postMessageOrigins": "Allowed postMessage Origins (HTTPS)",
+                "receiptMessage": "Custom Return-to-Chat Receipt Message",
+                "allowPdf": "Allow users to download / print verification receipt PDF"
+            },
+            "step4": {
+                "title": "Styles A-F & Visual Branding",
+                "logoUrl": "Logo Image URL",
+                "buttonColor": "Button Color",
+                "buttonTextColor": "Button Text Color",
+                "backgroundColor": "Canvas Background Color",
+                "styles": {
+                    "a": "Clean Pill Light",
+                    "b": "Editorial Sharp",
+                    "c": "Classic Enterprise",
+                    "d": "Neon Midnight",
+                    "e": "Trust Blue Card",
+                    "f": "Kinetic Bold"
+                }
+            }
+        },
+        "preview": {
+            "screenMode": "Picker",
+            "screenLookup": "Lookup",
+            "screenReceipt": "Receipt",
+            "desktop": "Desktop",
+            "mobile": "Mobile",
+            "chooseTitle": "Choose how to verify",
+            "chooseSubtitle": "Select the option that fits your verification request.",
+            "lookupPersonalTitle": "Find your profile",
+            "lookupBizTitle": "Identify your business",
+            "lookupSubtitle": "Enter your identifier to route automatically.",
+            "continueBtn": "Continue Verification",
+            "receiptTitle": "Verification Complete",
+            "receiptSubtitle": "You can safely return to your chat or assistant now.",
+            "resetBtn": "Replay Preview"
         }
     }
 }

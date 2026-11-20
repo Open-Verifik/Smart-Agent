@@ -179,7 +179,10 @@
         "smart_business_document_templates_subtitle": "Tipos de documentos corporativos y esquemas OCR",
         "smart_enroll_document_templates_subtitle": "Tipos de documentos de identidad y esquemas OCR",
         "smart_fleet_drivers": "Conductores",
-        "smart_fleet_drivers_subtitle": "Licencias y comparendos de conductores"
+        "smart_fleet_drivers_subtitle": "Licencias y comparendos de conductores",
+        "smart_links": "Smart Link",
+        "smart_links_projects": "Smart Links",
+        "smart_links_projects_subtitle": "Enlaces unificados de verificación, QR e IA"
     },
     "plateReport": {
         "title": "Reporte vehicular",
@@ -12970,6 +12973,201 @@
             "sourceInsurance": "Seguro obligatorio",
             "sourceVehicle": "Registro de vehículos",
             "sourceCompanies": "Registro de empresas"
+        }
+    },
+    "smartLinks": {
+        "badge": "Enrutador Unificado de Confianza",
+        "list": {
+            "title": "Centros SmartLink",
+            "subtitle": "Una URL y QR inteligente que dirige personas, empresas, pruebas HumanID y usuarios recurrentes automáticamente.",
+            "createCta": "Crear SmartLink",
+            "searchPlaceholder": "Buscar por nombre o slug...",
+            "signInCta": "Iniciar Sesión",
+            "loading": "Cargando centros SmartLink...",
+            "loadError": "No se pudieron cargar los centros SmartLink.",
+            "emptyTitle": "Lanza tu primer SmartLink en 60 segundos",
+            "emptySubtitle": "Conecta SmartEnroll, SmartBusiness, HumanAuthn y SmartAccess detrás de un enlace compartible y API lista para agentes IA.",
+            "mintTest": "Generar Link de Prueba",
+            "setup": "Configurar",
+            "openHub": "Abrir Hub"
+        },
+        "actions": {
+            "back": "Volver",
+            "backToList": "Todos los SmartLinks",
+            "copy": "Copiar",
+            "copyUrl": "Copiar URL pública",
+            "copied": "¡Copiado!",
+            "next": "Siguiente",
+            "prev": "Anterior",
+            "refresh": "Actualizar",
+            "retry": "Reintentar",
+            "revoke": "Revocar"
+        },
+        "modes": {
+            "personal": {
+                "label": "KYC Personal",
+                "hint": "Verifica identidad con documento y rostro"
+            },
+            "business": {
+                "label": "KYB Empresarial",
+                "hint": "Onboarding de empresas y representantes"
+            },
+            "humanId": {
+                "label": "HumanID",
+                "hint": "Prueba biométrica privada de humanidad"
+            },
+            "access": {
+                "label": "SmartAccess",
+                "hint": "Acceso biométrico rápido sin contraseñas"
+            }
+        },
+        "completionModes": {
+            "redirect": "Redirección Web (?sessionCode)",
+            "receipt": "Comprobante Volver al Chat + PDF",
+            "postMessage": "Modal Embebido (postMessage)"
+        },
+        "mintModal": {
+            "title": "Enlace de Sesión Firmado",
+            "minting": "Generando sesión firmada y QR...",
+            "signedUrl": "URL Firmada de Un Solo Uso",
+            "shortCode": "Código de Sesión"
+        },
+        "analytics": {
+            "created": "Creados",
+            "opened": "Abiertos",
+            "routed": "Enrutados",
+            "completed": "Completados",
+            "conversion": "Conversión"
+        },
+        "detail": {
+            "configureBtn": "Configurar Studio",
+            "signedOnly": "Solo enlaces firmados",
+            "publicSlugOpen": "Slug público habilitado",
+            "qrCaption": "Escanea para verificar",
+            "mintTitle": "Emitir Sesión de Verificación Firmada",
+            "modeLabel": "Modo Solicitado",
+            "completionLabel": "Entrega al Completar",
+            "prefillEmail": "Prellenar Correo",
+            "prefillPhone": "Prellenar Teléfono",
+            "externalRef": "Referencia Externa",
+            "ttlMinutes": "Vigencia (minutos)",
+            "mintBtn": "Generar URL Firmada y QR",
+            "recentSessions": "Sesiones Recientes",
+            "noSessions": "Aún no hay sesiones emitidas.",
+            "colCode": "Código",
+            "colState": "Estado",
+            "colMode": "Modo",
+            "colChannel": "Canal",
+            "tabs": {
+                "sessions": "Sesiones y Emisión",
+                "dispatch": "Envío Rápido y CSV",
+                "kit": "Kit Dev & Agente IA"
+            }
+        },
+        "dispatch": {
+            "quickTitle": "Envío Rápido Individual",
+            "channel": "Canal",
+            "recipient": "Destinatario (Correo o Teléfono)",
+            "name": "Nombre",
+            "campaign": "Etiqueta de Campaña",
+            "sendBtn": "Enviar Enlace de Verificación",
+            "csvTitle": "Campaña Masiva CSV",
+            "csvHint": "Columnas: email,phone,countryCode,name,externalRefId",
+            "batchDone": "Se enviaron {{sent}} de {{total}} enlaces.",
+            "sendCsvBtn": "Lanzar Campaña CSV"
+        },
+        "kit": {
+            "title": "Kit Listo para Desarrolladores y Agentes IA",
+            "subtitle": "Copia instrucciones listas para Cursor, Claude, Lovable, servidores MCP o tu backend.",
+            "copyBtn": "Copiar Fragmento",
+            "tabPrompt": "Prompt Agente IA",
+            "tabMcp": "Herramienta MCP",
+            "tabEmbed": "Modal Embebido",
+            "tabCurl": "cURL e Intercambio"
+        },
+        "setup": {
+            "newTitle": "Crear Studio SmartLink",
+            "editTitle": "Editar Studio SmartLink",
+            "subtitle": "Configura enrutamiento, reglas step-up, entrega de resultados y apariencia Styles A-F.",
+            "saveBtn": "Guardar SmartLink",
+            "saving": "Guardando...",
+            "nameRequired": "Ingresa un nombre para tu SmartLink antes de guardar.",
+            "savedToast": "Configuración SmartLink guardada.",
+            "saveError": "No se pudo guardar SmartLink. Revisa los datos e intenta de nuevo.",
+            "steps": {
+                "s0": "Base",
+                "s1": "Motores",
+                "s2": "Enrutamiento y Seguridad",
+                "s3": "Integraciones e IA",
+                "s4": "Apariencia"
+            },
+            "step0": {
+                "title": "Identidad y Modo de Entrada",
+                "nameLabel": "Nombre del SmartLink",
+                "namePlaceholder": "ej. Acme Onboarding Global",
+                "slugLabel": "Slug Personalizado",
+                "autoSlug": "Desde Nombre",
+                "contactEmail": "Correo de Contacto",
+                "defaultLanguage": "Idioma Predeterminado",
+                "modesLabel": "Modos de Verificación Habilitados",
+                "defaultModeLabel": "Modo Inicial",
+                "promptMode": "Permitir elegir al usuario (Selector)",
+                "completionLabel": "Modo de Cierre Predeterminado"
+            },
+            "step1": {
+                "title": "Vincular Motores de Verificación",
+                "subtitle": "Conecta proyectos existentes de tu cuenta.",
+                "none": "No vinculado"
+            },
+            "step2": {
+                "title": "Autodetección y Reglas Step-Up",
+                "autoDetect": "Dirigir automáticamente a usuarios verificados hacia SmartAccess o Step-Up",
+                "stepUpEnabled": "Activar Step-Up por documentos vencidos o revalidación periódica",
+                "requireSigned": "Exigir sesiones firmadas (desactivar slug público estático)",
+                "reverifyFaceDays": "Revalidar rostro cada N días",
+                "kybRecertifyDays": "Recertificar KYB cada N días",
+                "ttlMinutes": "Vigencia por defecto (minutos)",
+                "maxUses": "Usos máximos por enlace (0 = ilimitado)",
+                "allowedCountries": "Países Permitidos (separados por coma o All)"
+            },
+            "step3": {
+                "title": "Entrega de Cierre y Kit IA",
+                "redirectUrl": "URL de Redirección",
+                "postMessageOrigins": "Orígenes postMessage Permitidos (HTTPS)",
+                "receiptMessage": "Mensaje del Comprobante Volver al Chat",
+                "allowPdf": "Permitir descargar / imprimir comprobante PDF"
+            },
+            "step4": {
+                "title": "Estilos A-F y Marca",
+                "logoUrl": "URL del Logotipo",
+                "buttonColor": "Color de Botón",
+                "buttonTextColor": "Color Texto Botón",
+                "backgroundColor": "Color de Fondo",
+                "styles": {
+                    "a": "Pill Limpio Claro",
+                    "b": "Editorial Nítido",
+                    "c": "Clásico Empresarial",
+                    "d": "Neón Nocturno",
+                    "e": "Tarjeta Azul Confianza",
+                    "f": "Cinético Audaz"
+                }
+            }
+        },
+        "preview": {
+            "screenMode": "Selector",
+            "screenLookup": "Búsqueda",
+            "screenReceipt": "Comprobante",
+            "desktop": "Escritorio",
+            "mobile": "Móvil",
+            "chooseTitle": "Elige cómo verificarte",
+            "chooseSubtitle": "Selecciona la opción adecuada para tu proceso.",
+            "lookupPersonalTitle": "Encuentra tu perfil",
+            "lookupBizTitle": "Identifica tu empresa",
+            "lookupSubtitle": "Ingresa tu identificador para dirigirte automáticamente.",
+            "continueBtn": "Continuar Verificación",
+            "receiptTitle": "Verificación Completa",
+            "receiptSubtitle": "Ya puedes regresar con seguridad a tu chat o asistente.",
+            "resetBtn": "Reiniciar Vista"
         }
     }
 }

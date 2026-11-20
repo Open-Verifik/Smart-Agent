@@ -6400,6 +6400,80 @@
 					"backImage"
 				]
 			}
+		},
+		{
+			"id": "smart_link_create_session",
+			"name": "SmartLink — Create Signed Verification Session",
+			"category": "SmartLink Identity Orchestration",
+			"url": "https://ai.verifik.co/api/v3/smart-links/sessions",
+			"verifikPath": "/v3/smart-links/sessions",
+			"method": "POST",
+			"description": "Mint a single-use or multi-use signed SmartLink verification URL and QR code that routes any human or company through Personal KYC, Business KYB, HumanID Proof-of-Human, or Recurring SmartAccess login with optional Return-to-Chat receipt, redirect, or postMessage handoff.",
+			"country": "Global",
+			"priceUsd": 0.05,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"projectId": {
+						"type": "string",
+						"description": "SmartLink project ID to mint the verification link from."
+					},
+					"requestedMode": {
+						"type": "string",
+						"description": "Verification route mode: personal, business, humanId, access, or prompt."
+					},
+					"completionMode": {
+						"type": "string",
+						"description": "Handoff mode upon completion: redirect, receipt, or postMessage."
+					},
+					"externalRefId": {
+						"type": "string",
+						"description": "Caller correlation ID returned on status polls, webhooks, and sessionCode exchange."
+					},
+					"callbackWebhookUrl": {
+						"type": "string",
+						"description": "Optional HTTPS webhook URL invoked when the session completes."
+					},
+					"expiresInMinutes": {
+						"type": "number",
+						"description": "Session TTL in minutes (5 to 43200). Defaults to project setting (60)."
+					},
+					"prefill": {
+						"type": "object",
+						"description": "Optional identity prefill hints: { email, phone, countryCode, taxId, fullName }."
+					},
+					"createdByChannel": {
+						"type": "string",
+						"description": "Caller channel tag: mcp, x402, api, portal, or csv_campaign."
+					}
+				},
+				"required": [
+					"projectId"
+				]
+			}
+		},
+		{
+			"id": "smart_link_session_status",
+			"name": "SmartLink — Poll Session Verdict",
+			"category": "SmartLink Identity Orchestration",
+			"url": "https://ai.verifik.co/api/v3/smart-links/sessions/status",
+			"verifikPath": "/v3/smart-links/sessions/status",
+			"method": "GET",
+			"description": "Poll the live state (CREATED, OPENED, ROUTED, IN_PROGRESS, COMPLETED, EXPIRED, REVOKED) and verified outcome summary of a SmartLink session by sessionId or shortCode.",
+			"country": "Global",
+			"priceUsd": 0.0,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"sessionId": {
+						"type": "string",
+						"description": "SmartLink session ObjectId or 10-character shortCode."
+					}
+				},
+				"required": [
+					"sessionId"
+				]
+			}
 		}
 	]
 }

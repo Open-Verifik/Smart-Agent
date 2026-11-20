@@ -1,0 +1,321 @@
+<div class="sld-page" *transloco="let t">
+    <div class="sld-container">
+        <header class="sld-top-bar">
+            <button type="button" class="sld-btn sld-btn--outline" (click)="goBack()">
+                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                <span>{{ t('smartLinks.actions.backToList') }}</span>
+            </button>
+            <div class="sld-top-actions">
+                <button type="button" class="sld-btn sld-btn--outline" (click)="loadHub()">
+                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+                    <span>{{ t('smartLinks.actions.refresh') }}</span>
+                </button>
+                <button type="button" class="sld-btn sld-btn--primary" (click)="editSetup(0)">
+                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:cog-6-tooth"></mat-icon>
+                    <span>{{ t('smartLinks.detail.configureBtn') }}</span>
+                </button>
+            </div>
+        </header>
+
+        @if (loading()) {
+            <div class="sld-state">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+        } @else if (error()) {
+            <div class="sld-state sld-state--error">
+                <p>{{ error() }}</p>
+            </div>
+        } @else if (project()) {
+            <section class="sld-hero-grid">
+                <div class="sld-card sld-card--url">
+                    <div class="sld-card-header">
+                        <div>
+                            <h1 class="sld-h1">{{ project()!.name }}</h1>
+                            <p class="sld-sub">
+                                {{ t('smartLinks.completionModes.' + (flow()?.completion?.mode || 'receipt')) }} &middot;
+                                {{ flow()?.security?.requireSignedSession ? t('smartLinks.detail.signedOnly') : t('smartLinks.detail.publicSlugOpen') }}
+                            </p>
+                        </div>
+                        <span class="sld-pill">{{ flow()?.status || 'draft' }}</span>
+                    </div>
+
+                    <div class="sld-url-row">
+                        <input type="text" class="sld-input" [value]="publicUrl()" readonly />
+                        <button type="button" class="sld-btn sld-btn--primary" (click)="copyText('publicUrl', publicUrl())">
+                            {{ copiedKey() === 'publicUrl' ? t('smartLinks.actions.copied') : t('smartLinks.actions.copy') }}
+                        </button>
+                    </div>
+
+                    <div class="sld-engines-row">
+                        @if (flow()?.routing?.linkedProjects?.smartEnrollProject) {
+                            <span class="sld-engine-chip">Personal KYC</span>
+                        }
+                        @if (flow()?.routing?.linkedProjects?.smartBusinessProject) {
+                            <span class="sld-engine-chip">Business KYB</span>
+                        }
+                        @if (flow()?.routing?.linkedProjects?.humanAuthnProject) {
+                            <span class="sld-engine-chip">HumanID</span>
+                        }
+                        @if (flow()?.routing?.linkedProjects?.smartAccessProject) {
+                            <span class="sld-engine-chip">SmartAccess</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="sld-card sld-card--qr">
+                    @if (minted()?.qrDataUrl || staticQrDataUrl()) {
+                        <img [src]="minted()?.qrDataUrl || staticQrDataUrl()" alt="QR" class="sld-qr" />
+                    }
+                    <span class="sld-qr-caption">{{ t('smartLinks.detail.qrCaption') }}</span>
+                </div>
+            </section>
+
+            @if (analytics()) {
+                <section class="sld-funnel-grid">
+                    <div class="sld-metric">
+                        <span class="sld-metric-label">{{ t('smartLinks.analytics.created') }}</span>
+                        <strong class="sld-metric-val">{{ analytics()!.created }}</strong>
+                    </div>
+                    <div class="sld-metric">
+                        <span class="sld-metric-label">{{ t('smartLinks.analytics.opened') }}</span>
+                        <strong class="sld-metric-val">{{ analytics()!.opened }}</strong>
+                    </div>
+                    <div class="sld-metric">
+                        <span class="sld-metric-label">{{ t('smartLinks.analytics.routed') }}</span>
+                        <strong class="sld-metric-val">{{ analytics()!.routed }}</strong>
+                    </div>
+                    <div class="sld-metric">
+                        <span class="sld-metric-label">{{ t('smartLinks.analytics.completed') }}</span>
+                        <strong class="sld-metric-val">{{ analytics()!.completed }}</strong>
+                    </div>
+                    <div class="sld-metric">
+                        <span class="sld-metric-label">{{ t('smartLinks.analytics.conversion') }}</span>
+                        <strong class="sld-metric-val">{{ analytics()!.conversionRate }}%</strong>
+                    </div>
+                </section>
+            }
+
+            <nav class="sld-tabs">
+                <button
+                    type="button"
+                    class="sld-tab"
+                    [class.is-active]="activeTab() === 'sessions'"
+                    (click)="activeTab.set('sessions')"
+                >
+                    {{ t('smartLinks.detail.tabs.sessions') }}
+                </button>
+                <button
+                    type="button"
+                    class="sld-tab"
+                    [class.is-active]="activeTab() === 'dispatch'"
+                    (click)="activeTab.set('dispatch')"
+                >
+                    {{ t('smartLinks.detail.tabs.dispatch') }}
+                </button>
+                <button
+                    type="button"
+                    class="sld-tab"
+                    [class.is-active]="activeTab() === 'kit'"
+                    (click)="activeTab.set('kit')"
+                >
+                    {{ t('smartLinks.detail.tabs.kit') }}
+                </button>
+            </nav>
+
+            @if (activeTab() === 'sessions') {
+                <div class="sld-split">
+                    <form class="sld-card" (ngSubmit)="mintSession()">
+                        <h2 class="sld-h2">{{ t('smartLinks.detail.mintTitle') }}</h2>
+                        <div class="sld-form-grid">
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.detail.modeLabel') }}</span>
+                                <select class="sld-input" [(ngModel)]="mintMode" name="mintMode">
+                                    <option value="prompt">prompt</option>
+                                    <option value="personal">personal</option>
+                                    <option value="business">business</option>
+                                    <option value="humanId">humanId</option>
+                                    <option value="access">access</option>
+                                </select>
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.detail.completionLabel') }}</span>
+                                <select class="sld-input" [(ngModel)]="mintCompletion" name="mintCompletion">
+                                    <option value="receipt">receipt</option>
+                                    <option value="redirect">redirect</option>
+                                    <option value="postMessage">postMessage</option>
+                                </select>
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.detail.prefillEmail') }}</span>
+                                <input type="email" class="sld-input" [(ngModel)]="mintEmail" name="mintEmail" placeholder="alex@company.com" />
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.detail.prefillPhone') }}</span>
+                                <input type="text" class="sld-input" [(ngModel)]="mintPhone" name="mintPhone" placeholder="+15550100" />
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.detail.externalRef') }}</span>
+                                <input type="text" class="sld-input" [(ngModel)]="mintExternalRef" name="mintExternalRef" placeholder="order-1042" />
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.detail.ttlMinutes') }}</span>
+                                <input type="number" class="sld-input" [(ngModel)]="mintTtlMinutes" name="mintTtlMinutes" min="5" max="43200" />
+                            </label>
+                        </div>
+
+                        @if (mintError()) {
+                            <p class="sld-error">{{ mintError() }}</p>
+                        }
+
+                        <button type="submit" class="sld-btn sld-btn--primary" [disabled]="mintBusy()">
+                            {{ t('smartLinks.detail.mintBtn') }}
+                        </button>
+
+                        @if (minted()) {
+                            <div class="sld-minted-box">
+                                <label>{{ t('smartLinks.mintModal.signedUrl') }}</label>
+                                <div class="sld-url-row">
+                                    <input type="text" class="sld-input" [value]="minted()!.url" readonly />
+                                    <button type="button" class="sld-btn sld-btn--outline" (click)="copyText('mintedUrl', minted()!.url)">
+                                        {{ copiedKey() === 'mintedUrl' ? t('smartLinks.actions.copied') : t('smartLinks.actions.copy') }}
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </form>
+
+                    <div class="sld-card">
+                        <h2 class="sld-h2">{{ t('smartLinks.detail.recentSessions') }}</h2>
+                        @if (!sessions().length) {
+                            <p class="sld-muted">{{ t('smartLinks.detail.noSessions') }}</p>
+                        } @else {
+                            <div class="sld-table-wrap">
+                                <table class="sld-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ t('smartLinks.detail.colCode') }}</th>
+                                            <th>{{ t('smartLinks.detail.colState') }}</th>
+                                            <th>{{ t('smartLinks.detail.colMode') }}</th>
+                                            <th>{{ t('smartLinks.detail.colChannel') }}</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (s of sessions(); track s._id) {
+                                            <tr>
+                                                <td><code>{{ s.shortCode }}</code></td>
+                                                <td><span class="sld-pill">{{ s.state }}</span></td>
+                                                <td>{{ s.resolvedMode || s.requestedMode }}</td>
+                                                <td>{{ s.createdByChannel || 'api' }}</td>
+                                                <td class="sld-td-right">
+                                                    @if (s.state !== 'COMPLETED' && s.state !== 'REVOKED') {
+                                                        <button type="button" class="sld-link-btn" (click)="revoke(s)">
+                                                            {{ t('smartLinks.actions.revoke') }}
+                                                        </button>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (activeTab() === 'dispatch') {
+                <div class="sld-split">
+                    <div class="sld-card">
+                        <h2 class="sld-h2">{{ t('smartLinks.dispatch.quickTitle') }}</h2>
+                        <div class="sld-form-grid">
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.dispatch.channel') }}</span>
+                                <select class="sld-input" [(ngModel)]="quickChannel">
+                                    <option value="email">Email</option>
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="sms">SMS</option>
+                                </select>
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.dispatch.recipient') }}</span>
+                                <input
+                                    type="text"
+                                    class="sld-input"
+                                    [(ngModel)]="quickRecipient"
+                                    [placeholder]="quickChannel === 'email' ? 'alex@company.com' : '+15550100'"
+                                />
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.dispatch.name') }}</span>
+                                <input type="text" class="sld-input" [(ngModel)]="quickName" placeholder="Alex Rivera" />
+                            </label>
+                            <label class="sld-field">
+                                <span>{{ t('smartLinks.dispatch.campaign') }}</span>
+                                <input type="text" class="sld-input" [(ngModel)]="campaignName" />
+                            </label>
+                        </div>
+
+                        <button type="button" class="sld-btn sld-btn--primary" [disabled]="dispatchBusy()" (click)="sendQuickDispatch()">
+                            {{ t('smartLinks.dispatch.sendBtn') }}
+                        </button>
+                    </div>
+
+                    <div class="sld-card">
+                        <h2 class="sld-h2">{{ t('smartLinks.dispatch.csvTitle') }}</h2>
+                        <p class="sld-muted">{{ t('smartLinks.dispatch.csvHint') }}</p>
+                        <input type="file" accept=".csv,text/csv" class="sld-input" (change)="onCsvFileSelected($event)" />
+                        <textarea
+                            rows="5"
+                            class="sld-input"
+                            [(ngModel)]="csvContent"
+                            placeholder="email,phone,countryCode,name,externalRefId&#10;alex@company.com,,,Alex,usr-1"
+                        ></textarea>
+                        @if (dispatchError()) {
+                            <p class="sld-error">{{ dispatchError() }}</p>
+                        }
+                        @if (dispatchResult()) {
+                            <p class="sld-success">
+                                {{ t('smartLinks.dispatch.batchDone', { sent: dispatchResult()!.sent, total: dispatchResult()!.total }) }}
+                            </p>
+                        }
+                        <button type="button" class="sld-btn sld-btn--primary" [disabled]="dispatchBusy()" (click)="sendCsvCampaign()">
+                            {{ t('smartLinks.dispatch.sendCsvBtn') }}
+                        </button>
+                    </div>
+                </div>
+            }
+
+            @if (activeTab() === 'kit') {
+                <div class="sld-card">
+                    <div class="sld-kit-head">
+                        <div>
+                            <h2 class="sld-h2">{{ t('smartLinks.kit.title') }}</h2>
+                            <p class="sld-muted">{{ t('smartLinks.kit.subtitle') }}</p>
+                        </div>
+                        <button type="button" class="sld-btn sld-btn--primary" (click)="copyText('kit', activeKitText())">
+                            {{ copiedKey() === 'kit' ? t('smartLinks.actions.copied') : t('smartLinks.kit.copyBtn') }}
+                        </button>
+                    </div>
+
+                    <div class="sld-tabs">
+                        <button type="button" class="sld-tab" [class.is-active]="kitTab() === 'prompt'" (click)="kitTab.set('prompt')">
+                            {{ t('smartLinks.kit.tabPrompt') }}
+                        </button>
+                        <button type="button" class="sld-tab" [class.is-active]="kitTab() === 'mcp'" (click)="kitTab.set('mcp')">
+                            {{ t('smartLinks.kit.tabMcp') }}
+                        </button>
+                        <button type="button" class="sld-tab" [class.is-active]="kitTab() === 'embed'" (click)="kitTab.set('embed')">
+                            {{ t('smartLinks.kit.tabEmbed') }}
+                        </button>
+                        <button type="button" class="sld-tab" [class.is-active]="kitTab() === 'curl'" (click)="kitTab.set('curl')">
+                            {{ t('smartLinks.kit.tabCurl') }}
+                        </button>
+                    </div>
+
+                    <pre class="sld-code">{{ activeKitText() }}</pre>
+                </div>
+            }
+        }
+    </div>
+</div>

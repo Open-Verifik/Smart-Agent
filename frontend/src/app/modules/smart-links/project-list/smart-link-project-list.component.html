@@ -1,0 +1,182 @@
+<div class="sl-list-page" *transloco="let t">
+    <div class="sl-list-container">
+        <header class="sl-hero">
+            <div class="sl-hero-copy">
+                <div class="sl-eyebrow">
+                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:link"></mat-icon>
+                    <span>{{ t('smartLinks.badge') }}</span>
+                </div>
+                <h1 class="sl-h1">{{ t('smartLinks.list.title') }}</h1>
+                <p class="sl-lead">{{ t('smartLinks.list.subtitle') }}</p>
+            </div>
+            <div class="sl-hero-actions">
+                <button type="button" class="sl-btn sl-btn--primary" (click)="createNew()">
+                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:plus"></mat-icon>
+                    <span>{{ t('smartLinks.list.createCta') }}</span>
+                </button>
+            </div>
+        </header>
+
+        <section class="sl-toolbar">
+            <div class="sl-search-wrap">
+                <mat-icon class="sl-search-icon icon-size-4" svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                <input
+                    type="text"
+                    class="sl-input sl-search-input"
+                    [ngModel]="searchTerm()"
+                    (ngModelChange)="searchTerm.set($event)"
+                    [placeholder]="t('smartLinks.list.searchPlaceholder')"
+                />
+            </div>
+
+            @if (!isAuthenticated()) {
+                <button type="button" class="sl-btn sl-btn--outline" (click)="promptSignIn()">
+                    {{ t('smartLinks.list.signInCta') }}
+                </button>
+            } @else {
+                <button type="button" class="sl-btn sl-btn--outline" (click)="loadProjects()">
+                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-path"></mat-icon>
+                    <span>{{ t('smartLinks.actions.refresh') }}</span>
+                </button>
+            }
+        </section>
+
+        @if (loading()) {
+            <div class="sl-state-card">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>{{ t('smartLinks.list.loading') }}</p>
+            </div>
+        } @else if (error()) {
+            <div class="sl-state-card sl-state-card--error">
+                <p>{{ error() }}</p>
+                <button type="button" class="sl-btn sl-btn--outline" (click)="loadProjects()">
+                    {{ t('smartLinks.actions.retry') }}
+                </button>
+            </div>
+        } @else if (!filteredProjects().length) {
+            <div class="sl-empty-card">
+                <div class="sl-empty-icon">
+                    <mat-icon class="icon-size-8" svgIcon="heroicons_outline:sparkles"></mat-icon>
+                </div>
+                <h2>{{ t('smartLinks.list.emptyTitle') }}</h2>
+                <p>{{ t('smartLinks.list.emptySubtitle') }}</p>
+                <div class="sl-empty-actions">
+                    <button type="button" class="sl-btn sl-btn--primary" (click)="createNew()">
+                        {{ t('smartLinks.list.createCta') }}
+                    </button>
+                    @if (!isAuthenticated()) {
+                        <button type="button" class="sl-btn sl-btn--outline" (click)="promptSignIn()">
+                            {{ t('smartLinks.list.signInCta') }}
+                        </button>
+                    }
+                </div>
+            </div>
+        } @else {
+            <div class="sl-grid">
+                @for (project of filteredProjects(); track project._id) {
+                    @let flow = flowOf(project);
+                    <article class="sl-card">
+                        <div class="sl-card-top">
+                            <div>
+                                <div class="sl-card-title-row">
+                                    <h2 class="sl-card-title">{{ project.name }}</h2>
+                                    <span
+                                        class="sl-status-pill"
+                                        [class.is-active]="flow?.status === 'active'"
+                                        [class.is-paused]="flow?.status === 'paused'"
+                                    >
+                                        {{ flow?.status || 'draft' }}
+                                    </span>
+                                </div>
+                                <p class="sl-card-url">
+                                    <code>{{ publicUrl(project) }}</code>
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                class="sl-icon-btn"
+                                (click)="copyPublicUrl(project)"
+                                [title]="t('smartLinks.actions.copyUrl')"
+                            >
+                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:clipboard-document"></mat-icon>
+                                <span>
+                                    {{
+                                        copiedProjectId() === project._id
+                                            ? t('smartLinks.actions.copied')
+                                            : t('smartLinks.actions.copy')
+                                    }}
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="sl-chip-row">
+                            @for (mode of flow?.routing?.supportedModes || []; track mode) {
+                                <span class="sl-chip">{{ t('smartLinks.modes.' + mode + '.label') }}</span>
+                            }
+                            <span class="sl-chip sl-chip--handoff">
+                                {{ t('smartLinks.completionModes.' + (flow?.completion?.mode || 'receipt')) }}
+                            </span>
+                        </div>
+
+                        <div class="sl-card-actions">
+                            <button type="button" class="sl-btn sl-btn--outline" (click)="mintTestLink(project)">
+                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:qr-code"></mat-icon>
+                                <span>{{ t('smartLinks.list.mintTest') }}</span>
+                            </button>
+                            <button type="button" class="sl-btn sl-btn--outline" (click)="openSetup(project)">
+                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:cog-6-tooth"></mat-icon>
+                                <span>{{ t('smartLinks.list.setup') }}</span>
+                            </button>
+                            <button type="button" class="sl-btn sl-btn--primary" (click)="openDetail(project)">
+                                <span>{{ t('smartLinks.list.openHub') }}</span>
+                            </button>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+
+    @if (mintModalOpen()) {
+        <div class="sl-modal-backdrop" (click)="closeMintModal()">
+            <div class="sl-modal" (click)="$event.stopPropagation()">
+                <div class="sl-modal-header">
+                    <h3>{{ t('smartLinks.mintModal.title') }} — {{ mintTargetProject()?.name }}</h3>
+                    <button type="button" class="sl-close-btn" (click)="closeMintModal()">&times;</button>
+                </div>
+
+                @if (mintLoading()) {
+                    <div class="sl-state-card">
+                        <mat-spinner diameter="28"></mat-spinner>
+                        <p>{{ t('smartLinks.mintModal.minting') }}</p>
+                    </div>
+                } @else if (mintError()) {
+                    <div class="sl-state-card sl-state-card--error">
+                        <p>{{ mintError() }}</p>
+                    </div>
+                } @else if (mintedSession()) {
+                    <div class="sl-modal-body">
+                        @if (mintedSession()!.qrDataUrl || staticQrDataUrl()) {
+                            <img
+                                [src]="mintedSession()!.qrDataUrl || staticQrDataUrl()"
+                                alt="SmartLink QR"
+                                class="sl-qr-img"
+                            />
+                        }
+                        <label class="sl-modal-label">{{ t('smartLinks.mintModal.signedUrl') }}</label>
+                        <div class="sl-copy-row">
+                            <input type="text" class="sl-input" [value]="mintedSession()!.url" readonly />
+                            <button type="button" class="sl-btn sl-btn--primary" (click)="copyValue(mintedSession()!.url)">
+                                {{ t('smartLinks.actions.copy') }}
+                            </button>
+                        </div>
+                        <p class="sl-modal-meta">
+                            <span>{{ t('smartLinks.mintModal.shortCode') }}:</span>
+                            <code>{{ mintedSession()!.shortCode }}</code>
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,112 @@
+<div class="sllp-shell" *transloco="let t">
+    <div class="sllp-toolbar">
+        <div class="sllp-tabs">
+            <button
+                type="button"
+                class="sllp-tab"
+                [class.is-active]="previewScreen === 'mode'"
+                (click)="previewScreen = 'mode'"
+            >
+                {{ t('smartLinks.preview.screenMode') }}
+            </button>
+            <button
+                type="button"
+                class="sllp-tab"
+                [class.is-active]="previewScreen === 'lookup'"
+                (click)="previewScreen = 'lookup'"
+            >
+                {{ t('smartLinks.preview.screenLookup') }}
+            </button>
+            <button
+                type="button"
+                class="sllp-tab"
+                [class.is-active]="previewScreen === 'receipt'"
+                (click)="previewScreen = 'receipt'"
+            >
+                {{ t('smartLinks.preview.screenReceipt') }}
+            </button>
+        </div>
+
+        <div class="sllp-devices">
+            <button
+                type="button"
+                class="sllp-device"
+                [class.is-active]="deviceType === 'desktop'"
+                (click)="deviceType = 'desktop'"
+                [attr.aria-label]="t('smartLinks.preview.desktop')"
+            >
+                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:computer-desktop"></mat-icon>
+            </button>
+            <button
+                type="button"
+                class="sllp-device"
+                [class.is-active]="deviceType === 'mobile'"
+                (click)="deviceType = 'mobile'"
+                [attr.aria-label]="t('smartLinks.preview.mobile')"
+            >
+                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:device-phone-mobile"></mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="sllp-url-bar">
+        <span class="sllp-url-dot"></span>
+        <span class="sllp-url-text">https://access.verifik.co/l/{{ slug || 'your-slug' }}</span>
+        <span class="sllp-style-pill">Style {{ styleId.toUpperCase() }}</span>
+    </div>
+
+    <div class="sllp-stage" [ngStyle]="styleVars" [attr.data-style]="styleId">
+        <div class="sllp-frame" [class.is-mobile]="deviceType === 'mobile'">
+            <div class="sllp-card">
+                <div class="sllp-brand">
+                    @if (branding?.logo) {
+                        <img [src]="branding?.logo" [alt]="projectName || 'Logo'" class="sllp-logo" />
+                    }
+                    <span class="sllp-brand-name">{{ projectName || 'Verification Hub' }}</span>
+                </div>
+
+                @if (previewScreen === 'mode') {
+                    <h3 class="sllp-title">{{ t('smartLinks.preview.chooseTitle') }}</h3>
+                    <p class="sllp-subtitle">{{ t('smartLinks.preview.chooseSubtitle') }}</p>
+
+                    <div class="sllp-modes">
+                        @for (mode of effectiveModes; track mode) {
+                            <button type="button" class="sllp-mode-btn" (click)="selectPreviewMode(mode)">
+                                <span class="sllp-mode-title">{{ t('smartLinks.modes.' + mode + '.label') }}</span>
+                                <span class="sllp-mode-sub">{{ t('smartLinks.modes.' + mode + '.hint') }}</span>
+                            </button>
+                        }
+                    </div>
+                }
+
+                @if (previewScreen === 'lookup') {
+                    <h3 class="sllp-title">
+                        {{ previewMode === 'business' ? t('smartLinks.preview.lookupBizTitle') : t('smartLinks.preview.lookupPersonalTitle') }}
+                    </h3>
+                    <p class="sllp-subtitle">{{ t('smartLinks.preview.lookupSubtitle') }}</p>
+                    <div class="sllp-fake-input">
+                        {{ previewMode === 'business' ? '900123456-7' : 'alex@company.com' }}
+                    </div>
+                    <button type="button" class="sllp-cta" (click)="previewScreen = 'receipt'">
+                        {{ t('smartLinks.preview.continueBtn') }}
+                    </button>
+                }
+
+                @if (previewScreen === 'receipt') {
+                    <div class="sllp-check">✓</div>
+                    <h3 class="sllp-title">{{ t('smartLinks.preview.receiptTitle') }}</h3>
+                    <p class="sllp-subtitle">
+                        {{ receiptMessage || t('smartLinks.preview.receiptSubtitle') }}
+                    </p>
+                    <div class="sllp-code-box">
+                        <span>VFK-AB12CD</span>
+                        <span class="sllp-handoff-tag">{{ completionMode }}</span>
+                    </div>
+                    <button type="button" class="sllp-cta" (click)="previewScreen = 'mode'">
+                        {{ t('smartLinks.preview.resetBtn') }}
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,318 @@
+<div class="sls-page" *transloco="let t">
+    <div class="sls-topbar">
+        <div class="sls-topbar-left">
+            <button type="button" class="sls-btn sls-btn--outline" (click)="goBack()">
+                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                <span>{{ t('smartLinks.actions.back') }}</span>
+            </button>
+            <div>
+                <h1 class="sls-h1">
+                    {{ projectId() ? (draft.name || t('smartLinks.setup.editTitle')) : t('smartLinks.setup.newTitle') }}
+                </h1>
+                <p class="sls-sub">{{ t('smartLinks.setup.subtitle') }}</p>
+            </div>
+        </div>
+        <button type="button" class="sls-btn sls-btn--primary" [disabled]="saving()" (click)="saveProject()">
+            <span>{{ saving() ? t('smartLinks.setup.saving') : t('smartLinks.setup.saveBtn') }}</span>
+        </button>
+    </div>
+
+    <nav class="sls-stepper">
+        @for (s of steps; track s) {
+            <button
+                type="button"
+                class="sls-step-pill"
+                [class.is-active]="activeStep() === s"
+                (click)="goToStep(s)"
+            >
+                <span class="sls-step-num">{{ s + 1 }}</span>
+                <span>{{ t('smartLinks.setup.steps.s' + s) }}</span>
+            </button>
+        }
+    </nav>
+
+    @if (saveError()) {
+        <div class="sls-alert">{{ saveError() }}</div>
+    }
+
+    @if (loading()) {
+        <div class="sls-loader">
+            <mat-spinner diameter="32"></mat-spinner>
+        </div>
+    } @else {
+        <div class="sls-workspace">
+            <div class="sls-form-col">
+                @if (activeStep() === 0) {
+                    <section class="sls-card">
+                        <h2 class="sls-h2">{{ t('smartLinks.setup.step0.title') }}</h2>
+                        <div class="sls-grid-2">
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step0.nameLabel') }}</span>
+                                <input
+                                    type="text"
+                                    class="sls-input"
+                                    [(ngModel)]="draft.name"
+                                    [placeholder]="t('smartLinks.setup.step0.namePlaceholder')"
+                                />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step0.slugLabel') }}</span>
+                                <div class="sls-slug-wrap">
+                                    <input
+                                        type="text"
+                                        class="sls-input"
+                                        [(ngModel)]="currentFlow.slug"
+                                        placeholder="acme-verify"
+                                    />
+                                    <button type="button" class="sls-btn sls-btn--outline" (click)="suggestSlugFromName()">
+                                        {{ t('smartLinks.setup.step0.autoSlug') }}
+                                    </button>
+                                </div>
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step0.contactEmail') }}</span>
+                                <input type="email" class="sls-input" [(ngModel)]="draft.contactEmail" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step0.defaultLanguage') }}</span>
+                                <select class="sls-input" [(ngModel)]="draft.defaultLanguage">
+                                    <option value="en">English (en)</option>
+                                    <option value="es">Español (es)</option>
+                                    <option value="pt">Português (pt)</option>
+                                    <option value="fr">Français (fr)</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="sls-section">
+                            <span class="sls-section-label">{{ t('smartLinks.setup.step0.modesLabel') }}</span>
+                            <div class="sls-check-grid">
+                                @for (mode of modeOptions; track mode) {
+                                    <button
+                                        type="button"
+                                        class="sls-option-card"
+                                        [class.is-selected]="isModeEnabled(mode)"
+                                        (click)="toggleMode(mode)"
+                                    >
+                                        <strong>{{ t('smartLinks.modes.' + mode + '.label') }}</strong>
+                                        <span>{{ t('smartLinks.modes.' + mode + '.hint') }}</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="sls-grid-2">
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step0.defaultModeLabel') }}</span>
+                                <select class="sls-input" [(ngModel)]="currentFlow.routing.defaultMode">
+                                    <option value="prompt">{{ t('smartLinks.setup.step0.promptMode') }}</option>
+                                    @for (mode of modeOptions; track mode) {
+                                        <option [value]="mode">{{ t('smartLinks.modes.' + mode + '.label') }}</option>
+                                    }
+                                </select>
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step0.completionLabel') }}</span>
+                                <select class="sls-input" [(ngModel)]="currentFlow.completion.mode">
+                                    @for (cm of completionOptions; track cm) {
+                                        <option [value]="cm">{{ t('smartLinks.completionModes.' + cm) }}</option>
+                                    }
+                                </select>
+                            </label>
+                        </div>
+                    </section>
+                }
+
+                @if (activeStep() === 1) {
+                    <section class="sls-card">
+                        <h2 class="sls-h2">{{ t('smartLinks.setup.step1.title') }}</h2>
+                        <p class="sls-muted">{{ t('smartLinks.setup.step1.subtitle') }}</p>
+
+                        <div class="sls-engine-group">
+                            <label class="sls-field">
+                                <span>SmartEnroll (Personal KYC)</span>
+                                <select class="sls-input" [(ngModel)]="currentFlow.routing.linkedProjects.smartEnrollProject">
+                                    <option [ngValue]="null">{{ t('smartLinks.setup.step1.none') }}</option>
+                                    @for (opt of engines().smartEnroll; track opt._id) {
+                                        <option [ngValue]="opt._id">{{ opt.name }}</option>
+                                    }
+                                </select>
+                            </label>
+
+                            <label class="sls-field">
+                                <span>SmartBusiness (Company KYB)</span>
+                                <select class="sls-input" [(ngModel)]="currentFlow.routing.linkedProjects.smartBusinessProject">
+                                    <option [ngValue]="null">{{ t('smartLinks.setup.step1.none') }}</option>
+                                    @for (opt of engines().smartBusiness; track opt._id) {
+                                        <option [ngValue]="opt._id">{{ opt.name }}</option>
+                                    }
+                                </select>
+                            </label>
+
+                            <label class="sls-field">
+                                <span>HumanAuthn (Proof-of-Human ID)</span>
+                                <select class="sls-input" [(ngModel)]="currentFlow.routing.linkedProjects.humanAuthnProject">
+                                    <option [ngValue]="null">{{ t('smartLinks.setup.step1.none') }}</option>
+                                    @for (opt of engines().humanAuthn; track opt._id) {
+                                        <option [ngValue]="opt._id">{{ opt.name }}</option>
+                                    }
+                                </select>
+                            </label>
+
+                            <label class="sls-field">
+                                <span>SmartAccess (Returning Sign-In)</span>
+                                <select class="sls-input" [(ngModel)]="currentFlow.routing.linkedProjects.smartAccessProject">
+                                    <option [ngValue]="null">{{ t('smartLinks.setup.step1.none') }}</option>
+                                    @for (opt of engines().smartAccess; track opt._id) {
+                                        <option [ngValue]="opt._id">{{ opt.name }}</option>
+                                    }
+                                </select>
+                            </label>
+                        </div>
+                    </section>
+                }
+
+                @if (activeStep() === 2) {
+                    <section class="sls-card">
+                        <h2 class="sls-h2">{{ t('smartLinks.setup.step2.title') }}</h2>
+
+                        <label class="sls-toggle">
+                            <input type="checkbox" [(ngModel)]="currentFlow.routing.autoDetectExisting" />
+                            <span>{{ t('smartLinks.setup.step2.autoDetect') }}</span>
+                        </label>
+                        <label class="sls-toggle">
+                            <input type="checkbox" [(ngModel)]="currentFlow.routing.stepUpPolicy.enabled" />
+                            <span>{{ t('smartLinks.setup.step2.stepUpEnabled') }}</span>
+                        </label>
+                        <label class="sls-toggle">
+                            <input type="checkbox" [(ngModel)]="currentFlow.security.requireSignedSession" />
+                            <span>{{ t('smartLinks.setup.step2.requireSigned') }}</span>
+                        </label>
+
+                        <div class="sls-grid-2">
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step2.reverifyFaceDays') }}</span>
+                                <input type="number" class="sls-input" [(ngModel)]="currentFlow.routing.stepUpPolicy.reverifyFaceAfterDays" min="1" max="3650" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step2.kybRecertifyDays') }}</span>
+                                <input type="number" class="sls-input" [(ngModel)]="currentFlow.routing.stepUpPolicy.kybRecertifyAfterDays" min="30" max="3650" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step2.ttlMinutes') }}</span>
+                                <input type="number" class="sls-input" [(ngModel)]="currentFlow.security.defaultTokenTtlMinutes" min="5" max="43200" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step2.maxUses') }}</span>
+                                <input type="number" class="sls-input" [(ngModel)]="currentFlow.security.defaultMaxUses" min="0" max="1000" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step2.allowedCountries') }}</span>
+                                <input type="text" class="sls-input" [(ngModel)]="allowedCountriesText" placeholder="All" />
+                            </label>
+                        </div>
+                    </section>
+                }
+
+                @if (activeStep() === 3) {
+                    <section class="sls-card">
+                        <h2 class="sls-h2">{{ t('smartLinks.setup.step3.title') }}</h2>
+                        <div class="sls-grid-2">
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step3.redirectUrl') }}</span>
+                                <input type="url" class="sls-input" [(ngModel)]="currentFlow.completion.redirectUrl" placeholder="https://app.company.com/verified" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step3.postMessageOrigins') }}</span>
+                                <input type="text" class="sls-input" [(ngModel)]="postMessageOriginsText" placeholder="https://app.company.com" />
+                            </label>
+                        </div>
+                        <label class="sls-field">
+                            <span>{{ t('smartLinks.setup.step3.receiptMessage') }}</span>
+                            <textarea rows="2" class="sls-input" [(ngModel)]="currentFlow.completion.receiptMessage"></textarea>
+                        </label>
+                        <label class="sls-toggle">
+                            <input type="checkbox" [(ngModel)]="currentFlow.completion.allowPdfDownload" />
+                            <span>{{ t('smartLinks.setup.step3.allowPdf') }}</span>
+                        </label>
+
+                        <div class="sls-kit-box">
+                            <div class="sls-kit-top">
+                                <strong>{{ t('smartLinks.kit.title') }}</strong>
+                                <button type="button" class="sls-btn sls-btn--outline" (click)="copyAiPrompt()">
+                                    {{ copiedKit() ? t('smartLinks.actions.copied') : t('smartLinks.kit.copyBtn') }}
+                                </button>
+                            </div>
+                            <pre class="sls-pre">{{ aiPromptPreview() }}</pre>
+                        </div>
+                    </section>
+                }
+
+                @if (activeStep() === 4) {
+                    <section class="sls-card">
+                        <h2 class="sls-h2">{{ t('smartLinks.setup.step4.title') }}</h2>
+                        <div class="sls-style-grid">
+                            @for (st of styleOptions; track st) {
+                                <button
+                                    type="button"
+                                    class="sls-style-card"
+                                    [class.is-selected]="currentFlow.onboardingSettings.verifyStyle === st"
+                                    (click)="selectStyle(st)"
+                                >
+                                    <span class="sls-style-badge">Style {{ st.toUpperCase() }}</span>
+                                    <span class="sls-style-name">{{ t('smartLinks.setup.step4.styles.' + st) }}</span>
+                                </button>
+                            }
+                        </div>
+
+                        <div class="sls-grid-2">
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step4.logoUrl') }}</span>
+                                <input type="url" class="sls-input" [(ngModel)]="draft.branding.logo" placeholder="https://cdn.company.com/logo.svg" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step4.buttonColor') }}</span>
+                                <input type="text" class="sls-input" [(ngModel)]="draft.branding.buttonColor" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step4.buttonTextColor') }}</span>
+                                <input type="text" class="sls-input" [(ngModel)]="draft.branding.buttonTextColor" />
+                            </label>
+                            <label class="sls-field">
+                                <span>{{ t('smartLinks.setup.step4.backgroundColor') }}</span>
+                                <input type="text" class="sls-input" [(ngModel)]="draft.branding.backgroundColor" />
+                            </label>
+                        </div>
+                    </section>
+                }
+
+                <div class="sls-nav-footer">
+                    <button type="button" class="sls-btn sls-btn--outline" [disabled]="activeStep() === 0" (click)="goToStep(activeStep() - 1)">
+                        {{ t('smartLinks.actions.prev') }}
+                    </button>
+                    @if (activeStep() < 4) {
+                        <button type="button" class="sls-btn sls-btn--primary" (click)="goToStep(activeStep() + 1)">
+                            {{ t('smartLinks.actions.next') }}
+                        </button>
+                    } @else {
+                        <button type="button" class="sls-btn sls-btn--primary" [disabled]="saving()" (click)="saveProject()">
+                            {{ saving() ? t('smartLinks.setup.saving') : t('smartLinks.setup.saveBtn') }}
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <aside class="sls-preview-col">
+                <smart-link-live-preview
+                    [projectName]="draft.name"
+                    [branding]="draft.branding"
+                    [verifyStyle]="currentFlow.onboardingSettings.verifyStyle"
+                    [supportedModes]="currentFlow.routing.supportedModes"
+                    [completionMode]="currentFlow.completion.mode"
+                    [receiptMessage]="currentFlow.completion.receiptMessage"
+                    [slug]="currentFlow.slug || ''"
+                ></smart-link-live-preview>
+            </aside>
+        </div>
+    }
+</div>
