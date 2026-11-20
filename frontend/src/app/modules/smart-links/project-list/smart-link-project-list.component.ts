@@ -75,6 +75,8 @@ export class SmartLinkProjectListComponent implements OnInit {
     mintTargetProject = signal<SmartLinkProject | null>(null);
     mintedSession = signal<MintedSmartLinkSession | null>(null);
     staticQrDataUrl = signal<string>('');
+    mintRequireDocument = false;
+    mintEmail = '';
 
     filteredProjects = computed(() => {
         const q = this.searchTerm().trim().toLowerCase();
@@ -224,9 +226,8 @@ export class SmartLinkProjectListComponent implements OnInit {
         if (!project._id) return;
         this.mintTargetProject.set(project);
         this.mintModalOpen.set(true);
-        this.mintLoading.set(true);
-        this.mintError.set(null);
-        this.mintedSession.set(null);
+        this.mintRequireDocument = false;
+        this.mintEmail = '';
         this.staticQrDataUrl.set('');
         this._cdr.detectChanges();
 
@@ -243,9 +244,21 @@ export class SmartLinkProjectListComponent implements OnInit {
             });
         }
 
+        this.regenerateTestLink();
+    }
+
+    regenerateTestLink(): void {
+        const project = this.mintTargetProject();
+        if (!project?._id) return;
+        this.mintLoading.set(true);
+        this.mintError.set(null);
+        this.mintedSession.set(null);
+        this._cdr.markForCheck();
+
         this._service
             .createSession(project._id, {
-                requestedMode: this.flowOf(project)?.routing?.defaultMode || 'prompt',
+                email: this.mintEmail.trim() || undefined,
+                requireDocument: Boolean(this.mintRequireDocument),
                 createdByChannel: 'portal',
                 externalRefId: `test-${Date.now()}`,
             })
@@ -256,7 +269,7 @@ export class SmartLinkProjectListComponent implements OnInit {
                     this._cdr.markForCheck();
                 },
                 error: (err) => {
-                    this.mintError.set(err?.error?.message || 'Unable to mint session');
+                    this.mintError.set(err?.error?.message || 'Unable to generate link');
                     this.mintLoading.set(false);
                     this._cdr.markForCheck();
                 },

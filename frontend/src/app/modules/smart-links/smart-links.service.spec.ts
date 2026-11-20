@@ -102,14 +102,16 @@ describe('SmartLinksService', () => {
         const curl = service.buildCurlSnippet(draft);
 
         expect(prompt).toContain('/v3/smart-links/proj_xyz_123/sessions');
-        expect(prompt).toContain('/l/agent-onboard');
+        expect(prompt).toContain('requireDocument');
         expect(mcp).toContain('"smart_link_create_session"');
+        expect(mcp).toContain('"requireDocument": false');
         expect(mcp).toContain('proj_xyz_123');
         expect(embed).toContain('verifik:smartlink:completed');
         expect(curl).toContain('/v3/smart-links/sessions/exchange');
+        expect(curl).toContain('"requireDocument":false');
     });
 
-    it('calls /v3/smart-links/:id/sessions when minting a session', () => {
+    it('calls /v3/smart-links/:id/sessions with email and per-link requireDocument when minting a session', () => {
         const { service, httpMock } = createService();
         httpMock.post.mockReturnValue(
             of({
@@ -121,19 +123,32 @@ describe('SmartLinksService', () => {
                     expiresAt: '2026-12-01T00:00:00Z',
                     state: 'CREATED',
                     requestedMode: 'personal',
+                    requireDocument: true,
                     completionMode: 'receipt',
                 },
             })
         );
 
         let shortCode = '';
-        service.createSession('proj_1', { requestedMode: 'personal' }).subscribe((res) => {
-            shortCode = res.shortCode;
-        });
+        let requireDocument = false;
+        service
+            .createSession('proj_1', {
+                email: 'john.doe@example.com',
+                requireDocument: true,
+            })
+            .subscribe((res) => {
+                shortCode = res.shortCode;
+                requireDocument = Boolean(res.requireDocument);
+            });
 
         expect(httpMock.post).toHaveBeenCalledTimes(1);
         expect(httpMock.post.mock.calls[0][0]).toMatch(/\/v3\/smart-links\/proj_1\/sessions$/);
+        expect(httpMock.post.mock.calls[0][1]).toMatchObject({
+            email: 'john.doe@example.com',
+            requireDocument: true,
+        });
         expect(shortCode).toBe('AbC1234567');
+        expect(requireDocument).toBe(true);
     });
 
     it('fetches active webhooks via GET /v2/webhooks with fail-soft fallback', () => {

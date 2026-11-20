@@ -12708,8 +12708,8 @@
           "Global"
         ],
         "operationId": "smart_link_create_session",
-        "summary": "SmartLink — Create Signed Verification Session",
-        "description": "Mint a single-use or multi-use signed SmartLink verification URL and QR code that routes any human or company through Personal KYC, Business KYB, HumanID Proof-of-Human, or Recurring SmartAccess login with optional Return-to-Chat receipt, redirect, or postMessage handoff.",
+        "summary": "SmartLink: Create Signed Verification Link",
+        "description": "Generate a signed SmartLink verification URL and QR code for a human or AI agent. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on a specific link to require an ID document scan alongside Face Liveness. On completion, exchange or poll the session to obtain a signed JWT identity proof token.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -12746,15 +12746,31 @@
                 "properties": {
                   "projectId": {
                     "type": "string",
-                    "description": "SmartLink project ID to mint the verification link from."
+                    "description": "SmartLink project ID to generate the verification link from."
                   },
-                  "requestedMode": {
+                  "email": {
                     "type": "string",
-                    "description": "Verification route mode: personal, business, humanId, access, or prompt."
+                    "description": "Optional user email address. When set, the user skips the identifier screen and routes directly to Face Liveness (if registered) or Document + Face."
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Optional user phone number. When set, the user skips the identifier screen."
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "description": "Optional phone country calling code (e.g. +1, +57)."
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "description": "Optional expected user full name hint."
+                  },
+                  "requireDocument": {
+                    "type": "boolean",
+                    "description": "Per-link override (default false). When true, requires an ID document scan in addition to Face Liveness even if the user already has a registered account."
                   },
                   "completionMode": {
                     "type": "string",
-                    "description": "Handoff mode upon completion: redirect, receipt, or postMessage."
+                    "description": "Handoff mode upon completion: receipt, redirect, or postMessage."
                   },
                   "externalRefId": {
                     "type": "string",
@@ -12766,11 +12782,7 @@
                   },
                   "expiresInMinutes": {
                     "type": "number",
-                    "description": "Session TTL in minutes (5 to 43200). Defaults to project setting (60)."
-                  },
-                  "prefill": {
-                    "type": "object",
-                    "description": "Optional identity prefill hints: { email, phone, countryCode, taxId, fullName }."
+                    "description": "Link TTL in minutes (5 to 43200). Defaults to project setting (60)."
                   },
                   "createdByChannel": {
                     "type": "string",
@@ -12795,8 +12807,8 @@
           "Global"
         ],
         "operationId": "smart_link_session_status",
-        "summary": "SmartLink — Poll Session Verdict",
-        "description": "Poll the live state (CREATED, OPENED, ROUTED, IN_PROGRESS, COMPLETED, EXPIRED, REVOKED) and verified outcome summary of a SmartLink session by sessionId or shortCode.",
+        "summary": "SmartLink: Poll Session Status & Identity Proof",
+        "description": "Poll the live state (CREATED, OPENED, ROUTED, IN_PROGRESS, COMPLETED, EXPIRED, REVOKED) of a SmartLink session by sessionId or shortCode. Once COMPLETED, returns verified: true, hydrated identity ({ fullName, email, phone, documentType, documentNumber }), and a signed JWT proof token proving who completed the check.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",

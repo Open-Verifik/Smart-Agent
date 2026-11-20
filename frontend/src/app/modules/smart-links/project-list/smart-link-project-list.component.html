@@ -203,23 +203,18 @@
                             <!-- Step shortcut rows matching SmartAccess -->
                             <div class="rows" (click)="$event.stopPropagation()">
                                 <button type="button" class="row" (click)="openSetup(project, 1, $event)">
-                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:cpu-chip"></mat-icon>
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:finger-print"></mat-icon>
                                     <span class="row-label">{{ t('smartLinks.setup.steps.s1') }}</span>
                                     <span class="row-chev" aria-hidden="true">›</span>
                                 </button>
                                 <button type="button" class="row" (click)="openSetup(project, 2, $event)">
-                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:shield-check"></mat-icon>
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:code-bracket"></mat-icon>
                                     <span class="row-label">{{ t('smartLinks.setup.steps.s2') }}</span>
                                     <span class="row-chev" aria-hidden="true">›</span>
                                 </button>
-                                <button type="button" class="row" (click)="openSetup(project, 3, $event)">
-                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:code-bracket"></mat-icon>
-                                    <span class="row-label">{{ t('smartLinks.setup.steps.s3') }}</span>
-                                    <span class="row-chev" aria-hidden="true">›</span>
-                                </button>
-                                <button type="button" class="row row-last" (click)="openSetup(project, 4, $event)">
+                                <button type="button" class="row row-last" (click)="openSetup(project, 3, $event)">
                                     <mat-icon class="row-ic" svgIcon="heroicons_outline:paint-brush"></mat-icon>
-                                    <span class="row-label">{{ t('smartLinks.setup.steps.s4') }} · {{ styleLabel(flow) }}</span>
+                                    <span class="row-label">{{ t('smartLinks.setup.steps.s3') }} · {{ styleLabel(flow) }}</span>
                                     <span class="row-chev" aria-hidden="true">›</span>
                                 </button>
                             </div>
@@ -270,6 +265,23 @@
                     <button mat-icon-button type="button" (click)="closeMintModal()" [attr.aria-label]="t('close')">
                         <mat-icon>close</mat-icon>
                     </button>
+                </div>
+
+                <div class="mb-4 flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-2.5 dark:border-gray-800 dark:bg-gray-900">
+                    <div class="min-w-0">
+                        <p class="m-0 text-xs font-semibold text-stone-900 dark:text-white">
+                            {{ t('smartLinks.detail.requireDocumentLabel') }}
+                        </p>
+                        <p class="m-0 text-[11px] text-stone-500 dark:text-stone-400">
+                            {{ t('smartLinks.mintModal.requireDocHint') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle
+                        color="primary"
+                        [(ngModel)]="mintRequireDocument"
+                        [disabled]="mintLoading()"
+                        (change)="regenerateTestLink()"
+                    ></mat-slide-toggle>
                 </div>
 
                 @if (mintLoading()) {

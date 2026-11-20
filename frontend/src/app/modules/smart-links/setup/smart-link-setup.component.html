@@ -68,7 +68,7 @@
                 </div>
 
                 @if (form) {
-                    <!-- Stepper bar aligned with SmartEnroll & SmartAccess -->
+                    <!-- 4-step progress bar matching SmartAccess -->
                     <nav aria-label="Progress" class="flex w-full flex-wrap items-center justify-between gap-3">
                         <div class="flex flex-1 items-center gap-1 overflow-x-auto">
                             @for (titleKey of stepTitles(); track titleKey; let i = $index) {
@@ -159,12 +159,12 @@
                                     ></setup-basic-setup>
                                 }
 
-                                <!-- STEP 1: Modes & Linked Verification Engines -->
+                                <!-- STEP 1: Identity Lookup & Linked Verification Flows -->
                                 @case (1) {
                                     <div class="integrations-journey" formGroupName="projectFlow">
                                         <div class="integrations-intro">
                                             <div class="integrations-intro__icon">
-                                                <mat-icon>hub</mat-icon>
+                                                <mat-icon>fingerprint</mat-icon>
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <div class="flex flex-wrap items-center justify-between gap-2">
@@ -175,7 +175,7 @@
                                         </div>
 
                                         <ol class="integrations-timeline">
-                                            <!-- Stage 1: Handle & Modes -->
+                                            <!-- Stage 1: Public URL & Accepted Identifiers (Email / Phone) -->
                                             <li class="integrations-stage">
                                                 <div class="integrations-stage__marker">1</div>
                                                 <section class="integrations-panel">
@@ -184,11 +184,11 @@
                                                             <span class="integrations-panel__eyebrow">
                                                                 {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
                                                             </span>
-                                                            <h3>{{ t('smartLinks.setup.step1.modesStageTitle') }}</h3>
-                                                            <p>{{ t('smartLinks.setup.step1.modesStageSubtitle') }}</p>
+                                                            <h3>{{ t('smartLinks.setup.step1.identifiersStageTitle') }}</h3>
+                                                            <p>{{ t('smartLinks.setup.step1.identifiersStageSubtitle') }}</p>
                                                         </div>
                                                         <span class="integrations-panel__status">
-                                                            {{ supportedModesList.length }} {{ t('smartLinks.setup.step1.modesCountSuffix') }}
+                                                            {{ allowedIdentifiersList.length }} {{ t('smartLinks.setup.step1.identifiersCountSuffix') }}
                                                         </span>
                                                     </header>
 
@@ -200,7 +200,7 @@
                                                                 <input
                                                                     matInput
                                                                     formControlName="slug"
-                                                                    placeholder="global-verification"
+                                                                    placeholder="verify-me"
                                                                     autocorrect="off"
                                                                     autocapitalize="none"
                                                                     spellcheck="false"
@@ -214,48 +214,34 @@
                                                         </div>
 
                                                         <div class="channels-grid">
-                                                            @for (mode of modeOptions; track mode) {
-                                                                @let active = isModeEnabled(mode);
+                                                            @for (idType of identifierOptions; track idType) {
+                                                                @let active = isIdentifierEnabled(idType);
                                                                 <div class="channel-card" [class.channel-card--active]="active">
                                                                     <div class="channel-card__top">
                                                                         <div class="channel-card__meta">
                                                                             <div class="channel-card__icon">
-                                                                                <mat-icon>{{ modeIcon(mode) }}</mat-icon>
+                                                                                <mat-icon>{{ identifierIcon(idType) }}</mat-icon>
                                                                             </div>
                                                                             <div>
-                                                                                <strong>{{ t('smartLinks.modes.' + mode + '.label') }}</strong>
-                                                                                <span>{{ t('smartLinks.modes.' + mode + '.hint') }}</span>
+                                                                                <strong>{{ t('smartLinks.identifiers.' + idType + '.label') }}</strong>
+                                                                                <span>{{ t('smartLinks.identifiers.' + idType + '.hint') }}</span>
                                                                             </div>
                                                                         </div>
                                                                         <mat-slide-toggle
                                                                             color="primary"
                                                                             [checked]="active"
-                                                                            [disabled]="active && supportedModesList.length <= 1"
-                                                                            (change)="toggleMode(mode, $event.checked)"
+                                                                            [disabled]="active && allowedIdentifiersList.length <= 1"
+                                                                            (change)="toggleIdentifier(idType, $event.checked)"
                                                                         ></mat-slide-toggle>
                                                                     </div>
                                                                 </div>
                                                             }
                                                         </div>
-
-                                                        <div formGroupName="routing">
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                                                <mat-label>{{ t('smartLinks.setup.step0.defaultModeLabel') }}</mat-label>
-                                                                <mat-select formControlName="defaultMode">
-                                                                    <mat-option value="prompt">{{ t('smartLinks.setup.step0.promptMode') }}</mat-option>
-                                                                    @for (mode of supportedModesList; track mode) {
-                                                                        <mat-option [value]="mode">
-                                                                            {{ t('smartLinks.modes.' + mode + '.label') }}
-                                                                        </mat-option>
-                                                                    }
-                                                                </mat-select>
-                                                            </mat-form-field>
-                                                        </div>
                                                     </div>
                                                 </section>
                                             </li>
 
-                                            <!-- Stage 2: Bind Underlying Engines -->
+                                            <!-- Stage 2: Automatic Routing (SmartAccess for Face Liveness + SmartEnroll for New / Document) -->
                                             <li class="integrations-stage" formGroupName="routing">
                                                 <div class="integrations-stage__marker">2</div>
                                                 <section class="integrations-panel" formGroupName="linkedProjects">
@@ -273,63 +259,9 @@
                                                         <div class="engines-grid">
                                                             <div class="engine-select-card">
                                                                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                                                    <mat-label>{{ t('smartLinks.modes.personal.label') }} (SmartEnroll)</mat-label>
-                                                                    <mat-select formControlName="smartEnrollProject">
-                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.none') }}</mat-option>
-                                                                        @for (item of engines().smartEnroll; track item._id) {
-                                                                            <mat-option [value]="item._id">{{ item.name }}</mat-option>
-                                                                        }
-                                                                    </mat-select>
-                                                                </mat-form-field>
-                                                                @if (!engines().smartEnroll.length) {
-                                                                    <a routerLink="/smart-enroll/projects" class="engine-helper-link">
-                                                                        <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartEnroll' }) }}</span>
-                                                                        <mat-icon>open_in_new</mat-icon>
-                                                                    </a>
-                                                                }
-                                                            </div>
-
-                                                            <div class="engine-select-card">
-                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                                                    <mat-label>{{ t('smartLinks.modes.business.label') }} (SmartBusiness)</mat-label>
-                                                                    <mat-select formControlName="smartBusinessProject">
-                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.none') }}</mat-option>
-                                                                        @for (item of engines().smartBusiness; track item._id) {
-                                                                            <mat-option [value]="item._id">{{ item.name }}</mat-option>
-                                                                        }
-                                                                    </mat-select>
-                                                                </mat-form-field>
-                                                                @if (!engines().smartBusiness.length) {
-                                                                    <a routerLink="/smart-business/projects" class="engine-helper-link">
-                                                                        <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartBusiness' }) }}</span>
-                                                                        <mat-icon>open_in_new</mat-icon>
-                                                                    </a>
-                                                                }
-                                                            </div>
-
-                                                            <div class="engine-select-card">
-                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                                                    <mat-label>{{ t('smartLinks.modes.humanId.label') }} (HumanAuthn)</mat-label>
-                                                                    <mat-select formControlName="humanAuthnProject">
-                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.none') }}</mat-option>
-                                                                        @for (item of engines().humanAuthn; track item._id) {
-                                                                            <mat-option [value]="item._id">{{ item.name }}</mat-option>
-                                                                        }
-                                                                    </mat-select>
-                                                                </mat-form-field>
-                                                                @if (!engines().humanAuthn.length) {
-                                                                    <a routerLink="/human-authn/projects" class="engine-helper-link">
-                                                                        <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'HumanAuthn' }) }}</span>
-                                                                        <mat-icon>open_in_new</mat-icon>
-                                                                    </a>
-                                                                }
-                                                            </div>
-
-                                                            <div class="engine-select-card">
-                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                                                    <mat-label>{{ t('smartLinks.modes.access.label') }} (SmartAccess)</mat-label>
+                                                                    <mat-label>{{ t('smartLinks.setup.step1.accessFlowLabel') }}</mat-label>
                                                                     <mat-select formControlName="smartAccessProject">
-                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.none') }}</mat-option>
+                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.autoResolve') }}</mat-option>
                                                                         @for (item of engines().smartAccess; track item._id) {
                                                                             <mat-option [value]="item._id">{{ item.name }}</mat-option>
                                                                         }
@@ -342,6 +274,33 @@
                                                                     </a>
                                                                 }
                                                             </div>
+
+                                                            <div class="engine-select-card">
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                                                                    <mat-label>{{ t('smartLinks.setup.step1.enrollFlowLabel') }}</mat-label>
+                                                                    <mat-select formControlName="smartEnrollProject">
+                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.autoResolve') }}</mat-option>
+                                                                        @for (item of engines().smartEnroll; track item._id) {
+                                                                            <mat-option [value]="item._id">{{ item.name }}</mat-option>
+                                                                        }
+                                                                    </mat-select>
+                                                                </mat-form-field>
+                                                                @if (!engines().smartEnroll.length) {
+                                                                    <a routerLink="/smart-enroll/projects" class="engine-helper-link">
+                                                                        <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartEnroll' }) }}</span>
+                                                                        <mat-icon>open_in_new</mat-icon>
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- How SmartLink routes automatically -->
+                                                        <div class="url-preview-card">
+                                                            <mat-icon>auto_awesome</mat-icon>
+                                                            <div class="space-y-1">
+                                                                <strong class="block font-sans text-xs">{{ t('smartLinks.setup.step1.autoRuleTitle') }}</strong>
+                                                                <span class="block">{{ t('smartLinks.setup.step1.autoRuleBody') }}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </section>
@@ -350,169 +309,8 @@
                                     </div>
                                 }
 
-                                <!-- STEP 2: Auto-Detection, Step-Up Policy & Session Security -->
+                                <!-- STEP 2: Completion Handoff, Webhooks, Link Limits & AI Agent Kit -->
                                 @case (2) {
-                                    <div class="integrations-journey" formGroupName="projectFlow">
-                                        <div class="integrations-intro">
-                                            <div class="integrations-intro__icon">
-                                                <mat-icon>shield</mat-icon>
-                                            </div>
-                                            <div>
-                                                <h2>{{ t('smartLinks.setup.step2.title') }}</h2>
-                                                <p>{{ t('smartLinks.setup.step2.subtitle') }}</p>
-                                            </div>
-                                        </div>
-
-                                        <ol class="integrations-timeline">
-                                            <!-- Stage 1: Returning User Recognition -->
-                                            <li class="integrations-stage" formGroupName="routing">
-                                                <div class="integrations-stage__marker">1</div>
-                                                <section class="integrations-panel">
-                                                    <header class="integrations-panel__header">
-                                                        <div>
-                                                            <span class="integrations-panel__eyebrow">
-                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
-                                                            </span>
-                                                            <h3>{{ t('smartLinks.setup.step2.recognitionTitle') }}</h3>
-                                                            <p>{{ t('smartLinks.setup.step2.recognitionSubtitle') }}</p>
-                                                        </div>
-                                                    </header>
-
-                                                    <div class="panel-body">
-                                                        <div class="channel-card" [class.channel-card--active]="form.get('projectFlow.routing.autoDetectExisting')?.value">
-                                                            <div class="channel-card__top">
-                                                                <div class="channel-card__meta">
-                                                                    <div class="channel-card__icon">
-                                                                        <mat-icon>manage_search</mat-icon>
-                                                                    </div>
-                                                                    <div>
-                                                                        <strong>{{ t('smartLinks.setup.step2.autoDetect') }}</strong>
-                                                                        <span>{{ t('smartLinks.setup.step2.autoDetectHint') }}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <mat-slide-toggle color="primary" formControlName="autoDetectExisting"></mat-slide-toggle>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="channel-card" [class.channel-card--active]="form.get('projectFlow.routing.allowPasskeys')?.value">
-                                                            <div class="channel-card__top">
-                                                                <div class="channel-card__meta">
-                                                                    <div class="channel-card__icon">
-                                                                        <mat-icon>vpn_key</mat-icon>
-                                                                    </div>
-                                                                    <div>
-                                                                        <strong>{{ t('smartLinks.setup.step2.allowPasskeys') }}</strong>
-                                                                        <span>{{ t('smartLinks.setup.step2.allowPasskeysHint') }}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <mat-slide-toggle color="primary" formControlName="allowPasskeys"></mat-slide-toggle>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </section>
-                                            </li>
-
-                                            <!-- Stage 2: Step-Up Re-Verification Policy -->
-                                            <li class="integrations-stage" formGroupName="routing">
-                                                <div class="integrations-stage__marker">2</div>
-                                                <section class="integrations-panel" formGroupName="stepUpPolicy">
-                                                    <header class="integrations-panel__header">
-                                                        <div>
-                                                            <span class="integrations-panel__eyebrow">
-                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
-                                                            </span>
-                                                            <h3>{{ t('smartLinks.setup.step2.stepUpTitle') }}</h3>
-                                                            <p>{{ t('smartLinks.setup.step2.stepUpSubtitle') }}</p>
-                                                        </div>
-                                                        <mat-slide-toggle color="primary" formControlName="enabled"></mat-slide-toggle>
-                                                    </header>
-
-                                                    <div class="panel-body">
-                                                        @if (form.get('projectFlow.routing.stepUpPolicy.enabled')?.value) {
-                                                            <div class="channel-card channel-card--active">
-                                                                <div class="channel-card__top">
-                                                                    <div class="channel-card__meta">
-                                                                        <div class="channel-card__icon">
-                                                                            <mat-icon>badge</mat-icon>
-                                                                        </div>
-                                                                        <div>
-                                                                            <strong>{{ t('smartLinks.setup.step2.requireFreshDoc') }}</strong>
-                                                                            <span>{{ t('smartLinks.setup.step2.requireFreshDocHint') }}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <mat-slide-toggle color="primary" formControlName="requireFreshDocOnExpiry"></mat-slide-toggle>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="field-grid-2">
-                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                                                                    <mat-label>{{ t('smartLinks.setup.step2.reverifyFaceDays') }}</mat-label>
-                                                                    <input matInput type="number" min="1" formControlName="reverifyFaceAfterDays" />
-                                                                </mat-form-field>
-                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                                                                    <mat-label>{{ t('smartLinks.setup.step2.kybRecertifyDays') }}</mat-label>
-                                                                    <input matInput type="number" min="1" formControlName="kybRecertifyAfterDays" />
-                                                                </mat-form-field>
-                                                            </div>
-                                                        } @else {
-                                                            <div class="disabled-stage">
-                                                                <mat-icon>info_outline</mat-icon>
-                                                                <span>{{ t('smartLinks.setup.step2.stepUpDisabledHint') }}</span>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                </section>
-                                            </li>
-
-                                            <!-- Stage 3: Session Security & Limits -->
-                                            <li class="integrations-stage" formGroupName="security">
-                                                <div class="integrations-stage__marker">3</div>
-                                                <section class="integrations-panel">
-                                                    <header class="integrations-panel__header">
-                                                        <div>
-                                                            <span class="integrations-panel__eyebrow">
-                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
-                                                            </span>
-                                                            <h3>{{ t('smartLinks.setup.step2.securityTitle') }}</h3>
-                                                            <p>{{ t('smartLinks.setup.step2.securitySubtitle') }}</p>
-                                                        </div>
-                                                    </header>
-
-                                                    <div class="panel-body">
-                                                        <div class="channel-card" [class.channel-card--active]="form.get('projectFlow.security.requireSignedSession')?.value">
-                                                            <div class="channel-card__top">
-                                                                <div class="channel-card__meta">
-                                                                    <div class="channel-card__icon">
-                                                                        <mat-icon>verified_user</mat-icon>
-                                                                    </div>
-                                                                    <div>
-                                                                        <strong>{{ t('smartLinks.setup.step2.requireSigned') }}</strong>
-                                                                        <span>{{ t('smartLinks.setup.step2.requireSignedHint') }}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <mat-slide-toggle color="primary" formControlName="requireSignedSession"></mat-slide-toggle>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="field-grid-2">
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                                                                <mat-label>{{ t('smartLinks.setup.step2.ttlMinutes') }}</mat-label>
-                                                                <input matInput type="number" min="5" max="10080" formControlName="defaultTokenTtlMinutes" />
-                                                            </mat-form-field>
-                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                                                                <mat-label>{{ t('smartLinks.setup.step2.maxUses') }}</mat-label>
-                                                                <input matInput type="number" min="0" max="1000" formControlName="defaultMaxUses" />
-                                                            </mat-form-field>
-                                                        </div>
-                                                    </div>
-                                                </section>
-                                            </li>
-                                        </ol>
-                                    </div>
-                                }
-
-                                <!-- STEP 3: Completion Handoff, Webhooks & AI Agent Kit -->
-                                @case (3) {
                                     <div class="integrations-journey" formGroupName="projectFlow">
                                         <div class="integrations-intro">
                                             <div class="integrations-intro__icon">
@@ -619,8 +417,8 @@
                                                 </section>
                                             </li>
 
-                                            <!-- Stage 2: Webhook Integration (mirrors AccessWhitelistStepComponent) -->
-                                            <li class="integrations-stage" formGroupName="integrations">
+                                            <!-- Stage 2: Webhook & Default Link Limits -->
+                                            <li class="integrations-stage">
                                                 <div class="integrations-stage__marker">2</div>
                                                 <section class="integrations-panel">
                                                     <header class="integrations-panel__header">
@@ -634,7 +432,7 @@
                                                     </header>
 
                                                     <div class="panel-body">
-                                                        <div class="webhook-row">
+                                                        <div class="webhook-row" formGroupName="integrations">
                                                             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="webhook-field">
                                                                 <mat-label>{{ t('smartLinks.setup.step3.webhookLabel') }}</mat-label>
                                                                 <mat-select formControlName="webhook">
@@ -673,6 +471,34 @@
                                                                 </a>
                                                             </div>
                                                         }
+
+                                                        <div formGroupName="security" class="space-y-3 pt-2">
+                                                            <div class="channel-card" [class.channel-card--active]="form.get('projectFlow.security.requireSignedSession')?.value">
+                                                                <div class="channel-card__top">
+                                                                    <div class="channel-card__meta">
+                                                                        <div class="channel-card__icon">
+                                                                            <mat-icon>verified_user</mat-icon>
+                                                                        </div>
+                                                                        <div>
+                                                                            <strong>{{ t('smartLinks.setup.step2.requireSigned') }}</strong>
+                                                                            <span>{{ t('smartLinks.setup.step2.requireSignedHint') }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <mat-slide-toggle color="primary" formControlName="requireSignedSession"></mat-slide-toggle>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="field-grid-2">
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                    <mat-label>{{ t('smartLinks.setup.step2.ttlMinutes') }}</mat-label>
+                                                                    <input matInput type="number" min="5" max="10080" formControlName="defaultTokenTtlMinutes" />
+                                                                </mat-form-field>
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                    <mat-label>{{ t('smartLinks.setup.step2.maxUses') }}</mat-label>
+                                                                    <input matInput type="number" min="0" max="1000" formControlName="defaultMaxUses" />
+                                                                </mat-form-field>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </section>
                                             </li>
@@ -744,8 +570,8 @@
                                     </div>
                                 }
 
-                                <!-- STEP 4: Shared User Interface Styles A-F, Dropzones & Swatches -->
-                                @case (4) {
+                                <!-- STEP 3: Shared User Interface Styles A-F, Dropzones & Swatches -->
+                                @case (3) {
                                     <setup-user-interface
                                         [form]="form"
                                         [loading]="loading()"

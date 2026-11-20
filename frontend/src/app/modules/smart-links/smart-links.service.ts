@@ -153,8 +153,9 @@ export class SmartLinksService {
                     version: 3,
                     slug: '',
                     routing: {
-                        supportedModes: ['personal', 'business'],
-                        defaultMode: 'prompt',
+                        allowedIdentifiers: ['email', 'phone'],
+                        supportedModes: ['personal', 'access'],
+                        defaultMode: 'personal',
                         linkedProjects: {
                             smartEnrollProject: null,
                             smartBusinessProject: null,
@@ -344,6 +345,11 @@ export class SmartLinksService {
     createSession(
         projectId: string,
         payload: {
+            email?: string;
+            phone?: string;
+            countryCode?: string;
+            fullName?: string;
+            requireDocument?: boolean;
             requestedMode?: SmartLinkDefaultMode;
             completionMode?: SmartLinkCompletionMode;
             redirectUrlOverride?: string;
@@ -459,16 +465,20 @@ export class SmartLinksService {
         const projectId = project._id || '<SMARTLINK_PROJECT_ID>';
         const publicUrl = this.buildPublicLinkUrl(project) || 'https://access.verifik.co/l/<SLUG>';
         return [
-            `Integrate Verifik SmartLink ("${project.name || 'Verification Hub'}") into my application:`,
+            `Integrate Verifik SmartLink ("${project.name || 'Identity Verification'}") into my application or AI agent:`,
             `1. Public static entry URL: ${publicUrl}`,
-            `2. For dynamic signed sessions (prefill / WhatsApp / AI chat):`,
+            `2. Generate a per-user verification link (email/phone optional; set requireDocument: true only when you need an ID scan on this link):`,
             `   POST ${this.apiUrl || 'https://api.verifik.co'}/v3/smart-links/${projectId}/sessions`,
             `   Header: Authorization: Bearer <VERIFIK_JWT>`,
-            `   Body: { "requestedMode": "prompt", "completionMode": "receipt", "externalRefId": "<USER_OR_ORDER_ID>", "prefill": { "email": "..." } }`,
+            `   Body: { "email": "john.doe@example.com", "requireDocument": false, "completionMode": "receipt", "externalRefId": "<ORDER_OR_CHAT_ID>" }`,
             `   Response returns { data: { sessionId, shortCode, url, qrDataUrl } }. Send data.url to the user.`,
-            `3. When complete:`,
-            `   - Redirect mode appends ?sessionCode=...&shortCode=... -> call POST /v3/smart-links/sessions/exchange { sessionCode } from your backend to claim the atomic verified proof.`,
-            `   - Receipt mode shows a Return-to-Chat screen and triggers your webhook/poll GET /v3/smart-links/sessions/:sessionId.`,
+            `3. Automatic user experience:`,
+            `   - If email/phone was omitted, the user enters it first.`,
+            `   - Returning verified users (existing AppRegistration) go straight to Face Liveness and finish.`,
+            `   - New users (or links created with requireDocument: true) complete Document + Face Liveness.`,
+            `4. Claim the verified identity proof token:`,
+            `   - Redirect mode appends ?sessionCode=... -> POST /v3/smart-links/sessions/exchange { sessionCode } returns { verified: true, token, identity: { fullName, email, phone, ... } }.`,
+            `   - Receipt mode lets your agent poll GET /v3/smart-links/sessions/:sessionId (or receive your webhook) with the same signed proof token and verified identity.`,
             `   - Never expose VERIFIK_JWT in browser code; perform /sessions and /sessions/exchange on your backend or MCP server.`,
         ].join('\n');
     }
@@ -479,13 +489,10 @@ export class SmartLinksService {
                 tool: 'smart_link_create_session',
                 arguments: {
                     projectId: project._id || '<SMARTLINK_PROJECT_ID>',
-                    requestedMode: 'prompt',
+                    email: 'john.doe@example.com',
+                    requireDocument: false,
                     completionMode: this.extractSmartLinkFlow(project)?.completion?.mode || 'receipt',
-                    externalRefId: 'order-12345',
-                    createdByChannel: 'mcp',
-                    prefill: {
-                        email: 'user@example.com',
-                    },
+                    externalRefId: 'chat-session-12345',
                 },
             },
             null,
@@ -496,7 +503,7 @@ export class SmartLinksService {
     buildEmbedSnippet(project: SmartLinkProject): string {
         const publicUrl = this.buildPublicLinkUrl(project) || 'https://access.verifik.co/l/<SLUG>';
         return [
-            `<!-- Open Verifik SmartLink in an iframe/popup modal and verify postMessage completion -->`,
+            `<!-- Open Verifik SmartLink in a popup/modal and verify postMessage completion -->`,
             `<script>`,
             `  function openVerification(signedUrl) {`,
             `    const url = signedUrl || '${publicUrl}';`,
@@ -505,7 +512,8 @@ export class SmartLinksService {
             `  window.addEventListener('message', async (event) => {`,
             `    if (event.origin !== '${this.accessBaseUrl}') return;`,
             `    if (event.data?.type === 'verifik:smartlink:completed') {`,
-            `      // Send event.data.sessionCode to your backend to call POST /v3/smart-links/sessions/exchange`,
+            `      // Send event.data.sessionCode to your backend -> POST /v3/smart-links/sessions/exchange`,
+            `      // Returns { verified: true, token, identity: { fullName, email, phone } }`,
             `      console.log('Verified sessionCode:', event.data.sessionCode);`,
             `    }`,
             `  });`,
@@ -517,13 +525,13 @@ export class SmartLinksService {
         const projectId = project._id || '<SMARTLINK_PROJECT_ID>';
         const base = this.apiUrl || 'https://api.verifik.co';
         return [
-            `# 1) Mint signed SmartLink session`,
+            `# 1) Mint a SmartLink (omit email/phone to let the user enter it; toggle requireDocument per link)`,
             `curl -X POST "${base}/v3/smart-links/${projectId}/sessions" \\`,
             `  -H "Authorization: Bearer $VERIFIK_JWT" \\`,
             `  -H "Content-Type: application/json" \\`,
-            `  -d '{"requestedMode":"prompt","completionMode":"redirect","externalRefId":"order-123"}'`,
+            `  -d '{"email":"john.doe@example.com","requireDocument":false,"completionMode":"redirect","externalRefId":"order-123"}'`,
             ``,
-            `# 2) Atomic server-side exchange after redirect/postMessage/receipt`,
+            `# 2) Exchange sessionCode for the signed identity proof token ("Yes, John Doe is behind this")`,
             `curl -X POST "${base}/v3/smart-links/sessions/exchange" \\`,
             `  -H "Authorization: Bearer $VERIFIK_JWT" \\`,
             `  -H "Content-Type: application/json" \\`,

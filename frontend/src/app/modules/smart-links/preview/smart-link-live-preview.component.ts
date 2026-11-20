@@ -32,19 +32,20 @@ import { SMART_LINK_STYLE_DEFAULTS } from '../smart-links.service';
 import type {
     SmartLinkBranding,
     SmartLinkCompletionMode,
-    SmartLinkMode,
+    SmartLinkIdentifier,
     SmartLinkProject,
 } from '../smart-links.types';
 
 type DeviceType = 'desktop' | 'tablet' | 'mobile';
-type PreviewScreen = 'picker' | 'lookup' | 'receipt';
+type PreviewScreen = 'identify' | 'verify' | 'verified';
 
 /**
- * Side-by-side live preview of the customer-facing SmartLink Verification Hub.
+ * Side-by-side live preview of the customer-facing SmartLink experience.
  *
- * Mirrors Smart Access (`AccessSignInPreviewComponent`) chrome, device toggles,
- * native modal fullscreen view, two-column desktop split, and WCAG AA contrast
- * safeguards across Styles A through F.
+ * Shows the real 3-step user flow:
+ *   1. Identify (Email or Phone, skipped when pre-set on the link)
+ *   2. Verify (Face Liveness fast-lane, or ID Document + Face when per-link requireDocument=true)
+ *   3. Verified (Identity proof receipt & signed JWT handoff)
  */
 @Component({
     selector: 'smart-link-live-preview',
@@ -67,8 +68,9 @@ export class SmartLinkLivePreviewComponent implements OnInit, OnChanges {
     private _formSub?: Subscription;
 
     deviceType: DeviceType = 'tablet';
-    previewScreen: PreviewScreen = 'picker';
-    previewMode: SmartLinkMode = 'personal';
+    previewScreen: PreviewScreen = 'identify';
+    previewIdentifier: SmartLinkIdentifier = 'email';
+    previewRequireDocument = false;
     isFullscreen = false;
 
     ngOnInit(): void {
@@ -112,7 +114,7 @@ export class SmartLinkLivePreviewComponent implements OnInit, OnChanges {
     get projectName(): string {
         const fromForm = `${this.form?.get('name')?.value ?? ''}`.trim();
         if (fromForm) return fromForm;
-        return `${this.project?.name ?? ''}`.trim() || 'SmartLink Hub';
+        return `${this.project?.name ?? ''}`.trim() || 'SmartLink';
     }
 
     get slug(): string {
@@ -125,29 +127,17 @@ export class SmartLinkLivePreviewComponent implements OnInit, OnChanges {
         return `${base}/l/${handle}`;
     }
 
-    get supportedModes(): SmartLinkMode[] {
-        const modes = this.flowValue?.['routing']?.['supportedModes'];
-        if (Array.isArray(modes) && modes.length > 0) {
-            return modes as SmartLinkMode[];
+    get allowedIdentifiers(): SmartLinkIdentifier[] {
+        const list = this.flowValue?.['routing']?.['allowedIdentifiers'];
+        if (Array.isArray(list) && list.length > 0) {
+            return list as SmartLinkIdentifier[];
         }
-        return ['personal', 'business'];
+        return ['email', 'phone'];
     }
 
-    get activeLookupMode(): SmartLinkMode {
-        const list = this.supportedModes;
-        return list.includes(this.previewMode) ? this.previewMode : list[0];
-    }
-
-    get allowPasskeys(): boolean {
-        return Boolean(this.flowValue?.['routing']?.['allowPasskeys']);
-    }
-
-    get autoDetectExisting(): boolean {
-        return Boolean(this.flowValue?.['routing']?.['autoDetectExisting'] ?? true);
-    }
-
-    get stepUpEnabled(): boolean {
-        return Boolean(this.flowValue?.['routing']?.['stepUpPolicy']?.['enabled']);
+    get activeIdentifier(): SmartLinkIdentifier {
+        const list = this.allowedIdentifiers;
+        return list.includes(this.previewIdentifier) ? this.previewIdentifier : list[0];
     }
 
     get completionMode(): SmartLinkCompletionMode {
@@ -320,23 +310,14 @@ export class SmartLinkLivePreviewComponent implements OnInit, OnChanges {
         this._cdr.markForCheck();
     }
 
-    selectPreviewMode(mode: SmartLinkMode): void {
-        this.previewMode = mode;
-        this.previewScreen = 'lookup';
+    setPreviewIdentifier(id: SmartLinkIdentifier): void {
+        this.previewIdentifier = id;
         this._cdr.markForCheck();
     }
 
-    modeIcon(mode: SmartLinkMode): string {
-        switch (mode) {
-            case 'personal':
-                return 'badge';
-            case 'business':
-                return 'domain';
-            case 'humanId':
-                return 'fingerprint';
-            case 'access':
-                return 'vpn_key';
-        }
+    setPreviewRequireDocument(required: boolean): void {
+        this.previewRequireDocument = required;
+        this._cdr.markForCheck();
     }
 
     toggleFullscreen(): void {

@@ -1,3 +1,4 @@
+export type SmartLinkIdentifier = 'email' | 'phone';
 export type SmartLinkMode = 'personal' | 'business' | 'humanId' | 'access';
 export type SmartLinkDefaultMode = SmartLinkMode | 'prompt';
 export type SmartLinkCompletionMode = 'redirect' | 'receipt' | 'postMessage';
@@ -36,6 +37,7 @@ export interface SmartLinkProjectFlow {
     version: number;
     slug?: string;
     routing: {
+        allowedIdentifiers?: SmartLinkIdentifier[];
         supportedModes: SmartLinkMode[];
         defaultMode: SmartLinkDefaultMode;
         linkedProjects: SmartLinkLinkedProjects;
@@ -124,6 +126,7 @@ export interface SmartLinkSessionRecord {
     state: 'CREATED' | 'OPENED' | 'ROUTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'EXPIRED' | 'REVOKED';
     requestedMode: string;
     resolvedMode?: string;
+    requireDocument?: boolean;
     completionMode?: SmartLinkCompletionMode;
     externalRefId?: string;
     createdByChannel?: string;
@@ -136,6 +139,21 @@ export interface SmartLinkSessionRecord {
     outcome?: {
         outcomeType?: string;
         confirmationCode?: string;
+        verificationToken?: string;
+        identity?: {
+            appRegistrationId?: string;
+            fullName?: string;
+            email?: string;
+            phone?: string;
+            documentType?: string;
+            documentNumber?: string;
+        };
+    };
+    prefill?: {
+        email?: string;
+        phone?: string;
+        countryCode?: string;
+        fullName?: string;
     };
 }
 
@@ -146,6 +164,13 @@ export interface MintedSmartLinkSession {
     qrDataUrl: string;
     expiresAt: string;
     state: string;
+    requireDocument?: boolean;
+    prefill?: {
+        email?: string;
+        phone?: string;
+        countryCode?: string;
+        fullName?: string;
+    };
     requestedMode: string;
     completionMode: SmartLinkCompletionMode;
 }

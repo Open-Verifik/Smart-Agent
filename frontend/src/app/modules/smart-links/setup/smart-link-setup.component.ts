@@ -59,8 +59,7 @@ import type {
     EngineProjectOption,
     SmartLinkBranding,
     SmartLinkCompletionMode,
-    SmartLinkDefaultMode,
-    SmartLinkMode,
+    SmartLinkIdentifier,
     SmartLinkProject,
     SmartLinkVerifyStyle,
 } from '../smart-links.types';
@@ -80,7 +79,7 @@ const BASIC_KEYS = [
     'dataProtection.postalCode',
 ];
 
-const MODE_OPTIONS: SmartLinkMode[] = ['personal', 'business', 'humanId', 'access'];
+const IDENTIFIER_OPTIONS: SmartLinkIdentifier[] = ['email', 'phone'];
 const COMPLETION_OPTIONS: SmartLinkCompletionMode[] = ['receipt', 'redirect', 'postMessage'];
 
 const optionalStrictUrlValidator: ValidatorFn = (control) => {
@@ -131,14 +130,13 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
     private _slugManuallyEdited = false;
 
     readonly devQuickFillEnabled = !environment.production;
-    readonly modeOptions = MODE_OPTIONS;
+    readonly identifierOptions = IDENTIFIER_OPTIONS;
     readonly completionOptions = COMPLETION_OPTIONS;
     readonly stepTitles = signal<string[]>([
         'smartLinks.setup.steps.s0',
         'smartLinks.setup.steps.s1',
         'smartLinks.setup.steps.s2',
         'smartLinks.setup.steps.s3',
-        'smartLinks.setup.steps.s4',
     ]);
 
     form!: FormGroup;
@@ -181,9 +179,9 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         return `${this._service.accessBaseUrl}/l/${slug || fallbackId || 'your-slug'}`;
     }
 
-    get supportedModesList(): SmartLinkMode[] {
-        const modes = this.form?.get('projectFlow.routing.supportedModes')?.value;
-        return Array.isArray(modes) && modes.length > 0 ? modes : ['personal', 'business'];
+    get allowedIdentifiersList(): SmartLinkIdentifier[] {
+        const list = this.form?.get('projectFlow.routing.allowedIdentifiers')?.value;
+        return Array.isArray(list) && list.length > 0 ? list : ['email', 'phone'];
     }
 
     get completionModeValue(): SmartLinkCompletionMode {
@@ -211,7 +209,7 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
 
         this._route.params.pipe(takeUntil(this._unsub$)).subscribe((params) => {
             const rawId = params['projectId'] || 'new';
-            const parsedStep = Math.max(0, Math.min(4, Number(params['step'] ?? '0') || 0));
+            const parsedStep = Math.max(0, Math.min(3, Number(params['step'] ?? '0') || 0));
             this.projectId = rawId;
             this.stepIndex = parsedStep;
 
@@ -258,23 +256,21 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         }
         if (idx === 1) {
             const slugCtrl = this.form.get('projectFlow.slug');
-            const modes = this.form.get('projectFlow.routing.supportedModes')?.value;
-            return !slugCtrl?.invalid && Array.isArray(modes) && modes.length > 0;
+            const ids = this.form.get('projectFlow.routing.allowedIdentifiers')?.value;
+            return !slugCtrl?.invalid && Array.isArray(ids) && ids.length > 0;
         }
         if (idx === 2) {
-            return (
+            const limitsValid =
                 !this.form.get('projectFlow.security.defaultTokenTtlMinutes')?.invalid &&
-                !this.form.get('projectFlow.security.defaultMaxUses')?.invalid
-            );
-        }
-        if (idx === 3) {
+                !this.form.get('projectFlow.security.defaultMaxUses')?.invalid;
+            if (!limitsValid) return false;
             if (this.completionModeValue === 'redirect') {
                 const urlCtrl = this.form.get('projectFlow.completion.redirectUrl');
                 return Boolean(`${urlCtrl?.value ?? ''}`.trim()) && !urlCtrl?.invalid;
             }
             return true;
         }
-        if (idx === 4) {
+        if (idx === 3) {
             return !this.form.get('branding')?.invalid;
         }
         return false;
@@ -282,7 +278,7 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
 
     navigateToStep(idx: number): void {
         if (!this.canNavigate) return;
-        const clamped = Math.max(0, Math.min(4, idx));
+        const clamped = Math.max(0, Math.min(3, idx));
         const commands =
             this.projectId && this.projectId !== 'new'
                 ? ['/smart-links/projects', this.projectId, 'setup', clamped]
@@ -348,46 +344,28 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         window.open(this.publicHandleUrl, '_blank', 'noopener,noreferrer');
     }
 
-    isModeEnabled(mode: SmartLinkMode): boolean {
-        return this.supportedModesList.includes(mode);
+    isIdentifierEnabled(id: SmartLinkIdentifier): boolean {
+        return this.allowedIdentifiersList.includes(id);
     }
 
-    toggleMode(mode: SmartLinkMode, enabled: boolean): void {
-        const ctrl = this.form.get('projectFlow.routing.supportedModes');
+    toggleIdentifier(id: SmartLinkIdentifier, enabled: boolean): void {
+        const ctrl = this.form.get('projectFlow.routing.allowedIdentifiers');
         if (!ctrl) return;
-        const current = [...(Array.isArray(ctrl.value) ? ctrl.value : [])] as SmartLinkMode[];
-        const idx = current.indexOf(mode);
+        const current = [...(Array.isArray(ctrl.value) ? ctrl.value : [])] as SmartLinkIdentifier[];
+        const idx = current.indexOf(id);
         if (enabled && idx === -1) {
-            current.push(mode);
+            current.push(id);
         } else if (!enabled && idx >= 0) {
             if (current.length <= 1) return;
             current.splice(idx, 1);
         }
         ctrl.setValue(current);
         ctrl.markAsDirty();
-
-        const defaultModeCtrl = this.form.get('projectFlow.routing.defaultMode');
-        if (
-            defaultModeCtrl &&
-            defaultModeCtrl.value !== 'prompt' &&
-            !current.includes(defaultModeCtrl.value as SmartLinkMode)
-        ) {
-            defaultModeCtrl.setValue('prompt');
-        }
         this._cdr.markForCheck();
     }
 
-    modeIcon(mode: SmartLinkMode): string {
-        switch (mode) {
-            case 'personal':
-                return 'badge';
-            case 'business':
-                return 'domain';
-            case 'humanId':
-                return 'fingerprint';
-            case 'access':
-                return 'vpn_key';
-        }
+    identifierIcon(id: SmartLinkIdentifier): string {
+        return id === 'phone' ? 'smartphone' : 'mail_outline';
     }
 
     suggestSlugFromName(): void {
@@ -545,6 +523,10 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         const stylePreset = SMART_LINK_STYLE_DEFAULTS[styleId] || SMART_LINK_STYLE_DEFAULTS.a;
         const branding = { ...stylePreset, ...(p.branding || {}) };
         const dp = p.dataProtection || base.dataProtection;
+        const identifiers: SmartLinkIdentifier[] =
+            Array.isArray(routing.allowedIdentifiers) && routing.allowedIdentifiers.length
+                ? (routing.allowedIdentifiers as SmartLinkIdentifier[])
+                : ['email', 'phone'];
 
         this._slugManuallyEdited = Boolean(existingFlow.slug);
 
@@ -599,11 +581,10 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
                 version: [existingFlow.version ?? 3],
                 slug: [existingFlow.slug || '', [Validators.pattern(/^[a-z0-9-]{0,64}$/)]],
                 routing: this._fb.group({
-                    supportedModes: [
-                        routing.supportedModes?.length ? routing.supportedModes : ['personal', 'business'],
-                    ],
-                    defaultMode: [(routing.defaultMode || 'prompt') as SmartLinkDefaultMode],
-                    autoDetectExisting: [routing.autoDetectExisting ?? true],
+                    allowedIdentifiers: [identifiers],
+                    supportedModes: [routing.supportedModes?.length ? routing.supportedModes : ['personal', 'access']],
+                    defaultMode: ['personal'],
+                    autoDetectExisting: [true],
                     allowPasskeys: [routing.allowPasskeys ?? true],
                     linkedProjects: this._fb.group({
                         smartEnrollProject: [linked.smartEnrollProject ?? null],
@@ -806,11 +787,9 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
             control.markAsTouched({ onlySelf: true });
         }
         if (control instanceof FormGroup) {
-            Object.values(control.controls).forEach((c) => this._markControlTreeState(c, state));
-            return;
-        }
-        if (control instanceof FormArray) {
-            control.controls.forEach((c) => this._markControlTreeState(c, state));
+            Object.values(control.controls).forEach((child) => this._markControlTreeState(child, state));
+        } else if (control instanceof FormArray) {
+            control.controls.forEach((child) => this._markControlTreeState(child, state));
         }
     }
 
@@ -823,6 +802,6 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
     }
 
     private _t(key: string): string {
-        return this._transloco.translate(key) ?? key;
+        return this._transloco.translate(key) || key;
     }
 }

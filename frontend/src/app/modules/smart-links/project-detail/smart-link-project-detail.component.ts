@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -30,8 +31,7 @@ import type {
     SmartLinkAnalytics,
     SmartLinkBranding,
     SmartLinkCompletionMode,
-    SmartLinkDefaultMode,
-    SmartLinkMode,
+    SmartLinkIdentifier,
     SmartLinkProject,
     SmartLinkSessionRecord,
     SmartLinkVerifyStyle,
@@ -51,6 +51,7 @@ import type {
         MatInputModule,
         MatProgressSpinnerModule,
         MatSelectModule,
+        MatSlideToggleModule,
         MatSnackBarModule,
         TranslocoModule,
         SmartLinkLivePreviewComponent,
@@ -80,13 +81,12 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     kitTab = signal<'prompt' | 'mcp' | 'embed' | 'curl'>('prompt');
     copiedKey = signal<string | null>(null);
 
-    // Mint form state
-    mintMode: SmartLinkDefaultMode = 'prompt';
-    mintCompletion: SmartLinkCompletionMode = 'receipt';
+    // Per-link generation form state
     mintEmail = '';
     mintPhone = '';
-    mintTaxId = '';
     mintFullName = '';
+    mintRequireDocument = false;
+    mintCompletion: SmartLinkCompletionMode = 'receipt';
     mintExternalRef = '';
     mintTtlMinutes = 60;
     mintBusy = signal(false);
@@ -130,9 +130,9 @@ export class SmartLinkProjectDetailComponent implements OnInit {
         ];
     });
 
-    supportedModes = computed<SmartLinkMode[]>(() => {
-        const modes = this.flow()?.routing?.supportedModes;
-        return modes?.length ? modes : ['personal', 'business'];
+    allowedIdentifiers = computed<SmartLinkIdentifier[]>(() => {
+        const ids = this.flow()?.routing?.allowedIdentifiers;
+        return Array.isArray(ids) && ids.length ? ids : ['email', 'phone'];
     });
 
     activeKitText = computed(() => {
@@ -176,7 +176,6 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                 this.sessions.set(sessions?.docs || []);
                 if (project) {
                     const f = this._service.extractSmartLinkFlow(project);
-                    if (f?.routing?.defaultMode) this.mintMode = f.routing.defaultMode;
                     if (f?.completion?.mode) this.mintCompletion = f.completion.mode;
                     const url = this._service.buildPublicLinkUrl(project);
                     if (url) {
@@ -216,24 +215,35 @@ export class SmartLinkProjectDetailComponent implements OnInit {
         return st === 'active';
     }
 
+    sessionIdentityLabel(session: SmartLinkSessionRecord): string {
+        const id = session.outcome?.identity;
+        if (id?.fullName) return id.fullName;
+        if (id?.email) return id.email;
+        if (id?.phone) return id.phone;
+        if (session.prefill?.email) return session.prefill.email;
+        if (session.prefill?.phone) return session.prefill.phone;
+        return this._transloco.translate('smartLinks.detail.openLinkLabel') || 'Open link';
+    }
+
     mintSession(): void {
         if (!this.projectId() || this.mintBusy()) return;
         this.mintBusy.set(true);
         this.mintError.set(null);
 
+        const email = this.mintEmail.trim() || undefined;
+        const phone = this.mintPhone.trim() || undefined;
+        const fullName = this.mintFullName.trim() || undefined;
+
         this._service
             .createSession(this.projectId(), {
-                requestedMode: this.mintMode,
+                email,
+                phone,
+                fullName,
+                requireDocument: Boolean(this.mintRequireDocument),
                 completionMode: this.mintCompletion,
                 externalRefId: this.mintExternalRef.trim() || undefined,
                 expiresInMinutes: Number(this.mintTtlMinutes) || 60,
                 createdByChannel: 'portal',
-                prefill: {
-                    email: this.mintEmail.trim() || undefined,
-                    phone: this.mintPhone.trim() || undefined,
-                    taxId: this.mintTaxId.trim() || undefined,
-                    fullName: this.mintFullName.trim() || undefined,
-                },
             })
             .subscribe({
                 next: (res) => {
@@ -243,7 +253,7 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                     this._cdr.markForCheck();
                 },
                 error: (err) => {
-                    this.mintError.set(err?.error?.message || 'Failed to mint session');
+                    this.mintError.set(err?.error?.message || 'Failed to generate link');
                     this.mintBusy.set(false);
                     this._cdr.markForCheck();
                 },
