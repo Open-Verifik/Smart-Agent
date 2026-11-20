@@ -1,112 +1,371 @@
-<div class="sllp-shell" *transloco="let t">
-    <div class="sllp-toolbar">
-        <div class="sllp-tabs">
-            <button
-                type="button"
-                class="sllp-tab"
-                [class.is-active]="previewScreen === 'mode'"
-                (click)="previewScreen = 'mode'"
-            >
-                {{ t('smartLinks.preview.screenMode') }}
-            </button>
-            <button
-                type="button"
-                class="sllp-tab"
-                [class.is-active]="previewScreen === 'lookup'"
-                (click)="previewScreen = 'lookup'"
-            >
-                {{ t('smartLinks.preview.screenLookup') }}
-            </button>
-            <button
-                type="button"
-                class="sllp-tab"
-                [class.is-active]="previewScreen === 'receipt'"
-                (click)="previewScreen = 'receipt'"
-            >
-                {{ t('smartLinks.preview.screenReceipt') }}
-            </button>
-        </div>
-
-        <div class="sllp-devices">
-            <button
-                type="button"
-                class="sllp-device"
-                [class.is-active]="deviceType === 'desktop'"
-                (click)="deviceType = 'desktop'"
-                [attr.aria-label]="t('smartLinks.preview.desktop')"
-            >
-                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:computer-desktop"></mat-icon>
-            </button>
-            <button
-                type="button"
-                class="sllp-device"
-                [class.is-active]="deviceType === 'mobile'"
-                (click)="deviceType = 'mobile'"
-                [attr.aria-label]="t('smartLinks.preview.mobile')"
-            >
-                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:device-phone-mobile"></mat-icon>
-            </button>
-        </div>
-    </div>
-
-    <div class="sllp-url-bar">
-        <span class="sllp-url-dot"></span>
-        <span class="sllp-url-text">https://access.verifik.co/l/{{ slug || 'your-slug' }}</span>
-        <span class="sllp-style-pill">Style {{ styleId.toUpperCase() }}</span>
-    </div>
-
-    <div class="sllp-stage" [ngStyle]="styleVars" [attr.data-style]="styleId">
-        <div class="sllp-frame" [class.is-mobile]="deviceType === 'mobile'">
-            <div class="sllp-card">
-                <div class="sllp-brand">
-                    @if (branding?.logo) {
-                        <img [src]="branding?.logo" [alt]="projectName || 'Logo'" class="sllp-logo" />
-                    }
-                    <span class="sllp-brand-name">{{ projectName || 'Verification Hub' }}</span>
+<ng-container *transloco="let t">
+    <ng-template #previewShell>
+        <!-- Header toolbar mirroring AccessSignInPreviewComponent -->
+        <div class="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 p-4 md:p-5">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-200">
+                    <mat-icon class="!h-5 !w-5">visibility</mat-icon>
                 </div>
-
-                @if (previewScreen === 'mode') {
-                    <h3 class="sllp-title">{{ t('smartLinks.preview.chooseTitle') }}</h3>
-                    <p class="sllp-subtitle">{{ t('smartLinks.preview.chooseSubtitle') }}</p>
-
-                    <div class="sllp-modes">
-                        @for (mode of effectiveModes; track mode) {
-                            <button type="button" class="sllp-mode-btn" (click)="selectPreviewMode(mode)">
-                                <span class="sllp-mode-title">{{ t('smartLinks.modes.' + mode + '.label') }}</span>
-                                <span class="sllp-mode-sub">{{ t('smartLinks.modes.' + mode + '.hint') }}</span>
-                            </button>
-                        }
-                    </div>
-                }
-
-                @if (previewScreen === 'lookup') {
-                    <h3 class="sllp-title">
-                        {{ previewMode === 'business' ? t('smartLinks.preview.lookupBizTitle') : t('smartLinks.preview.lookupPersonalTitle') }}
-                    </h3>
-                    <p class="sllp-subtitle">{{ t('smartLinks.preview.lookupSubtitle') }}</p>
-                    <div class="sllp-fake-input">
-                        {{ previewMode === 'business' ? '900123456-7' : 'alex@company.com' }}
-                    </div>
-                    <button type="button" class="sllp-cta" (click)="previewScreen = 'receipt'">
-                        {{ t('smartLinks.preview.continueBtn') }}
-                    </button>
-                }
-
-                @if (previewScreen === 'receipt') {
-                    <div class="sllp-check">✓</div>
-                    <h3 class="sllp-title">{{ t('smartLinks.preview.receiptTitle') }}</h3>
-                    <p class="sllp-subtitle">
-                        {{ receiptMessage || t('smartLinks.preview.receiptSubtitle') }}
+                <div class="flex flex-col">
+                    <p id="smart-link-preview-title" class="m-0 text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ t('smartLinks.preview.title') }}
                     </p>
-                    <div class="sllp-code-box">
-                        <span>VFK-AB12CD</span>
-                        <span class="sllp-handoff-tag">{{ completionMode }}</span>
-                    </div>
-                    <button type="button" class="sllp-cta" (click)="previewScreen = 'mode'">
-                        {{ t('smartLinks.preview.resetBtn') }}
-                    </button>
-                }
+                    <p class="m-0 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartLinks.preview.subtitle') }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'desktop'"
+                    [class.text-stone-900]="deviceType === 'desktop'"
+                    [class.dark:bg-gray-800]="deviceType === 'desktop'"
+                    [class.dark:text-white]="deviceType === 'desktop'"
+                    [class.text-stone-500]="deviceType !== 'desktop'"
+                    (click)="setDeviceType('desktop')"
+                >
+                    {{ t('smartLinks.preview.desktop') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'tablet'"
+                    [class.text-stone-900]="deviceType === 'tablet'"
+                    [class.dark:bg-gray-800]="deviceType === 'tablet'"
+                    [class.dark:text-white]="deviceType === 'tablet'"
+                    [class.text-stone-500]="deviceType !== 'tablet'"
+                    (click)="setDeviceType('tablet')"
+                >
+                    {{ t('smartLinks.preview.tablet') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'mobile'"
+                    [class.text-stone-900]="deviceType === 'mobile'"
+                    [class.dark:bg-gray-800]="deviceType === 'mobile'"
+                    [class.dark:text-white]="deviceType === 'mobile'"
+                    [class.text-stone-500]="deviceType !== 'mobile'"
+                    (click)="setDeviceType('mobile')"
+                >
+                    {{ t('smartLinks.preview.mobile') }}
+                </button>
+                <button
+                    type="button"
+                    class="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 transition-colors hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+                    (click)="toggleFullscreen()"
+                    [attr.aria-label]="t('smartLinks.preview.fullscreen')"
+                >
+                    <mat-icon class="!h-4 !w-4 text-stone-700 dark:text-stone-200">
+                        {{ isFullscreen ? 'close' : 'open_in_full' }}
+                    </mat-icon>
+                </button>
             </div>
         </div>
+
+        <!-- Secondary bar: live handle URL + screen state selector -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-stone-200 bg-stone-50/80 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/70 md:px-5">
+            <div class="flex min-w-0 items-center gap-2">
+                <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                <code class="truncate text-[11px] font-medium text-stone-600 dark:text-stone-300">{{ publicUrlPreview }}</code>
+                <span class="shrink-0 rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300">
+                    {{ verifyStyleLabel }}
+                </span>
+            </div>
+
+            <div class="flex items-center gap-1 rounded-full bg-stone-200/70 p-0.5 dark:bg-gray-800">
+                <button
+                    type="button"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                    [ngClass]="previewScreen === 'picker'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-700 dark:text-white'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'"
+                    (click)="setPreviewScreen('picker')"
+                >
+                    {{ t('smartLinks.preview.screenMode') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                    [ngClass]="previewScreen === 'lookup'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-700 dark:text-white'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'"
+                    (click)="setPreviewScreen('lookup')"
+                >
+                    {{ t('smartLinks.preview.screenLookup') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                    [ngClass]="previewScreen === 'receipt'
+                        ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-700 dark:text-white'
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'"
+                    (click)="setPreviewScreen('receipt')"
+                >
+                    {{ t('smartLinks.preview.screenReceipt') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Live themed preview canvas -->
+        <div
+            class="relative flex min-h-0 flex-1 flex-col items-stretch overflow-auto border-t border-stone-200 transition-colors duration-200 dark:border-gray-700"
+            [ngStyle]="styleVars"
+            [attr.data-style]="verifyStyleId || null"
+            [style.color-scheme]="isDarkSurface ? 'dark' : 'light'"
+            [style.background-color]="canvasBg"
+            [style.color]="accessibleBodyColor"
+            [style.font-family]="activeStyleDef ? styleVars['--style-body-font'] : null"
+        >
+            @if (deviceType === 'desktop') {
+                <!-- Desktop: two-column layout (SmartLink hub left, Banner right) -->
+                <div class="flex min-h-[26rem] flex-1 flex-col overflow-auto md:flex-row">
+                    <div class="flex flex-1 flex-col items-center justify-center px-6 py-8">
+                        <ng-container *ngTemplateOutlet="cardTpl"></ng-container>
+                    </div>
+                    <div
+                        class="flex min-h-[14rem] flex-1 items-center justify-center overflow-hidden"
+                        [style.background-color]="bannerPanelBg"
+                    >
+                        @if (hasBannerImage) {
+                            <img [src]="effectiveBranding.image" class="h-full w-full object-cover" alt="" />
+                        } @else {
+                            <div class="flex flex-col items-center gap-3 px-6 text-center" [style.color]="bannerBodyColor">
+                                <div
+                                    class="flex h-14 w-14 items-center justify-center rounded-2xl border"
+                                    [style.border-color]="isBannerDarkSurface ? '#1e3a5f' : '#cbd5e1'"
+                                    [style.background-color]="isBannerDarkSurface ? '#0f172a' : 'rgba(255,255,255,0.85)'"
+                                >
+                                    <mat-icon class="!h-7 !w-7" [style.color]="bannerTitleColor">qr_code_2</mat-icon>
+                                </div>
+                                <span class="text-sm font-semibold" [style.color]="bannerTitleColor">
+                                    {{ projectName }}
+                                </span>
+                                <span class="max-w-[14rem] text-xs" [style.color]="bannerBodyColor">
+                                    {{ t('smartLinks.preview.bannerHint') }}
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <!-- Tablet / Mobile: centered single column -->
+                <div [class]="'flex min-h-[24rem] flex-1 flex-col items-center justify-center px-4 py-8 ' + contentDeviceClasses()">
+                    <ng-container *ngTemplateOutlet="cardTpl"></ng-container>
+                </div>
+            }
+
+            <ng-template #cardTpl>
+                <div
+                    class="mx-auto w-full max-w-md space-y-5 p-6 transition-all duration-200"
+                    [style.background]="cardBg"
+                    [style.border]="activeStyleDef ? styleVars['--style-card-border'] : (isDarkSurface ? '1px solid #1e3a5f' : '1px solid #e7e5e4')"
+                    [style.box-shadow]="activeStyleDef ? styleVars['--style-card-shadow'] : '0 8px 24px rgba(15, 23, 42, 0.06)'"
+                    [style.border-radius]="activeStyleDef ? styleVars['--style-radius-card'] : '20px'"
+                >
+                    <!-- Brand header -->
+                    <div
+                        class="flex items-center gap-3"
+                        [class.justify-center]="!activeStyleDef || styleVars['--style-headline-align'] !== 'left'"
+                        [class.justify-start]="activeStyleDef && styleVars['--style-headline-align'] === 'left'"
+                    >
+                        @if (effectiveBranding.logo) {
+                            <div
+                                class="inline-flex items-center justify-center transition-all duration-200"
+                                [class.rounded-xl]="isDarkSurface"
+                                [class.bg-white]="isDarkSurface"
+                                [class.p-2]="isDarkSurface"
+                            >
+                                <img class="h-10 w-auto max-w-[140px] object-contain" [src]="effectiveBranding.logo" [alt]="projectName" />
+                            </div>
+                        } @else {
+                            <div
+                                class="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold"
+                                [style.background-color]="isDarkSurface ? '#0b1b33' : '#f5f5f4'"
+                                [style.border]="isDarkSurface ? '1px solid #1e3a5f' : '1px solid #e7e5e4'"
+                                [style.color]="accessibleTitleColor"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-[16px]" [style.color]="accessibleTitleColor">link</mat-icon>
+                                <span>{{ projectName }}</span>
+                            </div>
+                        }
+                    </div>
+
+                    @if (previewScreen === 'picker') {
+                        <div [style.text-align]="activeStyleDef ? styleVars['--style-headline-align'] || 'left' : 'left'">
+                            <h3
+                                class="m-0 text-xl font-bold leading-tight sm:text-2xl"
+                                [style.color]="accessibleTitleColor"
+                                [style.font-family]="activeStyleDef ? styleVars['--style-display'] : null"
+                                [style.font-weight]="activeStyleDef ? styleVars['--style-display-weight'] : null"
+                                [style.letter-spacing]="activeStyleDef ? styleVars['--style-display-tracking'] : null"
+                                [style.text-transform]="activeStyleDef ? styleVars['--style-display-transform'] : null"
+                            >
+                                {{ t('smartLinks.preview.chooseTitle') }}
+                            </h3>
+                            <p class="mt-1.5 text-xs leading-relaxed" [style.color]="accessibleBodyColor">
+                                {{ t('smartLinks.preview.chooseSubtitle') }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-2.5">
+                            @for (mode of supportedModes; track mode) {
+                                <button
+                                    type="button"
+                                    class="sl-preview-mode-row"
+                                    [style.background-color]="inputBgColor"
+                                    [style.border]="inputBorderStyle"
+                                    [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '12px'"
+                                    [style.color]="accessibleTitleColor"
+                                    (click)="selectPreviewMode(mode)"
+                                >
+                                    <span
+                                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                                        [style.background-color]="accessiblePrimaryBg"
+                                        [style.color]="accessiblePrimaryText"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-[16px]" [style.color]="accessiblePrimaryText">{{ modeIcon(mode) }}</mat-icon>
+                                    </span>
+                                    <span class="min-w-0 flex-1 text-left">
+                                        <span class="block text-xs font-semibold" [style.color]="accessibleTitleColor">
+                                            {{ t('smartLinks.modes.' + mode + '.label') }}
+                                        </span>
+                                        <span class="block truncate text-[11px]" [style.color]="accessibleBodyColor">
+                                            {{ t('smartLinks.modes.' + mode + '.hint') }}
+                                        </span>
+                                    </span>
+                                    <mat-icon class="!h-4 !w-4 !text-[16px]" [style.color]="accessibleAccentTextColor">chevron_right</mat-icon>
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    @if (previewScreen === 'lookup') {
+                        <div [style.text-align]="activeStyleDef ? styleVars['--style-headline-align'] || 'left' : 'left'">
+                            <h3
+                                class="m-0 text-xl font-bold leading-tight"
+                                [style.color]="accessibleTitleColor"
+                                [style.font-family]="activeStyleDef ? styleVars['--style-display'] : null"
+                            >
+                                {{ activeLookupMode === 'business' ? t('smartLinks.preview.lookupBizTitle') : t('smartLinks.preview.lookupPersonalTitle') }}
+                            </h3>
+                            <p class="mt-1.5 text-xs leading-relaxed" [style.color]="accessibleBodyColor">
+                                {{ t('smartLinks.preview.lookupSubtitle') }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div>
+                                <div class="mb-1 text-xs font-medium" [style.color]="accessibleBodyColor">
+                                    {{ activeLookupMode === 'business' ? t('smartLinks.preview.taxIdLabel') : t('smartLinks.preview.emailOrPhoneLabel') }}
+                                </div>
+                                <div
+                                    class="flex h-11 w-full items-center px-3.5 text-xs"
+                                    [style.background-color]="inputBgColor"
+                                    [style.border]="inputBorderStyle"
+                                    [style.border-radius]="activeStyleDef ? styleVars['--style-radius-input'] : '10px'"
+                                    [style.color]="accessibleBodyColor"
+                                >
+                                    {{ activeLookupMode === 'business' ? '900123456-7' : 'alex@company.com' }}
+                                </div>
+                            </div>
+
+                            @if (autoDetectExisting || allowPasskeys || stepUpEnabled) {
+                                <div class="flex flex-wrap gap-1.5 text-[10px] font-medium" [style.color]="accessibleAccentTextColor">
+                                    @if (autoDetectExisting) {
+                                        <span class="rounded-full border px-2 py-0.5" [style.border-color]="accessibleAccentTextColor">
+                                            {{ t('smartLinks.preview.autoDetectBadge') }}
+                                        </span>
+                                    }
+                                    @if (allowPasskeys) {
+                                        <span class="rounded-full border px-2 py-0.5" [style.border-color]="accessibleAccentTextColor">
+                                            {{ t('smartLinks.preview.passkeyBadge') }}
+                                        </span>
+                                    }
+                                    @if (stepUpEnabled) {
+                                        <span class="rounded-full border px-2 py-0.5" [style.border-color]="accessibleAccentTextColor">
+                                            {{ t('smartLinks.preview.stepUpBadge') }}
+                                        </span>
+                                    }
+                                </div>
+                            }
+
+                            <button
+                                type="button"
+                                class="h-11 w-full text-sm font-semibold shadow-sm transition-all duration-150"
+                                [style.background-color]="accessiblePrimaryBg"
+                                [style.color]="accessiblePrimaryText"
+                                [style.border]="activeStyleDef ? styleVars['--style-cta-border'] : '0'"
+                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-button'] : '9999px'"
+                                [style.font-weight]="activeStyleDef ? styleVars['--style-cta-weight'] : '600'"
+                                (click)="setPreviewScreen('receipt')"
+                            >
+                                {{ t('smartLinks.preview.continueBtn') }}
+                            </button>
+                        </div>
+                    }
+
+                    @if (previewScreen === 'receipt') {
+                        <div class="flex flex-col items-center space-y-3 py-2 text-center">
+                            <div
+                                class="flex h-12 w-12 items-center justify-center rounded-full"
+                                [style.background-color]="accessiblePrimaryBg"
+                                [style.color]="accessiblePrimaryText"
+                            >
+                                <mat-icon [style.color]="accessiblePrimaryText">check</mat-icon>
+                            </div>
+                            <h3
+                                class="m-0 text-xl font-bold leading-tight"
+                                [style.color]="accessibleTitleColor"
+                                [style.font-family]="activeStyleDef ? styleVars['--style-display'] : null"
+                            >
+                                {{ t('smartLinks.preview.receiptTitle') }}
+                            </h3>
+                            <p class="m-0 text-xs leading-relaxed" [style.color]="accessibleBodyColor">
+                                {{ receiptMessage || t('smartLinks.preview.receiptSubtitle') }}
+                            </p>
+                            <div class="rounded-full border px-2.5 py-0.5 text-[11px] font-medium" [style.border-color]="isDarkSurface ? '#1e3a5f' : '#e2e8f0'" [style.color]="accessibleBodyColor">
+                                {{ t('smartLinks.completionModes.' + completionMode) }}
+                                @if (completionMode === 'receipt' && allowPdfDownload) {
+                                    <span>+ PDF</span>
+                                }
+                            </div>
+                            <button
+                                type="button"
+                                class="mt-2 h-11 w-full text-sm font-semibold transition-all duration-150"
+                                [style.background-color]="accessiblePrimaryBg"
+                                [style.color]="accessiblePrimaryText"
+                                [style.border-radius]="activeStyleDef ? styleVars['--style-radius-button'] : '9999px'"
+                                (click)="setPreviewScreen('picker')"
+                            >
+                                {{ t('smartLinks.preview.resetBtn') }}
+                            </button>
+                        </div>
+                    }
+                </div>
+            </ng-template>
+        </div>
+    </ng-template>
+
+    <div class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <ng-container *ngTemplateOutlet="previewShell"></ng-container>
     </div>
-</div>
+
+    <!-- Native modal dialog for fullscreen inspection -->
+    <dialog
+        #fullscreenDialog
+        class="sl-preview-dialog"
+        aria-labelledby="smart-link-preview-title"
+        (close)="onDialogClosed()"
+        (click)="onDialogBackdropClick($event)"
+    >
+        @if (isFullscreen) {
+            <div class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+                <ng-container *ngTemplateOutlet="previewShell"></ng-container>
+            </div>
+        }
+    </dialog>
+</ng-container>

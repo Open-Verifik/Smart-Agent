@@ -135,4 +135,18 @@ describe('SmartLinksService', () => {
         expect(httpMock.post.mock.calls[0][0]).toMatch(/\/v3\/smart-links\/proj_1\/sessions$/);
         expect(shortCode).toBe('AbC1234567');
     });
+
+    it('fetches active webhooks via GET /v2/webhooks with fail-soft fallback', () => {
+        const { service, httpMock } = createService();
+        httpMock.get.mockReturnValue(of({ data: [{ _id: 'wh_1', name: 'Ops Webhook' }] }));
+
+        let hooks: { _id: string; name?: string }[] = [];
+        service.listWebhooks().subscribe((res) => {
+            hooks = res;
+        });
+
+        expect(httpMock.get).toHaveBeenCalledTimes(1);
+        expect(httpMock.get.mock.calls[0][0]).toMatch(/\/v2\/webhooks$/);
+        expect(hooks).toEqual([{ _id: 'wh_1', name: 'Ops Webhook' }]);
+    });
 });

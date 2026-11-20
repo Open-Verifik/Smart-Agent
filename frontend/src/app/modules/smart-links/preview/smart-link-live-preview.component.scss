@@ -1,267 +1,50 @@
 :host {
     display: block;
+    height: 100%;
 }
 
-.sllp-shell {
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    overflow: hidden;
-}
-
-:host-context(.dark) .sllp-shell {
-    border-color: rgba(148, 163, 184, 0.22);
-    background: #0f172a;
-}
-
-.sllp-toolbar {
+.sl-preview-mode-row {
     display: flex;
+    width: 100%;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 10px 12px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    cursor: pointer;
+    transition:
+        transform 140ms ease,
+        box-shadow 140ms ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
 }
 
-:host-context(.dark) .sllp-toolbar {
-    border-color: rgba(148, 163, 184, 0.18);
-    background: #1e293b;
-}
-
-.sllp-tabs,
-.sllp-devices {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.sllp-tab,
-.sllp-device {
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #475569;
+.sl-preview-dialog {
+    width: min(92vw, 76rem);
+    max-width: 92vw;
+    height: min(90vh, 52rem);
+    max-height: 90vh;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
     background: transparent;
-    border: 1px solid transparent;
-    cursor: pointer;
-
-    &.is-active {
-        background: #ffffff;
-        color: #0f172a;
-        border-color: #cbd5e1;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-    }
-}
-
-:host-context(.dark) {
-    .sllp-tab,
-    .sllp-device {
-        color: #cbd5e1;
-
-        &.is-active {
-            background: #0f172a;
-            color: #f8fafc;
-            border-color: rgba(148, 163, 184, 0.35);
-        }
-    }
-}
-
-.sllp-url-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 12px;
-    color: #475569;
-    background: #ffffff;
-}
-
-:host-context(.dark) .sllp-url-bar {
-    border-color: rgba(148, 163, 184, 0.18);
-    background: #0f172a;
-    color: #cbd5e1;
-}
-
-.sllp-url-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 9999px;
-    background: #22c55e;
-    flex-shrink: 0;
-}
-
-.sllp-url-text {
-    flex: 1;
-    min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: ui-monospace, monospace;
 }
 
-.sllp-style-pill {
-    padding: 2px 8px;
-    border-radius: 9999px;
-    font-size: 11px;
-    font-weight: 700;
-    background: #eff6ff;
-    color: #1d4ed8;
+.sl-preview-dialog:modal {
+    overscroll-behavior: contain;
 }
 
-:host-context(.dark) .sllp-style-pill {
-    background: rgba(37, 99, 235, 0.25);
-    color: #93c5fd;
-}
-
-.sllp-stage {
-    padding: 24px 16px;
-    background: var(--style-page, #e8ebe6);
-    font-family: var(--style-body-font, 'Inter', sans-serif);
-    display: flex;
-    justify-content: center;
-    min-height: 410px;
-    align-items: center;
-}
-
-.sllp-frame {
-    width: 100%;
-    max-width: 400px;
-    transition: max-width 180ms ease;
-
-    &.is-mobile {
-        max-width: 310px;
-    }
-}
-
-.sllp-card {
-    background: var(--style-card, #ffffff);
-    border: var(--style-card-border, 0);
-    box-shadow: var(--style-card-shadow, 0 18px 40px rgba(15, 23, 42, 0.08));
-    border-radius: var(--style-radius-card, 22px);
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.sllp-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.sllp-logo {
-    height: 28px;
-    max-width: 120px;
-    object-fit: contain;
-}
-
-.sllp-brand-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--style-ink, #0e0f0c);
-}
-
-.sllp-title {
-    margin: 0;
-    font-family: var(--style-display, 'Inter', sans-serif);
-    font-size: 22px;
-    font-weight: var(--style-display-weight, 800);
-    line-height: 1.15;
-    color: var(--style-ink, #0e0f0c);
-}
-
-.sllp-subtitle {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--style-body, #454745);
-}
-
-.sllp-modes {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.sllp-mode-btn {
-    width: 100%;
-    text-align: left;
-    padding: 10px 12px;
-    border-radius: var(--style-radius-input, 12px);
-    border: 1px solid color-mix(in srgb, var(--style-line, #94a3b8) 45%, transparent);
-    background: var(--style-input-bg, transparent);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.sllp-mode-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--style-ink, #0e0f0c);
-}
-
-.sllp-mode-sub {
-    font-size: 11px;
-    color: var(--style-body, #64748b);
-}
-
-.sllp-fake-input {
-    padding: 10px 12px;
-    border-radius: var(--style-radius-input, 10px);
-    border: 1px solid color-mix(in srgb, var(--style-line, #94a3b8) 55%, transparent);
-    background: var(--style-input-bg, transparent);
-    color: var(--style-ink, #0e0f0c);
-    font-size: 13px;
-}
-
-.sllp-cta {
-    width: 100%;
-    padding: 11px 18px;
-    border: var(--style-cta-border, 0);
-    border-radius: var(--style-radius-button, 9999px);
-    background: var(--style-cta, #9fe870);
-    color: var(--style-cta-text, #163300);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.sllp-check {
-    width: 38px;
-    height: 38px;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: color-mix(in srgb, var(--style-cta, #22c55e) 22%, transparent);
-    color: var(--style-cta, #16a34a);
-    font-weight: 800;
-    font-size: 18px;
-}
-
-.sllp-code-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 9px 12px;
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--style-line, #94a3b8) 40%, transparent);
-    font-family: ui-monospace, monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--style-ink, #0e0f0c);
-}
-
-.sllp-handoff-tag {
-    padding: 2px 7px;
-    border-radius: 9999px;
-    font-size: 10px;
-    text-transform: uppercase;
-    background: color-mix(in srgb, var(--style-cta, #2563eb) 20%, transparent);
+.sl-preview-dialog::backdrop {
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(2px);
+    overflow: hidden;
+    overscroll-behavior: contain;
 }

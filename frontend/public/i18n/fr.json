@@ -13011,32 +13011,34 @@
         "tooLarge": "The file is larger than 512 KB."
     },
     "smartLinks": {
-        "badge": "Routeur d’Identité Unifié",
+        "badge": "Routeur Unifie",
         "list": {
             "title": "Hubs SmartLink",
-            "subtitle": "One intelligent URL & QR code that routes individuals, businesses, HumanID proofs, and returning users automatically.",
-            "createCta": "Créer un SmartLink",
+            "subtitle": "Une URL et un QR code intelligent pour orienter particuliers, entreprises, HumanID et utilisateurs connus.",
+            "createCta": "Creer SmartLink",
+            "newProjectSubtitle": "Configurez modes de verification, regles step-up, webhooks et style visuel.",
             "searchPlaceholder": "Search by name or slug...",
-            "signInCta": "Sign In",
+            "signInCta": "Se connecter",
             "loading": "Loading SmartLink hubs...",
             "loadError": "Unable to load SmartLink hubs right now.",
             "emptyTitle": "Launch your first SmartLink in 60 seconds",
             "emptySubtitle": "Connect your SmartEnroll, SmartBusiness, HumanAuthn, and SmartAccess flows behind one shareable link and AI-ready session API.",
-            "mintTest": "Mint Test Link",
-            "setup": "Setup",
-            "openHub": "Ouvrir le Hub"
+            "mintTest": "Mint Test Link & QR",
+            "openLive": "Ouvrir SmartLink",
+            "setup": "Configurer",
+            "openHub": "Hub & Sessions"
         },
         "actions": {
-            "back": "Back",
-            "backToList": "All SmartLinks",
-            "copy": "Copy",
+            "back": "Retour",
+            "backToList": "Tous les SmartLinks",
+            "copy": "Copier",
             "copyUrl": "Copy public URL",
-            "copied": "Copied!",
-            "next": "Next Step",
+            "copied": "Copie !",
+            "next": "Continuer",
             "prev": "Previous",
-            "refresh": "Refresh",
+            "refresh": "Actualiser",
             "retry": "Retry",
-            "revoke": "Revoke"
+            "revoke": "Revoquer"
         },
         "modes": {
             "personal": {
@@ -13057,8 +13059,8 @@
             }
         },
         "completionModes": {
-            "redirect": "Web Redirect (?sessionCode)",
-            "receipt": "Return-to-Chat Receipt + PDF",
+            "redirect": "Redirect (?sessionCode)",
+            "receipt": "Return-to-Chat Receipt",
             "postMessage": "Embedded Modal (postMessage)"
         },
         "mintModal": {
@@ -13075,11 +13077,11 @@
             "conversion": "Conversion"
         },
         "detail": {
-            "configureBtn": "Configure Studio",
-            "signedOnly": "Signed links only",
-            "publicSlugOpen": "Public static URL enabled",
+            "configureBtn": "Configure Setup",
+            "signedOnly": "Signed links only (static slug disabled)",
+            "publicSlugOpen": "Public static URL & signed sessions enabled",
             "qrCaption": "Scan to open verification",
-            "mintTitle": "Mint Signed Verification Session",
+            "mintTitle": "Live URL & Signed Session Minter",
             "modeLabel": "Requested Mode",
             "completionLabel": "Completion Handoff",
             "prefillEmail": "Prefill Email",
@@ -13087,6 +13089,8 @@
             "externalRef": "External Reference ID",
             "ttlMinutes": "TTL (minutes)",
             "mintBtn": "Generate Signed URL & QR",
+            "routingSummaryTitle": "Routing Modes & Step-Up Summary",
+            "routingSummarySubtitle": "Enabled verification tracks, recognition policy, and completion delivery.",
             "recentSessions": "Recent Sessions",
             "noSessions": "No verification sessions minted yet.",
             "colCode": "Short Code",
@@ -13094,7 +13098,7 @@
             "colMode": "Mode",
             "colChannel": "Channel",
             "tabs": {
-                "sessions": "Sessions & Mint",
+                "sessions": "Sessions",
                 "dispatch": "Quick Send & CSV",
                 "kit": "Developer & AI Kit"
             }
@@ -13112,8 +13116,8 @@
             "sendCsvBtn": "Launch CSV Campaign"
         },
         "kit": {
-            "title": "Ready-to-Ship Developer & AI Agent Kit",
-            "subtitle": "Copy ready-made instructions for Cursor, Claude, Lovable, MCP servers, or backend services.",
+            "title": "Developer & AI Agent Kit",
+            "subtitle": "Copy ready-made integration instructions for AI assistants, MCP servers, web modals, or backend services.",
             "copyBtn": "Copy Snippet",
             "tabPrompt": "AI Agent Prompt",
             "tabMcp": "MCP Tool",
@@ -13121,25 +13125,32 @@
             "tabCurl": "cURL & Exchange"
         },
         "setup": {
-            "newTitle": "Create SmartLink Studio",
-            "editTitle": "Edit SmartLink Studio",
-            "subtitle": "Configure routing, step-up rules, completion handoffs, and live Styles A-F branding.",
-            "saveBtn": "Enregistrer SmartLink",
+            "breadcrumbSetup": "Configuration",
+            "newTitle": "Nouveau projet SmartLink",
+            "editTitle": "Modifier le projet SmartLink",
+            "subtitle": "Configure your verification hub basics, routing modes, step-up rules, and brand styling.",
+            "openLive": "Open SmartLink",
+            "finish": "Terminer",
+            "devQuickFillHint": "Local development shortcut: fill valid sample settings for every required field.",
+            "devQuickFill": "Fill sample",
+            "devQuickFillApplied": "Sample values applied across the wizard.",
+            "completeRequired": "Please complete the required fields on this step before continuing.",
+            "saveBtn": "Save SmartLink",
             "saving": "Saving...",
             "nameRequired": "Please enter a SmartLink project name before saving.",
             "savedToast": "SmartLink configuration saved.",
             "saveError": "Could not save SmartLink. Verify inputs and try again.",
             "steps": {
-                "s0": "Foundations",
-                "s1": "Linked Engines",
-                "s2": "Routing & Step-Up",
-                "s3": "Integrations & AI",
-                "s4": "Appearance"
+                "s0": "Base",
+                "s1": "Modes & moteurs",
+                "s2": "Step-up & securite",
+                "s3": "Connexion & Kit IA",
+                "s4": "Personnaliser"
             },
             "step0": {
                 "title": "Core Identity & Entry Mode",
                 "nameLabel": "SmartLink Name",
-                "namePlaceholder": "e.g. Acme Global Onboarding",
+                "namePlaceholder": "e.g. Global Verification Hub",
                 "slugLabel": "Custom Slug",
                 "autoSlug": "From Name",
                 "contactEmail": "Contact Email",
@@ -13150,27 +13161,57 @@
                 "completionLabel": "Default Completion Mode"
             },
             "step1": {
+                "journeyTitle": "Routing modes and connected projects",
+                "journeySubtitle": "Choose which verification flows this SmartLink supports and map them to your workspace projects.",
+                "modesStageTitle": "Public Handle & Supported Modes",
+                "modesStageSubtitle": "Set the short URL slug and choose which verification paths users can start.",
+                "modesCountSuffix": "enabled",
                 "title": "Bind Underlying Verification Engines",
                 "subtitle": "Connect existing projects from your workspace. Leave blank for any mode you do not use.",
-                "none": "Not linked"
+                "none": "Not linked",
+                "createInProduct": "Manage projects in {{product}}"
             },
             "step2": {
-                "title": "Auto-Detection & Step-Up Security Policy",
-                "autoDetect": "Automatically route returning verified users to SmartAccess or Step-Up",
-                "stepUpEnabled": "Enable Step-Up triggers for expired IDs and periodic checks",
-                "requireSigned": "Require cryptographically signed session URLs (disable static public slug)",
+                "title": "Recognition, Step-Up & Security",
+                "subtitle": "Control returning-user fast lanes, periodic re-verification thresholds, and signed session lifetime.",
+                "recognitionTitle": "Returning User Recognition",
+                "recognitionSubtitle": "Recognize verified users by email, phone, or passkey before triggering full onboarding.",
+                "autoDetect": "Auto-detect returning verified users",
+                "autoDetectHint": "Check existing records to skip redundant steps or apply step-up only.",
+                "allowPasskeys": "Allow WebAuthn Passkey fast-lane",
+                "allowPasskeysHint": "Let returning users confirm identity with biometrics saved on their device.",
+                "stepUpTitle": "Step-Up Re-Verification Policy",
+                "stepUpSubtitle": "Automatically prompt fresh checks when documents expire or biometrics age out.",
+                "requireFreshDoc": "Require fresh document when expired",
+                "requireFreshDocHint": "Trigger a new ID scan whenever the saved government document has passed its expiry date.",
+                "stepUpDisabledHint": "Step-up checks are off. Returning verified users complete authentication with their active profile.",
+                "securityTitle": "Session Token Limits",
+                "securitySubtitle": "Configure default TTL, maximum uses per minted link, and signed-only enforcement.",
+                "requireSigned": "Require signed single-use session tokens",
+                "requireSignedHint": "Disable unauthenticated static URL access so every user needs a backend-signed link.",
                 "reverifyFaceDays": "Re-verify liveness every N days",
                 "kybRecertifyDays": "Recertify KYB every N days",
                 "ttlMinutes": "Default session TTL (minutes)",
-                "maxUses": "Max completions per link (0 = unlimited)",
-                "allowedCountries": "Allowed Countries (comma-separated or All)"
+                "maxUses": "Max uses per link (0 = unlimited)",
+                "allowedCountries": "Allowed Countries"
             },
             "step3": {
-                "title": "Completion Handoff & AI Kit",
+                "title": "Completion Handoff, Webhooks & AI Kit",
+                "subtitle": "Choose how verified sessions return to your app or agent, connect webhooks, and copy snippets.",
+                "completionSubtitle": "Select what happens right after verification completes.",
+                "completionDesc_receipt": "Display a confirmation receipt screen with optional PDF proof and return button.",
+                "completionDesc_redirect": "Redirect the browser to your callback URL with a one-time sessionCode.",
+                "completionDesc_postMessage": "Post a signed completion event to the embedding opener or parent window.",
                 "redirectUrl": "Redirect Callback URL",
                 "postMessageOrigins": "Allowed postMessage Origins (HTTPS)",
                 "receiptMessage": "Custom Return-to-Chat Receipt Message",
-                "allowPdf": "Allow users to download / print verification receipt PDF"
+                "allowPdf": "Allow PDF verification receipt download",
+                "allowPdfHint": "Include a downloadable summary badge on the completion receipt screen.",
+                "webhookTitle": "Webhook",
+                "webhookSubtitle": "Send real-time verification lifecycle events to your backend endpoint.",
+                "webhookLabel": "Active Webhook",
+                "manageWebhooks": "Manage webhooks",
+                "noWebhooks": "No active webhooks configured yet. Create one to receive live verification events."
             },
             "step4": {
                 "title": "Styles A-F & Visual Branding",
@@ -13189,18 +13230,28 @@
             }
         },
         "preview": {
+            "title": "Apercu en direct",
+            "subtitle": "Mis a jour en temps reel",
+            "fullscreen": "Fullscreen preview",
             "screenMode": "Picker",
             "screenLookup": "Lookup",
             "screenReceipt": "Receipt",
-            "desktop": "Desktop",
+            "desktop": "Ordinateur",
+            "tablet": "Tablette",
             "mobile": "Mobile",
+            "bannerHint": "Upload a brand banner image in Customize to preview the right panel.",
             "chooseTitle": "Choose how to verify",
-            "chooseSubtitle": "Select the option that fits your verification request.",
-            "lookupPersonalTitle": "Find your profile",
+            "chooseSubtitle": "Select the verification path that fits your request.",
+            "lookupPersonalTitle": "Verify your profile",
             "lookupBizTitle": "Identify your business",
             "lookupSubtitle": "Enter your identifier to route automatically.",
+            "emailOrPhoneLabel": "Email or mobile number",
+            "taxIdLabel": "Company Tax ID / Registration",
+            "autoDetectBadge": "Auto-detect on",
+            "passkeyBadge": "Passkey ready",
+            "stepUpBadge": "Step-up active",
             "continueBtn": "Continue Verification",
-            "receiptTitle": "Vérification Terminée",
+            "receiptTitle": "Verification Complete",
             "receiptSubtitle": "You can safely return to your chat or assistant now.",
             "resetBtn": "Replay Preview"
         }

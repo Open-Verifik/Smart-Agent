@@ -1,24 +1,40 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import QRCode from 'qrcode';
 import { forkJoin } from 'rxjs';
 
-import { SmartLinksService } from '../smart-links.service';
+import { SmartLinkLivePreviewComponent } from '../preview/smart-link-live-preview.component';
+import { SMART_LINK_STYLE_DEFAULTS, SmartLinksService } from '../smart-links.service';
 import type {
     DispatchBatchResult,
     MintedSmartLinkSession,
     SmartLinkAnalytics,
+    SmartLinkBranding,
     SmartLinkCompletionMode,
     SmartLinkDefaultMode,
+    SmartLinkMode,
     SmartLinkProject,
     SmartLinkSessionRecord,
+    SmartLinkVerifyStyle,
 } from '../smart-links.types';
 
 @Component({
@@ -30,18 +46,27 @@ import type {
         ClipboardModule,
         RouterModule,
         MatButtonModule,
+        MatFormFieldModule,
         MatIconModule,
+        MatInputModule,
         MatProgressSpinnerModule,
+        MatSelectModule,
+        MatSnackBarModule,
         TranslocoModule,
+        SmartLinkLivePreviewComponent,
     ],
     templateUrl: './smart-link-project-detail.component.html',
     styleUrls: ['./smart-link-project-detail.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SmartLinkProjectDetailComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _service = inject(SmartLinksService);
     private _clipboard = inject(Clipboard);
+    private _snack = inject(MatSnackBar);
+    private _transloco = inject(TranslocoService);
+    private _cdr = inject(ChangeDetectorRef);
 
     projectId = signal('');
     project = signal<SmartLinkProject | null>(null);
@@ -80,6 +105,35 @@ export class SmartLinkProjectDetailComponent implements OnInit {
 
     flow = computed(() => this._service.extractSmartLinkFlow(this.project()));
     publicUrl = computed(() => (this.project() ? this._service.buildPublicLinkUrl(this.project()!) : ''));
+
+    brandPreview = computed<SmartLinkBranding>(() => {
+        const p = this.project();
+        const f = this.flow();
+        const styleId = (f?.onboardingSettings?.verifyStyle || 'a') as SmartLinkVerifyStyle;
+        const styleDefaults = SMART_LINK_STYLE_DEFAULTS[styleId] || SMART_LINK_STYLE_DEFAULTS.a;
+        return {
+            logo: '',
+            image: '',
+            ...styleDefaults,
+            ...(p?.branding || {}),
+        } as SmartLinkBranding;
+    });
+
+    swatchEntries = computed(() => {
+        const b = this.brandPreview();
+        return [
+            { label: 'Button', value: b.buttonColor },
+            { label: 'Button text', value: b.buttonTextColor },
+            { label: 'Canvas', value: b.backgroundColor },
+            { label: 'Title', value: b.titleColor },
+            { label: 'Text', value: b.textColor },
+        ];
+    });
+
+    supportedModes = computed<SmartLinkMode[]>(() => {
+        const modes = this.flow()?.routing?.supportedModes;
+        return modes?.length ? modes : ['personal', 'business'];
+    });
 
     activeKitText = computed(() => {
         const p = this.project();
@@ -126,14 +180,19 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                     if (f?.completion?.mode) this.mintCompletion = f.completion.mode;
                     const url = this._service.buildPublicLinkUrl(project);
                     if (url) {
-                        void QRCode.toDataURL(url, { margin: 1, width: 200 }).then((qr) => this.staticQrDataUrl.set(qr));
+                        void QRCode.toDataURL(url, { margin: 1, width: 200 }).then((qr) => {
+                            this.staticQrDataUrl.set(qr);
+                            this._cdr.markForCheck();
+                        });
                     }
                 }
                 this.loading.set(false);
+                this._cdr.markForCheck();
             },
             error: (err) => {
                 this.error.set(err?.error?.message || 'Unable to load SmartLink hub');
                 this.loading.set(false);
+                this._cdr.markForCheck();
             },
         });
     }
@@ -144,6 +203,17 @@ export class SmartLinkProjectDetailComponent implements OnInit {
 
     editSetup(step = 0): void {
         void this._router.navigate(['/smart-links/projects', this.projectId(), 'setup', step]);
+    }
+
+    openLive(): void {
+        const url = this.publicUrl();
+        if (!url || typeof window === 'undefined') return;
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    isActiveFlow(): boolean {
+        const st = this.flow()?.status;
+        return st === 'active';
     }
 
     mintSession(): void {
@@ -170,10 +240,12 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                     this.minted.set(res);
                     this.mintBusy.set(false);
                     this.refreshSessionsAndAnalytics();
+                    this._cdr.markForCheck();
                 },
                 error: (err) => {
                     this.mintError.set(err?.error?.message || 'Failed to mint session');
                     this.mintBusy.set(false);
+                    this._cdr.markForCheck();
                 },
             });
     }
@@ -208,10 +280,12 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                     this.dispatchBusy.set(false);
                     this.quickRecipient = '';
                     this.refreshSessionsAndAnalytics();
+                    this._cdr.markForCheck();
                 },
                 error: (err) => {
                     this.dispatchError.set(err?.error?.message || 'Dispatch failed');
                     this.dispatchBusy.set(false);
+                    this._cdr.markForCheck();
                 },
             });
     }
@@ -223,6 +297,7 @@ export class SmartLinkProjectDetailComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = () => {
             this.csvContent = String(reader.result || '');
+            this._cdr.markForCheck();
         };
         reader.readAsText(file);
     }
@@ -246,10 +321,12 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                     this.dispatchResult.set(res);
                     this.dispatchBusy.set(false);
                     this.refreshSessionsAndAnalytics();
+                    this._cdr.markForCheck();
                 },
                 error: (err) => {
                     this.dispatchError.set(err?.error?.message || 'CSV dispatch failed');
                     this.dispatchBusy.set(false);
+                    this._cdr.markForCheck();
                 },
             });
     }
@@ -258,8 +335,12 @@ export class SmartLinkProjectDetailComponent implements OnInit {
         if (!text) return;
         this._clipboard.copy(text);
         this.copiedKey.set(key);
+        this._snack.open(this._transloco.translate('smartLinks.actions.copied'), undefined, { duration: 1800 });
         setTimeout(() => {
-            if (this.copiedKey() === key) this.copiedKey.set(null);
+            if (this.copiedKey() === key) {
+                this.copiedKey.set(null);
+                this._cdr.markForCheck();
+            }
         }, 2000);
     }
 
@@ -272,6 +353,7 @@ export class SmartLinkProjectDetailComponent implements OnInit {
             next: ({ analytics, sessions }) => {
                 this.analytics.set(analytics);
                 this.sessions.set(sessions?.docs || []);
+                this._cdr.markForCheck();
             },
         });
     }

@@ -1,182 +1,333 @@
-<div class="sl-list-page" *transloco="let t">
-    <div class="sl-list-container">
-        <header class="sl-hero">
-            <div class="sl-hero-copy">
-                <div class="sl-eyebrow">
-                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:link"></mat-icon>
-                    <span>{{ t('smartLinks.badge') }}</span>
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div class="hero-icon">
+                    <mat-icon svgIcon="heroicons_outline:link"></mat-icon>
                 </div>
-                <h1 class="sl-h1">{{ t('smartLinks.list.title') }}</h1>
-                <p class="sl-lead">{{ t('smartLinks.list.subtitle') }}</p>
-            </div>
-            <div class="sl-hero-actions">
-                <button type="button" class="sl-btn sl-btn--primary" (click)="createNew()">
-                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:plus"></mat-icon>
-                    <span>{{ t('smartLinks.list.createCta') }}</span>
-                </button>
-            </div>
-        </header>
+                <div>
+                    <h1 class="title">{{ t('smartLinks.list.title') }}</h1>
+                    <p class="subtitle">{{ t('smartLinks.list.subtitle') }}</p>
+                </div>
+            </header>
 
-        <section class="sl-toolbar">
-            <div class="sl-search-wrap">
-                <mat-icon class="sl-search-icon icon-size-4" svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
-                <input
-                    type="text"
-                    class="sl-input sl-search-input"
-                    [ngModel]="searchTerm()"
-                    (ngModelChange)="searchTerm.set($event)"
-                    [placeholder]="t('smartLinks.list.searchPlaceholder')"
-                />
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_links') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('smartLinks.list.title') }}</span>
             </div>
 
             @if (!isAuthenticated()) {
-                <button type="button" class="sl-btn sl-btn--outline" (click)="promptSignIn()">
-                    {{ t('smartLinks.list.signInCta') }}
-                </button>
-            } @else {
-                <button type="button" class="sl-btn sl-btn--outline" (click)="loadProjects()">
-                    <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-path"></mat-icon>
-                    <span>{{ t('smartLinks.actions.refresh') }}</span>
-                </button>
-            }
-        </section>
-
-        @if (loading()) {
-            <div class="sl-state-card">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ t('smartLinks.list.loading') }}</p>
-            </div>
-        } @else if (error()) {
-            <div class="sl-state-card sl-state-card--error">
-                <p>{{ error() }}</p>
-                <button type="button" class="sl-btn sl-btn--outline" (click)="loadProjects()">
-                    {{ t('smartLinks.actions.retry') }}
-                </button>
-            </div>
-        } @else if (!filteredProjects().length) {
-            <div class="sl-empty-card">
-                <div class="sl-empty-icon">
-                    <mat-icon class="icon-size-8" svgIcon="heroicons_outline:sparkles"></mat-icon>
-                </div>
-                <h2>{{ t('smartLinks.list.emptyTitle') }}</h2>
-                <p>{{ t('smartLinks.list.emptySubtitle') }}</p>
-                <div class="sl-empty-actions">
-                    <button type="button" class="sl-btn sl-btn--primary" (click)="createNew()">
-                        {{ t('smartLinks.list.createCta') }}
-                    </button>
-                    @if (!isAuthenticated()) {
-                        <button type="button" class="sl-btn sl-btn--outline" (click)="promptSignIn()">
+                <div class="empty-hero-card">
+                    <div class="empty-hero-icon">
+                        <mat-icon svgIcon="heroicons_outline:link"></mat-icon>
+                    </div>
+                    <h2 class="empty-hero-title">{{ t('smartLinks.list.emptyTitle') }}</h2>
+                    <p class="empty-hero-text">{{ t('smartLinks.list.emptySubtitle') }}</p>
+                    <div class="mt-6 flex flex-wrap justify-center gap-3">
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="empty-hero-cta"
+                            (click)="promptSignIn()"
+                        >
                             {{ t('smartLinks.list.signInCta') }}
                         </button>
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="empty-hero-cta"
+                            (click)="createNew()"
+                        >
+                            {{ t('smartLinks.list.createCta') }}
+                        </button>
+                    </div>
+                </div>
+            } @else if (loading()) {
+                <div class="state-loading">
+                    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                </div>
+            } @else if (error()) {
+                <div class="banner-error flex items-center justify-between gap-3">
+                    <span>{{ error() }}</span>
+                    <button mat-stroked-button type="button" (click)="loadProjects()">
+                        {{ t('smartLinks.actions.retry') }}
+                    </button>
+                </div>
+            } @else if (projects().length === 0) {
+                <div class="empty-hero-card">
+                    <div class="empty-hero-icon">
+                        <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                    </div>
+                    <h2 class="empty-hero-title">{{ t('smartLinks.list.emptyTitle') }}</h2>
+                    <p class="empty-hero-text">{{ t('smartLinks.list.emptySubtitle') }}</p>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        class="empty-hero-cta"
+                        (click)="createNew()"
+                    >
+                        <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                        {{ t('smartLinks.list.createCta') }}
+                    </button>
+                </div>
+            } @else {
+                @if (projects().length > 3) {
+                    <div class="mb-5 max-w-md">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-icon matPrefix class="mr-1.5 text-stone-400">search</mat-icon>
+                            <input
+                                matInput
+                                type="search"
+                                [ngModel]="searchTerm()"
+                                (ngModelChange)="searchTerm.set($event)"
+                                [placeholder]="t('smartLinks.list.searchPlaceholder')"
+                                autocorrect="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                            />
+                        </mat-form-field>
+                    </div>
+                }
+
+                <div class="grid">
+                    <!-- Dashed Create New Card mirroring AccessProjectListComponent -->
+                    <button
+                        type="button"
+                        class="card card-create"
+                        (click)="createNew()"
+                        [attr.aria-label]="t('smartLinks.list.createCta')"
+                    >
+                        <div class="card-create-icon">
+                            <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                        </div>
+                        <div class="card-create-copy">
+                            <h2 class="card-create-title">{{ t('smartLinks.list.createCta') }}</h2>
+                            <p class="card-create-text">{{ t('smartLinks.list.newProjectSubtitle') }}</p>
+                        </div>
+                        <span class="card-create-cta">
+                            {{ t('smartLinks.list.createCta') }}
+                            <span aria-hidden="true">›</span>
+                        </span>
+                    </button>
+
+                    @for (project of filteredProjects(); track project._id) {
+                        @let flow = flowOf(project);
+                        <article class="card" (click)="openDetail(project, $event)">
+                            <div class="card-top">
+                                <div class="card-brand">
+                                    @if (project.branding?.logo) {
+                                        <img class="logo" [src]="project.branding.logo" alt="" />
+                                    } @else {
+                                        <div class="logo-fallback">
+                                            <mat-icon svgIcon="heroicons_outline:link"></mat-icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-heading">
+                                    <h2 class="card-title">{{ project.name || project._id }}</h2>
+                                    <div class="status-row">
+                                        <span
+                                            class="pill"
+                                            [class.pill-on]="!isDraftFlow(flow)"
+                                            [class.pill-off]="isDraftFlow(flow)"
+                                        >
+                                            <span class="pill-dot"></span>
+                                            {{
+                                                isDraftFlow(flow)
+                                                    ? t('smartAccessProjects.list.draft')
+                                                    : t('smartAccessProjects.list.active')
+                                            }}
+                                        </span>
+                                        <mat-slide-toggle
+                                            color="primary"
+                                            [checked]="!isDraftFlow(flow)"
+                                            (click)="$event.stopPropagation()"
+                                            (change)="onFlowStatusToggle($event, project)"
+                                        ></mat-slide-toggle>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    mat-icon-button
+                                    class="menu-btn"
+                                    [matMenuTriggerFor]="projectMenu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="t('smartAccessProjects.list.moreActions')"
+                                >
+                                    <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                                </button>
+
+                                <mat-menu #projectMenu="matMenu">
+                                    <button mat-menu-item type="button" (click)="mintTestLink(project, $event)">
+                                        <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:qr-code"></mat-icon>
+                                        <span>{{ t('smartLinks.list.mintTest') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openLiveLink(project, $event)">
+                                        <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                        <span>{{ t('smartLinks.list.openLive') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="copyPublicUrl(project, $event)">
+                                        <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:link"></mat-icon>
+                                        <span>{{ t('smartLinks.actions.copyUrl') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openSetup(project, 0, $event)">
+                                        {{ t('smartLinks.list.setup') }}
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openDetail(project, $event)">
+                                        {{ t('smartLinks.list.openHub') }}
+                                    </button>
+                                </mat-menu>
+                            </div>
+
+                            <!-- Compact public URL bar -->
+                            @if (publicUrl(project); as url) {
+                                <div class="slug-strip" (click)="$event.stopPropagation()">
+                                    <code class="slug-strip__code">{{ url }}</code>
+                                    <button
+                                        type="button"
+                                        class="slug-strip__copy"
+                                        (click)="copyPublicUrl(project, $event)"
+                                        [attr.aria-label]="t('smartLinks.actions.copyUrl')"
+                                    >
+                                        <mat-icon>{{ copiedProjectId() === project._id ? 'check' : 'content_copy' }}</mat-icon>
+                                    </button>
+                                </div>
+                            }
+
+                            <!-- Step shortcut rows matching SmartAccess -->
+                            <div class="rows" (click)="$event.stopPropagation()">
+                                <button type="button" class="row" (click)="openSetup(project, 1, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:cpu-chip"></mat-icon>
+                                    <span class="row-label">{{ t('smartLinks.setup.steps.s1') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row" (click)="openSetup(project, 2, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:shield-check"></mat-icon>
+                                    <span class="row-label">{{ t('smartLinks.setup.steps.s2') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row" (click)="openSetup(project, 3, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:code-bracket"></mat-icon>
+                                    <span class="row-label">{{ t('smartLinks.setup.steps.s3') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row row-last" (click)="openSetup(project, 4, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:paint-brush"></mat-icon>
+                                    <span class="row-label">{{ t('smartLinks.setup.steps.s4') }} · {{ styleLabel(flow) }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                            </div>
+
+                            <div class="meta">
+                                {{ t('smartAccessProjects.updated') }}: {{ formatUpdated(project.updatedAt) }}
+                            </div>
+
+                            <div class="card-actions" (click)="$event.stopPropagation()">
+                                <button type="button" class="btn-live" (click)="openLiveLink(project, $event)">
+                                    <mat-icon class="btn-live-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                    {{ t('smartLinks.list.openLive') }}
+                                </button>
+                                <div class="card-actions-row">
+                                    <button type="button" class="btn-primary" (click)="openSetup(project, 0, $event)">
+                                        {{ t('smartLinks.list.setup') }}
+                                    </button>
+                                    <button type="button" class="btn-secondary" (click)="openDetail(project, $event)">
+                                        {{ t('smartLinks.list.openHub') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
                     }
                 </div>
-            </div>
-        } @else {
-            <div class="sl-grid">
-                @for (project of filteredProjects(); track project._id) {
-                    @let flow = flowOf(project);
-                    <article class="sl-card">
-                        <div class="sl-card-top">
-                            <div>
-                                <div class="sl-card-title-row">
-                                    <h2 class="sl-card-title">{{ project.name }}</h2>
-                                    <span
-                                        class="sl-status-pill"
-                                        [class.is-active]="flow?.status === 'active'"
-                                        [class.is-paused]="flow?.status === 'paused'"
-                                    >
-                                        {{ flow?.status || 'draft' }}
-                                    </span>
-                                </div>
-                                <p class="sl-card-url">
-                                    <code>{{ publicUrl(project) }}</code>
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                class="sl-icon-btn"
-                                (click)="copyPublicUrl(project)"
-                                [title]="t('smartLinks.actions.copyUrl')"
-                            >
-                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:clipboard-document"></mat-icon>
-                                <span>
-                                    {{
-                                        copiedProjectId() === project._id
-                                            ? t('smartLinks.actions.copied')
-                                            : t('smartLinks.actions.copy')
-                                    }}
-                                </span>
-                            </button>
-                        </div>
-
-                        <div class="sl-chip-row">
-                            @for (mode of flow?.routing?.supportedModes || []; track mode) {
-                                <span class="sl-chip">{{ t('smartLinks.modes.' + mode + '.label') }}</span>
-                            }
-                            <span class="sl-chip sl-chip--handoff">
-                                {{ t('smartLinks.completionModes.' + (flow?.completion?.mode || 'receipt')) }}
-                            </span>
-                        </div>
-
-                        <div class="sl-card-actions">
-                            <button type="button" class="sl-btn sl-btn--outline" (click)="mintTestLink(project)">
-                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:qr-code"></mat-icon>
-                                <span>{{ t('smartLinks.list.mintTest') }}</span>
-                            </button>
-                            <button type="button" class="sl-btn sl-btn--outline" (click)="openSetup(project)">
-                                <mat-icon class="icon-size-4" svgIcon="heroicons_outline:cog-6-tooth"></mat-icon>
-                                <span>{{ t('smartLinks.list.setup') }}</span>
-                            </button>
-                            <button type="button" class="sl-btn sl-btn--primary" (click)="openDetail(project)">
-                                <span>{{ t('smartLinks.list.openHub') }}</span>
-                            </button>
-                        </div>
-                    </article>
-                }
-            </div>
-        }
+            }
+        </div>
     </div>
 
-    @if (mintModalOpen()) {
-        <div class="sl-modal-backdrop" (click)="closeMintModal()">
-            <div class="sl-modal" (click)="$event.stopPropagation()">
-                <div class="sl-modal-header">
-                    <h3>{{ t('smartLinks.mintModal.title') }} — {{ mintTargetProject()?.name }}</h3>
-                    <button type="button" class="sl-close-btn" (click)="closeMintModal()">&times;</button>
+    <!-- Native modal dialog for Mint Test Link & QR (per modern-web-guidance dialog spec) -->
+    <dialog
+        #mintDialog
+        class="sl-mint-dialog"
+        aria-labelledby="smartlink-mint-title"
+        (close)="onMintDialogClosed()"
+        (click)="onMintDialogBackdropClick($event)"
+    >
+        @if (mintModalOpen() && mintTargetProject()) {
+            <div class="sl-mint-card">
+                <div class="sl-mint-card__head">
+                    <div>
+                        <span class="sl-mint-card__eyebrow">{{ t('smartLinks.badge') }}</span>
+                        <h2 id="smartlink-mint-title" class="sl-mint-card__title">
+                            {{ t('smartLinks.mintModal.title') }}
+                        </h2>
+                        <p class="sl-mint-card__sub">{{ mintTargetProject()!.name }}</p>
+                    </div>
+                    <button mat-icon-button type="button" (click)="closeMintModal()" [attr.aria-label]="t('close')">
+                        <mat-icon>close</mat-icon>
+                    </button>
                 </div>
 
                 @if (mintLoading()) {
-                    <div class="sl-state-card">
-                        <mat-spinner diameter="28"></mat-spinner>
-                        <p>{{ t('smartLinks.mintModal.minting') }}</p>
+                    <div class="flex flex-col items-center gap-3 py-8">
+                        <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+                        <p class="m-0 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartLinks.mintModal.minting') }}
+                        </p>
                     </div>
                 } @else if (mintError()) {
-                    <div class="sl-state-card sl-state-card--error">
-                        <p>{{ mintError() }}</p>
+                    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                        {{ mintError() }}
                     </div>
                 } @else if (mintedSession()) {
-                    <div class="sl-modal-body">
-                        @if (mintedSession()!.qrDataUrl || staticQrDataUrl()) {
-                            <img
-                                [src]="mintedSession()!.qrDataUrl || staticQrDataUrl()"
-                                alt="SmartLink QR"
-                                class="sl-qr-img"
-                            />
-                        }
-                        <label class="sl-modal-label">{{ t('smartLinks.mintModal.signedUrl') }}</label>
-                        <div class="sl-copy-row">
-                            <input type="text" class="sl-input" [value]="mintedSession()!.url" readonly />
-                            <button type="button" class="sl-btn sl-btn--primary" (click)="copyValue(mintedSession()!.url)">
-                                {{ t('smartLinks.actions.copy') }}
-                            </button>
+                    <div class="flex flex-col items-center gap-4">
+                        <img
+                            [src]="mintedSession()!.qrDataUrl || staticQrDataUrl()"
+                            alt="SmartLink QR"
+                            class="h-44 w-44 rounded-xl border border-stone-200 bg-white p-2 dark:border-gray-700"
+                        />
+
+                        <div class="w-full space-y-2">
+                            <span class="block text-xs font-semibold text-stone-600 dark:text-stone-300">
+                                {{ t('smartLinks.mintModal.signedUrl') }}
+                            </span>
+                            <div class="flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                <code class="min-w-0 flex-1 break-all text-xs text-stone-800 dark:text-stone-200">
+                                    {{ mintedSession()!.url }}
+                                </code>
+                                <button
+                                    mat-icon-button
+                                    type="button"
+                                    (click)="copyValue(mintedSession()!.url)"
+                                    [attr.aria-label]="t('smartLinks.actions.copy')"
+                                >
+                                    <mat-icon>content_copy</mat-icon>
+                                </button>
+                            </div>
                         </div>
-                        <p class="sl-modal-meta">
-                            <span>{{ t('smartLinks.mintModal.shortCode') }}:</span>
-                            <code>{{ mintedSession()!.shortCode }}</code>
-                        </p>
+
+                        <div class="flex w-full items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                            <span>
+                                {{ t('smartLinks.mintModal.shortCode') }}:
+                                <strong class="font-mono text-stone-900 dark:text-white">{{ mintedSession()!.shortCode }}</strong>
+                            </span>
+                            <a
+                                mat-stroked-button
+                                [href]="mintedSession()!.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="rounded-full"
+                            >
+                                {{ t('smartLinks.list.openLive') }}
+                            </a>
+                        </div>
                     </div>
                 }
             </div>
-        </div>
-    }
-</div>
+        }
+    </dialog>
+</ng-container>

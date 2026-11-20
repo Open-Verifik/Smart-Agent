@@ -52,8 +52,8 @@ export const SMART_LINK_STYLE_DEFAULTS: Record<SmartLinkVerifyStyle, SmartLinkBr
         imageBackgroundColor: '#000814',
     },
     e: {
-        buttonColor: '#151581',
-        buttonTextColor: '#ffffff',
+        buttonColor: '#ffffff',
+        buttonTextColor: '#151581',
         titleColor: '#151581',
         textColor: '#292824',
         backgroundColor: '#f6f6fa',
@@ -233,6 +233,18 @@ export class SmartLinksService {
         return this._http
             .put<{ data: SmartLinkProject }>(`${this.apiUrl}/v3/projects/${id}`, body, { headers: this.authHeaders })
             .pipe(map((res) => res.data));
+    }
+
+    listWebhooks(): Observable<{ _id: string; name?: string; url?: string }[]> {
+        return this._http
+            .get<{ data?: { _id: string; name?: string; url?: string }[] }>(`${this.apiUrl}/v2/webhooks`, {
+                params: { where_isActive: 'true' },
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((res) => res?.data ?? []),
+                catchError(() => of([]))
+            );
     }
 
     listCandidateEngineProjects(): Observable<Record<EngineProjectOption['category'], EngineProjectOption[]>> {
