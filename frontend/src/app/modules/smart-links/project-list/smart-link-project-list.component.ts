@@ -137,6 +137,12 @@ export class SmartLinkProjectListComponent implements OnInit {
         void this._router.navigate(['/smart-links/projects', project._id]);
     }
 
+    openSessions(project: SmartLinkProject, event?: Event): void {
+        event?.stopPropagation();
+        if (!project._id) return;
+        void this._router.navigate(['/smart-links/projects', project._id, 'sessions']);
+    }
+
     openSetup(project: SmartLinkProject, step = 0, event?: Event): void {
         event?.stopPropagation();
         if (!project._id) return;

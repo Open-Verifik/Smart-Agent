@@ -24,6 +24,8 @@ describe('SmartLinksService', () => {
             get: vi.fn(),
             post: vi.fn(),
             put: vi.fn(),
+            patch: vi.fn(),
+            delete: vi.fn(),
         };
         TestBed.configureTestingModule({
             providers: [
@@ -183,5 +185,138 @@ describe('SmartLinksService', () => {
         } as any;
         expect(service.extractSmartLinkFlow(singleObjResponse)?._id).toBe('flow_obj_1');
         expect(service.extractSmartLinkFlowId(singleObjResponse)).toBe('flow_obj_1');
+    });
+
+    it('lists sessions with filters and omits "all" sentinel params', () => {
+        const { service, httpMock } = createService();
+        const mockResponse = {
+            docs: [{ _id: 'sess_1', shortCode: 'abc123', state: 'OPENED' }],
+            total: 1,
+            page: 2,
+            limit: 10,
+            pages: 1,
+        };
+        httpMock.get.mockReturnValue(of(mockResponse));
+
+        let received: any;
+        service
+            .listSessions('proj_1', 2, 10, {
+                search: ' jane@acme.com ',
+                state: 'OPENED',
+                requireDocument: 'all',
+                channel: 'all',
+                createdFrom: '2026-11-01T00:00:00.000Z',
+                createdTo: '2026-11-20T23:59:59.999Z',
+                sort: '-createdAt',
+            })
+            .subscribe((res) => {
+                received = res;
+            });
+
+        expect(httpMock.get).toHaveBeenCalledTimes(1);
+        const [url, options] = httpMock.get.mock.calls[0];
+        expect(url).toMatch(/\/v3\/smart-links\/proj_1\/sessions$/);
+        expect(options.params).toEqual({
+            page: '2',
+            limit: '10',
+            search: 'jane@acme.com',
+            state: 'OPENED',
+            createdFrom: '2026-11-01T00:00:00.000Z',
+            createdTo: '2026-11-20T23:59:59.999Z',
+            sort: '-createdAt',
+        });
+        expect(received).toEqual(mockResponse);
+    });
+
+    it('fetches session detail via GET /v3/smart-links/sessions/:sessionId and unwraps data', () => {
+        const { service, httpMock } = createService();
+        const detail = { _id: 'sess_42', shortCode: 'Code42', interactions: [] };
+        httpMock.get.mockReturnValue(of({ data: detail }));
+
+        let received: any;
+        service.getSessionDetail('sess/42').subscribe((res) => {
+            received = res;
+        });
+
+        expect(httpMock.get).toHaveBeenCalledTimes(1);
+        expect(httpMock.get.mock.calls[0][0]).toMatch(/\/v3\/smart-links\/sessions\/sess%2F42$/);
+        expect(received).toEqual(detail);
+    });
+
+    it('updates a session via PATCH /v3/smart-links/sessions/:sessionId and unwraps data', () => {
+        const { service, httpMock } = createService();
+        const updated = { _id: 'sess_42', requireDocument: true, notes: 'VIP applicant' };
+        httpMock.patch.mockReturnValue(of({ data: updated }));
+
+        let received: any;
+        service
+            .updateSession('sess_42', { requireDocument: true, notes: 'VIP applicant' })
+            .subscribe((res) => {
+                received = res;
+            });
+
+        expect(httpMock.patch).toHaveBeenCalledTimes(1);
+        const [url, body] = httpMock.patch.mock.calls[0];
+        expect(url).toMatch(/\/v3\/smart-links\/sessions\/sess_42$/);
+        expect(body).toEqual({ requireDocument: true, notes: 'VIP applicant' });
+        expect(received).toEqual(updated);
+    });
+
+    it('resends and rotates a session via POST /v3/smart-links/sessions/:sessionId/resend', () => {
+        const { service, httpMock } = createService();
+        const resendResult = { session: { _id: 'sess_42' }, url: 'https://access.verifik.co/l/Code42?t=new' };
+        httpMock.post.mockReturnValue(of({ data: resendResult }));
+
+        let received: any;
+        service.resendSession('sess_42', { channel: 'email', email: 'john@acme.com' }).subscribe((res) => {
+            received = res;
+        });
+
+        expect(httpMock.post).toHaveBeenCalledTimes(1);
+        const [url, body] = httpMock.post.mock.calls[0];
+        expect(url).toMatch(/\/v3\/smart-links\/sessions\/sess_42\/resend$/);
+        expect(body).toEqual({ channel: 'email', email: 'john@acme.com' });
+        expect(received).toEqual(resendResult);
+    });
+
+    it('deletes a single session via DELETE /v3/smart-links/sessions/:sessionId', () => {
+        const { service, httpMock } = createService();
+        const deletedResult = { deleted: true, sessionId: 'sess_42', shortCode: 'Code42' };
+        httpMock.delete.mockReturnValue(of({ data: deletedResult }));
+
+        let received: any;
+        service.deleteSession('sess_42').subscribe((res) => {
+            received = res;
+        });
+
+        expect(httpMock.delete).toHaveBeenCalledTimes(1);
+        expect(httpMock.delete.mock.calls[0][0]).toMatch(/\/v3\/smart-links\/sessions\/sess_42$/);
+        expect(received).toEqual(deletedResult);
+    });
+
+    it('bulk deletes and bulk revokes sessions via project bulk endpoints', () => {
+        const { service, httpMock } = createService();
+        httpMock.post
+            .mockReturnValueOnce(of({ data: { deletedCount: 2, skippedCompleted: 1 } }))
+            .mockReturnValueOnce(of({ data: { revokedCount: 2, skippedCount: 0 } }));
+
+        let bulkDelRes: any;
+        let bulkRevRes: any;
+
+        service.bulkDeleteSessions('proj_1', ['s1', 's2', 's3']).subscribe((res) => {
+            bulkDelRes = res;
+        });
+        service.bulkRevokeSessions('proj_1', ['s1', 's2']).subscribe((res) => {
+            bulkRevRes = res;
+        });
+
+        expect(httpMock.post).toHaveBeenCalledTimes(2);
+        expect(httpMock.post.mock.calls[0][0]).toMatch(/\/v3\/smart-links\/proj_1\/sessions\/bulk-delete$/);
+        expect(httpMock.post.mock.calls[0][1]).toEqual({ sessionIds: ['s1', 's2', 's3'] });
+        expect(bulkDelRes).toEqual({ deletedCount: 2, skippedCompleted: 1 });
+
+        expect(httpMock.post.mock.calls[1][0]).toMatch(/\/v3\/smart-links\/proj_1\/sessions\/bulk-revoke$/);
+        expect(httpMock.post.mock.calls[1][1]).toEqual({ sessionIds: ['s1', 's2'] });
+        expect(bulkRevRes).toEqual({ revokedCount: 2, skippedCount: 0 });
     });
 });

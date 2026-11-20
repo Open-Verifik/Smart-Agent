@@ -14,7 +14,12 @@ import {
     SmartLinkDefaultMode,
     SmartLinkProject,
     SmartLinkProjectFlow,
+    SmartLinkResendPayload,
+    SmartLinkResendResult,
+    SmartLinkSessionDetail,
+    SmartLinkSessionFilters,
     SmartLinkSessionRecord,
+    SmartLinkUpdateSessionPayload,
     SmartLinkVerifyStyle,
 } from './smart-links.types';
 
@@ -374,20 +379,106 @@ export class SmartLinksService {
             .pipe(map((res) => res.data));
     }
 
-    listSessions(projectId: string, page = 1, limit = 25): Observable<{ docs: SmartLinkSessionRecord[]; total: number }> {
-        return this._http.get<{ docs: SmartLinkSessionRecord[]; total: number }>(
-            `${this.apiUrl}/v3/smart-links/${projectId}/sessions`,
-            {
-                params: { page: String(page), limit: String(limit) },
-                headers: this.authHeaders,
-            }
-        );
+    listSessions(
+        projectId: string,
+        page = 1,
+        limit = 25,
+        filters: SmartLinkSessionFilters = {}
+    ): Observable<{ docs: SmartLinkSessionRecord[]; total: number; page: number; limit: number; pages: number }> {
+        const params: Record<string, string> = {
+            page: String(page),
+            limit: String(limit),
+        };
+        if (filters.search?.trim()) params['search'] = filters.search.trim();
+        if (filters.state && filters.state !== 'all') params['state'] = filters.state;
+        if (filters.requireDocument && filters.requireDocument !== 'all') {
+            params['requireDocument'] = filters.requireDocument;
+        }
+        if (filters.channel && filters.channel !== 'all') params['channel'] = filters.channel;
+        if (filters.createdFrom) params['createdFrom'] = filters.createdFrom;
+        if (filters.createdTo) params['createdTo'] = filters.createdTo;
+        if (filters.sort) params['sort'] = filters.sort;
+
+        return this._http.get<{
+            docs: SmartLinkSessionRecord[];
+            total: number;
+            page: number;
+            limit: number;
+            pages: number;
+        }>(`${this.apiUrl}/v3/smart-links/${projectId}/sessions`, {
+            params,
+            headers: this.authHeaders,
+        });
     }
 
-    revokeSession(sessionId: string): Observable<SmartLinkSessionRecord> {
+    getSessionDetail(sessionId: string): Observable<SmartLinkSessionDetail> {
         return this._http
-            .post<{ data: SmartLinkSessionRecord }>(
-                `${this.apiUrl}/v3/smart-links/sessions/${sessionId}/revoke`,
+            .get<{ data: SmartLinkSessionDetail }>(
+                `${this.apiUrl}/v3/smart-links/sessions/${encodeURIComponent(sessionId)}`,
+                { headers: this.authHeaders }
+            )
+            .pipe(map((res) => res.data));
+    }
+
+    updateSession(sessionId: string, payload: SmartLinkUpdateSessionPayload): Observable<SmartLinkSessionDetail> {
+        return this._http
+            .patch<{ data: SmartLinkSessionDetail }>(
+                `${this.apiUrl}/v3/smart-links/sessions/${encodeURIComponent(sessionId)}`,
+                payload,
+                { headers: this.authHeaders }
+            )
+            .pipe(map((res) => res.data));
+    }
+
+    resendSession(sessionId: string, payload: SmartLinkResendPayload = {}): Observable<SmartLinkResendResult> {
+        return this._http
+            .post<{ data: SmartLinkResendResult }>(
+                `${this.apiUrl}/v3/smart-links/sessions/${encodeURIComponent(sessionId)}/resend`,
+                payload,
+                { headers: this.authHeaders }
+            )
+            .pipe(map((res) => res.data));
+    }
+
+    deleteSession(sessionId: string): Observable<{ deleted: boolean; sessionId: string; shortCode: string }> {
+        return this._http
+            .delete<{ data: { deleted: boolean; sessionId: string; shortCode: string } }>(
+                `${this.apiUrl}/v3/smart-links/sessions/${encodeURIComponent(sessionId)}`,
+                { headers: this.authHeaders }
+            )
+            .pipe(map((res) => res.data));
+    }
+
+    bulkDeleteSessions(
+        projectId: string,
+        sessionIds: string[]
+    ): Observable<{ deletedCount: number; skippedCompleted: number }> {
+        return this._http
+            .post<{ data: { deletedCount: number; skippedCompleted: number } }>(
+                `${this.apiUrl}/v3/smart-links/${projectId}/sessions/bulk-delete`,
+                { sessionIds },
+                { headers: this.authHeaders }
+            )
+            .pipe(map((res) => res.data));
+    }
+
+    bulkRevokeSessions(
+        projectId: string,
+        sessionIds: string[]
+    ): Observable<{ revokedCount: number; skippedCount: number }> {
+        return this._http
+            .post<{ data: { revokedCount: number; skippedCount: number } }>(
+                `${this.apiUrl}/v3/smart-links/${projectId}/sessions/bulk-revoke`,
+                { sessionIds },
+                { headers: this.authHeaders }
+            )
+            .pipe(map((res) => res.data));
+    }
+
+    revokeSession(sessionId: string): Observable<SmartLinkSessionDetail> {
+        return this._http
+            .post<{ data: SmartLinkSessionDetail }>(
+                `${this.apiUrl}/v3/smart-links/sessions/${encodeURIComponent(sessionId)}/revoke`,
                 {},
                 { headers: this.authHeaders }
             )

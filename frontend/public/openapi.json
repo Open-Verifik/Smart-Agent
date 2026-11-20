@@ -12796,6 +12796,286 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "smart_link_list_sessions",
+        "summary": "SmartLink: Search & Filter Verification Links",
+        "description": "List, search, and filter SmartLink verification sessions for a project by text search (shortCode, email, phone, name, externalRefId), state, requireDocument flag, channel, createdFrom/createdTo ISO dates, sort field, and pagination.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "SmartLink project ID to list links for."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Case-insensitive search across shortCode, email, phone, fullName, confirmationCode, externalRefId, or notes."
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by session state (single or comma-separated): CREATED, OPENED, ROUTED, IN_PROGRESS, COMPLETED, FAILED, EXPIRED, REVOKED, or all."
+          },
+          {
+            "name": "requireDocument",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by per-link document requirement: true, false, or all."
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by creation channel: portal, api, mcp, x402, csv_campaign, public_slug, or all."
+          },
+          {
+            "name": "createdFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter sessions created on or after this ISO 8601 timestamp."
+          },
+          {
+            "name": "createdTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter sessions created on or before this ISO 8601 timestamp."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Sort field prefix: -createdAt (default), createdAt, -completedAt, -expiresAt, or state."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "1-based page number (default 1)."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Items per page (1 to 100, default 25)."
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "smart_link_update_session",
+        "summary": "SmartLink: Update Verification Link",
+        "description": "Update an existing SmartLink session (prefill email/phone/fullName, per-link requireDocument toggle, extendMinutes expiration, maxUses, completionMode, externalRefId, notes, or revoke/reactivate). For COMPLETED sessions, only externalRefId, notes, and metadata may be edited.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "SmartLink session ObjectId or 10-character shortCode."
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Updated target email address."
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Updated target phone number."
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "description": "Updated phone country calling code (e.g. +1, +57)."
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "description": "Updated expected full name hint."
+                  },
+                  "requireDocument": {
+                    "type": "boolean",
+                    "description": "Update per-link ID document requirement (true or false)."
+                  },
+                  "extendMinutes": {
+                    "type": "number",
+                    "description": "Minutes to extend link expiration (5 to 43200). Automatically reactivates expired links."
+                  },
+                  "maxUses": {
+                    "type": "number",
+                    "description": "Maximum allowed completions (0 for unlimited, or 1 to 1000)."
+                  },
+                  "completionMode": {
+                    "type": "string",
+                    "description": "Handoff mode upon completion: receipt, redirect, or postMessage."
+                  },
+                  "externalRefId": {
+                    "type": "string",
+                    "description": "Updated external correlation ID."
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Operator notes attached to this link."
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Transition non-completed link state: REVOKED, CREATED, or OPENED."
+                  }
+                },
+                "required": [
+                  "sessionId"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "smart_link_delete_session",
+        "summary": "SmartLink: Delete Uncompleted Verification Link",
+        "description": "Permanently delete a non-completed SmartLink session (CREATED, OPENED, ROUTED, IN_PROGRESS, EXPIRED, FAILED, or REVOKED) and its dispatch records. COMPLETED links are protected audit records and cannot be deleted.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "SmartLink session ObjectId or 10-character shortCode to delete."
+          }
+        ]
       }
     },
     "/api/v3/smart-links/sessions/status": {
@@ -12808,7 +13088,7 @@
         ],
         "operationId": "smart_link_session_status",
         "summary": "SmartLink: Poll Session Status & Identity Proof",
-        "description": "Poll the live state (CREATED, OPENED, ROUTED, IN_PROGRESS, COMPLETED, EXPIRED, REVOKED) of a SmartLink session by sessionId or shortCode. Once COMPLETED, returns verified: true, hydrated identity ({ fullName, email, phone, documentType, documentNumber }), and a signed JWT proof token proving who completed the check.",
+        "description": "Poll the live state (CREATED, OPENED, ROUTED, IN_PROGRESS, COMPLETED, EXPIRED, REVOKED), full interaction audit trail, and verified outcome summary of a SmartLink session by sessionId or shortCode. Once COMPLETED, returns verified: true, hydrated identity ({ fullName, email, phone, documentType, documentNumber }), and a signed JWT proof token proving who completed the check.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",

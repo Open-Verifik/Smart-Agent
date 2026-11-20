@@ -11,9 +11,11 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -23,7 +25,15 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import QRCode from 'qrcode';
 import { forkJoin } from 'rxjs';
 
+import { SmartLinkSessionDeleteDialogComponent } from '../dialogs/smart-link-session-delete-dialog.component';
+import { SmartLinkSessionEditDialogComponent } from '../dialogs/smart-link-session-edit-dialog.component';
+import { SmartLinkSessionResendDialogComponent } from '../dialogs/smart-link-session-resend-dialog.component';
 import { SmartLinkLivePreviewComponent } from '../preview/smart-link-live-preview.component';
+import {
+    formatSessionDate,
+    resolveSessionTargetLabel,
+    sessionStatePillClass,
+} from '../smart-link-session.util';
 import { SMART_LINK_STYLE_DEFAULTS, SmartLinksService } from '../smart-links.service';
 import type {
     DispatchBatchResult,
@@ -33,6 +43,7 @@ import type {
     SmartLinkCompletionMode,
     SmartLinkIdentifier,
     SmartLinkProject,
+    SmartLinkSessionFilters,
     SmartLinkSessionRecord,
     SmartLinkVerifyStyle,
 } from '../smart-links.types';
@@ -46,9 +57,11 @@ import type {
         ClipboardModule,
         RouterModule,
         MatButtonModule,
+        MatDialogModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
+        MatMenuModule,
         MatProgressSpinnerModule,
         MatSelectModule,
         MatSlideToggleModule,
@@ -64,10 +77,12 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _service = inject(SmartLinksService);
+    private _dialog = inject(MatDialog);
     private _clipboard = inject(Clipboard);
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
     projectId = signal('');
     project = signal<SmartLinkProject | null>(null);
@@ -76,6 +91,11 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     loading = signal(true);
     error = signal<string | null>(null);
     staticQrDataUrl = signal('');
+
+    // Quick inline sessions filters
+    sessionSearch = '';
+    sessionStateFilter = 'all';
+    sessionDocFilter: 'all' | 'true' | 'false' = 'all';
 
     activeTab = signal<'sessions' | 'dispatch' | 'kit'>('sessions');
     kitTab = signal<'prompt' | 'mcp' | 'embed' | 'curl'>('prompt');
@@ -216,13 +236,93 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     }
 
     sessionIdentityLabel(session: SmartLinkSessionRecord): string {
-        const id = session.outcome?.identity;
-        if (id?.fullName) return id.fullName;
-        if (id?.email) return id.email;
-        if (id?.phone) return id.phone;
-        if (session.prefill?.email) return session.prefill.email;
-        if (session.prefill?.phone) return session.prefill.phone;
-        return this._transloco.translate('smartLinks.detail.openLinkLabel') || 'Open link';
+        return resolveSessionTargetLabel(
+            session,
+            this._transloco.translate('smartLinks.detail.openLinkLabel') || 'Open link'
+        );
+    }
+
+    statePillClass(state?: string): string {
+        return sessionStatePillClass(state);
+    }
+
+    formatDate(date?: string): string {
+        return formatSessionDate(date);
+    }
+
+    openAllSessions(state?: string): void {
+        void this._router.navigate(['/smart-links/projects', this.projectId(), 'sessions'], {
+            ...(state && state !== 'all' ? { queryParams: { state } } : {}),
+        });
+    }
+
+    openSessionDetail(session: SmartLinkSessionRecord): void {
+        void this._router.navigate(['/smart-links/projects', this.projectId(), 'sessions', session._id]);
+    }
+
+    onQuickSessionSearch(): void {
+        if (this._searchDebounce) clearTimeout(this._searchDebounce);
+        this._searchDebounce = setTimeout(() => {
+            this._searchDebounce = null;
+            this.refreshSessionsAndAnalytics();
+        }, 350);
+    }
+
+    onQuickFilterChange(): void {
+        this.refreshSessionsAndAnalytics();
+    }
+
+    openEditDialog(session: SmartLinkSessionRecord, event?: Event): void {
+        event?.stopPropagation();
+        const ref = this._dialog.open(SmartLinkSessionEditDialogComponent, {
+            width: '580px',
+            maxWidth: '95vw',
+            data: { session },
+        });
+        ref.afterClosed().subscribe((updated) => {
+            if (updated) {
+                this._snack.open(
+                    this._transloco.translate('smartLinks.dialogs.updatedToast'),
+                    undefined,
+                    { duration: 2200 }
+                );
+                this.refreshSessionsAndAnalytics();
+            }
+        });
+    }
+
+    openResendDialog(session: SmartLinkSessionRecord, event?: Event): void {
+        event?.stopPropagation();
+        const ref = this._dialog.open(SmartLinkSessionResendDialogComponent, {
+            width: '540px',
+            maxWidth: '95vw',
+            data: { session },
+        });
+        ref.afterClosed().subscribe((res) => {
+            if (res) {
+                this.refreshSessionsAndAnalytics();
+            }
+        });
+    }
+
+    openDeleteDialog(session: SmartLinkSessionRecord, event?: Event): void {
+        event?.stopPropagation();
+        if (session.state === 'COMPLETED') return;
+        const ref = this._dialog.open(SmartLinkSessionDeleteDialogComponent, {
+            width: '460px',
+            maxWidth: '95vw',
+            data: { mode: 'single', session },
+        });
+        ref.afterClosed().subscribe((res) => {
+            if (res?.deleted) {
+                this._snack.open(
+                    this._transloco.translate('smartLinks.dialogs.deletedToast'),
+                    undefined,
+                    { duration: 2200 }
+                );
+                this.refreshSessionsAndAnalytics();
+            }
+        });
     }
 
     mintSession(): void {
@@ -356,9 +456,14 @@ export class SmartLinkProjectDetailComponent implements OnInit {
 
     private refreshSessionsAndAnalytics(): void {
         const id = this.projectId();
+        const filters: SmartLinkSessionFilters = {
+            search: this.sessionSearch.trim() || undefined,
+            state: this.sessionStateFilter,
+            requireDocument: this.sessionDocFilter,
+        };
         forkJoin({
             analytics: this._service.getAnalytics(id),
-            sessions: this._service.listSessions(id, 1, 25),
+            sessions: this._service.listSessions(id, 1, 25, filters),
         }).subscribe({
             next: ({ analytics, sessions }) => {
                 this.analytics.set(analytics);

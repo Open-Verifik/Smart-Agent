@@ -1,0 +1,689 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <!-- Sticky blurred header mirroring SmartEnroll ProjectRecordDetailComponent -->
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        >
+            <div class="mx-auto max-w-6xl">
+                <nav
+                    aria-label="Breadcrumb"
+                    class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+                >
+                    <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a routerLink="/smart-links/projects" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                        {{ t('smartLinks.list.title') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a
+                        [routerLink]="['/smart-links/projects', projectId()]"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >
+                        {{ detail()?.projectInfo?.name || projectId() }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a
+                        [routerLink]="['/smart-links/projects', projectId(), 'sessions']"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >
+                        {{ t('smartLinks.sessions.title') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default font-mono text-stone-600 dark:text-stone-300">
+                        {{ detail()?.shortCode || sessionId() }}
+                    </span>
+                </nav>
+
+                <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            (click)="goBack()"
+                            class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                            [attr.aria-label]="t('smartLinks.actions.back')"
+                        >
+                            <mat-icon>arrow_back</mat-icon>
+                        </button>
+                        <div class="min-w-0">
+                            <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                                {{ t('smartLinks.sessionDetail.title') }}
+                            </h1>
+                            <p class="mt-1 text-sm text-stone-600 dark:text-stone-400">
+                                {{ t('smartLinks.sessionDetail.subtitle') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    @if (detail(); as d) {
+                        <div class="flex flex-wrap items-center gap-2">
+                            @if (d.state !== 'COMPLETED') {
+                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openResendDialog()">
+                                    <mat-icon class="!h-4 !w-4 mr-1">send</mat-icon>
+                                    {{ t('smartLinks.actions.resendLink') }}
+                                </button>
+                            }
+                            <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openEditDialog()">
+                                <mat-icon class="!h-4 !w-4 mr-1">edit</mat-icon>
+                                {{ t('smartLinks.actions.editLink') }}
+                            </button>
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                class="shrink-0 rounded-xl"
+                                (click)="toggleDevView()"
+                                [attr.aria-pressed]="devView()"
+                            >
+                                <mat-icon class="!h-4 !w-4 mr-1">{{ devView() ? 'visibility' : 'code' }}</mat-icon>
+                                {{
+                                    devView()
+                                        ? t('smartEnrollProjects.recordDetail.devView.toggleOff')
+                                        : t('smartEnrollProjects.recordDetail.devView.toggleOn')
+                                }}
+                            </button>
+                            @if (d.canRevoke) {
+                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="revoke()">
+                                    <mat-icon class="!h-4 !w-4 mr-1">block</mat-icon>
+                                    {{ t('smartLinks.actions.revoke') }}
+                                </button>
+                            }
+                            @if (d.state !== 'COMPLETED') {
+                                <button mat-flat-button color="warn" type="button" class="shrink-0 rounded-xl" (click)="openDeleteDialog()">
+                                    <mat-icon class="!h-4 !w-4 mr-1">delete_outline</mat-icon>
+                                    {{ t('smartLinks.actions.delete') }}
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto w-full max-w-6xl">
+                @if (loading()) {
+                    <div class="flex justify-center py-20">
+                        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                    </div>
+                } @else if (errorMessage()) {
+                    <div class="rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                        {{ errorMessage() }}
+                    </div>
+                } @else {
+                    @if (detail(); as d) {
+                    @if (devView()) {
+                        <!-- Developer Raw JSON + Webhook Events Inspector mirroring SmartEnroll -->
+                        <section class="dev-view">
+                            <header class="dev-view__header">
+                                <div class="dev-view__title-block">
+                                    <p class="m-0 text-lg font-semibold text-stone-900 dark:text-white">{{ targetTitle() }}</p>
+                                    <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ d._id }} ({{ d.shortCode }})</p>
+                                </div>
+                                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="stateClass(d.state)">
+                                    {{ d.state }}
+                                </span>
+                            </header>
+
+                            @for (section of devSections(); track section.key) {
+                                <article class="dev-view__card">
+                                    <header class="dev-view__card-header">
+                                        <h2 class="dev-view__card-title">{{ t('smartLinks.sessionDetail.dev_' + section.key) }}</h2>
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            class="!text-stone-500 dark:!text-stone-300"
+                                            (click)="copyJson(section.value)"
+                                            [attr.aria-label]="t('smartLinks.actions.copy')"
+                                        >
+                                            <mat-icon>content_copy</mat-icon>
+                                        </button>
+                                    </header>
+                                    <pre class="dev-json">{{ section.value | json }}</pre>
+                                </article>
+                            }
+
+                            @if (d.smartLinkFlow) {
+                                <article class="dev-view__card">
+                                    <header class="dev-view__card-header">
+                                        <h2 class="dev-view__card-title">{{ t('smartEnrollProjects.recordDetail.devView.webhookEvents') }}</h2>
+                                    </header>
+                                    <div class="p-3 md:p-4">
+                                        <webhook-events [projectFlowFilter]="d.smartLinkFlow"></webhook-events>
+                                    </div>
+                                </article>
+                            }
+                        </section>
+                    } @else {
+                        <!-- Meta Summary Strip -->
+                        <div class="record-detail-meta mb-8">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="record-detail-code">{{ d.shortCode }}</span>
+                                    <p class="m-0 text-lg font-semibold text-stone-900 dark:text-white">{{ targetTitle() }}</p>
+                                </div>
+                                <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ d._id }}</p>
+                            </div>
+
+                            <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="stateClass(d.state)">
+                                {{ d.state }}
+                            </span>
+                            <span
+                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+                                [ngClass]="d.requireDocument
+                                    ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'
+                                    : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-200'"
+                            >
+                                {{ d.requireDocument ? t('smartLinks.detail.badgeDocAndFace') : t('smartLinks.detail.badgeFaceOnly') }}
+                            </span>
+                            @if (d.externalRefId) {
+                                <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 font-mono text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300">
+                                    {{ d.externalRefId }}
+                                </span>
+                            }
+                            <span class="text-xs text-stone-500 dark:text-stone-400">
+                                {{ formatDate(d.completedAt || d.updatedAt || d.createdAt) }}
+                            </span>
+                        </div>
+
+                        <!-- 2-Column Dossier matching SmartEnroll ProjectRecordDetailComponent -->
+                        <div class="lg:grid lg:grid-cols-12 lg:gap-10">
+                            <!-- Sticky Left Sidebar: Media/QR + Section Nav -->
+                            <aside class="mb-8 lg:sticky lg:top-24 lg:col-span-3 lg:mb-0 lg:self-start">
+                                @if (selfieUrl(); as imgSrc) {
+                                    <div class="mb-6 overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/50">
+                                        <div class="aspect-[3/4] w-full overflow-hidden bg-stone-100 dark:bg-gray-800">
+                                            <img class="h-full w-full object-cover" [src]="imgSrc" alt="" />
+                                        </div>
+                                        <p class="border-t border-stone-100 px-3 py-2.5 text-center text-xs font-medium text-stone-600 dark:border-gray-800 dark:text-stone-400">
+                                            {{ t('smartEnrollProjects.recordDetail.livenessSelfie') }}
+                                        </p>
+                                    </div>
+                                } @else if (selfieSuppressed()) {
+                                    <div class="mb-6 overflow-hidden rounded-2xl border border-sky-200/90 bg-white shadow-sm dark:border-sky-900/40 dark:bg-gray-900/50">
+                                        <div class="flex aspect-[3/4] w-full flex-col items-center justify-center bg-gradient-to-br from-sky-50 via-slate-100 to-indigo-50 p-5 text-center dark:from-sky-950/30 dark:via-gray-900 dark:to-indigo-950/30">
+                                            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/95 shadow-md dark:bg-gray-800/95">
+                                                <mat-icon class="text-sky-600 dark:text-sky-400">verified_user</mat-icon>
+                                            </div>
+                                            <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-sky-800 dark:text-sky-300">
+                                                {{ t('smartEnrollProjects.recordDetail.retentionNoStorageTitle') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                } @else if (qrDataUrl()) {
+                                    <div class="mb-6 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/50">
+                                        <img [src]="qrDataUrl()" alt="SmartLink QR" class="mx-auto h-40 w-40 rounded-xl bg-white p-1" />
+                                        <p class="mt-2.5 mb-0 text-xs font-medium text-stone-500 dark:text-stone-400">
+                                            {{ t('smartLinks.detail.qrCaption') }}
+                                        </p>
+                                    </div>
+                                }
+
+                                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                                    {{ t('smartLinks.sessionDetail.sectionsHeading') }}
+                                </p>
+                                <nav class="flex flex-col gap-1">
+                                    @for (step of dossierSteps; track step) {
+                                        @let st = stepState(step);
+                                        <button
+                                            type="button"
+                                            class="record-stepper-btn"
+                                            [class.record-stepper-btn--active]="activeStep() === step"
+                                            (click)="scrollToStep(step)"
+                                        >
+                                            <mat-icon
+                                                class="icon-size-5 shrink-0"
+                                                [ngClass]="{
+                                                    'text-emerald-600 dark:text-emerald-400': st === 'ok',
+                                                    'text-sky-600 dark:text-sky-400': st === 'info',
+                                                    'text-stone-400 dark:text-stone-500': st === 'pending'
+                                                }"
+                                            >
+                                                {{ st === 'ok' ? 'check_circle' : st === 'info' ? 'info' : 'radio_button_unchecked' }}
+                                            </mat-icon>
+                                            <span class="text-sm font-medium text-stone-800 dark:text-stone-200">
+                                                {{ t('smartLinks.sessionDetail.nav_' + step) }}
+                                            </span>
+                                        </button>
+                                    }
+                                </nav>
+                            </aside>
+
+                            <!-- Right Dossier Sections -->
+                            <div class="space-y-8 lg:col-span-9">
+                                <!-- 1. Overview & Configuration -->
+                                <section id="step-overview" class="scroll-mt-28">
+                                    <div class="record-detail-panel">
+                                        <div class="record-detail-panel__header">
+                                            <div>
+                                                <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                                                    {{ t('smartLinks.sessionDetail.nav_overview') }}
+                                                </h2>
+                                                <p class="mt-0.5 mb-0 text-xs text-stone-500 dark:text-stone-400">
+                                                    {{ t('smartLinks.sessionDetail.overviewSubtitle') }}
+                                                </p>
+                                            </div>
+                                            <button mat-stroked-button type="button" class="rounded-full" (click)="openEditDialog()">
+                                                <mat-icon class="!h-4 !w-4 mr-1">edit</mat-icon>
+                                                {{ t('smartLinks.actions.editLink') }}
+                                            </button>
+                                        </div>
+                                        <div class="p-5 md:p-6">
+                                            @if (d.shareUrl) {
+                                                <div class="mb-5 flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                                    <code class="min-w-0 flex-1 break-all text-xs text-stone-800 dark:text-stone-200">{{ d.shareUrl }}</code>
+                                                    <button mat-icon-button type="button" (click)="copyValue(d.shareUrl)" [attr.aria-label]="t('smartLinks.actions.copy')">
+                                                        <mat-icon class="!h-4 !w-4">content_copy</mat-icon>
+                                                    </button>
+                                                </div>
+                                            }
+
+                                            <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.colCode') }}</dt>
+                                                    <dd class="mt-1 font-mono text-sm font-semibold text-stone-900 dark:text-white">{{ d.shortCode }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.colChannel') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ d.createdByChannel || 'api' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessions.colUses') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium tabular-nums text-stone-900 dark:text-white">
+                                                        {{ d.useCount || 0 }} / {{ d.maxUses === 0 ? '∞' : (d.maxUses ?? 1) }}
+                                                    </dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.openCountLabel') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium tabular-nums text-stone-900 dark:text-white">{{ d.openCount || 0 }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.expiresAtLabel') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ formatDate(d.expiresAt) }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.completionLabel') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">
+                                                        {{ t('smartLinks.completionModes.' + (d.completionMode || 'receipt')) }}
+                                                    </dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.prefillEmail') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ d.prefill?.email || '-' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.prefillPhone') }}</dt>
+                                                    <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">
+                                                        {{ d.prefill?.phone ? (d.prefill?.countryCode ? d.prefill.countryCode + ' ' : '') + d.prefill.phone : '-' }}
+                                                    </dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.externalRef') }}</dt>
+                                                    <dd class="mt-1 font-mono text-sm text-stone-900 dark:text-white">{{ d.externalRefId || '-' }}</dd>
+                                                </div>
+                                            </dl>
+
+                                            @if (d.notes) {
+                                                <div class="mt-5 rounded-xl border border-stone-200 bg-stone-50/70 p-3.5 dark:border-gray-800 dark:bg-gray-900/60">
+                                                    <span class="block text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                                        {{ t('smartLinks.dialogs.notesLabel') }}
+                                                    </span>
+                                                    <p class="mt-1 mb-0 text-sm text-stone-800 dark:text-stone-200">{{ d.notes }}</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- 2. Interaction Timeline -->
+                                <section id="step-timeline" class="scroll-mt-28">
+                                    <div class="record-detail-panel">
+                                        <div class="record-detail-panel__header">
+                                            <div>
+                                                <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                                                    {{ t('smartLinks.sessionDetail.nav_timeline') }}
+                                                </h2>
+                                                <p class="mt-0.5 mb-0 text-xs text-stone-500 dark:text-stone-400">
+                                                    {{ t('smartLinks.sessionDetail.timelineSubtitle') }}
+                                                </p>
+                                            </div>
+                                            <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold tabular-nums text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                                {{ d.interactions?.length || 0 }} {{ t('smartLinks.sessionDetail.eventsCount') }}
+                                            </span>
+                                        </div>
+
+                                        <div class="p-5 md:p-6">
+                                            @if (!d.interactions?.length) {
+                                                <p class="m-0 text-sm text-stone-500 dark:text-stone-400">
+                                                    {{ t('smartLinks.sessionDetail.noInteractions') }}
+                                                </p>
+                                            } @else {
+                                                <ol class="relative m-0 space-y-5 border-l border-stone-200 pl-6 dark:border-gray-800">
+                                                    @for (ev of d.interactions; track $index) {
+                                                        <li class="relative">
+                                                            <span
+                                                                class="absolute -left-[2.15rem] top-0.5 flex h-7 w-7 items-center justify-center rounded-full shadow-xs"
+                                                                [ngClass]="eventBadgeClass(ev.type)"
+                                                            >
+                                                                <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">{{ eventIcon(ev.type) }}</mat-icon>
+                                                            </span>
+
+                                                            <div class="rounded-2xl border border-stone-200/80 bg-stone-50/60 p-3.5 dark:border-gray-800 dark:bg-gray-900/50">
+                                                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                                                    <div class="flex flex-wrap items-center gap-2">
+                                                                        <span class="font-mono text-xs font-semibold text-stone-900 dark:text-white">{{ ev.type }}</span>
+                                                                        @if (ev.actor) {
+                                                                            <span class="rounded-full bg-stone-200/80 px-2 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-gray-800 dark:text-stone-300">
+                                                                                {{ ev.actor }}
+                                                                            </span>
+                                                                        }
+                                                                    </div>
+                                                                    <time class="text-xs tabular-nums text-stone-500 dark:text-stone-400">
+                                                                        {{ formatDate(ev.at, true) }}
+                                                                    </time>
+                                                                </div>
+
+                                                                @if (ev.summary) {
+                                                                    <p class="mt-1.5 mb-0 text-sm text-stone-700 dark:text-stone-200">{{ ev.summary }}</p>
+                                                                }
+
+                                                                @if (ev.ip || ev.userAgent || metaEntries(ev.meta).length) {
+                                                                    <div class="mt-2.5 flex flex-wrap gap-1.5">
+                                                                        @if (ev.ip) {
+                                                                            <span class="rounded-md bg-white px-2 py-0.5 font-mono text-[11px] text-stone-600 dark:bg-gray-950 dark:text-stone-300">
+                                                                                IP: {{ ev.ip }}
+                                                                            </span>
+                                                                        }
+                                                                        @for (entry of metaEntries(ev.meta); track entry.key) {
+                                                                            <span class="rounded-md bg-white px-2 py-0.5 font-mono text-[11px] text-stone-600 dark:bg-gray-950 dark:text-stone-300">
+                                                                                {{ entry.key }}={{ entry.value }}
+                                                                            </span>
+                                                                        }
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ol>
+                                            }
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- 3. Verified Identity & Signed Proof Token -->
+                                <section id="step-identity" class="scroll-mt-28">
+                                    <div class="record-detail-panel">
+                                        <div class="record-detail-panel__header">
+                                            <div>
+                                                <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                                                    {{ t('smartLinks.sessionDetail.nav_identity') }}
+                                                </h2>
+                                                <p class="mt-0.5 mb-0 text-xs text-stone-500 dark:text-stone-400">
+                                                    {{ t('smartLinks.sessionDetail.identitySubtitle') }}
+                                                </p>
+                                            </div>
+                                            <div class="flex flex-wrap gap-2">
+                                                @if (d.linkedRegistration && d.linkedRegistration.project) {
+                                                    <a
+                                                        mat-stroked-button
+                                                        class="rounded-full"
+                                                        [routerLink]="['/smart-enroll/projects', d.linkedRegistration.project, 'records', d.linkedRegistration._id]"
+                                                    >
+                                                        <mat-icon class="!h-4 !w-4 mr-1">open_in_new</mat-icon>
+                                                        {{ t('smartLinks.sessionDetail.openEnrollRecord') }}
+                                                    </a>
+                                                }
+                                                @if (d.linkedLogin && d.linkedLogin.project) {
+                                                    <a
+                                                        mat-stroked-button
+                                                        class="rounded-full"
+                                                        [routerLink]="['/smart-access/projects', d.linkedLogin.project, 'records', d.linkedLogin._id]"
+                                                    >
+                                                        <mat-icon class="!h-4 !w-4 mr-1">open_in_new</mat-icon>
+                                                        {{ t('smartLinks.sessionDetail.openAccessLogin') }}
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="p-5 md:p-6">
+                                            @let ident = d.identity || d.outcome?.identity;
+                                            @if (d.state === 'COMPLETED' && ident) {
+                                                <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.detail.fullNameLabel') }}</dt>
+                                                        <dd class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">{{ ident.fullName || '-' }}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.identifiers.email.label') }}</dt>
+                                                        <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ ident.email || '-' }}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.identifiers.phone.label') }}</dt>
+                                                        <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ ident.phone || '-' }}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.documentTypeLabel') }}</dt>
+                                                        <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ ident.documentType || '-' }}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.documentNumberLabel') }}</dt>
+                                                        <dd class="mt-1 font-mono text-sm font-medium text-stone-900 dark:text-white">{{ ident.documentNumber || '-' }}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.confirmationCodeLabel') }}</dt>
+                                                        <dd class="mt-1 font-mono text-sm font-semibold text-emerald-700 dark:text-emerald-300">{{ d.outcome?.confirmationCode || '-' }}</dd>
+                                                    </div>
+                                                </dl>
+
+                                                @if (d.token || d.outcome?.verificationToken) {
+                                                    @let jwtToken = d.token || d.outcome?.verificationToken || '';
+                                                    <div class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/25">
+                                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                                            <span class="text-xs font-semibold text-emerald-800 dark:text-emerald-200">
+                                                                {{ t('smartLinks.sessionDetail.jwtProofTitle') }}
+                                                            </span>
+                                                            <div class="flex gap-2">
+                                                                <button mat-stroked-button type="button" class="rounded-full" (click)="showJwt.set(!showJwt())">
+                                                                    {{ showJwt() ? t('smartLinks.actions.hideToken') : t('smartLinks.actions.revealToken') }}
+                                                                </button>
+                                                                <button mat-flat-button color="primary" type="button" class="rounded-full" (click)="copyValue(jwtToken)">
+                                                                    <mat-icon class="!h-4 !w-4 mr-1">content_copy</mat-icon>
+                                                                    {{ t('smartLinks.actions.copy') }}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        @if (showJwt()) {
+                                                            <code class="mt-3 block break-all rounded-xl bg-white/90 p-3 text-xs text-stone-800 dark:bg-gray-950 dark:text-stone-200">
+                                                                {{ jwtToken }}
+                                                            </code>
+                                                            @if (decodedJwtClaims(); as claims) {
+                                                                <pre class="dev-json mt-3 rounded-xl">{{ claims | json }}</pre>
+                                                            }
+                                                        }
+                                                    </div>
+                                                }
+                                            } @else {
+                                                <p class="m-0 text-sm text-stone-500 dark:text-stone-400">
+                                                    {{ t('smartLinks.sessionDetail.pendingIdentity') }}
+                                                </p>
+                                            }
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- 4. Linked Biometrics & Document Verification -->
+                                <section id="step-verification" class="scroll-mt-28">
+                                    <div class="record-detail-panel">
+                                        <div class="record-detail-panel__header">
+                                            <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                                                {{ t('smartLinks.sessionDetail.nav_verification') }}
+                                            </h2>
+                                        </div>
+                                        <div class="p-5 md:p-6">
+                                            @if (d.linkedRegistration; as reg) {
+                                                <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                                    <div>
+                                                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">SmartEnroll Status</dt>
+                                                        <dd class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">{{ reg.status }}</dd>
+                                                    </div>
+                                                    @if (reg.biometricValidation; as bio) {
+                                                        <div>
+                                                            <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.livenessScoreLabel') }}</dt>
+                                                            <dd class="mt-1 text-sm font-semibold tabular-nums text-emerald-700 dark:text-emerald-300">
+                                                                {{ bio.livenessScore ?? '-' }}%
+                                                            </dd>
+                                                        </div>
+                                                    }
+                                                    @if (reg.documentValidation; as doc) {
+                                                        <div>
+                                                            <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.documentStatusLabel') }}</dt>
+                                                            <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ doc.status }}</dd>
+                                                        </div>
+                                                    }
+                                                </dl>
+
+                                                @if (reg.documentValidation?.frontUrl || reg.documentValidation?.backUrl) {
+                                                    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                        @if (reg.documentValidation?.frontUrl; as frontUrl) {
+                                                            <div class="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 p-3 dark:border-gray-800 dark:bg-gray-900/50">
+                                                                <span class="mb-2 block text-xs font-semibold text-stone-500 dark:text-stone-400">Front</span>
+                                                                <img [src]="frontUrl" alt="Document Front" class="max-h-48 w-full rounded-xl object-contain" />
+                                                            </div>
+                                                        }
+                                                        @if (reg.documentValidation?.backUrl; as backUrl) {
+                                                            <div class="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 p-3 dark:border-gray-800 dark:bg-gray-900/50">
+                                                                <span class="mb-2 block text-xs font-semibold text-stone-500 dark:text-stone-400">Back</span>
+                                                                <img [src]="backUrl" alt="Document Back" class="max-h-48 w-full rounded-xl object-contain" />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            } @else {
+                                                @if (d.linkedLogin; as login) {
+                                                    <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                                        <div>
+                                                            <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">SmartAccess Status</dt>
+                                                            <dd class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">{{ login.status }}</dd>
+                                                        </div>
+                                                        <div>
+                                                            <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">Mode</dt>
+                                                            <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ login.accessMode || login.type }}</dd>
+                                                        </div>
+                                                        @if (login.biometricValidation; as bio) {
+                                                            <div>
+                                                                <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">{{ t('smartLinks.sessionDetail.livenessScoreLabel') }}</dt>
+                                                                <dd class="mt-1 text-sm font-semibold tabular-nums text-emerald-700 dark:text-emerald-300">
+                                                                    {{ bio.livenessScore ?? '-' }}%
+                                                                </dd>
+                                                            </div>
+                                                        }
+                                                    </dl>
+                                                } @else {
+                                                    <p class="m-0 text-sm text-stone-500 dark:text-stone-400">
+                                                        {{ t('smartLinks.sessionDetail.noVerificationYet') }}
+                                                    </p>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- 5. Dispatches & Delivery -->
+                                <section id="step-dispatches" class="scroll-mt-28">
+                                    <div class="record-detail-panel">
+                                        <div class="record-detail-panel__header">
+                                            <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                                                {{ t('smartLinks.sessionDetail.nav_dispatches') }}
+                                            </h2>
+                                            @if (d.state !== 'COMPLETED') {
+                                                <button mat-stroked-button type="button" class="rounded-full" (click)="openResendDialog()">
+                                                    <mat-icon class="!h-4 !w-4 mr-1">send</mat-icon>
+                                                    {{ t('smartLinks.actions.resendLink') }}
+                                                </button>
+                                            }
+                                        </div>
+                                        <div class="p-5 md:p-6">
+                                            @if (!d.dispatches?.length) {
+                                                <p class="m-0 text-sm text-stone-500 dark:text-stone-400">
+                                                    {{ t('smartLinks.sessionDetail.noDispatches') }}
+                                                </p>
+                                            } @else {
+                                                <div class="overflow-x-auto">
+                                                    <table class="w-full text-left text-sm">
+                                                        <thead>
+                                                            <tr class="border-b border-stone-200 text-xs font-semibold uppercase tracking-wide text-stone-500 dark:border-gray-800 dark:text-stone-400">
+                                                                <th class="py-2 pr-3">{{ t('smartLinks.dispatch.channel') }}</th>
+                                                                <th class="py-2 pr-3">{{ t('smartLinks.dispatch.recipient') }}</th>
+                                                                <th class="py-2 pr-3">{{ t('smartLinks.detail.colState') }}</th>
+                                                                <th class="py-2 pr-3">{{ t('smartLinks.sessions.colCreated') }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-stone-100 dark:divide-gray-800">
+                                                            @for (disp of d.dispatches; track disp._id) {
+                                                                <tr>
+                                                                    <td class="py-2.5 pr-3 text-xs font-semibold uppercase text-stone-700 dark:text-stone-200">{{ disp.channel }}</td>
+                                                                    <td class="py-2.5 pr-3 text-xs text-stone-800 dark:text-stone-200">{{ disp.recipient }}</td>
+                                                                    <td class="py-2.5 pr-3">
+                                                                        <span
+                                                                            class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                                                            [ngClass]="disp.status === 'sent'
+                                                                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300'
+                                                                                : 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300'"
+                                                                        >
+                                                                            {{ disp.status }}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td class="py-2.5 pr-3 text-xs text-stone-500 dark:text-stone-400">
+                                                                        {{ formatDate(disp.sentAt || disp.createdAt) }}
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- 6. Technical Metadata -->
+                                <section id="step-technical" class="scroll-mt-28">
+                                    <div class="record-detail-panel">
+                                        <div class="record-detail-panel__header">
+                                            <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                                                {{ t('smartLinks.sessionDetail.nav_technical') }}
+                                            </h2>
+                                        </div>
+                                        <div class="p-5 md:p-6">
+                                            <dl class="grid gap-4 sm:grid-cols-2">
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">Session ID</dt>
+                                                    <dd class="mt-1 font-mono text-xs text-stone-800 dark:text-stone-200">{{ d._id }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">Routed Target Project</dt>
+                                                    <dd class="mt-1 text-xs text-stone-800 dark:text-stone-200">
+                                                        {{ d.routedProjectInfo?.name || d.routedProject || '-' }}
+                                                    </dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">SmartLink Flow</dt>
+                                                    <dd class="mt-1 font-mono text-xs text-stone-800 dark:text-stone-200">{{ d.smartLinkFlow || '-' }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">Session Code Consumed</dt>
+                                                    <dd class="mt-1 text-xs text-stone-800 dark:text-stone-200">{{ formatDate(d.sessionCodeConsumedAt, true) }}</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    }
+                    }
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>

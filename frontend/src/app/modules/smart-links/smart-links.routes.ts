@@ -41,6 +41,20 @@ export default [
                     ),
             },
             {
+                path: ':projectId/sessions/:sessionId',
+                loadComponent: () =>
+                    import('./session-detail/smart-link-session-detail.component').then(
+                        (m) => m.SmartLinkSessionDetailComponent
+                    ),
+            },
+            {
+                path: ':projectId/sessions',
+                loadComponent: () =>
+                    import('./sessions/smart-link-sessions.component').then(
+                        (m) => m.SmartLinkSessionsComponent
+                    ),
+            },
+            {
                 path: ':projectId',
                 loadComponent: () =>
                     import('./project-detail/smart-link-project-detail.component').then(

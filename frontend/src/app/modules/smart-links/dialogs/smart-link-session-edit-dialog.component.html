@@ -1,0 +1,194 @@
+<ng-container *transloco="let t">
+    <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+            <h2
+                mat-dialog-title
+                class="!m-0 !font-semibold !text-lg !leading-snug !tracking-tight text-stone-900 dark:text-white md:!text-xl"
+            >
+                {{ t('smartLinks.dialogs.editTitle') }}
+            </h2>
+            <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ data.session.shortCode }}</p>
+        </div>
+        <button mat-icon-button type="button" class="!text-stone-500 dark:!text-stone-400" (click)="close()" [attr.aria-label]="t('close')">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="!pt-3">
+        @if (isCompleted) {
+            <div class="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                <mat-icon class="!h-4 !w-4 shrink-0 text-amber-600 dark:text-amber-400">lock</mat-icon>
+                <span>{{ t('smartLinks.dialogs.completedLockedHint') }}</span>
+            </div>
+        }
+
+        <div class="space-y-4">
+            @if (!isCompleted) {
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartLinks.detail.prefillEmail') }}</mat-label>
+                        <input
+                            matInput
+                            type="email"
+                            [(ngModel)]="email"
+                            placeholder="john.doe@company.com"
+                            autocorrect="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartLinks.detail.prefillPhone') }}</mat-label>
+                        <input
+                            matInput
+                            [(ngModel)]="phone"
+                            placeholder="5551234567"
+                            autocorrect="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartLinks.dialogs.countryCodeLabel') }}</mat-label>
+                        <input matInput [(ngModel)]="countryCode" placeholder="+1" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartLinks.detail.fullNameLabel') }}</mat-label>
+                        <input matInput [(ngModel)]="fullName" placeholder="John Doe" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartLinks.detail.completionLabel') }}</mat-label>
+                        <mat-select [(ngModel)]="completionMode">
+                            <mat-option value="receipt">{{ t('smartLinks.completionModes.receipt') }}</mat-option>
+                            <mat-option value="redirect">{{ t('smartLinks.completionModes.redirect') }}</mat-option>
+                            <mat-option value="postMessage">{{ t('smartLinks.completionModes.postMessage') }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartLinks.setup.step2.maxUses') }}</mat-label>
+                        <input matInput type="number" min="0" max="1000" [(ngModel)]="maxUses" />
+                    </mat-form-field>
+                </div>
+
+                @if (completionMode === 'redirect') {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>{{ t('smartLinks.dialogs.redirectOverrideLabel') }}</mat-label>
+                        <input
+                            matInput
+                            type="url"
+                            [(ngModel)]="redirectUrlOverride"
+                            placeholder="https://app.company.com/callback"
+                            autocorrect="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        />
+                    </mat-form-field>
+                }
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>{{ t('smartLinks.dialogs.callbackWebhookLabel') }}</mat-label>
+                    <input
+                        matInput
+                        type="url"
+                        [(ngModel)]="callbackWebhookUrl"
+                        placeholder="https://api.company.com/webhooks/smartlink"
+                        autocorrect="off"
+                        autocapitalize="none"
+                        spellcheck="false"
+                    />
+                </mat-form-field>
+
+                <div class="flex items-start justify-between gap-4 rounded-xl border border-stone-200 bg-stone-50/70 px-4 py-3 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="min-w-0">
+                        <p class="m-0 text-sm font-semibold text-stone-900 dark:text-white">
+                            {{ t('smartLinks.detail.requireDocumentLabel') }}
+                        </p>
+                        <p class="m-0 mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartLinks.detail.requireDocumentHint') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle color="primary" [(ngModel)]="requireDocument"></mat-slide-toggle>
+                </div>
+
+                <div class="rounded-xl border border-stone-200 p-3.5 dark:border-gray-800">
+                    <p class="m-0 text-xs font-semibold text-stone-700 dark:text-stone-200">
+                        {{ t('smartLinks.dialogs.extendExpiryLabel') }}
+                    </p>
+                    <div class="mt-2.5 flex flex-wrap gap-2">
+                        @for (preset of [
+                            { label: '+1h', mins: 60 },
+                            { label: '+24h', mins: 1440 },
+                            { label: '+7d', mins: 10080 }
+                        ]; track preset.mins) {
+                            <button
+                                type="button"
+                                class="rounded-full border px-3 py-1 text-xs font-semibold transition-colors"
+                                [ngClass]="extendMinutes === preset.mins
+                                    ? 'border-stone-900 bg-stone-900 text-white dark:border-white dark:bg-white dark:text-stone-900'
+                                    : 'border-stone-300 text-stone-700 hover:bg-stone-100 dark:border-gray-700 dark:text-stone-300 dark:hover:bg-gray-800'"
+                                (click)="setExtendMinutes(preset.mins)"
+                            >
+                                {{ preset.label }}
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (canToggleReactivate || data.session.state !== 'REVOKED') {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>{{ t('smartLinks.dialogs.statusActionLabel') }}</mat-label>
+                        <mat-select [(ngModel)]="nextState">
+                            <mat-option value="keep">{{ t('smartLinks.dialogs.keepState', { state: data.session.state }) }}</mat-option>
+                            @if (canToggleReactivate) {
+                                <mat-option value="CREATED">{{ t('smartLinks.dialogs.reactivateState') }}</mat-option>
+                            }
+                            @if (data.session.state !== 'REVOKED') {
+                                <mat-option value="REVOKED">{{ t('smartLinks.dialogs.revokeState') }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
+            }
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ t('smartLinks.detail.externalRef') }}</mat-label>
+                <input
+                    matInput
+                    [(ngModel)]="externalRefId"
+                    placeholder="ticket-9842"
+                    autocorrect="off"
+                    autocapitalize="none"
+                    spellcheck="false"
+                />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ t('smartLinks.dialogs.notesLabel') }}</mat-label>
+                <textarea matInput rows="2" [(ngModel)]="notes" [placeholder]="t('smartLinks.dialogs.notesPlaceholder')"></textarea>
+            </mat-form-field>
+
+            @if (errorMessage()) {
+                <div class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                    {{ errorMessage() }}
+                </div>
+            }
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="!gap-2 !pt-3">
+        <button mat-stroked-button type="button" class="rounded-xl" [disabled]="saving()" (click)="close()">
+            {{ t('smartLinks.actions.cancel') }}
+        </button>
+        <button mat-flat-button color="primary" type="button" class="rounded-xl" [disabled]="saving()" (click)="save()">
+            @if (saving()) {
+                <mat-spinner diameter="16" class="mr-2 inline-block"></mat-spinner>
+            }
+            {{ t('smartLinks.actions.saveChanges') }}
+        </button>
+    </mat-dialog-actions>
+</ng-container>

@@ -120,31 +120,179 @@ export interface EngineProjectOption {
     category: 'smartEnroll' | 'smartBusiness' | 'humanAuthn' | 'smartAccess';
 }
 
+export type SmartLinkSessionState =
+    | 'CREATED'
+    | 'OPENED'
+    | 'ROUTED'
+    | 'IN_PROGRESS'
+    | 'COMPLETED'
+    | 'FAILED'
+    | 'EXPIRED'
+    | 'REVOKED';
+
+export interface SmartLinkInteractionEvent {
+    type:
+        | 'CREATED'
+        | 'DISPATCHED'
+        | 'OPENED'
+        | 'IDENTIFIER_SUBMITTED'
+        | 'ROUTED'
+        | 'UPDATED'
+        | 'REISSUED'
+        | 'COMPLETED'
+        | 'TOKEN_EXCHANGED'
+        | 'FAILED'
+        | 'REVOKED'
+        | 'EXPIRED';
+    at: string;
+    actor?: string;
+    summary?: string;
+    ip?: string;
+    userAgent?: string;
+    meta?: Record<string, unknown>;
+}
+
+export interface SmartLinkDispatchRecord {
+    _id: string;
+    channel: 'whatsapp' | 'sms' | 'email';
+    recipient: string;
+    recipientName?: string;
+    campaignName?: string;
+    status: 'sent' | 'failed';
+    errorMessage?: string;
+    sentAt?: string;
+    createdAt: string;
+}
+
+export interface SmartLinkLinkedRegistration {
+    _id: string;
+    project?: string;
+    status?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    countryCode?: string;
+    currentStep?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    face?: {
+        _id?: string;
+        base64?: string;
+        url?: string;
+        retention?: { mode?: string; purgedAt?: string };
+    } | null;
+    documentFace?: {
+        _id?: string;
+        base64?: string;
+        url?: string;
+        retention?: { mode?: string; purgedAt?: string };
+    } | null;
+    biometricValidation?: {
+        _id: string;
+        status?: string;
+        livenessScore?: number;
+        url?: string;
+        failedReason?: string;
+        createdAt?: string;
+        face?: {
+            _id?: string;
+            base64?: string;
+            url?: string;
+            retention?: { mode?: string; purgedAt?: string };
+        } | null;
+    } | null;
+    documentValidation?: {
+        _id: string;
+        status?: string;
+        documentType?: string;
+        documentNumber?: string;
+        country?: string;
+        url?: string;
+        frontUrl?: string;
+        backUrl?: string;
+        imageValidated?: boolean;
+        namesMatch?: boolean;
+        fullNameMatchPercentage?: number;
+        OCRExtraction?: Record<string, unknown>;
+        retention?: { mode?: string; purgedAt?: string };
+        createdAt?: string;
+    } | null;
+}
+
+export interface SmartLinkLinkedLogin {
+    _id: string;
+    project?: string;
+    status?: string;
+    type?: string;
+    accessMode?: string;
+    name?: string;
+    createdAt?: string;
+    face?: {
+        _id?: string;
+        base64?: string;
+        url?: string;
+        retention?: { mode?: string; purgedAt?: string };
+    } | null;
+    biometricValidation?: {
+        _id: string;
+        status?: string;
+        livenessScore?: number;
+        url?: string;
+        failedReason?: string;
+        createdAt?: string;
+        face?: {
+            _id?: string;
+            base64?: string;
+            url?: string;
+            retention?: { mode?: string; purgedAt?: string };
+        } | null;
+    } | null;
+}
+
 export interface SmartLinkSessionRecord {
     _id: string;
     shortCode: string;
-    state: 'CREATED' | 'OPENED' | 'ROUTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'EXPIRED' | 'REVOKED';
+    project?: string;
+    smartLinkFlow?: string;
+    routedProject?: string;
+    state: SmartLinkSessionState;
     requestedMode: string;
     resolvedMode?: string;
     requireDocument?: boolean;
     completionMode?: SmartLinkCompletionMode;
+    redirectUrlOverride?: string;
+    callbackWebhookUrl?: string;
     externalRefId?: string;
+    notes?: string;
     createdByChannel?: string;
     useCount?: number;
     maxUses?: number;
+    openCount?: number;
+    lastOpenedAt?: string;
     expiresAt: string;
     openedAt?: string;
+    routedAt?: string;
     completedAt?: string;
+    sessionCodeConsumedAt?: string;
     createdAt: string;
+    updatedAt?: string;
+    metadata?: Record<string, unknown>;
     outcome?: {
         outcomeType?: string;
         confirmationCode?: string;
         verificationToken?: string;
+        appRegistration?: string | null;
+        businessRegistration?: string | null;
+        appLogin?: string | null;
+        humanId?: string;
+        verifiedAt?: string;
+        summary?: Record<string, unknown>;
         identity?: {
             appRegistrationId?: string;
             fullName?: string;
             email?: string;
             phone?: string;
+            countryCode?: string;
             documentType?: string;
             documentNumber?: string;
         };
@@ -153,8 +301,88 @@ export interface SmartLinkSessionRecord {
         email?: string;
         phone?: string;
         countryCode?: string;
+        taxId?: string;
         fullName?: string;
     };
+}
+
+export interface SmartLinkSessionDetail extends SmartLinkSessionRecord {
+    verified?: boolean;
+    token?: string;
+    identity?: {
+        appRegistrationId?: string;
+        fullName?: string;
+        email?: string;
+        phone?: string;
+        countryCode?: string;
+        documentType?: string;
+        documentNumber?: string;
+    };
+    interactions?: SmartLinkInteractionEvent[];
+    dispatches?: SmartLinkDispatchRecord[];
+    projectInfo?: { _id: string; name?: string; branding?: Partial<SmartLinkBranding> } | null;
+    routedProjectInfo?: { _id: string; name?: string; target?: string } | null;
+    linkedRegistration?: SmartLinkLinkedRegistration | null;
+    linkedLogin?: SmartLinkLinkedLogin | null;
+    requireSignedSession?: boolean;
+    shareUrl?: string;
+    canDelete?: boolean;
+    canRevoke?: boolean;
+}
+
+export interface SmartLinkSessionFilters {
+    search?: string;
+    state?: string;
+    requireDocument?: 'all' | 'true' | 'false';
+    channel?: string;
+    createdFrom?: string;
+    createdTo?: string;
+    sort?: string;
+}
+
+export interface SmartLinkUpdateSessionPayload {
+    email?: string;
+    phone?: string;
+    countryCode?: string;
+    fullName?: string;
+    requireDocument?: boolean;
+    completionMode?: SmartLinkCompletionMode;
+    redirectUrlOverride?: string;
+    callbackWebhookUrl?: string;
+    externalRefId?: string;
+    notes?: string;
+    maxUses?: number;
+    extendMinutes?: number;
+    expiresAt?: string;
+    state?: 'CREATED' | 'OPENED' | 'REVOKED';
+    metadata?: Record<string, unknown>;
+}
+
+export interface SmartLinkResendPayload {
+    channel?: 'email' | 'whatsapp' | 'sms';
+    recipient?: string;
+    countryCode?: string;
+    recipientName?: string;
+    extendMinutes?: number;
+    rotateToken?: boolean;
+    language?: string;
+    send?: boolean;
+}
+
+export interface SmartLinkResendResult {
+    sessionId: string;
+    shortCode: string;
+    url: string;
+    qrDataUrl: string;
+    expiresAt: string;
+    state: string;
+    dispatch?: {
+        dispatchId?: string;
+        channel: string;
+        recipient: string;
+        status: 'sent' | 'failed';
+        errorMessage?: string;
+    } | null;
 }
 
 export interface MintedSmartLinkSession {
