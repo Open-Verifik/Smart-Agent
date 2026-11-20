@@ -10294,6 +10294,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...updated,
                 name: name || updated.name,
                 sampleData: updated.sampleData ?? payload.sampleData,
+                ...(Number(payload.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
             };
             this._reports.retainTemplate(saved);
             this._state.selectedTemplate.set(saved);
@@ -10312,6 +10313,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             ...created,
             name: name || created.name,
             sampleData: created.sampleData ?? payload.sampleData,
+            ...(Number(payload.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
         };
         this._reports.retainTemplate(saved);
         this._state.selectedTemplate.set(saved);

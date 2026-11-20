@@ -574,6 +574,7 @@ export const TEMPLATE_WRITE_KEYS = [
     'termsPosition',
     'sections',
     'pageSize',
+    'layoutVersion',
     'orientation',
     'margins',
     'pdfEngine',
