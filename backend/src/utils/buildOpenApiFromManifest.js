@@ -267,6 +267,47 @@ const buildOperationFromTool = (tool, pathname) => {
 		op.deprecated = true;
 	}
 
+	if (tool.id === "smart_link_create_session") {
+		op.responses["200"] = {
+			description: "Only the SmartLink session created by this call.",
+			content: {
+				"application/json": {
+					schema: {
+						type: "object",
+						required: ["data"],
+						properties: {
+							data: {
+								type: "object",
+								description: "The session minted by this request. Other sessions are not included.",
+								properties: {
+									sessionId: { type: "string" },
+									shortCode: { type: "string" },
+									url: { type: "string" },
+									qrDataUrl: { type: "string" },
+									expiresAt: { type: "string" },
+									state: { type: "string" },
+									requireDocument: { type: "boolean" },
+									requestedMode: { type: "string" },
+									completionMode: { type: "string" },
+									externalRefId: { type: "string" },
+									prefill: {
+										type: "object",
+										properties: {
+											email: { type: "string" },
+											phone: { type: "string" },
+											countryCode: { type: "string" },
+											fullName: { type: "string" },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		};
+	}
+
 	if (method === "GET" || method === "DELETE") {
 		let queryParams = manifestParamsToQueryOpenApi(paramSchema);
 		if (!queryParams.length) {

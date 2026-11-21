@@ -194,10 +194,6 @@
     "POST /api/mx/health-worker",
     "GET /api/co/cedula/barcode",
     "POST /api/v3/smart-links/sessions",
-    "GET /api/v3/smart-links/sessions/status",
-    "GET /api/v3/smart-links/sessions",
-    "PATCH /api/v3/smart-links/sessions",
-    "DELETE /api/v3/smart-links/sessions",
     "GET /api/proxy",
     "POST /api/proxy"
   ]
