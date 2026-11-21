@@ -82,10 +82,18 @@ const BASIC_KEYS = [
 const IDENTIFIER_OPTIONS: SmartLinkIdentifier[] = ['email', 'phone'];
 const COMPLETION_OPTIONS: SmartLinkCompletionMode[] = ['receipt', 'redirect', 'postMessage'];
 
-const optionalStrictUrlValidator: ValidatorFn = (control) => {
+const HTTPS_REDIRECT_URL_PATTERN = /^https:\/\/[^\s/$.?#].[^\s]*$/i;
+
+const requiredHttpsUrlValidator: ValidatorFn = (control) => {
+    const raw = `${control?.value ?? ''}`.trim();
+    if (!raw) return { required: true };
+    return STRICT_URL_PATTERN.test(raw) && HTTPS_REDIRECT_URL_PATTERN.test(raw) ? null : { httpsUrl: true };
+};
+
+const optionalHttpsUrlValidator: ValidatorFn = (control) => {
     const raw = `${control?.value ?? ''}`.trim();
     if (!raw) return null;
-    return STRICT_URL_PATTERN.test(raw) ? null : { strictUrl: true };
+    return STRICT_URL_PATTERN.test(raw) && HTTPS_REDIRECT_URL_PATTERN.test(raw) ? null : { httpsUrl: true };
 };
 
 @Component({
@@ -413,9 +421,7 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         const redirectCtrl = group.get('redirectUrl');
         if (redirectCtrl) {
             redirectCtrl.setValidators(
-                mode === 'redirect'
-                    ? [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]
-                    : [optionalStrictUrlValidator]
+                mode === 'redirect' ? [requiredHttpsUrlValidator] : [optionalHttpsUrlValidator]
             );
             redirectCtrl.updateValueAndValidity({ emitEvent: false });
         }
@@ -638,9 +644,7 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
                     mode: [completion.mode || 'receipt'],
                     redirectUrl: [
                         completion.redirectUrl || '',
-                        completion.mode === 'redirect'
-                            ? [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]
-                            : [optionalStrictUrlValidator],
+                        completion.mode === 'redirect' ? [requiredHttpsUrlValidator] : [optionalHttpsUrlValidator],
                     ],
                     allowedPostMessageOriginsText: [(completion.allowedPostMessageOrigins || []).join(', ')],
                     receiptMessage: [completion.receiptMessage || baseFlow.completion.receiptMessage],

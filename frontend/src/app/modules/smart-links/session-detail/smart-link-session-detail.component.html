@@ -77,7 +77,7 @@
                                     <span>{{ t('smartLinks.sessionDetail.autoRefreshPill') }}</span>
                                 </span>
                             </button>
-                            @if (d.state !== 'COMPLETED') {
+                            @if (d.state !== 'COMPLETED' && d.state !== 'REVOKED') {
                                 <button mat-stroked-button type="button" class="shrink-0 rounded-xl whitespace-nowrap" (click)="openResendDialog()">
                                     <mat-icon class="!h-4 !w-4 mr-1">send</mat-icon>
                                     {{ t('smartLinks.actions.resendLink') }}
@@ -653,7 +653,7 @@
                                             <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
                                                 {{ t('smartLinks.sessionDetail.nav_dispatches') }}
                                             </h2>
-                                            @if (d.state !== 'COMPLETED') {
+                                            @if (d.state !== 'COMPLETED' && d.state !== 'REVOKED') {
                                                 <button mat-stroked-button type="button" class="rounded-full" (click)="openResendDialog()">
                                                     <mat-icon class="!h-4 !w-4 mr-1">send</mat-icon>
                                                     {{ t('smartLinks.actions.resendLink') }}

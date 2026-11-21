@@ -593,6 +593,7 @@ export class SmartLinksService {
             `   - Redirect mode appends ?sessionCode=... -> POST /v3/smart-links/sessions/exchange { sessionCode } returns { verified: true, token, identity: { fullName, email, phone, ... } }.`,
             `   - Receipt mode lets your agent poll GET /v3/smart-links/sessions/:sessionId (or receive your webhook) with the same signed proof token and verified identity.`,
             `   - Never expose VERIFIK_JWT in browser code; perform /sessions and /sessions/exchange on your backend or MCP server.`,
+            `   - Paid x402 calls cover session creation (POST /api/v3/smart-links/sessions) only; listing, status, updates, and deletes require your own Bearer JWT or API key.`,
         ].join('\n');
     }
 

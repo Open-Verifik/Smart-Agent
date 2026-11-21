@@ -13105,7 +13105,8 @@
       "batchDone": "Se enviaron {{sent}} de {{total}} enlaces.",
       "sendCsvBtn": "Lanzar Campana CSV",
       "csvRequireDocLabel": "Exigir documento de identidad en todas las filas CSV",
-      "csvRequireDocHint": "Anula el valor opcional por fila y exige escaneo de documento en cada enlace."
+      "csvRequireDocHint": "Anula el valor opcional por fila y exige escaneo de documento en cada enlace.",
+      "batchQueued": "Se pusieron en cola {{total}} enlaces para entrega en segundo plano."
     },
     "kit": {
       "title": "Kit Listo para Desarrolladores e IA",

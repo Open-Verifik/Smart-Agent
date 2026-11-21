@@ -707,7 +707,7 @@
                                                                     <mat-icon>edit</mat-icon>
                                                                     <span>{{ t('smartLinks.actions.editLink') }}</span>
                                                                 </button>
-                                                                @if (s.state !== 'COMPLETED') {
+                                                                @if (s.state !== 'COMPLETED' && s.state !== 'REVOKED') {
                                                                     <button mat-menu-item type="button" (click)="openResendDialog(s)">
                                                                         <mat-icon>send</mat-icon>
                                                                         <span>{{ t('smartLinks.actions.resendLink') }}</span>
@@ -833,7 +833,11 @@
                                 }
                                 @if (dispatchResult(); as dr) {
                                     <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
-                                        {{ t('smartLinks.dispatch.batchDone', { sent: dr.sent, total: dr.total }) }}
+                                        {{
+                                            dr.processing
+                                                ? t('smartLinks.dispatch.batchQueued', { total: dr.total })
+                                                : t('smartLinks.dispatch.batchDone', { sent: dr.sent, total: dr.total })
+                                        }}
                                     </div>
                                 }
                             }

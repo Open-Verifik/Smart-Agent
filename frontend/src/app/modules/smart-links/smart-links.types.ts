@@ -416,6 +416,8 @@ export interface DispatchRecipientInput {
 }
 
 export interface DispatchBatchResult {
+    accepted?: boolean;
+    processing?: boolean;
     total: number;
     sent: number;
     failed: number;
