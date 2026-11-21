@@ -2,6 +2,7 @@ const axios = require("axios");
 const https = require("https");
 const path = require("path");
 const config = require("../config");
+const { isSmartLinkSessionCreate, scopeCreatedSessionBody } = require("../config/smart-link-x402-policy");
 
 const VERIFIK_BASE_URL = config.verifik.apiUrl;
 
@@ -98,6 +99,28 @@ const handleRequest = async (ctx) => {
         });
 
         // 3. Forward Response Back to Client
+        let upstreamPath = ctx.path;
+        try {
+            upstreamPath = new URL(targetUrl).pathname;
+        } catch {
+            // Keep the inbound path when the target URL cannot be parsed.
+        }
+
+        let responseBody = response.data;
+        if (response.status < 400 && isSmartLinkSessionCreate(ctx.method, upstreamPath)) {
+            const scoped = scopeCreatedSessionBody(response.data, ctx.request.body);
+            if (!scoped.ok) {
+                console.error("[Proxy] SmartLink create response was not a single session; dropping upstream body");
+                ctx.status = 502;
+                ctx.body = {
+                    code: "BadGateway",
+                    message: "The session create response could not be limited to the new session.",
+                };
+                return;
+            }
+            responseBody = scoped.body;
+        }
+
         ctx.status = response.status;
 
         // Forward useful headers (optional, usually Content-Type is key)
@@ -105,7 +128,7 @@ const handleRequest = async (ctx) => {
             ctx.set("Content-Type", response.headers["content-type"]);
         }
 
-        ctx.body = response.data;
+        ctx.body = responseBody;
 
         // 4. Record Validation Proof if Payment was used
         if (ctx.state.payment && response.status < 400 && config.erc8004.validationRegistry) {
@@ -117,7 +140,7 @@ const handleRequest = async (ctx) => {
                 // but let's just dump query + body
                 const args = { ...ctx.query, ...ctx.request.body };
 
-                const proofHash = await recordValidationProof(toolName, args, response.data, ctx.state.payment.txHash);
+                const proofHash = await recordValidationProof(toolName, args, responseBody, ctx.state.payment.txHash);
 
                 if (proofHash) {
                     ctx.set("x-validation-proof", proofHash);
