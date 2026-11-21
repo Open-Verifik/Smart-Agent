@@ -19,9 +19,8 @@ const MODELS = {
 const DEFAULT_MODEL = MODELS.FLASH;
 const API_VERSION = "v1beta";
 
-// Load tool definitions
-const toolsPath = path.resolve(__dirname, "../config/tools-manifest.json");
-const toolsDef = JSON.parse(fs.readFileSync(toolsPath, "utf8"));
+// Load tool definitions via static require so serverless bundlers trace the JSON asset
+const toolsDef = require("../config/tools-manifest.json");
 
 /**
  * Execute a tool call via Verifik Backend
