@@ -34,6 +34,13 @@ export const appRoutes: Route[] = [
             import('app/modules/plate-report/plate-report.routes').then((m) => m.default),
     },
 
+    /** Public smartREPORT landing and blog (no Verifik shell). */
+    {
+        path: 'smartreport',
+        loadChildren: () =>
+            import('app/modules/smartreport/smartreport.routes').then((m) => m.default),
+    },
+
     // Redirect empty path to '/home'
     { path: '', pathMatch: 'full', redirectTo: 'home' },
 

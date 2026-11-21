@@ -1,0 +1,98 @@
+<header class="srh" [class.srh--open]="menuOpen">
+    <a class="srh__brand" [href]="links.home" aria-label="Verifik">
+        <img [src]="images + 'logo-verifik.svg'" alt="Verifik" />
+    </a>
+
+    <button
+        class="srh__burger"
+        type="button"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen"
+        aria-label="Menú"
+    >
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <div class="srh__panel">
+        <nav class="srh__nav" aria-label="Principal">
+            <div class="srh__item" [class.srh__item--open]="openDropdown === 'products'">
+                <button
+                    class="srh__link srh__link--active"
+                    type="button"
+                    (click)="toggleDropdown('products')"
+                    [attr.aria-expanded]="openDropdown === 'products'"
+                >
+                    Productos <img [src]="images + 'icons/chevron-down-white.svg'" alt="" />
+                </button>
+                <div class="srh__dropdown">
+                    <a class="srh__entry" [href]="links.vehicleReport">
+                        <span class="srh__entry-icon"
+                            ><img [src]="images + 'icons/car-blue.svg'" alt=""
+                        /></span>
+                        <span>
+                            <strong>Reporte Vehicular</strong>
+                            <small
+                                >Consulta el historial vehicular de un carro o moto usado por
+                                placa</small
+                            >
+                        </span>
+                    </a>
+                    <a class="srh__entry" *ngIf="links.citizenReport" [href]="links.citizenReport">
+                        <span class="srh__entry-icon"
+                            ><img [src]="images + 'icons/user-blue.svg'" alt=""
+                        /></span>
+                        <span>
+                            <strong>Reporte Ciudadano</strong>
+                            <small
+                                >Consulta antecedentes, validaciones y riesgos antes de contratar,
+                                arrendar o hacer negocios.</small
+                            >
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="srh__item" [class.srh__item--open]="openDropdown === 'company'">
+                <button
+                    class="srh__link"
+                    type="button"
+                    (click)="toggleDropdown('company')"
+                    [attr.aria-expanded]="openDropdown === 'company'"
+                >
+                    Compañía <img [src]="images + 'icons/chevron-down-white.svg'" alt="" />
+                </button>
+                <div class="srh__dropdown">
+                    <a class="srh__entry" [href]="links.about">
+                        <span class="srh__entry-icon"
+                            ><img [src]="images + 'icons/users-blue.svg'" alt=""
+                        /></span>
+                        <span>
+                            <strong>Quiénes somos</strong>
+                            <small>Conoce el equipo y la historia detrás de Verifik.</small>
+                        </span>
+                    </a>
+                    <a class="srh__entry" [href]="links.contact">
+                        <span class="srh__entry-icon"
+                            ><img [src]="images + 'icons/phone-blue.svg'" alt=""
+                        /></span>
+                        <span>
+                            <strong>Contáctanos</strong>
+                            <small>Agenda una sesión con nuestro equipo.</small>
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <a class="srh__link" [href]="links.blog">Blog</a>
+        </nav>
+
+        <div class="srh__actions">
+            <a class="srh__button srh__button--ghost" [href]="links.signIn">Ingresar ahora</a>
+            <a class="srh__button srh__button--primary" [href]="links.signUp">
+                Empezar Gratis <img [src]="images + 'icons/chevron-right-white.svg'" alt="" />
+            </a>
+        </div>
+    </div>
+</header>
