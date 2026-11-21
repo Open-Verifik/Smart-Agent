@@ -76,9 +76,17 @@ import {
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
-import { ReportThemeBlockComponent } from '../report-theme/report-theme-block.component';
-import { defaultThemeTokens, isReportThemeId, themeBlockKindFromType, type ReportThemeId, type ScoreDisplayFormat } from '../report-theme/report-theme.model';
-import type { VerificationScoreModel } from '../report-theme/report-theme.model';
+import { ReportThemeBlockComponent, type ThemeInlineEdit } from '../report-theme/report-theme-block.component';
+import {
+    defaultThemeTokens,
+    extractReportThemeConfig,
+    isReportThemeId,
+    normalizeReportThemeId,
+    themeBlockKindFromType,
+    type ReportThemeId,
+    type ScoreDisplayFormat,
+    type VerificationScoreModel,
+} from '../report-theme/report-theme.model';
 import { scalableImageSrc } from '../report-image.util';
 import { resolveRuleImageSource, resolveShapeRuleValue } from '../report-shape-rules.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
@@ -601,6 +609,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         extract: boolean;
     }>();
     @Output() inlineTextChange = new EventEmitter<ReportInlineTextChange>();
+    @Output() themeInlineEdit = new EventEmitter<ThemeInlineEdit>();
     @Output() cellSizeChange = new EventEmitter<ReportCellSizeChange>();
     @Output() addPage = new EventEmitter<void>();
     @Output() removePage = new EventEmitter<void>();
@@ -2969,13 +2978,43 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Theme blocks follow the template theme. A bare block still has a palette to paint with. */
     themeId(): ReportThemeId {
-        return isReportThemeId(this.template()?.reportTheme) ? this.template().reportTheme! : 'premium_dark';
+        return normalizeReportThemeId(this.template()?.reportTheme) ?? 'premium_dark';
     }
 
     themeTokens() {
-        const stored = this.template()?.themeTokens;
-        const base = defaultThemeTokens(this.themeId());
-        return stored ? { ...base, ...stored } : base;
+        const tpl = this.template();
+        return extractReportThemeConfig(tpl?.reportTheme, tpl?.themeTokens, tpl?.scoreSettings, tpl?.scoreScale).tokens;
+    }
+
+    /**
+     * Resolves the rendered A4 sheet background color.
+     * Themed templates paint their theme palette (`cover` on page 1 for dark themes, `page` on inner pages)
+     * instead of falling back to the legacy `#ffffff` Mongoose default.
+     */
+    effectivePageBackground(pageIndex = 0): string {
+        const tpl = this.template();
+        const theme = normalizeReportThemeId(tpl?.reportTheme);
+        if (theme) {
+            const tokens = this.themeTokens();
+            if (pageIndex === 0 && theme === 'premium_dark' && tokens.cover) {
+                return tokens.cover;
+            }
+            return tokens.page || this.pageBackgroundColor() || '#ffffff';
+        }
+        return this.pageBackgroundColor() || '#ffffff';
+    }
+
+    effectivePageBorder(pageIndex = 0): string {
+        const bg = this.effectivePageBackground(pageIndex).trim().toLowerCase();
+        const m = /^#([0-9a-f]{6})$/.exec(bg);
+        if (m) {
+            const r = parseInt(m[1].slice(0, 2), 16);
+            const g = parseInt(m[1].slice(2, 4), 16);
+            const b = parseInt(m[1].slice(4, 6), 16);
+            const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            if (lum < 0.35) return 'rgba(255, 255, 255, 0.14)';
+        }
+        return '#e5e7eb';
     }
 
     themeScore(): VerificationScoreModel | null {
@@ -2984,12 +3023,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     themeScoreFormat(): ScoreDisplayFormat {
-        const scale = this.template()?.scoreScale ?? this.template()?.scoreSettings?.format;
+        const tpl = this.template();
+        const obj = tpl?.reportTheme && typeof tpl.reportTheme === 'object' ? tpl.reportTheme : null;
+        const scale = tpl?.scoreScale ?? obj?.scoreScale ?? tpl?.scoreSettings?.format;
         return scale === 'unit' ? 'unit' : 'percent';
     }
 
     themeScoreEnabled(): boolean {
-        return this.template()?.scoreSettings?.enabled !== false;
+        const tpl = this.template();
+        const obj = tpl?.reportTheme && typeof tpl.reportTheme === 'object' ? tpl.reportTheme : null;
+        if (obj?.scoreEnabled === false) return false;
+        return tpl?.scoreSettings?.enabled !== false;
     }
 
     /** Lists, tables and repeaters keep the designed box on the sheet. The PDF grows them. */

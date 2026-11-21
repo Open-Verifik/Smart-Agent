@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import type { ReportSection } from '../smart-report.service';
 import {
@@ -23,6 +23,14 @@ import {
     type VerificationScoreModel,
 } from './report-theme.model';
 
+export type ThemeInlineField = 'logoText' | 'eyebrow' | 'coverTitle' | 'blockEyebrow' | 'headline' | 'legalNote';
+
+export interface ThemeInlineEdit {
+    sectionId: string;
+    field: ThemeInlineField;
+    value: string;
+}
+
 const SEGMENT_COLORS = ['#2457d6', '#7c5cff', '#14b8a6', '#f0a202', '#3b82f6', '#ec4899'];
 
 @Component({
@@ -38,6 +46,28 @@ const SEGMENT_COLORS = ['#2457d6', '#7c5cff', '#14b8a6', '#f0a202', '#3b82f6', '
                 min-height: 0;
                 box-sizing: border-box;
             }
+            .rt-editable {
+                cursor: text;
+                border-radius: 4px;
+                transition: outline-color 120ms ease, background-color 120ms ease;
+            }
+            .rt-editable:hover {
+                outline: 1px dashed rgba(129, 140, 248, 0.8);
+                outline-offset: 2px;
+            }
+            .rt-inline-input {
+                width: 100%;
+                min-width: 80px;
+                background: rgba(15, 23, 42, 0.85);
+                color: #ffffff;
+                border: 1px solid #818cf8;
+                border-radius: 6px;
+                padding: 2px 6px;
+                font: inherit;
+                line-height: inherit;
+                letter-spacing: inherit;
+                outline: none;
+            }
         `,
     ],
 })
@@ -50,12 +80,83 @@ export class ReportThemeBlockComponent {
     score = input<VerificationScoreModel | null>(null);
     format = input<ScoreDisplayFormat>('percent');
     enabled = input(true);
+    editable = input(false);
+
+    inlineEdit = output<ThemeInlineEdit>();
+
+    editingField = signal<ThemeInlineField | null>(null);
+    editingDraft = signal('');
 
     readonly kind = computed(() => themeBlockKindFromType(this.section().type));
     readonly config = computed(() => readThemeBlockConfig(this.section().config));
-    readonly bodyFont = computed(() => fontStack(this.tokens().bodyFont));
-    readonly displayFont = computed(() => fontStack(this.tokens().displayFont));
+    readonly sectionStyle = computed(() => this.section().style ?? {});
+    readonly bodyFont = computed(() => this.sectionStyle().fontFamily || fontStack(this.tokens().bodyFont));
+    readonly displayFont = computed(() => this.sectionStyle().fontFamily || fontStack(this.tokens().displayFont));
+    readonly effectiveInk = computed(() => this.sectionStyle().color || this.tokens().ink);
+    readonly effectiveSurface = computed(() => {
+        const bg = this.sectionStyle().backgroundColor;
+        return bg && bg !== 'transparent' ? bg : this.tokens().surface;
+    });
+    readonly effectiveRadiusPx = computed(() => {
+        const r = this.sectionStyle().borderRadius;
+        return typeof r === 'number' && Number.isFinite(r) ? r : null;
+    });
+    readonly effectiveTextAlign = computed(() => this.sectionStyle().textAlign || null);
+    readonly effectiveFontWeight = computed(() => this.sectionStyle().fontWeight || null);
+    readonly effectiveFontStyle = computed(() => this.sectionStyle().fontStyle || null);
+    readonly effectiveTextDecoration = computed(() => this.sectionStyle().textDecoration || null);
+    readonly effectiveFontSizePx = computed(() => {
+        const s = this.sectionStyle().fontSize;
+        return typeof s === 'number' && Number.isFinite(s) && s > 0 ? s : null;
+    });
     readonly shown = computed(() => (this.enabled() ? this.score() : null));
+
+    translateOrCustom(custom: string | undefined, fallbackKey: string): string {
+        return custom?.trim() || this._transloco.translate(fallbackKey);
+    }
+
+    startInlineEdit(field: ThemeInlineField, currentValue: string, event: Event): void {
+        if (!this.editable()) return;
+        event.stopPropagation();
+        event.preventDefault();
+        this.editingField.set(field);
+        this.editingDraft.set(currentValue);
+        queueMicrotask(() => {
+            const el = document.querySelector<HTMLInputElement>('[data-rt-inline-input]');
+            el?.focus();
+            el?.select();
+        });
+    }
+
+    onInlineInput(event: Event): void {
+        const target = event.target as HTMLInputElement | null;
+        this.editingDraft.set(target?.value ?? '');
+    }
+
+    commitInlineEdit(event?: Event): void {
+        event?.stopPropagation();
+        const field = this.editingField();
+        if (!field) return;
+        const value = this.editingDraft().trim();
+        this.editingField.set(null);
+        this.inlineEdit.emit({ sectionId: this.section().id, field, value });
+    }
+
+    cancelInlineEdit(event?: Event): void {
+        event?.stopPropagation();
+        this.editingField.set(null);
+    }
+
+    onInlineKeydown(event: KeyboardEvent): void {
+        event.stopPropagation();
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            this.commitInlineEdit(event);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            this.cancelInlineEdit(event);
+        }
+    }
 
     usesCustomEyebrow(): boolean {
         return this.config().eyebrow.trim().length > 0;
@@ -88,6 +189,7 @@ export class ReportThemeBlockComponent {
     }
 
     enrollRows(score: VerificationScoreModel): { label: string; value: string; ok: boolean }[] {
+        if (score.subjectRows?.length) return score.subjectRows;
         const driving = score.checks.find((check) => check.id === 'driving');
         const vehicle = score.checks.find((check) => check.id === 'vehicle');
         return [
@@ -106,6 +208,34 @@ export class ReportThemeBlockComponent {
         ];
     }
 
+    headlineLabel(score: VerificationScoreModel): string {
+        const t = this.tokens();
+        if (score.decision === 'approve' && t.headlineApprove?.trim()) return t.headlineApprove.trim();
+        if (score.decision === 'review' && t.headlineReview?.trim()) return t.headlineReview.trim();
+        if (score.decision === 'reject' && t.headlineReject?.trim()) return t.headlineReject.trim();
+        if (score.headlineText?.trim()) return score.headlineText.trim();
+        return this._transloco.translate(this.decisionKey(score.decision));
+    }
+
+    eyebrowLabel(score: VerificationScoreModel, fallbackKey: string): string {
+        if (this.usesCustomEyebrow()) return this.config().eyebrow;
+        if (this.tokens().eyebrow?.trim()) return this.tokens().eyebrow.trim();
+        if (score.eyebrowText?.trim()) return score.eyebrowText.trim();
+        return this._transloco.translate(fallbackKey);
+    }
+
+    coverHeadingLabel(score: VerificationScoreModel): string {
+        if (this.usesCustomEyebrow()) return this.config().eyebrow;
+        if (this.tokens().coverTitle?.trim()) return this.tokens().coverTitle.trim();
+        if (score.coverTitleText?.trim()) return score.coverTitleText.trim();
+        return this._transloco.translate('reportTheme.sample.titleDriver');
+    }
+
+    summaryLabel(score: VerificationScoreModel): string {
+        if (score.summaryText?.trim()) return score.summaryText.trim();
+        return this._transloco.translate(this.summaryKey(score.decision));
+    }
+
     toneColor(tone: ScoreTone | 'clear' | 'fail' | 'approve' | 'review' | 'reject'): string {
         const tokens = this.tokens();
         if (tone === 'success' || tone === 'clear' || tone === 'approve') return tokens.success;
@@ -118,6 +248,13 @@ export class ReportThemeBlockComponent {
         if (decision === 'approve') return 'reportTheme.sample.headlineApprove';
         if (decision === 'reject') return 'reportTheme.sample.headlineReject';
         return 'reportTheme.sample.headlineReview';
+    }
+
+    shortVerdictLabel(decision: string): string {
+        const isEn = (this._transloco.getActiveLang() || '').toLowerCase().startsWith('en');
+        if (decision === 'approve') return isEn ? 'Approved' : 'Aprobado';
+        if (decision === 'reject') return isEn ? 'Rejected' : 'Rechazado';
+        return isEn ? 'Manual review' : 'Revisión manual';
     }
 
     summaryKey(decision: string): string {

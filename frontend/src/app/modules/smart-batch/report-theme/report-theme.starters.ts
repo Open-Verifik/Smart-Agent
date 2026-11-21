@@ -37,25 +37,25 @@ const STARTER_FRAMES: Record<ReportThemeId, FrameSpec[]> = {
     premium_dark: [
         ...stack(0, [
             { kind: 'coverPage', height: 132 },
-            { kind: 'scoreGauge', height: 248 },
-            { kind: 'categoryBreakdown', height: 268 },
-            { kind: 'findings', height: 236 },
+            { kind: 'scoreGauge', height: 242 },
+            { kind: 'categoryBreakdown', height: 326 },
+            { kind: 'findings', height: 318 },
         ]),
         ...stack(1, [
-            { kind: 'checkTable', height: 520 },
-            { kind: 'sources', height: 300 },
+            { kind: 'checkTable', height: 618 },
+            { kind: 'sources', height: 400 },
         ]),
     ],
     light_cards: [
         ...stack(0, [
-            { kind: 'coverPage', height: 64 },
-            { kind: 'scoreGauge', height: 430 },
-            { kind: 'categoryBreakdown', height: 228 },
-            { kind: 'findings', height: 248 },
+            { kind: 'coverPage', height: 46 },
+            { kind: 'scoreGauge', height: 342 },
+            { kind: 'categoryBreakdown', height: 248 },
+            { kind: 'findings', height: 340 },
         ]),
         ...stack(1, [
-            { kind: 'checkTable', height: 520 },
-            { kind: 'sources', height: 300 },
+            { kind: 'checkTable', height: 580 },
+            { kind: 'sources', height: 380 },
         ]),
     ],
     editorial: [

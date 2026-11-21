@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -16,6 +17,7 @@ import { batchStepFeatureId, batchStepLabel, orderedBatchSteps } from './batch-c
 import { getPresetStepCount } from './batch-required-fields.util';
 import { ReportPreviewComponent } from './report-preview/report-preview.component';
 import { ReportTemplateThumbComponent } from './report-template-thumb.component';
+import { normalizeReportThemeId } from './report-theme/report-theme.model';
 import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
 import { AppFeature, BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
@@ -57,6 +59,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     private _snackBar = inject(MatSnackBar);
     private _confirm = inject(FuseConfirmationService);
     private _transfer = inject(SmartTemplateTransferService);
+    private _sanitizer = inject(DomSanitizer);
 
     exportingTemplateId = signal<string | null>(null);
     isImportingTemplate = signal(false);
@@ -87,6 +90,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     isModeDialogOpen = signal(false);
     previewTemplate = signal<SmartReportTemplate | null>(null);
     previewLoading = signal(false);
+    previewHtmlDoc = signal<SafeHtml | null>(null);
     previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
     private _previewGen = 0;
 
@@ -137,6 +141,9 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
     systemTemplates = computed(() =>
         this.templates().filter((t) => t.type === 'System').sort((a, b) => {
+            const aThemed = normalizeReportThemeId(a.reportTheme) ? 0 : 1;
+            const bThemed = normalizeReportThemeId(b.reportTheme) ? 0 : 1;
+            if (aThemed !== bThemed) return aThemed - bThemed;
             const cat = (a.category ?? '').localeCompare(b.category ?? '');
             if (cat !== 0) return cat;
             return (a.tier ?? '').localeCompare(b.tier ?? '');
@@ -182,13 +189,22 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this._authGate.runWithAuthOrDialog({
             onAuthenticated: () => {
+                const defaultTab = this._route.snapshot.data['defaultTab'] as 'configurations' | 'templates' | undefined;
                 const tab = this._route.snapshot.queryParamMap.get('tab');
-                if (tab === 'templates') {
+                if (tab === 'templates' || (!tab && defaultTab === 'templates')) {
                     this.activeTab.set('templates');
                 }
                 this._route.queryParamMap.subscribe((params) => {
                     const queryTab = params.get('tab');
-                    this.activeTab.set(queryTab === 'templates' ? 'templates' : 'configurations');
+                    if (queryTab === 'templates') {
+                        this.activeTab.set('templates');
+                    } else if (queryTab === 'configurations') {
+                        this.activeTab.set('configurations');
+                    } else if (defaultTab) {
+                        this.activeTab.set(defaultTab);
+                    } else {
+                        this.activeTab.set('configurations');
+                    }
                 });
                 this._loadLandingData();
             },
@@ -225,12 +241,31 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     closeTemplatePreview(): void {
         this._previewGen += 1;
         this.previewTemplate.set(null);
+        this.previewHtmlDoc.set(null);
         this.previewLoading.set(false);
     }
 
     private _showPreview(template: SmartReportTemplate, gen: number): void {
         if (gen !== this._previewGen) return;
         this.previewTemplate.set(template);
+        this.previewHtmlDoc.set(null);
+        if (normalizeReportThemeId(template.reportTheme)) {
+            this._smartReportService
+                .previewHtml(template, template.sampleData ?? {}, { preview: true })
+                .pipe(take(1))
+                .subscribe({
+                    next: (html) => {
+                        if (gen !== this._previewGen) return;
+                        this.previewHtmlDoc.set(this._sanitizer.bypassSecurityTrustHtml(html));
+                        this.previewLoading.set(false);
+                    },
+                    error: () => {
+                        if (gen !== this._previewGen) return;
+                        this.previewLoading.set(false);
+                    },
+                });
+            return;
+        }
         this.previewLoading.set(false);
     }
 
@@ -297,7 +332,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     createBlankTemplate(): void {
-        this._router.navigate(['/smart-batch', 'guide', 'country'], { queryParams: { intent: 'report' } });
+        this._router.navigate(['/smart-reports', 'builder', 'country'], { queryParams: { intent: 'report' } });
     }
 
     useSystemTemplate(template: SmartReportTemplate, event: Event) {

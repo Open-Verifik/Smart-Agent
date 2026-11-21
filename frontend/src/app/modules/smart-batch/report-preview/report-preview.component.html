@@ -38,8 +38,8 @@
             [style.min-height]="pageHeightCss()"
             [style.height]="pageHeightCss()"
             [attr.data-paper-height]="pageHeightPx()"
-            [style.background-color]="pageBackgroundColor() || '#ffffff'"
-            style="border: 1px solid #e5e7eb"
+            [style.background-color]="effectivePageBackground(pageIndex)"
+            [style.border]="'1px solid ' + effectivePageBorder(pageIndex)"
         >
             <!-- Watermark overlay (every page, matches PDF behaviour) -->
             @if (watermarkEnabled()) {
@@ -883,6 +883,8 @@
             [score]="themeScore()"
             [format]="themeScoreFormat()"
             [enabled]="themeScoreEnabled()"
+            [editable]="clickable() && !printCapture() && !thumbnailMode()"
+            (inlineEdit)="themeInlineEdit.emit($event)"
         />
     }
     @if (section.type === 'header') {

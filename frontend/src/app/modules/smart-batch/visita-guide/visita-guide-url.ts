@@ -85,9 +85,14 @@ export const parseGuideUrl = (params: { get(name: string): string | null }): Gui
     };
 };
 
-/** Start screen lives at `/smart-batch`. Every later step has its own path. */
-export const guideStepPath = (step: GuideStepId | null): string =>
-    !step || step === 'intent' ? '/smart-batch' : `/smart-batch/guide/${step}`;
+/** Start screen lives at `/smart-batch` or `/smart-reports/builder`. Later steps keep the active prefix. */
+export const guideStepPath = (step: GuideStepId | null, currentUrl?: string): string => {
+    const isReports = String(currentUrl || '').split('?')[0].startsWith('/smart-reports');
+    if (isReports) {
+        return !step || step === 'intent' ? '/smart-reports/builder' : `/smart-reports/builder/${step}`;
+    }
+    return !step || step === 'intent' ? '/smart-batch' : `/smart-batch/guide/${step}`;
+};
 
 export const isGuideStep = (value: string | null): value is GuideStepId =>
     Boolean(value && GUIDE_STEPS.has(value as GuideStepId));

@@ -15,7 +15,7 @@ import {
     type ThemeStarterPayload,
     type VerificationRequestInput,
 } from './report-theme/report-score-api.adapter';
-import type { ReportThemeId, ReportThemeTokens, ScoreSettings, VerificationScoreModel } from './report-theme/report-theme.model';
+import type { ReportThemeId, ReportThemePayload, ReportThemeTokens, ScoreSettings, VerificationScoreModel } from './report-theme/report-theme.model';
 import type { ReportCustomFont, ReportFontWeight } from './report-fonts.util';
 import type { ReportValueRule } from './report-value-rules.util';
 
@@ -364,8 +364,8 @@ export interface SmartReportTemplate {
      * One of premium_dark, light_cards, editorial, dashboard.
      * Omitted on templates that are still built from free shapes.
      */
-    /** PR 760 theme id. Omitted on templates that are still built from free shapes. */
-    reportTheme?: ReportThemeId;
+    /** PR 760 theme id. Omitted or null on templates built from free shapes. */
+    reportTheme?: ReportThemeId | ReportThemePayload | null;
     themeTokens?: ReportThemeTokens;
     /**
      * `percent` (default) or `unit`. Mirrors `scoreSettings.format` on the wire
@@ -538,8 +538,6 @@ export const templateLayerZ = (template: SmartReportTemplate): Record<string, nu
 const SYSTEM_TEMPLATE_FIELDS = [
     'type',
     'systemKey',
-    'country',
-    'category',
     'tier',
     'nameKey',
     'descriptionKey',
@@ -557,6 +555,7 @@ export const TEMPLATE_WRITE_KEYS = [
     'nameKey',
     'descriptionKey',
     'presetSteps',
+    'layoutVersion',
     'batchConfiguration',
     'logo',
     'reportTheme',
@@ -719,7 +718,9 @@ export const sanitizeTemplateForApi = (
     delete payload.lastEmailedAt;
 
     const batchRef = payload.batchConfiguration;
-    if (batchRef && typeof batchRef === 'object') {
+    if (!batchRef) {
+        delete payload.batchConfiguration;
+    } else if (typeof batchRef === 'object') {
         const id = (batchRef as BatchConfigurationRef)._id ?? (batchRef as BatchConfigurationRef).id;
         if (typeof id === 'string' && id) {
             payload.batchConfiguration = id;
@@ -1152,20 +1153,43 @@ export class SmartReportService {
         // and `scoreScale` (`percent` by default). See report-score-api.adapter.ts.
         const clean = sanitizeTemplateForApi(template, 'create') as Record<string, unknown>;
         delete clean['scoreSettings'];
-        return this._httpClient
-            .post<{
+        const payload: Record<string, unknown> = {
+            ...clean,
+            ...verificationRequestFields({
+                theme: template.reportTheme,
+                themeTokens: template.themeTokens,
+                scoreSettings,
+                structuredTheme: true,
+            }),
+            sampleData: ensureVerificationSample(sampleData, scoreSettings),
+            ...(options?.preview === false ? { preview: false } : {}),
+        };
+        const execute = (body: Record<string, unknown>) =>
+            this._httpClient.post<{
                 data: { html: string };
-            }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
-                ...clean,
-                ...verificationRequestFields({
-                    theme: template.reportTheme,
-                    themeTokens: template.themeTokens,
-                    scoreSettings,
-                }),
-                sampleData: ensureVerificationSample(sampleData, scoreSettings),
-                ...(options?.preview === false ? { preview: false } : {}),
-            })
-            .pipe(map((res) => res.data.html));
+            }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, body);
+
+        return execute(payload).pipe(
+            catchError((err: any) => {
+                if (err?.status === 400 || err?.status === 409) {
+                    const disallowed = extractDisallowedFields(err);
+                    if (disallowed.length > 0) {
+                        const fallbackPayload = cloneReportValue(payload);
+                        let modified = false;
+                        for (const field of disallowed) {
+                            if (omitDisallowedPath(fallbackPayload, field)) {
+                                modified = true;
+                            }
+                        }
+                        if (modified) {
+                            return execute(fallbackPayload);
+                        }
+                    }
+                }
+                return throwError(() => err);
+            }),
+            map((res) => res.data.html)
+        );
     }
 
     /**
