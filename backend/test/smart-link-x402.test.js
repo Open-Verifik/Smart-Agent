@@ -175,7 +175,12 @@ describe("SmartLink x402 session boundary", () => {
 
 			const [wellKnownRes, openApiRes] = await Promise.all([
 				fetch(`http://127.0.0.1:${port}/.well-known/x402`),
-				fetch(`http://127.0.0.1:${port}/openapi.json`),
+				fetch(`http://127.0.0.1:${port}/openapi.json`, {
+					headers: {
+						"x-forwarded-host": "sandbox.verifik.co",
+						"x-forwarded-proto": "https",
+					},
+				}),
 			]);
 			assert.equal(wellKnownRes.status, 200);
 			assert.equal(openApiRes.status, 200);
@@ -183,6 +188,9 @@ describe("SmartLink x402 session boundary", () => {
 			const wellKnownJson = await wellKnownRes.json();
 			const openApiJson = await openApiRes.json();
 			assert.ok(Array.isArray(wellKnownJson.resources));
+			if (!process.env.PUBLIC_ORIGIN && !process.env.AGENT_BASE_URL) {
+				assert.equal(openApiJson.servers?.[0]?.url, "https://sandbox.verifik.co");
+			}
 			const createProps =
 				openApiJson.paths["/api/v3/smart-links/sessions"].post.responses["200"].content["application/json"].schema
 					.properties.data.properties;

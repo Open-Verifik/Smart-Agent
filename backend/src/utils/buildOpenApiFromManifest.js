@@ -5,8 +5,12 @@
  * `PUBLIC_ORIGIN` or `AGENT_BASE_URL` (origin only), else `http://127.0.0.1:<PORT>`.
  */
 
-const path = require("path");
-const packageJson = require(path.resolve(__dirname, "../../package.json"));
+let packageJson = { version: "1.0.0" };
+try {
+	packageJson = require("../../package.json");
+} catch {
+	// fallback when bundled without package.json
+}
 
 const BASE_DISCOVERY_TAGS = ["KYC", "KYB", "Data"];
 
