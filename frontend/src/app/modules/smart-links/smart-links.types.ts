@@ -133,8 +133,11 @@ export type SmartLinkSessionState =
 export interface SmartLinkInteractionEvent {
     type:
         | 'CREATED'
+        | 'CHILD_SPAWNED'
         | 'DISPATCHED'
         | 'OPENED'
+        | 'OTP_SENT'
+        | 'OTP_VERIFIED'
         | 'IDENTIFIER_SUBMITTED'
         | 'ROUTED'
         | 'IN_PROGRESS'
@@ -268,6 +271,11 @@ export interface SmartLinkSessionRecord {
     createdByChannel?: string;
     useCount?: number;
     maxUses?: number;
+    parentSession?: string | null;
+    isMultiUseTemplate?: boolean;
+    pendingAppRegistration?: string | null;
+    pendingBusinessRegistration?: string | null;
+    pendingOutcomeType?: 'kyc' | 'kyb' | null;
     openCount?: number;
     lastOpenedAt?: string;
     expiresAt: string;
@@ -394,6 +402,11 @@ export interface MintedSmartLinkSession {
     expiresAt: string;
     state: string;
     requireDocument?: boolean;
+    maxUses?: number;
+    useCount?: number;
+    isMultiUseTemplate?: boolean;
+    statusToken?: string;
+    statusUrl?: string;
     prefill?: {
         email?: string;
         phone?: string;

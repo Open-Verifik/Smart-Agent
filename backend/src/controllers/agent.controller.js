@@ -9,6 +9,7 @@ const { redactMessageForPersistence } = require("../utils/chat-response-redact.u
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { ensureStorageDir } = require("../utils/storageDir");
 
 /**
  * Handle chat request
@@ -62,10 +63,14 @@ const chat = async (ctx) => {
 
 						// Save to disk for persistence
 						const filename = `${Date.now()}_${crypto.randomBytes(4).toString("hex")}.${mimeType.split("/")[1]}`;
-						const uploadDir = path.join(__dirname, "../../data/uploads");
-						if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-						fs.writeFileSync(path.join(uploadDir, filename), Buffer.from(data, "base64"));
+						const uploadDir = ensureStorageDir("uploads");
+						if (uploadDir) {
+							try {
+								fs.writeFileSync(path.join(uploadDir, filename), Buffer.from(data, "base64"));
+							} catch (writeErr) {
+								console.warn("[AgentController] Failed to persist upload:", writeErr.message);
+							}
+						}
 
 						return {
 							mimeType,

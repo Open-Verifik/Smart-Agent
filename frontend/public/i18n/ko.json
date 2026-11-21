@@ -13376,7 +13376,10 @@
       "rowActions": "링크 작업",
       "emptyFiltered": "활성 검색어나 필터와 일치하는 SmartLink가 없습니다.",
       "exportCsvBtn": "CSV 내보내기",
-      "exportedCsvToast": "{{count}}개의 SmartLink를 CSV로 내보냈습니다."
+      "exportedCsvToast": "{{count}}개의 SmartLink를 CSV로 내보냈습니다.",
+      "multiUseBadge": "다회성 템플릿",
+      "childUseBadge": "하위 사용",
+      "awaitingReviewBadge": "검토 대기"
     },
     "sessionDetail": {
       "title": "SmartLink 상세 보고서",
@@ -13414,7 +13417,9 @@
       "autoRefreshPill": "자동 새로고침 (5초)",
       "signedUrlHiddenTitle": "서명된 링크 URL 숨김",
       "signedUrlHiddenBody": "서명 전용 보안이 활성화되어 기존 URL을 다시 조회할 수 없습니다.",
-      "reissueFreshUrlQrBtn": "새 URL 및 QR을 받으려면 링크 재발급"
+      "reissueFreshUrlQrBtn": "새 URL 및 QR을 받으려면 링크 재발급",
+      "awaitingAsyncTitle": "수동 검토 또는 법인 대표자 서명 대기 중",
+      "awaitingAsyncBody": "연결된 KYC 수동 검토 또는 KYB 대표자 인증이 완료될 때까지 이 SmartLink는 진행 중 상태로 유지되며 완료 시 웹훅과 상태 조회가 자동 업데이트됩니다."
     },
     "dialogs": {
       "editTitle": "SmartLink 수정",

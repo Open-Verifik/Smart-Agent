@@ -18,16 +18,20 @@ require("./unprotected-routes")(router);
 // data is backend/data. so ../../data is correct.
 // Serve Uploads - Manual Handler for reliability
 const fs = require("fs");
+const { getStorageDir } = require("../utils/storageDir");
 
 router.get("/api/uploads/:filename", async (ctx) => {
 	const { filename } = ctx.params;
-	const filePath = path.join(__dirname, "../../data/uploads", filename);
 
 	// Security check to prevent directory traversal
 	if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
 		ctx.status = 403;
 		return;
 	}
+
+	const primaryPath = path.join(getStorageDir("uploads"), filename);
+	const legacyPath = path.join(__dirname, "../../data/uploads", filename);
+	const filePath = fs.existsSync(primaryPath) ? primaryPath : legacyPath;
 
 	if (fs.existsSync(filePath)) {
 		const ext = path.extname(filename).toLowerCase();

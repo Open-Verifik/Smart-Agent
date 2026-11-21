@@ -6408,7 +6408,7 @@
 			"url": "https://ai.verifik.co/api/v3/smart-links/sessions",
 			"verifikPath": "/v3/smart-links/sessions",
 			"method": "POST",
-			"description": "Generate one signed SmartLink verification URL and QR code. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on this link to also require an ID document scan. This call is priced. The response contains only the session created by this request. Listing, reading, updating, or deleting sessions requires the caller's own API key or JWT.",
+			"description": "Generate one signed SmartLink verification URL and QR code. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on this link to also require an ID document scan. This call is priced. The response contains only the session created by this request plus a single-session read-only statusToken and statusUrl for polling GET /v3/smart-links/public/sessions/{shortCode}/status without an account JWT or x402 payment. Listing, reading, updating, or deleting tenant sessions requires the caller's own API key or JWT.",
 			"country": "Global",
 			"priceUsd": 0.05,
 			"parameters": {
@@ -6437,6 +6437,10 @@
 					"requireDocument": {
 						"type": "boolean",
 						"description": "Per-link override (default false). When true, requires an ID document scan in addition to Face Liveness even if the user already has a registered account."
+					},
+					"maxUses": {
+						"type": "number",
+						"description": "Maximum allowed completions for this link: 1 for single-use (default), 0 for unlimited template spawning per-use child sessions, or >1 for multi-use quota template."
 					},
 					"completionMode": {
 						"type": "string",
