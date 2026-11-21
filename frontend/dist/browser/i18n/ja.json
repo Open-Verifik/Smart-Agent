@@ -179,17 +179,7 @@
     "plate_report": "Plate report",
     "plate_report_subtitle": "Vehicle lookup from a plate",
     "smart_fleet_drivers": "ドライバー",
-    "smart_fleet_drivers_subtitle": "運転免許と違反状況の適格性",
-    "smart_links": "Smart Link",
-    "smart_links_projects": "Smart Links",
-    "smart_links_projects_subtitle": "統合認証リンク・QR・AIハンドオフ",
-    "smart_reports": "SmartReports",
-    "smart_reports_subtitle": "PDFビルダー、テンプレート、バッチ処理",
-    "pdf_builder": "PDFビルダー",
-    "pdf_builder_subtitle": "ブランド付きPDFレイアウトを設計",
-    "pdf_templates": "PDFテンプレート",
-    "pdf_templates_subtitle": "システムおよびカスタムテンプレート",
-    "smart_batch_run_subtitle": "複数エンドポイントの一括実行"
+    "smart_fleet_drivers_subtitle": "運転免許と違反状況の適格性"
   },
   "smartBatchLanding": {
     "authRequiredTitle": "サインインが必要です",
@@ -242,13 +232,13 @@
     "templatePreviewLoading": "Loading preview...",
     "templatePreviewFailed": "This template preview could not be shown.",
     "concept1Title": "Configurations = Endpoints you pick",
-    "concept1Badge": "API Chain",
+    "concept1Badge": "API",
     "concept1Desc": "Each configuration is the ordered chain of official verification endpoints you choose for a country.",
     "concept2Title": "Report Templates = Visual PDF layout",
-    "concept2Badge": "PDF Studio",
+    "concept2Badge": "PDF",
     "concept2Desc": "Link a custom or system Report Template to turn endpoint responses into a branded PDF certificate.",
     "concept3Title": "Run 1 Record or CSV Batch",
-    "concept3Badge": "Execution",
+    "concept3Badge": "実行",
     "concept3Desc": "Open any configuration to validate a single person/vehicle/company or upload a CSV file of thousands.",
     "newConfigCardTitle": "New Batch Configuration",
     "newConfigCardBody": "Pick the country and chain the official verification endpoints you want to run together in one automated flow.",
@@ -295,7 +285,7 @@
     "exportFailed": "The template could not be exported."
   },
   "visitaGuide": {
-    "brand": "SmartReports",
+    "brand": "VISITA",
     "progress": "ステップ {{current}} / {{total}}",
     "nowHint": "一度に一つの質問です。いつでも戻れます。",
     "back": "戻る",
@@ -12614,7 +12604,7 @@
     "scoreFormat": "Display",
     "formatUnit": "0–1",
     "formatPercent": "98%",
-    "profileCabify": "Cabify driver (Chile)",
+    "profileCabify": "Driver onboarding",
     "branding": "Logo, colors and fonts",
     "logo": "Logo",
     "logoClear": "Remove logo",
@@ -12636,7 +12626,7 @@
       "dashboard": "Dashboard"
     },
     "hints": {
-      "premium_dark": "Cabify",
+      "premium_dark": "Dark executive",
       "light_cards": "Card layout",
       "editorial": "Certificate",
       "dashboard": "Charts and KPIs"
@@ -12730,31 +12720,8 @@
       "sourceLists": "International lists",
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
-      "sourceCompanies": "Company registry",
-      "soat": "SOAT",
-      "rtm": "Inspection",
-      "fines": "Fines",
-      "valuation": "Valuation",
-      "status": "Status"
-    },
-    "density": "Density",
-    "densityOptions": {
-      "compact": "Compact",
-      "balanced": "Balanced",
-      "full": "Full"
-    },
-    "wordmark": "Brand wordmark",
-    "coverColor": "Cover bg",
-    "pageColor": "Page bg",
-    "cardColor": "Card bg",
-    "inkColor": "Text ink",
-    "showHowItWorks": "Rules",
-    "copyCustomization": "Headlines & legal texts",
-    "coverTitle": "Cover title",
-    "headlineApproveLabel": "Approved headline",
-    "headlineReviewLabel": "Review headline",
-    "headlineRejectLabel": "Rejected headline",
-    "legalNoteLabel": "Legal footer note"
+      "sourceCompanies": "Company registry"
+    }
   },
   "plateReport": {
     "title": "Vehicle report",
@@ -13111,7 +13078,8 @@
       "revokeSelected": "選択項目を失効",
       "deleteSelected": "選択項目を削除",
       "revealToken": "JWTを表示",
-      "hideToken": "JWTを隠す"
+      "hideToken": "JWTを隠す",
+      "deleteHub": "ハブを削除"
     },
     "modes": {
       "personal": {
@@ -13141,7 +13109,14 @@
       "minting": "署名付きリンクとQRを生成中...",
       "signedUrl": "署名付き確認URL",
       "shortCode": "セッションコード",
-      "requireDocHint": "オンにすると、このリンクで身分証明書の撮影を必須にします。"
+      "requireDocHint": "オンにすると、このリンクで身分証明書の撮影を必須にします。",
+      "sendImmediatelyLabel": "すぐに送信する",
+      "sendImmediatelyHint": "生成後すぐにメール、WhatsApp、またはSMSで署名付きリンクを送信します。",
+      "generateAndSendBtn": "生成して送信",
+      "regenerateBtn": "リンクを再生成",
+      "sendRecipientRequired": "即時送信するメールアドレスまたは電話番号を入力してください。",
+      "deliverySent": "{{channel}} で {{recipient}} に送信しました。",
+      "deliveryFailed": "リンクは作成されましたが、{{recipient}} への {{channel}} 送信に失敗しました（{{reason}}）。"
     },
     "analytics": {
       "created": "Created",
@@ -13194,9 +13169,11 @@
       "campaign": "Campaign Tag",
       "sendBtn": "Send Verification Link",
       "csvTitle": "Bulk CSV Dispatch",
-      "csvHint": "Columns: email,phone,countryCode,name,externalRefId",
+      "csvHint": "列: email,phone,countryCode,name,externalRefId,requireDocument",
       "batchDone": "Dispatched {{sent}} of {{total}} links.",
-      "sendCsvBtn": "Launch CSV Campaign"
+      "sendCsvBtn": "Launch CSV Campaign",
+      "csvRequireDocLabel": "すべてのCSV行で本人確認書類を必須にする",
+      "csvRequireDocHint": "行ごとの設定を上書きし、すべてのリンクで書類スキャンを必須にします。"
     },
     "kit": {
       "title": "Developer & AI Agent Kit",
@@ -13251,7 +13228,7 @@
         "title": "連携する認証フロー",
         "subtitle": "既存ユーザーの顔ライブネス用 SmartAccess と、新規登録・リンク単位の身分証確認用 SmartEnroll を選択します。",
         "none": "未連携",
-        "createInProduct": "{{product}} で管理",
+        "createInProduct": "{{product}} で作成",
         "identifiersStageTitle": "公開URLと許可する識別子",
         "identifiersStageSubtitle": "メールや電話番号が事前指定されていない場合、ユーザーは以下の識別子を入力して自動判定されます。",
         "identifiersCountSuffix": "有効",
@@ -13259,7 +13236,11 @@
         "enrollFlowLabel": "新規ユーザー / 身分証必須リンク (SmartEnroll)",
         "autoResolve": "有効なプロジェクトを自動選択",
         "autoRuleTitle": "リンクごとの自動ルーティング",
-        "autoRuleBody": "既存アカウント + 通常リンク -> 顔ライブネスのみ。既存アカウント + リンク単位の requireDocument=true -> 身分証 + 顔認証。新規ユーザー -> 身分証 + 顔認証で登録。身分証要件はリンクごとに指定します。"
+        "autoRuleBody": "既存アカウント + 通常リンク -> 顔ライブネスのみ。既存アカウント + リンク単位の requireDocument=true -> 身分証 + 顔認証。新規ユーザー -> 身分証 + 顔認証で登録。身分証要件はリンクごとに指定します。",
+        "autoResolveBannerTitle": "ワークスペース自動解決が有効です",
+        "autoResolveBannerBody": "自動選択時、SmartLinkはワークスペース内の最新の有効なSmartAccessおよびSmartEnrollフローへ自動ルーティングします。",
+        "noEnginesWarningTitle": "有効な認証フローが見つかりません",
+        "noEnginesWarningBody": "自動解決を利用するには、SmartAccessまたはSmartEnrollプロジェクトを1つ以上作成してください。"
       },
       "step2": {
         "title": "Recognition, Step-Up & Security",
@@ -13283,7 +13264,12 @@
         "kybRecertifyDays": "Recertify KYB every N days",
         "ttlMinutes": "Default session TTL (minutes)",
         "maxUses": "Max uses per link (0 = unlimited)",
-        "allowedCountries": "Allowed Countries"
+        "allowedCountries": "Allowed Countries",
+        "stepUpStatusOff": "オフ",
+        "stepUpEnabled": "ステップアップ再認証を有効にする",
+        "stepUpEnabledHint": "有効期限切れの書類や経過した生体認証の再確認を既存ユーザーに求めます。",
+        "reverifyFaceDaysHint": "1から3650日までの値を入力してください（空欄で日数チェックをスキップ）。",
+        "reverifyFaceDaysRangeError": "1から3650までの日数を入力してください。"
       },
       "step3": {
         "title": "完了連携・Webhook・制限・AIキット",
@@ -13387,7 +13373,9 @@
       "colUses": "利用回数",
       "colCreated": "作成日時",
       "rowActions": "リンク操作",
-      "emptyFiltered": "現在の検索条件またはフィルタに一致するSmartLinkはありません。"
+      "emptyFiltered": "現在の検索条件またはフィルタに一致するSmartLinkはありません。",
+      "exportCsvBtn": "CSVエクスポート",
+      "exportedCsvToast": "{{count}}件のSmartLinkをCSVにエクスポートしました。"
     },
     "sessionDetail": {
       "title": "SmartLink 詳細レポート",
@@ -13421,7 +13409,11 @@
       "dev_identityProof": "本人情報および証明クレーム",
       "dev_interactions": "操作タイムライン",
       "dev_dispatches": "配信履歴",
-      "dev_linkedVerification": "関連検証レコード"
+      "dev_linkedVerification": "関連検証レコード",
+      "autoRefreshPill": "自動更新 (5秒)",
+      "signedUrlHiddenTitle": "署名付きURLは非表示です",
+      "signedUrlHiddenBody": "署名付きリンク専用セキュリティが有効なため、元のURLは再表示できません。",
+      "reissueFreshUrlQrBtn": "リンクを再発行して新しいURLとQRを取得"
     },
     "dialogs": {
       "editTitle": "SmartLink を編集",
@@ -13453,7 +13445,11 @@
       "revokedToast": "SmartLink を失効しました。",
       "deletedToast": "SmartLink を削除しました。",
       "bulkDeletedToast": "{{count}}件の SmartLink を削除しました。",
-      "bulkRevokedToast": "{{count}}件の SmartLink を失効しました。"
+      "bulkRevokedToast": "{{count}}件の SmartLink を失効しました。",
+      "deleteHubTitle": "SmartLinkハブを削除しますか？",
+      "deleteHubBody": "SmartLinkハブ「{{name}}」とそのフロー設定を完全に削除します。",
+      "deleteHubError": "SmartLinkハブを削除できませんでした。",
+      "deleteHubToast": "SmartLinkハブを削除しました。"
     }
   }
 }

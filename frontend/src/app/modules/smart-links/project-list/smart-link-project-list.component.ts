@@ -13,21 +13,31 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import QRCode from 'qrcode';
+import { map, of, switchMap } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 
+import { SmartLinkProjectDeleteDialogComponent } from '../dialogs/smart-link-project-delete-dialog.component';
 import { SmartLinksService } from '../smart-links.service';
-import type { MintedSmartLinkSession, SmartLinkProject, SmartLinkProjectFlow } from '../smart-links.types';
+import type {
+    MintedSmartLinkSession,
+    SmartLinkProject,
+    SmartLinkProjectFlow,
+    SmartLinkResendResult,
+} from '../smart-links.types';
 
 @Component({
     selector: 'smart-link-project-list',
@@ -38,11 +48,14 @@ import type { MintedSmartLinkSession, SmartLinkProject, SmartLinkProjectFlow } f
         ClipboardModule,
         RouterModule,
         MatButtonModule,
+        MatDialogModule,
+        MatDividerModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
         MatMenuModule,
         MatProgressSpinnerModule,
+        MatSelectModule,
         MatSlideToggleModule,
         MatSnackBarModule,
         TranslocoModule,
@@ -53,6 +66,7 @@ import type { MintedSmartLinkSession, SmartLinkProject, SmartLinkProjectFlow } f
 })
 export class SmartLinkProjectListComponent implements OnInit {
     private _service = inject(SmartLinksService);
+    private _dialog = inject(MatDialog);
     private _clipboard = inject(Clipboard);
     private _router = inject(Router);
     private _authGate = inject(AuthRequiredGateService);
@@ -74,9 +88,16 @@ export class SmartLinkProjectListComponent implements OnInit {
     mintError = signal<string | null>(null);
     mintTargetProject = signal<SmartLinkProject | null>(null);
     mintedSession = signal<MintedSmartLinkSession | null>(null);
+    mintDispatchResult = signal<SmartLinkResendResult['dispatch'] | null>(null);
     staticQrDataUrl = signal<string>('');
     mintRequireDocument = false;
     mintEmail = '';
+    mintPhone = '';
+    mintSendImmediately = false;
+    mintSendChannel: 'email' | 'sms' | 'whatsapp' = 'email';
+    mintSendRecipient = '';
+    mintSendCountryCode = '+1';
+    private _mintSendRecipientEdited = false;
 
     filteredProjects = computed(() => {
         const q = this.searchTerm().trim().toLowerCase();
@@ -227,6 +248,27 @@ export class SmartLinkProjectListComponent implements OnInit {
         }, 2000);
     }
 
+    openDeleteHubDialog(project: SmartLinkProject, event?: Event): void {
+        event?.stopPropagation();
+        if (!project._id) return;
+        const ref = this._dialog.open(SmartLinkProjectDeleteDialogComponent, {
+            width: '460px',
+            maxWidth: '95vw',
+            data: { project },
+        });
+        ref.afterClosed().subscribe((res) => {
+            if (res?.deleted) {
+                this.projects.update((list) => list.filter((p) => p._id !== project._id));
+                this._snack.open(
+                    this._transloco.translate('smartLinks.dialogs.deleteHubToast'),
+                    undefined,
+                    { duration: 2400 }
+                );
+                this._cdr.markForCheck();
+            }
+        });
+    }
+
     mintTestLink(project: SmartLinkProject, event?: Event): void {
         event?.stopPropagation();
         if (!project._id) return;
@@ -234,6 +276,13 @@ export class SmartLinkProjectListComponent implements OnInit {
         this.mintModalOpen.set(true);
         this.mintRequireDocument = false;
         this.mintEmail = '';
+        this.mintPhone = '';
+        this.mintSendImmediately = false;
+        this.mintSendChannel = 'email';
+        this.mintSendRecipient = '';
+        this.mintSendCountryCode = '+1';
+        this._mintSendRecipientEdited = false;
+        this.mintDispatchResult.set(null);
         this.staticQrDataUrl.set('');
         this._cdr.detectChanges();
 
@@ -253,24 +302,109 @@ export class SmartLinkProjectListComponent implements OnInit {
         this.regenerateTestLink();
     }
 
+    onMintPrefillChanged(): void {
+        if (this._mintSendRecipientEdited) return;
+        this.mintSendRecipient =
+            this.mintSendChannel === 'email' ? this.mintEmail.trim() : this.mintPhone.trim();
+    }
+
+    onMintSendToggleChanged(checked: boolean): void {
+        this.mintSendImmediately = checked;
+        this.mintError.set(null);
+        if (checked && !this._mintSendRecipientEdited) {
+            if (!this.mintEmail.trim() && this.mintPhone.trim()) {
+                this.mintSendChannel = 'whatsapp';
+                this.mintSendRecipient = this.mintPhone.trim();
+            } else {
+                this.mintSendChannel = 'email';
+                this.mintSendRecipient = this.mintEmail.trim();
+            }
+        }
+    }
+
+    onMintSendChannelChanged(next: 'email' | 'sms' | 'whatsapp'): void {
+        this.mintSendChannel = next;
+        this.mintError.set(null);
+        if (!this._mintSendRecipientEdited) {
+            this.mintSendRecipient = next === 'email' ? this.mintEmail.trim() : this.mintPhone.trim();
+        }
+    }
+
+    onMintSendRecipientInput(value: string): void {
+        this.mintSendRecipient = value;
+        this._mintSendRecipientEdited = Boolean(value.trim());
+    }
+
+    onMintRequireDocToggle(): void {
+        if (!this.mintSendImmediately) {
+            this.regenerateTestLink();
+        }
+    }
+
     regenerateTestLink(): void {
         const project = this.mintTargetProject();
-        if (!project?._id) return;
+        if (!project?._id || this.mintLoading()) return;
+
+        const cleanRecipient = this.mintSendRecipient.trim();
+        if (this.mintSendImmediately && !cleanRecipient) {
+            this.mintError.set(this._transloco.translate('smartLinks.mintModal.sendRecipientRequired'));
+            this._cdr.markForCheck();
+            return;
+        }
+
         this.mintLoading.set(true);
         this.mintError.set(null);
         this.mintedSession.set(null);
+        this.mintDispatchResult.set(null);
         this._cdr.markForCheck();
+
+        const email = this.mintEmail.trim() || undefined;
+        const phone = this.mintPhone.trim() || undefined;
+        const cleanCountryCode =
+            phone && !phone.startsWith('+') ? this.mintSendCountryCode.trim() || '+1' : undefined;
 
         this._service
             .createSession(project._id, {
-                email: this.mintEmail.trim() || undefined,
+                email,
+                phone,
+                countryCode: cleanCountryCode,
                 requireDocument: Boolean(this.mintRequireDocument),
                 createdByChannel: 'portal',
                 externalRefId: `test-${Date.now()}`,
             })
+            .pipe(
+                switchMap((session) => {
+                    if (!this.mintSendImmediately) {
+                        return of({ session, dispatch: null });
+                    }
+                    return this._service
+                        .resendSession(session.sessionId, {
+                            send: true,
+                            channel: this.mintSendChannel,
+                            recipient: cleanRecipient,
+                            countryCode:
+                                this.mintSendChannel === 'email'
+                                    ? undefined
+                                    : this.mintSendCountryCode.trim() || '+1',
+                        })
+                        .pipe(
+                            map((resend) => ({
+                                session: {
+                                    ...session,
+                                    url: resend.url || session.url,
+                                    qrDataUrl: resend.qrDataUrl || session.qrDataUrl,
+                                    expiresAt: resend.expiresAt || session.expiresAt,
+                                    state: resend.state || session.state,
+                                },
+                                dispatch: resend.dispatch ?? null,
+                            }))
+                        );
+                })
+            )
             .subscribe({
-                next: (session) => {
+                next: ({ session, dispatch }) => {
                     this.mintedSession.set(session);
+                    this.mintDispatchResult.set(dispatch);
                     this.mintLoading.set(false);
                     this._cdr.markForCheck();
                 },
@@ -290,6 +424,7 @@ export class SmartLinkProjectListComponent implements OnInit {
         this.mintModalOpen.set(false);
         this.mintTargetProject.set(null);
         this.mintedSession.set(null);
+        this.mintDispatchResult.set(null);
         this._cdr.markForCheck();
     }
 
@@ -297,6 +432,7 @@ export class SmartLinkProjectListComponent implements OnInit {
         this.mintModalOpen.set(false);
         this.mintTargetProject.set(null);
         this.mintedSession.set(null);
+        this.mintDispatchResult.set(null);
         this._cdr.markForCheck();
     }
 

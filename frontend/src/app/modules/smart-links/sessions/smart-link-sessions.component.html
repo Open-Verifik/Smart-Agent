@@ -46,10 +46,10 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                        <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goToList()">
+                        <button mat-stroked-button type="button" class="shrink-0 rounded-xl whitespace-nowrap" (click)="goToList()">
                             {{ t('smartLinks.actions.backToList') }}
                         </button>
-                        <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="goToProject()">
+                        <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl whitespace-nowrap" (click)="goToProject()">
                             <mat-icon class="!h-4 !w-4 mr-1">add_link</mat-icon>
                             {{ t('smartLinks.detail.mintBtn') }}
                         </button>
@@ -111,7 +111,7 @@
                             <button
                                 mat-button
                                 type="button"
-                                class="!text-stone-600 dark:!text-stone-300"
+                                class="!text-stone-600 dark:!text-stone-300 whitespace-nowrap"
                                 (click)="clearFilters()"
                             >
                                 <mat-icon class="mr-1">close</mat-icon>
@@ -157,10 +157,26 @@
                             }
                         </div>
 
-                        <button mat-stroked-button type="button" class="rounded-xl" (click)="fetchSessions()">
-                            <mat-icon class="!h-4 !w-4 mr-1">refresh</mat-icon>
-                            {{ t('smartLinks.actions.refresh') }}
-                        </button>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                class="rounded-xl whitespace-nowrap"
+                                [disabled]="exportingCsv() || loading() || total() === 0"
+                                (click)="exportCsv()"
+                            >
+                                @if (exportingCsv()) {
+                                    <mat-spinner diameter="16" class="mr-1.5 inline-block"></mat-spinner>
+                                } @else {
+                                    <mat-icon class="!h-4 !w-4 mr-1">download</mat-icon>
+                                }
+                                {{ t('smartLinks.sessions.exportCsvBtn') }}
+                            </button>
+                            <button mat-stroked-button type="button" class="rounded-xl whitespace-nowrap" (click)="fetchSessions()">
+                                <mat-icon class="!h-4 !w-4 mr-1">refresh</mat-icon>
+                                {{ t('smartLinks.actions.refresh') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -174,7 +190,7 @@
                             <button
                                 mat-stroked-button
                                 type="button"
-                                class="rounded-xl"
+                                class="rounded-xl whitespace-nowrap"
                                 [disabled]="!revokableSelected().length || bulkBusy()"
                                 (click)="bulkRevoke()"
                             >
@@ -185,7 +201,7 @@
                                 mat-flat-button
                                 color="warn"
                                 type="button"
-                                class="rounded-xl"
+                                class="rounded-xl whitespace-nowrap"
                                 [disabled]="!deletableSelected().length || bulkBusy()"
                                 [matTooltip]="!deletableSelected().length ? t('smartLinks.dialogs.completedCannotDelete') : ''"
                                 (click)="openBulkDeleteDialog()"

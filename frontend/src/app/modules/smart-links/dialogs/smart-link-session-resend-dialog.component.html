@@ -79,11 +79,11 @@
                             </p>
                         }
                         <div class="flex flex-wrap gap-2">
-                            <button mat-stroked-button type="button" class="rounded-full" (click)="copyReissuedUrl()">
+                            <button mat-stroked-button type="button" class="rounded-full whitespace-nowrap" (click)="copyReissuedUrl()">
                                 <mat-icon class="!h-4 !w-4 mr-1">content_copy</mat-icon>
                                 {{ t('smartLinks.actions.copy') }}
                             </button>
-                            <a mat-flat-button color="primary" [href]="r.url" target="_blank" rel="noopener noreferrer" class="rounded-full">
+                            <a mat-flat-button color="primary" [href]="r.url" target="_blank" rel="noopener noreferrer" class="rounded-full whitespace-nowrap">
                                 {{ t('smartLinks.list.openLive') }}
                             </a>
                         </div>
@@ -101,7 +101,7 @@
                 <button
                     mat-stroked-button
                     type="button"
-                    class="flex-1 !h-11 rounded-xl"
+                    class="flex-1 !h-11 rounded-xl whitespace-nowrap"
                     [disabled]="loading()"
                     (click)="reissueAndCopy()"
                 >
@@ -112,7 +112,7 @@
                     mat-flat-button
                     color="primary"
                     type="button"
-                    class="flex-1 !h-11 rounded-xl"
+                    class="flex-1 !h-11 rounded-xl whitespace-nowrap"
                     [disabled]="loading() || !recipient.trim()"
                     (click)="sendToRecipient()"
                 >

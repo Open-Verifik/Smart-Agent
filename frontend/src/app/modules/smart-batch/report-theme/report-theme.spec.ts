@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { decisionForScore, formatDeduction, formatScore } from './report-theme.format';
-import { defaultScoreSettings, defaultThemeTokens } from './report-theme.model';
-import { ensureVerificationSample, syntheticVerificationScore } from './report-theme.sample';
+import {
+    defaultScoreSettings,
+    defaultThemeTokens,
+    extractReportThemeConfig,
+    toBackendReportThemePayload,
+} from './report-theme.model';
+import { buildScoreModelFromSampleData, ensureVerificationSample, syntheticVerificationScore } from './report-theme.sample';
 import { parseScoreProfiles, parseThemeStarters, resolveScoreProfileId, verificationRequestFields } from './report-score-api.adapter';
 import { starterFitsSheet, starterSections } from './report-theme.starters';
+import { ungroupThemeSections } from './report-theme-ungroup.util';
+import { themeBlockKindFromType } from './report-theme.model';
 
 describe('verification score API adapter', () => {
     it('sends nothing for an unthemed template with the score off', () => {
@@ -127,5 +134,116 @@ describe('theme starters', () => {
                 'sources',
             ]);
         }
+    });
+});
+
+describe('backend theme object & Colombia vehicle sample model', () => {
+    it('hydrates and serializes rich object reportTheme payloads for Cabify and custom brands', () => {
+        const parsed = extractReportThemeConfig({
+            id: 'premium_dark',
+            locale: 'es',
+            density: 'balanced',
+            scoreScale: 'percent',
+            scoreEnabled: true,
+            scoreProfile: 'fleet',
+            eyebrow: 'Informe vehicular · Colombia',
+            coverTitle: 'Verificación de vehículo',
+            headlines: { approve: 'Vehículo aprobado' },
+            legalNote: 'Uso interno autorizado',
+            showVerifiedBadge: false,
+            tokens: {
+                logoText: 'cabify',
+                accent: '#7145d6',
+                colors: { cover: '#0b1730', mark: '#7145d6' },
+            },
+        });
+
+        expect(parsed.themeId).toBe('premium_dark');
+        expect(parsed.tokens.logoText).toBe('cabify');
+        expect(parsed.tokens.showVerifiedBadge).toBe(false);
+        expect(parsed.tokens.headlineApprove).toBe('Vehículo aprobado');
+        expect(parsed.tokens.legalNote).toBe('Uso interno autorizado');
+        expect(parsed.scoreSettings.profile).toBe('fleet');
+
+        const serialized = toBackendReportThemePayload('premium_dark', parsed.tokens, parsed.scoreSettings);
+        expect(serialized.id).toBe('premium_dark');
+        expect(serialized.density).toBe('balanced');
+        expect(serialized.scoreProfile).toBe('fleet');
+        expect(serialized.showVerifiedBadge).toBe(false);
+        expect(serialized.headlines?.approve).toBe('Vehículo aprobado');
+        expect(serialized.tokens?.['logoText']).toBe('cabify');
+    });
+
+    it('derives live vehicle score models from sampleData instead of falling back to Valentina Prueba Soto', () => {
+        const model = buildScoreModelFromSampleData(
+            {
+                reportId: 'SR-CO-VEH-0001',
+                inputData: { plate: 'DSV067', documentType: 'CC', documentNumber: '22468888' },
+                steps: [
+                    { sequence: 1, featureCode: 'colombia_api_vehicle_complete_by_plate', name: 'Registro integral del vehículo' },
+                    { sequence: 2, featureCode: 'colombia_api_simit_plate', name: 'Multas de tránsito por placa' },
+                    { sequence: 3, featureCode: 'colombia_api_vehicle_valores_fasecolda_by_plate', name: 'Valoración comercial' },
+                ],
+                results: {
+                    1: {
+                        informacionGeneral: { noPlaca: 'DSV067', marca: 'MAZDA', linea: 'CX-5', modelo: '2018', estadoDelVehiculo: 'ACTIVO' },
+                        soat: [{ estado: 'VIGENTE', fechaVencimiento: '20/06/2027' }],
+                        tecnoMecanica: [{ vigente: 'SI', estado: 'APROBADA', fechaVencimiento: '15/05/2027' }],
+                    },
+                    2: { multas: [], cantMultasPagar: 0 },
+                    3: { marke: 'MAZDA', line1: 'CX5 [FL]', valueModel: [{ modelo: '2018', valor: '83600' }] },
+                },
+            },
+            { enabled: true, profile: 'fleet', format: 'percent' },
+            'es'
+        );
+
+        expect(model.isVehicle).toBe(true);
+        expect(model.plate).toBe('DSV067');
+        expect(model.subjectName).toContain('DSV067');
+        expect(model.subjectName).not.toContain('Valentina');
+        expect(model.headlineText).toBe('Vehículo aprobado');
+        expect(model.subjectRows?.some((row) => row.value.includes('COP'))).toBe(true);
+    });
+
+    it('populates driver checks, findings, and sources even when steps are omitted from sampleData', () => {
+        const model = buildScoreModelFromSampleData(
+            {
+                batchName: 'Validación de conductor',
+                inputData: { fullName: 'CAMILO PRUEBA RIOS', documentType: 'CC', documentNumber: '1000000001' },
+                results: {
+                    1: { fullName: 'CAMILO PRUEBA RIOS', documentNumber: '1000000001' },
+                    2: { hasRecord: true },
+                    3: { foundInOFAC: false },
+                },
+                errors: [{ step: 4, code: 'timeout', message: 'timeout' }],
+            },
+            { enabled: true, profile: 'background_check', format: 'percent' },
+            'es'
+        );
+
+        expect(model.subjectName).toBe('CAMILO PRUEBA RIOS');
+        expect(model.checkCount).toBe(3);
+        expect(model.reviewCount).toBe(1);
+        expect(model.sources.length).toBe(3);
+        expect(model.findings.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('ungroups composite themed blocks into individually editable native sections preserving dark palette', () => {
+        const tokens = defaultThemeTokens('premium_dark');
+        const score = syntheticVerificationScore('cabify_driver', 'es');
+        const grouped = starterSections('premium_dark');
+        const ungrouped = ungroupThemeSections(grouped, 'premium_dark', tokens, score, 'percent', 'es');
+
+        expect(ungrouped.length).toBeGreaterThan(grouped.length);
+        expect(ungrouped.some((s) => themeBlockKindFromType(s.type) != null)).toBe(false);
+        expect(ungrouped.some((s) => s.type === 'header' && s.staticContent === tokens.logoText)).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'field' && s.dataPath === 'verificationScore.scoreDisplay')).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'field' && s.dataPath === 'verificationScore.coverageDisplay')).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'field' && s.dataPath === 'verificationScore.checkCount')).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.findings')).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.checks')).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.categories')).toBe(true);
+        expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.sources')).toBe(true);
     });
 });

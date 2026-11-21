@@ -19,7 +19,7 @@
             <div class="flex items-center gap-1">
                 <button
                     type="button"
-                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap"
                     [class.bg-stone-100]="deviceType === 'desktop'"
                     [class.text-stone-900]="deviceType === 'desktop'"
                     [class.dark:bg-gray-800]="deviceType === 'desktop'"
@@ -31,7 +31,7 @@
                 </button>
                 <button
                     type="button"
-                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap"
                     [class.bg-stone-100]="deviceType === 'tablet'"
                     [class.text-stone-900]="deviceType === 'tablet'"
                     [class.dark:bg-gray-800]="deviceType === 'tablet'"
@@ -43,7 +43,7 @@
                 </button>
                 <button
                     type="button"
-                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap"
                     [class.bg-stone-100]="deviceType === 'mobile'"
                     [class.text-stone-900]="deviceType === 'mobile'"
                     [class.dark:bg-gray-800]="deviceType === 'mobile'"
@@ -79,30 +79,30 @@
             <div class="flex items-center gap-1 rounded-full bg-stone-200/70 p-0.5 dark:bg-gray-800">
                 <button
                     type="button"
-                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors whitespace-nowrap"
                     [ngClass]="previewScreen === 'identify'
                         ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-700 dark:text-white'
-                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'"
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white'"
                     (click)="setPreviewScreen('identify')"
                 >
                     {{ t('smartLinks.preview.screenIdentify') }}
                 </button>
                 <button
                     type="button"
-                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors whitespace-nowrap"
                     [ngClass]="previewScreen === 'verify'
                         ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-700 dark:text-white'
-                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'"
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white'"
                     (click)="setPreviewScreen('verify')"
                 >
                     {{ t('smartLinks.preview.screenVerify') }}
                 </button>
                 <button
                     type="button"
-                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors whitespace-nowrap"
                     [ngClass]="previewScreen === 'verified'
                         ? 'bg-white text-stone-900 shadow-xs dark:bg-gray-700 dark:text-white'
-                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'"
+                        : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white'"
                     (click)="setPreviewScreen('verified')"
                 >
                     {{ t('smartLinks.preview.screenVerified') }}

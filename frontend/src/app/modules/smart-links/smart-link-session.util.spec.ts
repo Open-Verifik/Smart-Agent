@@ -2,12 +2,16 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+    buildSessionsCsv,
     decodeJwtClaimsSafe,
+    escapeCsvCell,
     extractLinkedSelfieDataUrl,
     formatSessionDate,
     interactionBadgeClass,
     interactionIcon,
+    isActiveAutoRefreshState,
     isLinkedSelfieSuppressed,
+    isTerminalSessionState,
     resolveSessionTargetLabel,
     resolveSessionTargetSubLabel,
     sessionStatePillClass,
@@ -60,9 +64,11 @@ describe('smart-link-session.util', () => {
 
         expect(interactionIcon('CREATED')).toBe('add_link');
         expect(interactionIcon('OPENED')).toBe('visibility');
+        expect(interactionIcon('IN_PROGRESS')).toBe('hourglass_top');
         expect(interactionIcon('COMPLETED')).toBe('verified');
         expect(interactionIcon('TOKEN_EXCHANGED')).toBe('key');
         expect(interactionBadgeClass('COMPLETED')).toContain('emerald');
+        expect(interactionBadgeClass('IN_PROGRESS')).toContain('blue');
         expect(interactionBadgeClass('FAILED')).toContain('red');
         expect(interactionBadgeClass('REVOKED')).toContain('amber');
     });
@@ -121,5 +127,57 @@ describe('smart-link-session.util', () => {
         expect(decodeJwtClaimsSafe('')).toBeNull();
         expect(decodeJwtClaimsSafe('not.a-valid-json!')).toBeNull();
         expect(decodeJwtClaimsSafe('singlepart')).toBeNull();
+    });
+
+    it('detects active auto-refresh and terminal session states', () => {
+        expect(isActiveAutoRefreshState('CREATED')).toBe(true);
+        expect(isActiveAutoRefreshState('OPENED')).toBe(true);
+        expect(isActiveAutoRefreshState('ROUTED')).toBe(true);
+        expect(isActiveAutoRefreshState('IN_PROGRESS')).toBe(true);
+        expect(isActiveAutoRefreshState('COMPLETED')).toBe(false);
+
+        expect(isTerminalSessionState('COMPLETED')).toBe(true);
+        expect(isTerminalSessionState('FAILED')).toBe(true);
+        expect(isTerminalSessionState('EXPIRED')).toBe(true);
+        expect(isTerminalSessionState('REVOKED')).toBe(true);
+        expect(isTerminalSessionState('OPENED')).toBe(false);
+    });
+
+    it('escapes CSV formula injection prefixes (=, +, -, @) and builds filtered session CSV', () => {
+        expect(escapeCsvCell('=cmd|calc')).toBe("'=cmd|calc");
+        expect(escapeCsvCell('+573001234567')).toBe("'+573001234567");
+        expect(escapeCsvCell('-danger')).toBe("'-danger");
+        expect(escapeCsvCell('@SUM(A1)')).toBe("'@SUM(A1)");
+        expect(escapeCsvCell('hello, "world"')).toBe('"hello, ""world"""');
+
+        const sessions = [
+            {
+                _id: 's1',
+                shortCode: 'CODE123',
+                state: 'COMPLETED',
+                requireDocument: true,
+                createdByChannel: 'portal',
+                useCount: 1,
+                maxUses: 1,
+                externalRefId: '=1+1',
+                createdAt: '2026-11-20T10:00:00.000Z',
+                completedAt: '2026-11-20T10:05:00.000Z',
+                notes: '@admin check, urgent',
+                outcome: {
+                    identity: {
+                        fullName: 'Alice Smith',
+                        email: 'alice@example.com',
+                        phone: '+573001112233',
+                    },
+                },
+            },
+        ] as unknown as SmartLinkSessionRecord[];
+
+        const csv = buildSessionsCsv(sessions, 'Open link');
+        const [header, row] = csv.split('\r\n');
+        expect(header).toBe(
+            'shortCode,state,target,email,phone,requireDocument,channel,uses,externalRefId,createdAt,completedAt,notes'
+        );
+        expect(row).toContain('CODE123,COMPLETED,Alice Smith,alice@example.com,\'+573001112233,true,portal,1/1,\'=1+1,2026-11-20T10:00:00.000Z,2026-11-20T10:05:00.000Z,"\'@admin check, urgent"');
     });
 });

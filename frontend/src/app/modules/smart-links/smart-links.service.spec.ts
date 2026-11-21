@@ -319,4 +319,82 @@ describe('SmartLinksService', () => {
         expect(httpMock.post.mock.calls[1][1]).toEqual({ sessionIds: ['s1', 's2'] });
         expect(bulkRevRes).toEqual({ revokedCount: 2, skippedCount: 0 });
     });
+
+    it('deletes a SmartLink hub via DELETE /v3/projects/:id', () => {
+        const { service, httpMock } = createService();
+        httpMock.delete.mockReturnValue(of({ data: { _id: 'proj_1' } }));
+
+        let result: unknown;
+        service.deleteSmartLinkProject('proj_1').subscribe((res) => {
+            result = res;
+        });
+
+        expect(httpMock.delete).toHaveBeenCalledTimes(1);
+        expect(httpMock.delete.mock.calls[0][0]).toMatch(/\/v3\/projects\/proj_1$/);
+        expect(result).toEqual({ _id: 'proj_1' });
+    });
+
+    it('parses optional requireDocument CSV column values (true/1/yes and false/0/no)', () => {
+        const { service } = createService();
+        const csv = [
+            'email,phone,countryCode,name,externalRefId,requireDocument',
+            'doc1@example.com,,,Doc True,ref-1,true',
+            'doc2@example.com,,,Doc One,ref-2,1',
+            ',3001234567,+57,Doc Yes,ref-3,YES',
+            'nodoc@example.com,,,No Doc,ref-4,no',
+            'default@example.com,,,Default Row,ref-5,',
+        ].join('\n');
+
+        const parsed = service.parseDispatchCsv(csv, 'sms');
+        expect(parsed).toHaveLength(5);
+        expect(parsed[0].requireDocument).toBe(true);
+        expect(parsed[1].requireDocument).toBe(true);
+        expect(parsed[2]).toMatchObject({
+            channel: 'sms',
+            phone: '3001234567',
+            countryCode: '+57',
+            requireDocument: true,
+        });
+        expect(parsed[3].requireDocument).toBe(false);
+        expect(parsed[4].requireDocument).toBeUndefined();
+    });
+
+    it('forwards batch-level and row-level requireDocument in dispatchBatch payload', () => {
+        const { service, httpMock } = createService();
+        const mockBatch = { total: 1, sent: 1, failed: 0, results: [] };
+        httpMock.post.mockReturnValue(of({ data: mockBatch }));
+
+        let received: unknown;
+        service
+            .dispatchBatch('proj_99', {
+                campaignName: 'Strict KYC',
+                requireDocument: true,
+                recipients: [
+                    {
+                        channel: 'email',
+                        email: 'user@example.com',
+                        requireDocument: true,
+                    },
+                ],
+            })
+            .subscribe((res) => {
+                received = res;
+            });
+
+        expect(httpMock.post).toHaveBeenCalledTimes(1);
+        const [url, body] = httpMock.post.mock.calls[0];
+        expect(url).toMatch(/\/v3\/smart-links\/proj_99\/dispatch$/);
+        expect(body).toEqual({
+            campaignName: 'Strict KYC',
+            requireDocument: true,
+            recipients: [
+                {
+                    channel: 'email',
+                    email: 'user@example.com',
+                    requireDocument: true,
+                },
+            ],
+        });
+        expect(received).toEqual(mockBatch);
+    });
 });

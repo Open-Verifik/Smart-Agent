@@ -1,3 +1,5 @@
+@use '../smart-links.shared';
+
 :host {
     display: block;
 }
@@ -401,6 +403,62 @@
     }
 }
 
+.auto-resolve-banner,
+.auto-resolve-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    font-size: 0.8rem;
+    line-height: 1.45;
+
+    > mat-icon {
+        width: 1.15rem;
+        height: 1.15rem;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+    }
+}
+
+.auto-resolve-banner {
+    border: 1px solid #bae6fd;
+    background: #f0f9ff;
+    color: #0c4a6e;
+
+    > mat-icon {
+        color: #0284c7;
+    }
+}
+
+.auto-resolve-warning {
+    border: 1px solid #fcd34d;
+    background: #fffbeb;
+    color: #78350f;
+
+    > mat-icon {
+        color: #b45309;
+    }
+}
+
+.auto-resolve-warning__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #92400e;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    mat-icon {
+        width: 0.9rem;
+        height: 0.9rem;
+        font-size: 0.9rem;
+    }
+}
+
 .webhook-row {
     display: flex;
     flex-wrap: wrap;
@@ -697,6 +755,34 @@
         background: #0f172a;
         color: #f8fafc;
     }
+
+    .engine-helper-link {
+        color: #93c5fd;
+    }
+
+    .auto-resolve-banner {
+        border-color: #0369a1;
+        background: rgba(12, 74, 110, 0.35);
+        color: #e0f2fe;
+
+        > mat-icon {
+            color: #38bdf8;
+        }
+    }
+
+    .auto-resolve-warning {
+        border-color: #b45309;
+        background: rgba(120, 53, 15, 0.35);
+        color: #fef3c7;
+
+        > mat-icon {
+            color: #fbbf24;
+        }
+    }
+
+    .auto-resolve-warning__link {
+        color: #fde68a;
+    }
 }
 
 @media (max-width: 768px) {
@@ -724,5 +810,21 @@
     .requirement-options,
     .requirement-options--three {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 639px) {
+    .slug-row {
+        flex-direction: column;
+        align-items: stretch;
+
+        mat-form-field {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .action-btn {
+            width: 100%;
+        }
     }
 }

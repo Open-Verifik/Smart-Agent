@@ -264,6 +264,14 @@ export class SmartLinksService {
             .pipe(map((res) => res.data));
     }
 
+    deleteSmartLinkProject(id: string): Observable<unknown> {
+        return this._http
+            .delete<{ data?: unknown }>(`${this.apiUrl}/v3/projects/${encodeURIComponent(id)}`, {
+                headers: this.authHeaders,
+            })
+            .pipe(map((res) => res?.data ?? res ?? { deleted: true }));
+    }
+
     listWebhooks(): Observable<{ _id: string; name?: string; url?: string }[]> {
         return this._http
             .get<{ data?: { _id: string; name?: string; url?: string }[] }>(`${this.apiUrl}/v2/webhooks`, {
@@ -490,6 +498,7 @@ export class SmartLinksService {
         payload: {
             campaignName?: string;
             completionMode?: SmartLinkCompletionMode;
+            requireDocument?: boolean;
             recipients: DispatchRecipientInput[];
         }
     ): Observable<DispatchBatchResult> {
@@ -516,9 +525,13 @@ export class SmartLinksService {
 
         if (!lines.length) return [];
 
-        const firstCols = lines[0].split(',').map((c) => c.trim().toLowerCase());
-        const hasHeader = firstCols.some((c) => ['email', 'phone', 'name', 'channel', 'externalrefid'].includes(c));
-        const headers = hasHeader ? firstCols : ['email', 'phone', 'countrycode', 'name', 'externalrefid'];
+        const firstCols = lines[0].split(',').map((c) => c.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+        const hasHeader = firstCols.some((c) =>
+            ['email', 'phone', 'name', 'fullname', 'channel', 'externalrefid', 'requiredocument'].includes(c)
+        );
+        const headers = hasHeader
+            ? firstCols
+            : ['email', 'phone', 'countrycode', 'name', 'externalrefid', 'requiredocument'];
         const dataLines = hasHeader ? lines.slice(1) : lines;
 
         return dataLines
@@ -540,6 +553,14 @@ export class SmartLinksService {
                     return null;
                 }
 
+                const rawReqDoc = (row['requiredocument'] || '').trim().toLowerCase();
+                let requireDocument: boolean | undefined;
+                if (rawReqDoc === 'true' || rawReqDoc === '1' || rawReqDoc === 'yes') {
+                    requireDocument = true;
+                } else if (rawReqDoc === 'false' || rawReqDoc === '0' || rawReqDoc === 'no') {
+                    requireDocument = false;
+                }
+
                 return {
                     channel,
                     email: email || undefined,
@@ -547,6 +568,7 @@ export class SmartLinksService {
                     countryCode: row['countrycode'] || undefined,
                     name: row['name'] || row['fullname'] || undefined,
                     externalRefId: row['externalrefid'] || undefined,
+                    ...(requireDocument !== undefined ? { requireDocument } : {}),
                 };
             })
             .filter((item): item is DispatchRecipientInput => item !== null);
@@ -554,7 +576,7 @@ export class SmartLinksService {
 
     buildAiPromptKit(project: SmartLinkProject): string {
         const projectId = project._id || '<SMARTLINK_PROJECT_ID>';
-        const publicUrl = this.buildPublicLinkUrl(project) || 'https://access.verifik.co/l/<SLUG>';
+        const publicUrl = this.buildPublicLinkUrl(project) || `${this.accessBaseUrl}/l/<SLUG>`;
         return [
             `Integrate Verifik SmartLink ("${project.name || 'Identity Verification'}") into my application or AI agent:`,
             `1. Public static entry URL: ${publicUrl}`,
@@ -592,7 +614,7 @@ export class SmartLinksService {
     }
 
     buildEmbedSnippet(project: SmartLinkProject): string {
-        const publicUrl = this.buildPublicLinkUrl(project) || 'https://access.verifik.co/l/<SLUG>';
+        const publicUrl = this.buildPublicLinkUrl(project) || `${this.accessBaseUrl}/l/<SLUG>`;
         return [
             `<!-- Open Verifik SmartLink in a popup/modal and verify postMessage completion -->`,
             `<script>`,

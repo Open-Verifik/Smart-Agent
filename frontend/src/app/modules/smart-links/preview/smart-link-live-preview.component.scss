@@ -1,3 +1,5 @@
+@use '../smart-links.shared';
+
 :host {
     display: block;
     height: 100%;
@@ -28,8 +30,8 @@
 .sl-preview-dialog {
     width: min(92vw, 76rem);
     max-width: 92vw;
-    height: min(90vh, 52rem);
-    max-height: 90vh;
+    height: min(90dvh, 52rem);
+    max-height: 90dvh;
     margin: auto;
     padding: 0;
     border: 0;

@@ -31,7 +31,7 @@
                 </div>
             }
 
-            <div class="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-600 dark:border-gray-800 dark:bg-gray-900/60 dark:text-stone-400">
+            <div class="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-600 dark:border-gray-800 dark:bg-gray-900/60 dark:text-stone-300">
                 {{ t('smartLinks.dialogs.deletePreserveNote') }}
             </div>
 
@@ -44,10 +44,10 @@
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!gap-2 !pt-3">
-        <button mat-stroked-button type="button" class="rounded-xl" [disabled]="deleting()" (click)="close()">
+        <button mat-stroked-button type="button" class="rounded-xl whitespace-nowrap" [disabled]="deleting()" (click)="close()">
             {{ t('smartLinks.actions.cancel') }}
         </button>
-        <button mat-flat-button color="warn" type="button" class="rounded-xl" [disabled]="deleting()" (click)="confirmDelete()">
+        <button mat-flat-button color="warn" type="button" class="rounded-xl whitespace-nowrap" [disabled]="deleting()" (click)="confirmDelete()">
             @if (deleting()) {
                 <mat-spinner diameter="16" class="mr-2 inline-block"></mat-spinner>
             }

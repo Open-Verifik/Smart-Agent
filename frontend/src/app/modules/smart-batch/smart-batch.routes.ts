@@ -31,6 +31,32 @@ export default [
             ),
     },
     {
+        path: 'builder',
+        canDeactivate: [visitaGuideLeaveGuard],
+        loadComponent: () =>
+            import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
+                (m) => m.VisitaGuideComponent
+            ),
+    },
+    {
+        path: 'builder/:step',
+        canDeactivate: [visitaGuideLeaveGuard],
+        loadComponent: () =>
+            import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
+                (m) => m.VisitaGuideComponent
+            ),
+    },
+    {
+        path: 'templates',
+        component: SmartBatchComponent,
+        data: { defaultTab: 'templates', viewMode: 'templates' },
+    },
+    {
+        path: 'batch',
+        component: SmartBatchComponent,
+        data: { defaultTab: 'configurations', viewMode: 'batch' },
+    },
+    {
         path: 'guide/:step',
         canDeactivate: [visitaGuideLeaveGuard],
         loadComponent: () =>

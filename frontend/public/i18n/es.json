@@ -179,17 +179,7 @@
     "smart_business_document_templates_subtitle": "Tipos de documentos corporativos y esquemas OCR",
     "smart_enroll_document_templates_subtitle": "Tipos de documentos de identidad y esquemas OCR",
     "smart_fleet_drivers": "Conductores",
-    "smart_fleet_drivers_subtitle": "Licencias y comparendos de conductores",
-    "smart_links": "Smart Link",
-    "smart_links_projects": "Smart Links",
-    "smart_links_projects_subtitle": "Enlaces unificados de verificación, QR e IA",
-    "smart_reports": "SmartReports",
-    "smart_reports_subtitle": "Constructor PDF, plantillas y lotes",
-    "pdf_builder": "Constructor PDF",
-    "pdf_builder_subtitle": "Diseña reportes PDF con tu marca",
-    "pdf_templates": "Plantillas PDF",
-    "pdf_templates_subtitle": "Plantillas del sistema y propias",
-    "smart_batch_run_subtitle": "Ejecuta lotes multi-endpoint"
+    "smart_fleet_drivers_subtitle": "Licencias y comparendos de conductores"
   },
   "plateReport": {
     "title": "Reporte vehicular",
@@ -367,7 +357,7 @@
     "templatePreviewLoading": "Cargando vista previa...",
     "templatePreviewFailed": "No se pudo mostrar la vista previa de esta plantilla.",
     "concept1Title": "Configuraciones = Endpoints que eliges",
-    "concept1Badge": "Cadena de APIs",
+    "concept1Badge": "APIs",
     "concept1Desc": "Cada configuración es la cadena ordenada de endpoints oficiales de verificación que eliges para un país.",
     "concept2Title": "Plantillas de Reporte = Diseño PDF",
     "concept2Badge": "Estudio PDF",
@@ -612,7 +602,7 @@
     "tooLarge": "El archivo supera 512 KB."
   },
   "visitaGuide": {
-    "brand": "SmartReports",
+    "brand": "VISITA",
     "progress": "Paso {{current}} de {{total}}",
     "nowHint": "Una pregunta a la vez. Siempre puedes volver atrás.",
     "back": "Atrás",
@@ -12863,7 +12853,7 @@
     "scoreFormat": "Formato",
     "formatUnit": "0–1",
     "formatPercent": "98%",
-    "profileCabify": "Conductor Cabify (Chile)",
+    "profileCabify": "Incorporación de conductores",
     "branding": "Logo, colores y fuentes",
     "logo": "Logo",
     "logoClear": "Quitar logo",
@@ -12885,7 +12875,7 @@
       "dashboard": "Dashboard"
     },
     "hints": {
-      "premium_dark": "Cabify",
+      "premium_dark": "Ejecutivo oscuro",
       "light_cards": "Maquetación en tarjetas",
       "editorial": "Certificado",
       "dashboard": "Gráficos y KPIs"
@@ -12979,31 +12969,8 @@
       "sourceLists": "Listas internacionales",
       "sourceInsurance": "Seguro obligatorio",
       "sourceVehicle": "Registro de vehículos",
-      "sourceCompanies": "Registro de empresas",
-      "soat": "SOAT",
-      "rtm": "Técnico-mecánica",
-      "fines": "Comparendos",
-      "valuation": "Valoración",
-      "status": "Estado"
-    },
-    "density": "Densidad",
-    "densityOptions": {
-      "compact": "Compacto",
-      "balanced": "Equilibrado",
-      "full": "Completo"
-    },
-    "wordmark": "Marca / Wordmark",
-    "coverColor": "Fondo portada",
-    "pageColor": "Fondo página",
-    "cardColor": "Fondo tarjeta",
-    "inkColor": "Color texto",
-    "showHowItWorks": "Reglas",
-    "copyCustomization": "Títulos y textos legales",
-    "coverTitle": "Título de portada",
-    "headlineApproveLabel": "Titular aprobado",
-    "headlineReviewLabel": "Titular revisión",
-    "headlineRejectLabel": "Titular rechazado",
-    "legalNoteLabel": "Nota legal al pie"
+      "sourceCompanies": "Registro de empresas"
+    }
   },
   "smartLinks": {
     "badge": "Enlace de Verificación",
@@ -13043,7 +13010,8 @@
       "revokeSelected": "Revocar Seleccionados",
       "deleteSelected": "Eliminar Seleccionados",
       "revealToken": "Mostrar JWT",
-      "hideToken": "Ocultar JWT"
+      "hideToken": "Ocultar JWT",
+      "deleteHub": "Eliminar Hub"
     },
     "modes": {
       "personal": {
@@ -13073,7 +13041,14 @@
       "minting": "Generando enlace firmado y QR...",
       "signedUrl": "URL Firmada de Verificación",
       "shortCode": "Código de Sesión",
-      "requireDocHint": "Actívalo para exigir documento de identidad en este enlace puntual."
+      "requireDocHint": "Actívalo para exigir documento de identidad en este enlace puntual.",
+      "sendImmediatelyLabel": "Enviar inmediatamente",
+      "sendImmediatelyHint": "Envía el enlace firmado justo después de generarlo por correo, WhatsApp o SMS.",
+      "generateAndSendBtn": "Generar y Enviar",
+      "regenerateBtn": "Regenerar Enlace",
+      "sendRecipientRequired": "Ingresa un correo electrónico o número de teléfono destinatario para enviar.",
+      "deliverySent": "Enviado por {{channel}} a {{recipient}}.",
+      "deliveryFailed": "Enlace creado, pero falló el envío por {{channel}} a {{recipient}} ({{reason}})."
     },
     "analytics": {
       "created": "Creadas",
@@ -13126,9 +13101,11 @@
       "campaign": "Etiqueta de Campana",
       "sendBtn": "Enviar Enlace de Verificacion",
       "csvTitle": "Envio Masivo por CSV",
-      "csvHint": "Columnas: email,phone,countryCode,name,externalRefId",
+      "csvHint": "Columnas: email,phone,countryCode,name,externalRefId,requireDocument",
       "batchDone": "Se enviaron {{sent}} de {{total}} enlaces.",
-      "sendCsvBtn": "Lanzar Campana CSV"
+      "sendCsvBtn": "Lanzar Campana CSV",
+      "csvRequireDocLabel": "Exigir documento de identidad en todas las filas CSV",
+      "csvRequireDocHint": "Anula el valor opcional por fila y exige escaneo de documento en cada enlace."
     },
     "kit": {
       "title": "Kit Listo para Desarrolladores e IA",
@@ -13183,7 +13160,7 @@
         "title": "Flujos de Verificación Conectados",
         "subtitle": "Selecciona el flujo de SmartAccess para liveness facial y el flujo de SmartEnroll para nuevos usuarios o enlaces con documento.",
         "none": "Sin vincular",
-        "createInProduct": "Gestionar en {{product}}",
+        "createInProduct": "Crear en {{product}}",
         "identifiersStageTitle": "URL Pública e Identificadores Aceptados",
         "identifiersStageSubtitle": "Si generas un enlace sin correo ni teléfono, el usuario ingresará uno de estos identificadores para enrutarlo automáticamente.",
         "identifiersCountSuffix": "activos",
@@ -13191,7 +13168,11 @@
         "enrollFlowLabel": "Nuevo Usuario o Documento por Enlace (SmartEnroll)",
         "autoResolve": "Seleccionar automáticamente proyecto activo",
         "autoRuleTitle": "Enrutamiento automático en cada enlace",
-        "autoRuleBody": "Cuenta existente + enlace estándar -> solo Liveness Facial. Cuenta existente + requireDocument=true en el enlace -> Documento + Rostro. Usuario nuevo -> registro con Documento + Rostro. El documento siempre se decide por enlace."
+        "autoRuleBody": "Cuenta existente + enlace estándar -> solo Liveness Facial. Cuenta existente + requireDocument=true en el enlace -> Documento + Rostro. Usuario nuevo -> registro con Documento + Rostro. El documento siempre se decide por enlace.",
+        "autoResolveBannerTitle": "Resolución automática del espacio de trabajo activa",
+        "autoResolveBannerBody": "Con selección automática, SmartLink enruta usando los flujos activos más recientes de SmartAccess y SmartEnroll.",
+        "noEnginesWarningTitle": "No se encontraron flujos de verificación activos",
+        "noEnginesWarningBody": "Crea al menos un proyecto de SmartAccess o SmartEnroll para que SmartLink pueda resolver verificaciones automáticamente."
       },
       "step2": {
         "title": "Reconocimiento, Step-Up y Seguridad",
@@ -13215,7 +13196,12 @@
         "kybRecertifyDays": "Recertificar KYB cada N dias",
         "ttlMinutes": "Vigencia TTL por defecto (minutos)",
         "maxUses": "Usos maximos por enlace (0 = ilimitado)",
-        "allowedCountries": "Paises Permitidos"
+        "allowedCountries": "Paises Permitidos",
+        "stepUpStatusOff": "Inactivo",
+        "stepUpEnabled": "Activar re-verificación escalonada (Step-Up)",
+        "stepUpEnabledHint": "Solicita a usuarios recurrentes renovar documentos vencidos o biometría antigua.",
+        "reverifyFaceDaysHint": "Ingresa entre 1 y 3650 días (déjalo vacío para omitir control por antigüedad).",
+        "reverifyFaceDaysRangeError": "Ingresa un valor entre 1 y 3650 días."
       },
       "step3": {
         "title": "Entrega, Webhooks, Límites y Kit IA",
@@ -13319,7 +13305,9 @@
       "colUses": "Usos",
       "colCreated": "Creado",
       "rowActions": "Acciones del enlace",
-      "emptyFiltered": "Ningún SmartLink coincide con la búsqueda o los filtros activos."
+      "emptyFiltered": "Ningún SmartLink coincide con la búsqueda o los filtros activos.",
+      "exportCsvBtn": "Exportar CSV",
+      "exportedCsvToast": "Se exportaron {{count}} enlace(s) a CSV."
     },
     "sessionDetail": {
       "title": "Expediente del SmartLink",
@@ -13353,7 +13341,11 @@
       "dev_identityProof": "Identidad y Claims de Prueba",
       "dev_interactions": "Historial de Interacciones",
       "dev_dispatches": "Envíos de Entrega",
-      "dev_linkedVerification": "Registros de Verificación Vinculados"
+      "dev_linkedVerification": "Registros de Verificación Vinculados",
+      "autoRefreshPill": "Auto-actualizar (5s)",
+      "signedUrlHiddenTitle": "URL firmada oculta",
+      "signedUrlHiddenBody": "La seguridad de enlaces firmados está activa en este hub y no se puede consultar la URL anterior.",
+      "reissueFreshUrlQrBtn": "Reemitir enlace para obtener URL y QR nuevos"
     },
     "dialogs": {
       "editTitle": "Editar SmartLink",
@@ -13385,7 +13377,11 @@
       "revokedToast": "SmartLink revocado.",
       "deletedToast": "SmartLink eliminado.",
       "bulkDeletedToast": "{{count}} SmartLink(s) eliminados.",
-      "bulkRevokedToast": "{{count}} SmartLink(s) revocados."
+      "bulkRevokedToast": "{{count}} SmartLink(s) revocados.",
+      "deleteHubTitle": "¿Eliminar SmartLink Hub?",
+      "deleteHubBody": "Esta acción eliminará permanentemente el SmartLink Hub \"{{name}}\" y su configuración de flujo.",
+      "deleteHubError": "No se pudo eliminar el SmartLink Hub.",
+      "deleteHubToast": "SmartLink Hub eliminado."
     }
   }
 }

@@ -152,6 +152,7 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
 
     webhooksRefreshing = signal(false);
     webhookList: { _id: string; name?: string; url?: string }[] = [];
+    enginesLoaded = signal(false);
 
     engines = signal<Record<EngineProjectOption['category'], EngineProjectOption[]>>({
         smartEnroll: [],
@@ -173,10 +174,31 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         return Boolean(fid) || this.projectId !== 'new';
     }
 
+    get accessSlugPrefix(): string {
+        const stripped = this._service.accessBaseUrl.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+        return `${stripped}/l/`;
+    }
+
     get publicHandleUrl(): string {
         const slug = `${this.form?.get('projectFlow.slug')?.value ?? ''}`.trim();
         const fallbackId = this.projectId !== 'new' ? this.projectId : '';
         return `${this._service.accessBaseUrl}/l/${slug || fallbackId || 'your-slug'}`;
+    }
+
+    get isAutoResolveAll(): boolean {
+        const lp = this.form?.get('projectFlow.routing.linkedProjects')?.value as
+            | { smartAccessProject?: string | null; smartEnrollProject?: string | null }
+            | undefined;
+        return !lp?.smartAccessProject && !lp?.smartEnrollProject;
+    }
+
+    get hasNoEngineFlows(): boolean {
+        const e = this.engines();
+        return (e.smartAccess?.length || 0) === 0 && (e.smartEnroll?.length || 0) === 0;
+    }
+
+    get stepUpEnabled(): boolean {
+        return Boolean(this.form?.get('projectFlow.routing.stepUpPolicy.enabled')?.value);
     }
 
     get allowedIdentifiersList(): SmartLinkIdentifier[] {
@@ -257,7 +279,9 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
         if (idx === 1) {
             const slugCtrl = this.form.get('projectFlow.slug');
             const ids = this.form.get('projectFlow.routing.allowedIdentifiers')?.value;
-            return !slugCtrl?.invalid && Array.isArray(ids) && ids.length > 0;
+            const reverifyCtrl = this.form.get('projectFlow.routing.stepUpPolicy.reverifyFaceAfterDays');
+            const stepUpValid = !this.stepUpEnabled || !reverifyCtrl?.invalid;
+            return !slugCtrl?.invalid && Array.isArray(ids) && ids.length > 0 && stepUpValid;
         }
         if (idx === 2) {
             const limitsValid =
@@ -480,9 +504,17 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
     }
 
     private _loadReferenceData(): void {
-        this._service.listCandidateEngineProjects().subscribe((grouped) => {
-            this.engines.set(grouped);
-            this._cdr.markForCheck();
+        this.enginesLoaded.set(false);
+        this._service.listCandidateEngineProjects().subscribe({
+            next: (grouped) => {
+                this.engines.set(grouped);
+                this.enginesLoaded.set(true);
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.enginesLoaded.set(true);
+                this._cdr.markForCheck();
+            },
         });
         this.reloadWebhooks();
     }
@@ -595,7 +627,10 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
                     stepUpPolicy: this._fb.group({
                         enabled: [Boolean(stepUp.enabled)],
                         requireFreshDocOnExpiry: [stepUp.requireFreshDocOnExpiry ?? true],
-                        reverifyFaceAfterDays: [stepUp.reverifyFaceAfterDays ?? 90],
+                        reverifyFaceAfterDays: [
+                            stepUp.reverifyFaceAfterDays ?? 90,
+                            [Validators.min(1), Validators.max(3650)],
+                        ],
                         kybRecertifyAfterDays: [stepUp.kybRecertifyAfterDays ?? 365],
                     }),
                 }),
@@ -655,6 +690,13 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
             .filter(Boolean);
         const redirectUrl = `${completion['redirectUrl'] ?? ''}`.trim();
         const rawFlowOrder = `${pf['onboardingSettings']?.['flowOrder'] ?? ''}`.trim();
+        const rawRouting = pf['routing'] || {};
+        const rawStepUp = rawRouting['stepUpPolicy'] || {};
+        const rawReverify = rawStepUp['reverifyFaceAfterDays'];
+        const parsedReverify =
+            rawReverify === null || rawReverify === undefined || rawReverify === ''
+                ? null
+                : Number(rawReverify);
 
         return {
             ...(this.project?._id ? { _id: this.project._id } : {}),
@@ -677,7 +719,18 @@ export class SmartLinkSetupComponent implements OnInit, OnDestroy {
                     status: forceStatus || pf['status'] || 'active',
                     version: 3,
                     slug: `${pf['slug'] ?? ''}`.trim(),
-                    routing: pf['routing'],
+                    routing: {
+                        ...rawRouting,
+                        stepUpPolicy: {
+                            enabled: Boolean(rawStepUp['enabled']),
+                            requireFreshDocOnExpiry: Boolean(rawStepUp['requireFreshDocOnExpiry']),
+                            reverifyFaceAfterDays:
+                                parsedReverify !== null && Number.isFinite(parsedReverify)
+                                    ? parsedReverify
+                                    : null,
+                            kybRecertifyAfterDays: Number(rawStepUp['kybRecertifyAfterDays']) || 365,
+                        },
+                    },
                     completion: {
                         mode: completion['mode'] || 'receipt',
                         redirectUrl,

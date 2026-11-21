@@ -179,17 +179,7 @@
     "plate_report": "Plate report",
     "plate_report_subtitle": "Vehicle lookup from a plate",
     "smart_fleet_drivers": "驾驶员",
-    "smart_fleet_drivers_subtitle": "驾驶证与违章合规核验",
-    "smart_links": "Smart Link",
-    "smart_links_projects": "Smart Links",
-    "smart_links_projects_subtitle": "统一认证链接、二维码与 AI 交接",
-    "smart_reports": "SmartReports",
-    "smart_reports_subtitle": "PDF 构建器、模板与批量报告",
-    "pdf_builder": "PDF 构建器",
-    "pdf_builder_subtitle": "设计定制品牌 PDF 报告",
-    "pdf_templates": "PDF 模板",
-    "pdf_templates_subtitle": "系统与自定义报告模板",
-    "smart_batch_run_subtitle": "运行多接口批量查询"
+    "smart_fleet_drivers_subtitle": "驾驶证与违章合规核验"
   },
   "smartBatchLanding": {
     "authRequiredTitle": "需要登录",
@@ -242,13 +232,13 @@
     "templatePreviewLoading": "Loading preview...",
     "templatePreviewFailed": "This template preview could not be shown.",
     "concept1Title": "Configurations = Endpoints you pick",
-    "concept1Badge": "API Chain",
+    "concept1Badge": "APIs",
     "concept1Desc": "Each configuration is the ordered chain of official verification endpoints you choose for a country.",
     "concept2Title": "Report Templates = Visual PDF layout",
-    "concept2Badge": "PDF Studio",
+    "concept2Badge": "PDF 设计",
     "concept2Desc": "Link a custom or system Report Template to turn endpoint responses into a branded PDF certificate.",
     "concept3Title": "Run 1 Record or CSV Batch",
-    "concept3Badge": "Execution",
+    "concept3Badge": "执行",
     "concept3Desc": "Open any configuration to validate a single person/vehicle/company or upload a CSV file of thousands.",
     "newConfigCardTitle": "New Batch Configuration",
     "newConfigCardBody": "Pick the country and chain the official verification endpoints you want to run together in one automated flow.",
@@ -295,7 +285,7 @@
     "exportFailed": "The template could not be exported."
   },
   "visitaGuide": {
-    "brand": "SmartReports",
+    "brand": "VISITA",
     "progress": "第 {{current}} 步，共 {{total}} 步",
     "nowHint": "每次只问一个问题，随时可以返回。",
     "back": "返回",
@@ -12614,7 +12604,7 @@
     "scoreFormat": "Display",
     "formatUnit": "0–1",
     "formatPercent": "98%",
-    "profileCabify": "Cabify driver (Chile)",
+    "profileCabify": "Driver onboarding",
     "branding": "Logo, colors and fonts",
     "logo": "Logo",
     "logoClear": "Remove logo",
@@ -12636,7 +12626,7 @@
       "dashboard": "Dashboard"
     },
     "hints": {
-      "premium_dark": "Cabify",
+      "premium_dark": "Dark executive",
       "light_cards": "Card layout",
       "editorial": "Certificate",
       "dashboard": "Charts and KPIs"
@@ -12730,31 +12720,8 @@
       "sourceLists": "International lists",
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
-      "sourceCompanies": "Company registry",
-      "soat": "SOAT",
-      "rtm": "Inspection",
-      "fines": "Fines",
-      "valuation": "Valuation",
-      "status": "Status"
-    },
-    "density": "Density",
-    "densityOptions": {
-      "compact": "Compact",
-      "balanced": "Balanced",
-      "full": "Full"
-    },
-    "wordmark": "Brand wordmark",
-    "coverColor": "Cover bg",
-    "pageColor": "Page bg",
-    "cardColor": "Card bg",
-    "inkColor": "Text ink",
-    "showHowItWorks": "Rules",
-    "copyCustomization": "Headlines & legal texts",
-    "coverTitle": "Cover title",
-    "headlineApproveLabel": "Approved headline",
-    "headlineReviewLabel": "Review headline",
-    "headlineRejectLabel": "Rejected headline",
-    "legalNoteLabel": "Legal footer note"
+      "sourceCompanies": "Company registry"
+    }
   },
   "plateReport": {
     "title": "Vehicle report",
@@ -13111,7 +13078,8 @@
       "revokeSelected": "撤销所选",
       "deleteSelected": "删除所选",
       "revealToken": "显示 JWT",
-      "hideToken": "隐藏 JWT"
+      "hideToken": "隐藏 JWT",
+      "deleteHub": "删除中心"
     },
     "modes": {
       "personal": {
@@ -13141,7 +13109,14 @@
       "minting": "正在生成签名链接与二维码...",
       "signedUrl": "签名验证链接",
       "shortCode": "会话短码",
-      "requireDocHint": "开启后，此条链接将要求用户扫描身份证件。"
+      "requireDocHint": "开启后，此条链接将要求用户扫描身份证件。",
+      "sendImmediatelyLabel": "立即发送",
+      "sendImmediatelyHint": "生成签名链接后立即通过邮件、WhatsApp 或短信发送。",
+      "generateAndSendBtn": "生成并发送",
+      "regenerateBtn": "重新生成链接",
+      "sendRecipientRequired": "请输入接收人的邮箱或手机号以立即发送。",
+      "deliverySent": "已通过 {{channel}} 发送至 {{recipient}}。",
+      "deliveryFailed": "链接已创建，但通过 {{channel}} 发送至 {{recipient}} 失败（{{reason}}）。"
     },
     "analytics": {
       "created": "Created",
@@ -13194,9 +13169,11 @@
       "campaign": "Campaign Tag",
       "sendBtn": "Send Verification Link",
       "csvTitle": "Bulk CSV Dispatch",
-      "csvHint": "Columns: email,phone,countryCode,name,externalRefId",
+      "csvHint": "列：email,phone,countryCode,name,externalRefId,requireDocument",
       "batchDone": "Dispatched {{sent}} of {{total}} links.",
-      "sendCsvBtn": "Launch CSV Campaign"
+      "sendCsvBtn": "Launch CSV Campaign",
+      "csvRequireDocLabel": "为所有 CSV 行强制要求证件扫描",
+      "csvRequireDocHint": "覆盖单行可选配置，要求每个链接都扫描身份证件。"
     },
     "kit": {
       "title": "Developer & AI Agent Kit",
@@ -13251,7 +13228,7 @@
         "title": "关联验证流程",
         "subtitle": "选择用于老用户人脸活体的 SmartAccess 流程，以及用于新用户或按链接证件核验的 SmartEnroll 流程。",
         "none": "未关联",
-        "createInProduct": "前往 {{product}} 管理",
+        "createInProduct": "在 {{product}} 中创建",
         "identifiersStageTitle": "公开链接与允许的标识",
         "identifiersStageSubtitle": "如果生成链接时未预填邮箱或手机号，用户将输入以下标识并自动路由。",
         "identifiersCountSuffix": "已启用",
@@ -13259,7 +13236,11 @@
         "enrollFlowLabel": "新用户或按链接证件核验 (SmartEnroll)",
         "autoResolve": "自动选择已启用的工作区项目",
         "autoRuleTitle": "每条链接自动路由规则",
-        "autoRuleBody": "已有账户 + 普通链接 -> 仅人脸活体。已有账户 + 链接开启 requireDocument=true -> 证件 + 人脸活体。新用户 -> 证件 + 人脸注册。是否需要证件始终按单条链接指定。"
+        "autoRuleBody": "已有账户 + 普通链接 -> 仅人脸活体。已有账户 + 链接开启 requireDocument=true -> 证件 + 人脸活体。新用户 -> 证件 + 人脸注册。是否需要证件始终按单条链接指定。",
+        "autoResolveBannerTitle": "工作区自动匹配已启用",
+        "autoResolveBannerBody": "选择自动匹配时，SmartLink 将自动路由到您工作区中最新激活的 SmartAccess 和 SmartEnroll 流程。",
+        "noEnginesWarningTitle": "未找到激活的验证流程",
+        "noEnginesWarningBody": "请至少创建一个 SmartAccess 或 SmartEnroll 项目，以便 SmartLink 自动路由验证请求。"
       },
       "step2": {
         "title": "Recognition, Step-Up & Security",
@@ -13283,7 +13264,12 @@
         "kybRecertifyDays": "Recertify KYB every N days",
         "ttlMinutes": "Default session TTL (minutes)",
         "maxUses": "Max uses per link (0 = unlimited)",
-        "allowedCountries": "Allowed Countries"
+        "allowedCountries": "Allowed Countries",
+        "stepUpStatusOff": "已关闭",
+        "stepUpEnabled": "启用增强重新验证 (Step-Up)",
+        "stepUpEnabledHint": "当已认证用户的证件过期或生物识别超出周期时要求重新验证。",
+        "reverifyFaceDaysHint": "请输入 1 至 3650 天（留空则跳过天数检查）。",
+        "reverifyFaceDaysRangeError": "请输入 1 到 3650 之间的数值。"
       },
       "step3": {
         "title": "结果回传、Webhook、限额与 AI 工具包",
@@ -13387,7 +13373,9 @@
       "colUses": "使用次数",
       "colCreated": "创建时间",
       "rowActions": "链接操作",
-      "emptyFiltered": "没有符合当前搜索或筛选条件的 SmartLink。"
+      "emptyFiltered": "没有符合当前搜索或筛选条件的 SmartLink。",
+      "exportCsvBtn": "导出 CSV",
+      "exportedCsvToast": "已导出 {{count}} 条 SmartLink 至 CSV。"
     },
     "sessionDetail": {
       "title": "SmartLink 详情档案",
@@ -13421,7 +13409,11 @@
       "dev_identityProof": "身份与证明声明",
       "dev_interactions": "交互时间线",
       "dev_dispatches": "发送记录",
-      "dev_linkedVerification": "关联验证记录"
+      "dev_linkedVerification": "关联验证记录",
+      "autoRefreshPill": "自动刷新 (5秒)",
+      "signedUrlHiddenTitle": "签名链接 URL 已隐藏",
+      "signedUrlHiddenBody": "此中心已启用仅签名链接安全策略，无法回显历史原始 URL。",
+      "reissueFreshUrlQrBtn": "重新签发以获取新 URL 和二维码"
     },
     "dialogs": {
       "editTitle": "编辑 SmartLink",
@@ -13453,7 +13445,11 @@
       "revokedToast": "SmartLink 已撤销。",
       "deletedToast": "SmartLink 已删除。",
       "bulkDeletedToast": "已删除 {{count}} 个 SmartLink。",
-      "bulkRevokedToast": "已撤销 {{count}} 个 SmartLink。"
+      "bulkRevokedToast": "已撤销 {{count}} 个 SmartLink。",
+      "deleteHubTitle": "删除 SmartLink 中心？",
+      "deleteHubBody": "这将永久删除 SmartLink 中心“{{name}}”及其流程配置。",
+      "deleteHubError": "无法删除 SmartLink 中心。",
+      "deleteHubToast": "SmartLink 中心已删除。"
     }
   }
 }

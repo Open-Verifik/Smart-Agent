@@ -17,6 +17,7 @@ export interface ExportedBatchStep {
     parameterDefaults?: Record<string, unknown>;
     inputFieldMapping?: Record<string, string>;
     outputFieldsToKeep?: string[];
+    queryMode?: string;
     maxRetries?: number;
     retryDelayBaseSeconds?: number;
     timeoutSeconds?: number;
@@ -31,6 +32,10 @@ export interface ExportedBatchConfiguration {
     outputFormat: BatchConfiguration['outputFormat'];
     mergeStrategy: BatchConfiguration['mergeStrategy'];
     steps: ExportedBatchStep[];
+    /** Visual chain, so the consultation opens the same way on the other panel. */
+    visitaFlow?: unknown;
+    /** Feature codes the source environment could not attach. The destination tries them again. */
+    unavailableFeatureCodes?: string[];
     /** The configuration used this template as its default report. */
     usesTemplateAsDefault?: boolean;
 }
@@ -90,8 +95,14 @@ export class SmartTemplateTransferService {
         let configuration: ExportedBatchConfiguration | null = null;
 
         if (configId) {
-            const response = await firstValueFrom(this._batches.getConfiguration(configId));
-            configuration = response?.data ? this._exportConfiguration(response.data, templateId) : null;
+            try {
+                const response = await firstValueFrom(this._batches.getConfiguration(configId));
+                configuration = response?.data ? this._exportConfiguration(response.data, templateId) : null;
+            } catch {
+                configuration = this._configurationFromPresetSteps(template);
+            }
+        } else {
+            configuration = this._configurationFromPresetSteps(template);
         }
 
         return {
@@ -149,21 +160,28 @@ export class SmartTemplateTransferService {
         file: SmartTemplateExportFile,
         existing: { templateNames: string[]; configurationNames: string[]; suffix: string }
     ): Promise<TemplateImportResult> {
-        const resolved = file.configuration ? await this._resolveSteps(file.configuration.steps) : null;
+        const sourceSteps = this._includeHeldCodes(
+            file.configuration?.steps?.length
+                ? file.configuration.steps
+                : this._stepsFromPreset(file.template.presetSteps),
+            file.configuration?.unavailableFeatureCodes
+        );
+        const resolved = sourceSteps.length ? await this._resolveSteps(sourceSteps) : null;
         let configurationId: string | null = null;
 
-        if (file.configuration && resolved) {
+        if (sourceSteps.length && resolved) {
             const source = file.configuration;
             const payload: BatchConfiguration = {
-                name: this._uniqueName(source.name, existing.configurationNames, existing.suffix, 150),
-                description: source.description,
-                country: source.country,
-                inputFormat: source.inputFormat || 'csv',
-                outputFormat: source.outputFormat || 'csv',
-                mergeStrategy: source.mergeStrategy || 'sequential',
+                name: this._uniqueName(source?.name || file.template.name || 'Plantilla', existing.configurationNames, existing.suffix, 150),
+                description: source?.description,
+                country: source?.country || file.template.country || 'Colombia',
+                inputFormat: source?.inputFormat || 'csv',
+                outputFormat: source?.outputFormat || 'csv',
+                mergeStrategy: source?.mergeStrategy || 'sequential',
                 steps: resolved.steps,
                 ...(resolved.unavailable.length ? { unavailableFeatureCodes: resolved.unavailable } : {}),
-                ...(source.executor ? { executor: source.executor } : {}),
+                ...(source?.executor ? { executor: source.executor } : {}),
+                ...(source?.visitaFlow ? { visitaFlow: source.visitaFlow } : {}),
             };
 
             try {
@@ -220,6 +238,49 @@ export class SmartTemplateTransferService {
         return design;
     }
 
+    private _configurationFromPresetSteps(template: SmartReportTemplate): ExportedBatchConfiguration | null {
+        const steps = this._stepsFromPreset(template.presetSteps);
+        if (!steps.length) return null;
+        return {
+            name: template.name,
+            country: template.country || 'Colombia',
+            inputFormat: 'csv',
+            outputFormat: 'xlsx',
+            mergeStrategy: 'sequential',
+            steps,
+        };
+    }
+
+    private _stepsFromPreset(presetSteps: SmartReportTemplate['presetSteps']): ExportedBatchStep[] {
+        return [...(presetSteps ?? [])]
+            .filter((step) => typeof step?.appFeatureCode === 'string' && step.appFeatureCode)
+            .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
+            .map((step, index) => ({
+                featureCode: step.appFeatureCode,
+                sequence: Number(step.sequence) > 0 ? Number(step.sequence) : index + 1,
+                enabled: true,
+                parameterDefaults: step.parameterDefaults ?? {},
+                inputFieldMapping: step.inputFieldMapping ?? {},
+                ...(step.queryMode ? { queryMode: step.queryMode } : {}),
+            }));
+    }
+
+    /** Codes the source could not attach still travel, so the other panel can resolve them. */
+    private _includeHeldCodes(steps: ExportedBatchStep[], codes: string[] | undefined): ExportedBatchStep[] {
+        const list = Array.isArray(steps) ? steps.filter((step) => step && typeof step.featureCode === 'string') : [];
+        const present = new Set(list.map((step) => step.featureCode));
+        const extra = (codes ?? [])
+            .filter((code) => typeof code === 'string' && code && !present.has(code))
+            .map((featureCode, index) => ({
+                featureCode,
+                sequence: list.length + index + 1,
+                enabled: true,
+                parameterDefaults: {},
+                inputFieldMapping: {},
+            }));
+        return extra.length ? [...list, ...extra] : list;
+    }
+
     private _exportConfiguration(config: BatchConfiguration, templateId: string): ExportedBatchConfiguration {
         const steps = [...(config.steps ?? [])]
             .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
@@ -234,7 +295,9 @@ export class SmartTemplateTransferService {
             inputFormat: config.inputFormat,
             outputFormat: config.outputFormat,
             mergeStrategy: config.mergeStrategy,
-            steps,
+            steps: this._includeHeldCodes(steps, config.unavailableFeatureCodes),
+            ...(config.visitaFlow ? { visitaFlow: config.visitaFlow } : {}),
+            ...(config.unavailableFeatureCodes?.length ? { unavailableFeatureCodes: config.unavailableFeatureCodes } : {}),
             usesTemplateAsDefault: this._refId(config.preferredReportTemplate ?? null) === templateId,
         };
     }
@@ -253,6 +316,7 @@ export class SmartTemplateTransferService {
             parameterDefaults: step.parameterDefaults ?? {},
             inputFieldMapping: mapping ?? {},
             outputFieldsToKeep: step.outputFieldsToKeep ?? [],
+            ...(step.queryMode ? { queryMode: step.queryMode } : {}),
             maxRetries: step.maxRetries,
             retryDelayBaseSeconds: step.retryDelayBaseSeconds,
             timeoutSeconds: step.timeoutSeconds,
@@ -284,6 +348,7 @@ export class SmartTemplateTransferService {
                     parameterDefaults: step.parameterDefaults ?? {},
                     inputFieldMapping: step.inputFieldMapping ?? {},
                     outputFieldsToKeep: step.outputFieldsToKeep ?? [],
+                    ...(step.queryMode ? { queryMode: step.queryMode } : {}),
                     ...(step.maxRetries != null ? { maxRetries: step.maxRetries } : {}),
                     ...(step.retryDelayBaseSeconds != null ? { retryDelayBaseSeconds: step.retryDelayBaseSeconds } : {}),
                     ...(step.timeoutSeconds != null ? { timeoutSeconds: step.timeoutSeconds } : {}),

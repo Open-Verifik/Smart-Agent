@@ -137,6 +137,7 @@ export interface SmartLinkInteractionEvent {
         | 'OPENED'
         | 'IDENTIFIER_SUBMITTED'
         | 'ROUTED'
+        | 'IN_PROGRESS'
         | 'UPDATED'
         | 'REISSUED'
         | 'COMPLETED'
@@ -411,6 +412,7 @@ export interface DispatchRecipientInput {
     name?: string;
     externalRefId?: string;
     requestedMode?: SmartLinkDefaultMode;
+    requireDocument?: boolean;
 }
 
 export interface DispatchBatchResult {
@@ -424,6 +426,7 @@ export interface DispatchBatchResult {
         url?: string;
         channel: string;
         recipient: string;
+        requireDocument?: boolean;
         status: 'sent' | 'failed';
         errorMessage?: string;
     }>;

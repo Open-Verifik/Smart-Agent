@@ -40,6 +40,7 @@ export interface SmartLinkSessionEditDialogData {
         TranslocoModule,
     ],
     templateUrl: './smart-link-session-edit-dialog.component.html',
+    styleUrls: ['../smart-links.shared.scss'],
 })
 export class SmartLinkSessionEditDialogComponent {
     data = inject<SmartLinkSessionEditDialogData>(MAT_DIALOG_DATA);

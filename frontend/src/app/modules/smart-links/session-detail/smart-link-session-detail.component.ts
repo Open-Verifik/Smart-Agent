@@ -4,6 +4,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    OnDestroy,
     OnInit,
     computed,
     inject,
@@ -18,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import QRCode from 'qrcode';
+import { Subject, takeUntil } from 'rxjs';
 
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { SmartLinkSessionDeleteDialogComponent } from '../dialogs/smart-link-session-delete-dialog.component';
@@ -29,12 +31,18 @@ import {
     formatSessionDate,
     interactionBadgeClass,
     interactionIcon,
+    isActiveAutoRefreshState,
     isLinkedSelfieSuppressed,
+    isTerminalSessionState,
     resolveSessionTargetLabel,
     sessionStatePillClass,
 } from '../smart-link-session.util';
 import { SmartLinksService } from '../smart-links.service';
-import type { SmartLinkInteractionEvent, SmartLinkSessionDetail } from '../smart-links.types';
+import type {
+    SmartLinkInteractionEvent,
+    SmartLinkResendResult,
+    SmartLinkSessionDetail,
+} from '../smart-links.types';
 
 type DossierStepId = 'overview' | 'timeline' | 'identity' | 'verification' | 'dispatches' | 'technical';
 
@@ -58,7 +66,7 @@ type DossierStepId = 'overview' | 'timeline' | 'identity' | 'verification' | 'di
     styleUrls: ['./smart-link-session-detail.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SmartLinkSessionDetailComponent implements OnInit {
+export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _service = inject(SmartLinksService);
@@ -67,6 +75,15 @@ export class SmartLinkSessionDetailComponent implements OnInit {
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _destroy$ = new Subject<void>();
+    private _refreshTimer: ReturnType<typeof setInterval> | null = null;
+    private _userToggledAutoRefresh = false;
+    private _visibilityHandler = (): void => {
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+            this._stopAutoRefresh();
+            this._cdr.markForCheck();
+        }
+    };
 
     readonly dossierSteps: DossierStepId[] = [
         'overview',
@@ -86,7 +103,10 @@ export class SmartLinkSessionDetailComponent implements OnInit {
     showJwt = signal(false);
     activeStep = signal<DossierStepId>('overview');
     qrDataUrl = signal('');
+    autoRefresh = signal(false);
+    reissuedPreview = signal<SmartLinkResendResult | null>(null);
 
+    isTerminalState = computed(() => isTerminalSessionState(this.detail()?.state));
     selfieUrl = computed(() => extractLinkedSelfieDataUrl(this.detail()));
     selfieSuppressed = computed(() => isLinkedSelfieSuppressed(this.detail()));
     decodedJwtClaims = computed(() => decodeJwtClaimsSafe(this.detail()?.token || this.detail()?.outcome?.verificationToken));
@@ -149,42 +169,125 @@ export class SmartLinkSessionDetailComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        this._route.paramMap.subscribe((params) => {
+        if (typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', this._visibilityHandler);
+        }
+
+        this._route.paramMap.pipe(takeUntil(this._destroy$)).subscribe((params) => {
             const pid = (params.get('projectId') || '').trim();
             const sid = (params.get('sessionId') || '').trim();
             if (!pid || !sid) {
                 void this._router.navigate(['/smart-links/projects']);
                 return;
             }
+            this._userToggledAutoRefresh = false;
+            this._stopAutoRefresh();
+            this.reissuedPreview.set(null);
             this.projectId.set(pid);
             this.sessionId.set(sid);
-            this.loadDetail();
+            this.loadDetail(false);
         });
     }
 
-    loadDetail(): void {
-        this.loading.set(true);
-        this.errorMessage.set(null);
-        this._service.getSessionDetail(this.sessionId()).subscribe({
-            next: (d) => {
-                this.detail.set(d);
-                this.loading.set(false);
-                if (d?.shareUrl) {
-                    void QRCode.toDataURL(d.shareUrl, { margin: 1, width: 220 }).then((qr) => {
-                        this.qrDataUrl.set(qr);
-                        this._cdr.markForCheck();
-                    });
-                } else {
-                    this.qrDataUrl.set('');
-                }
+    ngOnDestroy(): void {
+        this._stopAutoRefresh();
+        if (typeof document !== 'undefined') {
+            document.removeEventListener('visibilitychange', this._visibilityHandler);
+        }
+        this._destroy$.next();
+        this._destroy$.complete();
+    }
+
+    loadDetail(silent = false): void {
+        if (!silent) {
+            this.loading.set(true);
+            this.errorMessage.set(null);
+        }
+        this._service
+            .getSessionDetail(this.sessionId())
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: (d) => {
+                    this.detail.set(d);
+                    this.loading.set(false);
+                    if (d?.shareUrl) {
+                        this.reissuedPreview.set(null);
+                        void QRCode.toDataURL(d.shareUrl, { margin: 1, width: 220 }).then((qr) => {
+                            this.qrDataUrl.set(qr);
+                            this._cdr.markForCheck();
+                        });
+                    } else if (
+                        d?.canRevoke &&
+                        this.reissuedPreview()?.sessionId === d?._id &&
+                        this.reissuedPreview()?.qrDataUrl
+                    ) {
+                        this.qrDataUrl.set(this.reissuedPreview()!.qrDataUrl);
+                    } else {
+                        this.reissuedPreview.set(null);
+                        this.qrDataUrl.set('');
+                    }
+
+                    const isHidden =
+                        typeof document !== 'undefined' && document.visibilityState === 'hidden';
+                    if (isTerminalSessionState(d?.state) || isHidden) {
+                        this._stopAutoRefresh();
+                    } else if (!this._userToggledAutoRefresh && isActiveAutoRefreshState(d?.state)) {
+                        this._startAutoRefresh();
+                    }
+
+                    this._cdr.markForCheck();
+                },
+                error: (err) => {
+                    if (!silent) {
+                        this.errorMessage.set(err?.error?.message || 'SmartLink session not found');
+                        this.loading.set(false);
+                    }
+                    this._stopAutoRefresh();
+                    this._cdr.markForCheck();
+                },
+            });
+    }
+
+    toggleAutoRefresh(): void {
+        const d = this.detail();
+        if (!d || isTerminalSessionState(d.state)) {
+            this._stopAutoRefresh();
+            return;
+        }
+        this._userToggledAutoRefresh = true;
+        if (this.autoRefresh()) {
+            this._stopAutoRefresh();
+        } else {
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+            this._startAutoRefresh();
+        }
+        this._cdr.markForCheck();
+    }
+
+    private _startAutoRefresh(): void {
+        this.autoRefresh.set(true);
+        if (this._refreshTimer !== null) return;
+        this._refreshTimer = setInterval(() => {
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+                this._stopAutoRefresh();
                 this._cdr.markForCheck();
-            },
-            error: (err) => {
-                this.errorMessage.set(err?.error?.message || 'SmartLink session not found');
-                this.loading.set(false);
+                return;
+            }
+            if (isTerminalSessionState(this.detail()?.state)) {
+                this._stopAutoRefresh();
                 this._cdr.markForCheck();
-            },
-        });
+                return;
+            }
+            this.loadDetail(true);
+        }, 5000);
+    }
+
+    private _stopAutoRefresh(): void {
+        this.autoRefresh.set(false);
+        if (this._refreshTimer !== null) {
+            clearInterval(this._refreshTimer);
+            this._refreshTimer = null;
+        }
     }
 
     toggleDevView(): void {
@@ -266,6 +369,11 @@ export class SmartLinkSessionDetailComponent implements OnInit {
         ref.afterClosed().subscribe((updated) => {
             if (updated) {
                 this.detail.set(updated);
+                if (isTerminalSessionState(updated.state)) {
+                    this._stopAutoRefresh();
+                } else if (!this._userToggledAutoRefresh && isActiveAutoRefreshState(updated.state)) {
+                    this._startAutoRefresh();
+                }
                 this._snack.open(
                     this._transloco.translate('smartLinks.dialogs.updatedToast'),
                     undefined,
@@ -286,7 +394,8 @@ export class SmartLinkSessionDetailComponent implements OnInit {
         });
         ref.afterClosed().subscribe((res) => {
             if (res) {
-                this.loadDetail();
+                this.reissuedPreview.set(res);
+                this.loadDetail(true);
             }
         });
     }
@@ -297,6 +406,8 @@ export class SmartLinkSessionDetailComponent implements OnInit {
         this._service.revokeSession(d._id).subscribe({
             next: (updated) => {
                 this.detail.set(updated);
+                this.reissuedPreview.set(null);
+                this._stopAutoRefresh();
                 this._snack.open(
                     this._transloco.translate('smartLinks.dialogs.revokedToast'),
                     undefined,

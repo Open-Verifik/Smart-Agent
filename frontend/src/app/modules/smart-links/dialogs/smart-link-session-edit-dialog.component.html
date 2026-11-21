@@ -181,10 +181,10 @@
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!gap-2 !pt-3">
-        <button mat-stroked-button type="button" class="rounded-xl" [disabled]="saving()" (click)="close()">
+        <button mat-stroked-button type="button" class="rounded-xl whitespace-nowrap" [disabled]="saving()" (click)="close()">
             {{ t('smartLinks.actions.cancel') }}
         </button>
-        <button mat-flat-button color="primary" type="button" class="rounded-xl" [disabled]="saving()" (click)="save()">
+        <button mat-flat-button color="primary" type="button" class="rounded-xl whitespace-nowrap" [disabled]="saving()" (click)="save()">
             @if (saving()) {
                 <mat-spinner diameter="16" class="mr-2 inline-block"></mat-spinner>
             }

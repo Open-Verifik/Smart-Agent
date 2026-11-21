@@ -23,8 +23,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import QRCode from 'qrcode';
-import { forkJoin } from 'rxjs';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 
+import { SmartLinkProjectDeleteDialogComponent } from '../dialogs/smart-link-project-delete-dialog.component';
 import { SmartLinkSessionDeleteDialogComponent } from '../dialogs/smart-link-session-delete-dialog.component';
 import { SmartLinkSessionEditDialogComponent } from '../dialogs/smart-link-session-edit-dialog.component';
 import { SmartLinkSessionResendDialogComponent } from '../dialogs/smart-link-session-resend-dialog.component';
@@ -43,6 +44,7 @@ import type {
     SmartLinkCompletionMode,
     SmartLinkIdentifier,
     SmartLinkProject,
+    SmartLinkResendResult,
     SmartLinkSessionFilters,
     SmartLinkSessionRecord,
     SmartLinkVerifyStyle,
@@ -109,8 +111,14 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     mintCompletion: SmartLinkCompletionMode = 'receipt';
     mintExternalRef = '';
     mintTtlMinutes = 60;
+    mintSendImmediately = false;
+    mintSendChannel: 'email' | 'sms' | 'whatsapp' = 'email';
+    mintSendRecipient = '';
+    mintSendCountryCode = '+1';
+    private _mintSendRecipientEdited = false;
     mintBusy = signal(false);
     minted = signal<MintedSmartLinkSession | null>(null);
+    mintDispatchResult = signal<SmartLinkResendResult['dispatch'] | null>(null);
     mintError = signal<string | null>(null);
 
     // Dispatch form state
@@ -119,6 +127,7 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     quickName = '';
     campaignName = 'Onboarding Wave 1';
     csvContent = '';
+    csvRequireDocument = false;
     dispatchBusy = signal(false);
     dispatchResult = signal<DispatchBatchResult | null>(null);
     dispatchError = signal<string | null>(null);
@@ -230,6 +239,26 @@ export class SmartLinkProjectDetailComponent implements OnInit {
         window.open(url, '_blank', 'noopener,noreferrer');
     }
 
+    openDeleteHubDialog(): void {
+        const proj = this.project();
+        if (!proj?._id) return;
+        const ref = this._dialog.open(SmartLinkProjectDeleteDialogComponent, {
+            width: '460px',
+            maxWidth: '95vw',
+            data: { project: proj },
+        });
+        ref.afterClosed().subscribe((res) => {
+            if (res?.deleted) {
+                this._snack.open(
+                    this._transloco.translate('smartLinks.dialogs.deleteHubToast'),
+                    undefined,
+                    { duration: 2400 }
+                );
+                void this._router.navigate(['/smart-links/projects']);
+            }
+        });
+    }
+
     isActiveFlow(): boolean {
         const st = this.flow()?.status;
         return st === 'active';
@@ -325,19 +354,64 @@ export class SmartLinkProjectDetailComponent implements OnInit {
         });
     }
 
+    onMintPrefillChanged(): void {
+        if (this._mintSendRecipientEdited) return;
+        this.mintSendRecipient =
+            this.mintSendChannel === 'email' ? this.mintEmail.trim() : this.mintPhone.trim();
+    }
+
+    onMintSendToggleChanged(checked: boolean): void {
+        this.mintSendImmediately = checked;
+        this.mintError.set(null);
+        if (checked && !this._mintSendRecipientEdited) {
+            if (!this.mintEmail.trim() && this.mintPhone.trim()) {
+                this.mintSendChannel = 'whatsapp';
+                this.mintSendRecipient = this.mintPhone.trim();
+            } else {
+                this.mintSendChannel = 'email';
+                this.mintSendRecipient = this.mintEmail.trim();
+            }
+        }
+    }
+
+    onMintSendChannelChanged(next: 'email' | 'sms' | 'whatsapp'): void {
+        this.mintSendChannel = next;
+        this.mintError.set(null);
+        if (!this._mintSendRecipientEdited) {
+            this.mintSendRecipient = next === 'email' ? this.mintEmail.trim() : this.mintPhone.trim();
+        }
+    }
+
+    onMintSendRecipientInput(value: string): void {
+        this.mintSendRecipient = value;
+        this._mintSendRecipientEdited = Boolean(value.trim());
+    }
+
     mintSession(): void {
         if (!this.projectId() || this.mintBusy()) return;
+
+        const cleanRecipient = this.mintSendRecipient.trim();
+        if (this.mintSendImmediately && !cleanRecipient) {
+            this.mintError.set(this._transloco.translate('smartLinks.mintModal.sendRecipientRequired'));
+            this._cdr.markForCheck();
+            return;
+        }
+
         this.mintBusy.set(true);
         this.mintError.set(null);
+        this.mintDispatchResult.set(null);
 
         const email = this.mintEmail.trim() || undefined;
         const phone = this.mintPhone.trim() || undefined;
         const fullName = this.mintFullName.trim() || undefined;
+        const cleanCountryCode =
+            phone && !phone.startsWith('+') ? this.mintSendCountryCode.trim() || '+1' : undefined;
 
         this._service
             .createSession(this.projectId(), {
                 email,
                 phone,
+                countryCode: cleanCountryCode,
                 fullName,
                 requireDocument: Boolean(this.mintRequireDocument),
                 completionMode: this.mintCompletion,
@@ -345,9 +419,40 @@ export class SmartLinkProjectDetailComponent implements OnInit {
                 expiresInMinutes: Number(this.mintTtlMinutes) || 60,
                 createdByChannel: 'portal',
             })
+            .pipe(
+                switchMap((created) => {
+                    if (!this.mintSendImmediately) {
+                        return of({ session: created, dispatch: null });
+                    }
+                    return this._service
+                        .resendSession(created.sessionId, {
+                            send: true,
+                            channel: this.mintSendChannel,
+                            recipient: cleanRecipient,
+                            countryCode:
+                                this.mintSendChannel === 'email'
+                                    ? undefined
+                                    : this.mintSendCountryCode.trim() || '+1',
+                            recipientName: fullName,
+                        })
+                        .pipe(
+                            map((resend) => ({
+                                session: {
+                                    ...created,
+                                    url: resend.url || created.url,
+                                    qrDataUrl: resend.qrDataUrl || created.qrDataUrl,
+                                    expiresAt: resend.expiresAt || created.expiresAt,
+                                    state: resend.state || created.state,
+                                },
+                                dispatch: resend.dispatch ?? null,
+                            }))
+                        );
+                })
+            )
             .subscribe({
-                next: (res) => {
-                    this.minted.set(res);
+                next: ({ session, dispatch }) => {
+                    this.minted.set(session);
+                    this.mintDispatchResult.set(dispatch);
                     this.mintBusy.set(false);
                     this.refreshSessionsAndAnalytics();
                     this._cdr.markForCheck();
@@ -413,17 +518,23 @@ export class SmartLinkProjectDetailComponent implements OnInit {
     }
 
     sendCsvCampaign(): void {
-        const recipients = this._service.parseDispatchCsv(this.csvContent, this.quickChannel);
-        if (!recipients.length || this.dispatchBusy()) {
+        const parsedRecipients = this._service.parseDispatchCsv(this.csvContent, this.quickChannel);
+        if (!parsedRecipients.length || this.dispatchBusy()) {
             this.dispatchError.set('No valid CSV rows found. Expect email or phone column.');
             return;
         }
+
+        const batchRequireDocument = Boolean(this.csvRequireDocument);
+        const recipients = batchRequireDocument
+            ? parsedRecipients.map((r) => ({ ...r, requireDocument: true }))
+            : parsedRecipients;
 
         this.dispatchBusy.set(true);
         this.dispatchError.set(null);
         this._service
             .dispatchBatch(this.projectId(), {
                 campaignName: this.campaignName.trim() || 'CSV Batch',
+                requireDocument: batchRequireDocument,
                 recipients,
             })
             .subscribe({

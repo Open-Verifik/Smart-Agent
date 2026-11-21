@@ -31,11 +31,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
+import { EMPTY, expand, reduce } from 'rxjs';
 
 import { SmartLinkSessionDeleteDialogComponent } from '../dialogs/smart-link-session-delete-dialog.component';
 import { SmartLinkSessionEditDialogComponent } from '../dialogs/smart-link-session-edit-dialog.component';
 import { SmartLinkSessionResendDialogComponent } from '../dialogs/smart-link-session-resend-dialog.component';
 import {
+    buildSessionsCsv,
     formatSessionDate,
     resolveSessionTargetLabel,
     resolveSessionTargetSubLabel,
@@ -129,6 +131,7 @@ export class SmartLinkSessionsComponent implements OnInit, OnDestroy {
 
     loading = signal(true);
     bulkBusy = signal(false);
+    exportingCsv = signal(false);
     errorMessage = signal<string | null>(null);
     projectId = '';
     projectName = signal<string | null>(null);
@@ -457,19 +460,51 @@ export class SmartLinkSessionsComponent implements OnInit, OnDestroy {
         void this._router.navigate(['/smart-links/projects']);
     }
 
+    exportCsv(): void {
+        if (this.exportingCsv() || this.loading()) return;
+        const openLabel = this._transloco.translate('smartLinks.detail.openLinkLabel') || 'Open link';
+
+        if (this.pageIndex === 0 && this.total() <= this.dataSource.length) {
+            this._downloadSessionsCsv(this.dataSource, openLabel);
+            return;
+        }
+
+        const filters = this._currentFilters();
+        let page = 1;
+        this.exportingCsv.set(true);
+        this._cdr.markForCheck();
+
+        this._service
+            .listSessions(this.projectId, page, 100, filters)
+            .pipe(
+                expand((res) => {
+                    const totalPages = res.pages || 1;
+                    if (page >= totalPages || page >= 20) return EMPTY;
+                    page += 1;
+                    return this._service.listSessions(this.projectId, page, 100, filters);
+                }),
+                reduce((acc: SmartLinkSessionRecord[], res) => [...acc, ...(res.docs || [])], [])
+            )
+            .subscribe({
+                next: (rows) => {
+                    this.exportingCsv.set(false);
+                    this._downloadSessionsCsv(rows, openLabel);
+                    this._cdr.markForCheck();
+                },
+                error: () => {
+                    this.exportingCsv.set(false);
+                    this._downloadSessionsCsv(this.dataSource, openLabel);
+                    this._cdr.markForCheck();
+                },
+            });
+    }
+
     fetchSessions(): void {
         this.loading.set(true);
         this.errorMessage.set(null);
         this.selection.clear();
 
-        const filters: SmartLinkSessionFilters = {
-            search: this.searchInput.trim() || undefined,
-            state: this.stateFilter(),
-            requireDocument: this.docFilter(),
-            channel: this.channelFilter(),
-            sort: this.sortDirection() === 'asc' ? this.sortActive() : `-${this.sortActive()}`,
-            ...this._resolveDateRange(),
-        };
+        const filters = this._currentFilters();
 
         this._service.listSessions(this.projectId, this.pageIndex + 1, this.pageSize, filters).subscribe({
             next: (res) => {
@@ -484,6 +519,36 @@ export class SmartLinkSessionsComponent implements OnInit, OnDestroy {
                 this._cdr.markForCheck();
             },
         });
+    }
+
+    private _currentFilters(): SmartLinkSessionFilters {
+        return {
+            search: this.searchInput.trim() || undefined,
+            state: this.stateFilter(),
+            requireDocument: this.docFilter(),
+            channel: this.channelFilter(),
+            sort: this.sortDirection() === 'asc' ? this.sortActive() : `-${this.sortActive()}`,
+            ...this._resolveDateRange(),
+        };
+    }
+
+    private _downloadSessionsCsv(rows: SmartLinkSessionRecord[], openLabel: string): void {
+        if (typeof document === 'undefined') return;
+        const csv = buildSessionsCsv(rows, openLabel);
+        const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `smartlinks-${this.projectId}-${DateTime.local().toFormat('yyyyMMdd-HHmm')}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        this._snack.open(
+            this._transloco.translate('smartLinks.sessions.exportedCsvToast', { count: rows.length }),
+            undefined,
+            { duration: 2200 }
+        );
     }
 
     private _resolveDateRange(): Pick<SmartLinkSessionFilters, 'createdFrom' | 'createdTo'> {

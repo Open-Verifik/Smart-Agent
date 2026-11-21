@@ -179,17 +179,7 @@
     "plate_report": "Plate report",
     "plate_report_subtitle": "Vehicle lookup from a plate",
     "smart_fleet_drivers": "Conducteurs",
-    "smart_fleet_drivers_subtitle": "Permis de conduire et infractions",
-    "smart_links": "Smart Link",
-    "smart_links_projects": "Smart Links",
-    "smart_links_projects_subtitle": "Liens de vérification unifiés, QR et IA",
-    "smart_reports": "SmartReports",
-    "smart_reports_subtitle": "Éditeur PDF, modèles et lots",
-    "pdf_builder": "Éditeur PDF",
-    "pdf_builder_subtitle": "Concevoir des rapports PDF sur mesure",
-    "pdf_templates": "Modèles PDF",
-    "pdf_templates_subtitle": "Modèles système et personnalisés",
-    "smart_batch_run_subtitle": "Exécuter des lots multi-endpoints"
+    "smart_fleet_drivers_subtitle": "Permis de conduire et infractions"
   },
   "smartBatchLanding": {
     "authRequiredTitle": "Connexion requise",
@@ -242,13 +232,13 @@
     "templatePreviewLoading": "Chargement de l'aperçu...",
     "templatePreviewFailed": "Impossible d'afficher l'aperçu de ce modèle.",
     "concept1Title": "Configurations = Endpoints you pick",
-    "concept1Badge": "API Chain",
+    "concept1Badge": "APIs",
     "concept1Desc": "Each configuration is the ordered chain of official verification endpoints you choose for a country.",
     "concept2Title": "Report Templates = Visual PDF layout",
-    "concept2Badge": "PDF Studio",
+    "concept2Badge": "Studio PDF",
     "concept2Desc": "Link a custom or system Report Template to turn endpoint responses into a branded PDF certificate.",
     "concept3Title": "Run 1 Record or CSV Batch",
-    "concept3Badge": "Execution",
+    "concept3Badge": "Exécution",
     "concept3Desc": "Open any configuration to validate a single person/vehicle/company or upload a CSV file of thousands.",
     "newConfigCardTitle": "New Batch Configuration",
     "newConfigCardBody": "Pick the country and chain the official verification endpoints you want to run together in one automated flow.",
@@ -295,7 +285,7 @@
     "exportFailed": "The template could not be exported."
   },
   "visitaGuide": {
-    "brand": "SmartReports",
+    "brand": "VISITA",
     "progress": "Étape {{current}} sur {{total}}",
     "nowHint": "Une question à la fois. Vous pouvez toujours revenir en arrière.",
     "back": "Retour",
@@ -12581,7 +12571,7 @@
     "scoreFormat": "Display",
     "formatUnit": "0–1",
     "formatPercent": "98%",
-    "profileCabify": "Cabify driver (Chile)",
+    "profileCabify": "Driver onboarding",
     "branding": "Logo, colors and fonts",
     "logo": "Logo",
     "logoClear": "Remove logo",
@@ -12603,7 +12593,7 @@
       "dashboard": "Dashboard"
     },
     "hints": {
-      "premium_dark": "Cabify",
+      "premium_dark": "Dark executive",
       "light_cards": "Card layout",
       "editorial": "Certificate",
       "dashboard": "Charts and KPIs"
@@ -12697,31 +12687,8 @@
       "sourceLists": "International lists",
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
-      "sourceCompanies": "Company registry",
-      "soat": "SOAT",
-      "rtm": "Inspection",
-      "fines": "Fines",
-      "valuation": "Valuation",
-      "status": "Status"
-    },
-    "density": "Density",
-    "densityOptions": {
-      "compact": "Compact",
-      "balanced": "Balanced",
-      "full": "Full"
-    },
-    "wordmark": "Brand wordmark",
-    "coverColor": "Cover bg",
-    "pageColor": "Page bg",
-    "cardColor": "Card bg",
-    "inkColor": "Text ink",
-    "showHowItWorks": "Rules",
-    "copyCustomization": "Headlines & legal texts",
-    "coverTitle": "Cover title",
-    "headlineApproveLabel": "Approved headline",
-    "headlineReviewLabel": "Review headline",
-    "headlineRejectLabel": "Rejected headline",
-    "legalNoteLabel": "Legal footer note"
+      "sourceCompanies": "Company registry"
+    }
   },
   "plateReport": {
     "title": "Vehicle report",
@@ -13078,7 +13045,8 @@
       "revokeSelected": "Révoquer la Sélection",
       "deleteSelected": "Supprimer la Sélection",
       "revealToken": "Afficher le JWT",
-      "hideToken": "Masquer le JWT"
+      "hideToken": "Masquer le JWT",
+      "deleteHub": "Supprimer le Hub"
     },
     "modes": {
       "personal": {
@@ -13108,7 +13076,14 @@
       "minting": "Génération du lien signé et du QR...",
       "signedUrl": "URL de Vérification Signée",
       "shortCode": "Code de Session",
-      "requireDocHint": "Activez pour exiger une pièce d'identité sur ce lien spécifique."
+      "requireDocHint": "Activez pour exiger une pièce d'identité sur ce lien spécifique.",
+      "sendImmediatelyLabel": "Envoyer immédiatement",
+      "sendImmediatelyHint": "Transmet le lien signé juste après création par e-mail, WhatsApp ou SMS.",
+      "generateAndSendBtn": "Générer et Envoyer",
+      "regenerateBtn": "Régénérer le Lien",
+      "sendRecipientRequired": "Saisissez une adresse e-mail ou un numéro de téléphone pour envoyer immédiatement.",
+      "deliverySent": "Envoyé via {{channel}} à {{recipient}}.",
+      "deliveryFailed": "Lien créé, mais échec de l'envoi {{channel}} vers {{recipient}} ({{reason}})."
     },
     "analytics": {
       "created": "Created",
@@ -13161,9 +13136,11 @@
       "campaign": "Campaign Tag",
       "sendBtn": "Send Verification Link",
       "csvTitle": "Bulk CSV Dispatch",
-      "csvHint": "Columns: email,phone,countryCode,name,externalRefId",
+      "csvHint": "Colonnes : email,phone,countryCode,name,externalRefId,requireDocument",
       "batchDone": "Dispatched {{sent}} of {{total}} links.",
-      "sendCsvBtn": "Launch CSV Campaign"
+      "sendCsvBtn": "Launch CSV Campaign",
+      "csvRequireDocLabel": "Exiger une pièce d'identité pour toutes les lignes CSV",
+      "csvRequireDocHint": "Remplace la colonne optionnelle par ligne et impose le scan du document sur chaque lien."
     },
     "kit": {
       "title": "Developer & AI Agent Kit",
@@ -13218,7 +13195,7 @@
         "title": "Flux de Vérification Liés",
         "subtitle": "Sélectionnez le flux SmartAccess pour le Liveness facial et SmartEnroll pour les nouveaux utilisateurs ou documents par lien.",
         "none": "Non lié",
-        "createInProduct": "Gérer dans {{product}}",
+        "createInProduct": "Créer dans {{product}}",
         "identifiersStageTitle": "URL Publique et Identifiants Acceptés",
         "identifiersStageSubtitle": "Si aucun e-mail ou téléphone n'est prédéfini sur le lien, l'utilisateur saisit l'un de ces identifiants.",
         "identifiersCountSuffix": "actifs",
@@ -13226,7 +13203,11 @@
         "enrollFlowLabel": "Nouvel Utilisateur ou Document par Lien (SmartEnroll)",
         "autoResolve": "Sélection automatique du projet actif",
         "autoRuleTitle": "Routage automatique pour chaque lien",
-        "autoRuleBody": "Compte existant + lien standard -> Liveness facial seul. Compte existant + requireDocument=true -> Document + Visage. Nouvel utilisateur -> Inscription Document + Visage. L'exigence de document se règle par lien."
+        "autoRuleBody": "Compte existant + lien standard -> Liveness facial seul. Compte existant + requireDocument=true -> Document + Visage. Nouvel utilisateur -> Inscription Document + Visage. L'exigence de document se règle par lien.",
+        "autoResolveBannerTitle": "Résolution automatique activée",
+        "autoResolveBannerBody": "En mode Sélection auto, SmartLink utilise automatiquement les flux SmartAccess et SmartEnroll actifs les plus récents.",
+        "noEnginesWarningTitle": "Aucun flux de vérification actif détecté",
+        "noEnginesWarningBody": "Créez au moins un projet SmartAccess ou SmartEnroll pour activer la résolution automatique."
       },
       "step2": {
         "title": "Recognition, Step-Up & Security",
@@ -13250,7 +13231,12 @@
         "kybRecertifyDays": "Recertify KYB every N days",
         "ttlMinutes": "Default session TTL (minutes)",
         "maxUses": "Max uses per link (0 = unlimited)",
-        "allowedCountries": "Allowed Countries"
+        "allowedCountries": "Allowed Countries",
+        "stepUpStatusOff": "Désactivé",
+        "stepUpEnabled": "Activer la re-vérification renforcée (Step-Up)",
+        "stepUpEnabledHint": "Demande aux utilisateurs connus de renouveler un document expiré ou une biométrie ancienne.",
+        "reverifyFaceDaysHint": "Valeur entre 1 et 3650 jours (laissez vide pour ignorer).",
+        "reverifyFaceDaysRangeError": "Veuillez saisir une valeur entre 1 et 3650 jours."
       },
       "step3": {
         "title": "Retour, Webhooks, Limites et Kit IA",
@@ -13354,7 +13340,9 @@
       "colUses": "Utilisations",
       "colCreated": "Créé le",
       "rowActions": "Actions du lien",
-      "emptyFiltered": "Aucun SmartLink ne correspond à la recherche ou aux filtres actifs."
+      "emptyFiltered": "Aucun SmartLink ne correspond à la recherche ou aux filtres actifs.",
+      "exportCsvBtn": "Exporter CSV",
+      "exportedCsvToast": "{{count}} lien(s) SmartLink exporté(s) en CSV."
     },
     "sessionDetail": {
       "title": "Dossier SmartLink",
@@ -13388,7 +13376,11 @@
       "dev_identityProof": "Identité et Claims de Preuve",
       "dev_interactions": "Chronologie des Interactions",
       "dev_dispatches": "Envois de Diffusion",
-      "dev_linkedVerification": "Enregistrements de Vérification Liés"
+      "dev_linkedVerification": "Enregistrements de Vérification Liés",
+      "autoRefreshPill": "Actualisation auto (5s)",
+      "signedUrlHiddenTitle": "URL signée masquée",
+      "signedUrlHiddenBody": "Le mode lien signé est actif sur ce hub ; l'URL précédente ne peut pas être réaffichée.",
+      "reissueFreshUrlQrBtn": "Réémettre le lien pour obtenir URL et QR"
     },
     "dialogs": {
       "editTitle": "Modifier le SmartLink",
@@ -13420,7 +13412,11 @@
       "revokedToast": "SmartLink révoqué.",
       "deletedToast": "SmartLink supprimé.",
       "bulkDeletedToast": "{{count}} SmartLink(s) supprimé(s).",
-      "bulkRevokedToast": "{{count}} SmartLink(s) révoqué(s)."
+      "bulkRevokedToast": "{{count}} SmartLink(s) révoqué(s).",
+      "deleteHubTitle": "Supprimer le Hub SmartLink ?",
+      "deleteHubBody": "Cette action supprime définitivement le Hub SmartLink \"{{name}}\" et sa configuration de flux.",
+      "deleteHubError": "Impossible de supprimer le Hub SmartLink.",
+      "deleteHubToast": "Hub SmartLink supprimé."
     }
   }
 }

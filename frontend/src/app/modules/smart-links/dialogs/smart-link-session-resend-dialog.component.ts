@@ -35,6 +35,7 @@ export interface SmartLinkSessionResendDialogData {
         TranslocoModule,
     ],
     templateUrl: './smart-link-session-resend-dialog.component.html',
+    styleUrls: ['../smart-links.shared.scss'],
 })
 export class SmartLinkSessionResendDialogComponent {
     data = inject<SmartLinkSessionResendDialogData>(MAT_DIALOG_DATA);

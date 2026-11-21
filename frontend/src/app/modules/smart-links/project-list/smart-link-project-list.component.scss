@@ -1,3 +1,5 @@
+@use '../smart-links.shared';
+
 :host {
     display: block;
 }
@@ -248,6 +250,7 @@
     color: #fff;
     font-weight: 600;
     font-size: 0.875rem;
+    white-space: nowrap;
 }
 
 .card-top {
@@ -453,7 +456,7 @@
 
 .meta {
     font-size: 0.75rem;
-    color: rgb(156 163 175);
+    color: rgb(87 83 78);
 }
 
 .card-actions {
@@ -480,6 +483,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+    white-space: nowrap;
     cursor: pointer;
     color: rgb(37 99 235);
     background: rgb(255 255 255);
@@ -512,6 +516,7 @@
     padding: 0.55rem 1rem;
     font-size: 0.9rem;
     font-weight: 600;
+    white-space: nowrap;
     cursor: pointer;
     background: rgb(37 99 235);
     color: #fff;
@@ -528,6 +533,7 @@
     padding: 0.55rem 1rem;
     font-size: 0.9rem;
     font-weight: 600;
+    white-space: nowrap;
     cursor: pointer;
     background: #fff;
     color: rgb(17 24 39);
@@ -541,13 +547,15 @@
 
 /* Native <dialog> Mint Test Link modal */
 .sl-mint-dialog {
-    width: min(92vw, 30rem);
+    width: min(92vw, 32rem);
     max-width: 92vw;
+    max-height: 90dvh;
     margin: auto;
     padding: 0;
     border: 0;
     border-radius: 1.25rem;
     background: transparent;
+    overflow: hidden;
 }
 
 .sl-mint-dialog:modal {
@@ -562,6 +570,8 @@
 }
 
 .sl-mint-card {
+    max-height: 90dvh;
+    overflow-y: auto;
     border: 1px solid rgb(229 231 235);
     border-radius: 1.25rem;
     background: #ffffff;
@@ -746,7 +756,12 @@
         border-color: rgba(255, 255, 255, 0.1);
     }
 
+    .meta {
+        color: rgb(148 163 184);
+    }
+
     .sl-mint-card {
+        color-scheme: dark;
         border-color: rgba(255, 255, 255, 0.12);
         background: #111827;
     }

@@ -179,17 +179,7 @@
     "smart_business_document_templates_subtitle": "Corporate document types & AI OCR schemas",
     "smart_enroll_document_templates_subtitle": "Identity document types & AI OCR schemas",
     "smart_fleet_drivers": "Drivers",
-    "smart_fleet_drivers_subtitle": "Driver license and fine eligibility",
-    "smart_links": "Smart Link",
-    "smart_links_projects": "Smart Links",
-    "smart_links_projects_subtitle": "Unified verification links, QR & AI handoffs",
-    "smart_reports": "SmartReports",
-    "smart_reports_subtitle": "PDF Builder, templates & batch reports",
-    "pdf_builder": "PDF Builder",
-    "pdf_builder_subtitle": "Design branded PDF layouts & rules",
-    "pdf_templates": "PDF Templates",
-    "pdf_templates_subtitle": "System & custom report templates",
-    "smart_batch_run_subtitle": "Run multi-endpoint batches"
+    "smart_fleet_drivers_subtitle": "Driver license and fine eligibility"
   },
   "plateReport": {
     "title": "Vehicle report",
@@ -367,13 +357,13 @@
     "templatePreviewLoading": "Loading preview...",
     "templatePreviewFailed": "This template preview could not be shown.",
     "concept1Title": "Configurations = Endpoints you pick",
-    "concept1Badge": "API Chain",
+    "concept1Badge": "APIs",
     "concept1Desc": "Each configuration is the ordered chain of official verification endpoints you choose for a country.",
     "concept2Title": "Report Templates = Visual PDF layout",
     "concept2Badge": "PDF Studio",
     "concept2Desc": "Link a custom or system Report Template to turn endpoint responses into a branded PDF certificate.",
     "concept3Title": "Run 1 Record or CSV Batch",
-    "concept3Badge": "Execution",
+    "concept3Badge": "Run",
     "concept3Desc": "Open any configuration to validate a single person/vehicle/company or upload a CSV file of thousands.",
     "newConfigCardTitle": "New Batch Configuration",
     "newConfigCardBody": "Pick the country and chain the official verification endpoints you want to run together in one automated flow.",
@@ -612,7 +602,7 @@
     "tooLarge": "The file is larger than 512 KB."
   },
   "visitaGuide": {
-    "brand": "SmartReports",
+    "brand": "VISITA",
     "progress": "Step {{current}} of {{total}}",
     "nowHint": "One question at a time. You can always go back.",
     "back": "Back",
@@ -12863,7 +12853,7 @@
     "scoreFormat": "Display",
     "formatUnit": "0–1",
     "formatPercent": "98%",
-    "profileCabify": "Cabify driver (Chile)",
+    "profileCabify": "Driver onboarding",
     "branding": "Logo, colors and fonts",
     "logo": "Logo",
     "logoClear": "Remove logo",
@@ -12885,7 +12875,7 @@
       "dashboard": "Dashboard"
     },
     "hints": {
-      "premium_dark": "Cabify",
+      "premium_dark": "Dark executive",
       "light_cards": "Card layout",
       "editorial": "Certificate",
       "dashboard": "Charts and KPIs"
@@ -12979,31 +12969,8 @@
       "sourceLists": "International lists",
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
-      "sourceCompanies": "Company registry",
-      "soat": "SOAT",
-      "rtm": "Inspection",
-      "fines": "Fines",
-      "valuation": "Valuation",
-      "status": "Status"
-    },
-    "density": "Density",
-    "densityOptions": {
-      "compact": "Compact",
-      "balanced": "Balanced",
-      "full": "Full"
-    },
-    "wordmark": "Brand wordmark",
-    "coverColor": "Cover bg",
-    "pageColor": "Page bg",
-    "cardColor": "Card bg",
-    "inkColor": "Text ink",
-    "showHowItWorks": "Rules",
-    "copyCustomization": "Headlines & legal texts",
-    "coverTitle": "Cover title",
-    "headlineApproveLabel": "Approved headline",
-    "headlineReviewLabel": "Review headline",
-    "headlineRejectLabel": "Rejected headline",
-    "legalNoteLabel": "Legal footer note"
+      "sourceCompanies": "Company registry"
+    }
   },
   "smartLinks": {
     "badge": "Identity Verification Link",
@@ -13043,7 +13010,8 @@
       "revokeSelected": "Revoke Selected",
       "deleteSelected": "Delete Selected",
       "revealToken": "Reveal JWT",
-      "hideToken": "Hide JWT"
+      "hideToken": "Hide JWT",
+      "deleteHub": "Delete Hub"
     },
     "modes": {
       "personal": {
@@ -13073,7 +13041,14 @@
       "minting": "Generating signed link & QR...",
       "signedUrl": "Signed Verification URL",
       "shortCode": "Session Code",
-      "requireDocHint": "Turn on to require an ID document scan on this specific link."
+      "requireDocHint": "Turn on to require an ID document scan on this specific link.",
+      "sendImmediatelyLabel": "Send immediately",
+      "sendImmediatelyHint": "Deliver the signed link right after minting via email, WhatsApp, or SMS.",
+      "generateAndSendBtn": "Generate & Send",
+      "regenerateBtn": "Regenerate Link",
+      "sendRecipientRequired": "Enter a recipient email or phone number to send immediately.",
+      "deliverySent": "Delivered via {{channel}} to {{recipient}}.",
+      "deliveryFailed": "Link created, but {{channel}} delivery to {{recipient}} failed ({{reason}})."
     },
     "analytics": {
       "created": "Created",
@@ -13126,9 +13101,11 @@
       "campaign": "Campaign Tag",
       "sendBtn": "Send Verification Link",
       "csvTitle": "Bulk CSV Dispatch",
-      "csvHint": "Columns: email,phone,countryCode,name,externalRefId",
+      "csvHint": "Columns: email,phone,countryCode,name,externalRefId,requireDocument",
       "batchDone": "Dispatched {{sent}} of {{total}} links.",
-      "sendCsvBtn": "Launch CSV Campaign"
+      "sendCsvBtn": "Launch CSV Campaign",
+      "csvRequireDocLabel": "Require ID document for all CSV rows",
+      "csvRequireDocHint": "Overrides optional per-row requireDocument values and enforces an ID scan on every link."
     },
     "kit": {
       "title": "Developer & AI Agent Kit",
@@ -13183,7 +13160,7 @@
         "title": "Linked Verification Flows",
         "subtitle": "Select the SmartAccess flow for Face Liveness and the SmartEnroll flow for new users or per-link document checks.",
         "none": "Not linked",
-        "createInProduct": "Manage projects in {{product}}",
+        "createInProduct": "Create in {{product}}",
         "identifiersStageTitle": "Public URL & Accepted Identifiers",
         "identifiersStageSubtitle": "If a link is generated without an email or phone, users enter one of these identifiers to route automatically.",
         "identifiersCountSuffix": "enabled",
@@ -13191,7 +13168,11 @@
         "enrollFlowLabel": "New User or Per-Link Document (SmartEnroll)",
         "autoResolve": "Auto-select active workspace project",
         "autoRuleTitle": "Automatic routing on every link",
-        "autoRuleBody": "Existing account + standard link -> Face Liveness only. Existing account + per-link requireDocument=true -> ID Document + Face. New user -> ID Document + Face enrollment. Document requirement is always chosen per link."
+        "autoRuleBody": "Existing account + standard link -> Face Liveness only. Existing account + per-link requireDocument=true -> ID Document + Face. New user -> ID Document + Face enrollment. Document requirement is always chosen per link.",
+        "autoResolveBannerTitle": "Workspace auto-resolve is active",
+        "autoResolveBannerBody": "When set to Auto-select, SmartLink routes automatically using your workspace most recent active SmartAccess and SmartEnroll flows.",
+        "noEnginesWarningTitle": "No active verification flows found",
+        "noEnginesWarningBody": "Create at least one SmartAccess or SmartEnroll project so SmartLink can auto-resolve incoming verifications."
       },
       "step2": {
         "title": "Recognition, Step-Up & Security",
@@ -13215,7 +13196,12 @@
         "kybRecertifyDays": "Recertify KYB every N days",
         "ttlMinutes": "Default session TTL (minutes)",
         "maxUses": "Max uses per link (0 = unlimited)",
-        "allowedCountries": "Allowed Countries"
+        "allowedCountries": "Allowed Countries",
+        "stepUpStatusOff": "Off",
+        "stepUpEnabled": "Enable step-up re-verification",
+        "stepUpEnabledHint": "Require returning users to refresh expired ID documents or aged biometric checks.",
+        "reverifyFaceDaysHint": "Enter between 1 and 3650 days (leave blank to skip age checks).",
+        "reverifyFaceDaysRangeError": "Enter a value between 1 and 3650 days."
       },
       "step3": {
         "title": "Handoff, Webhooks, Limits & AI Kit",
@@ -13319,7 +13305,9 @@
       "colUses": "Uses",
       "colCreated": "Created",
       "rowActions": "Link actions",
-      "emptyFiltered": "No SmartLinks match the active search or filters."
+      "emptyFiltered": "No SmartLinks match the active search or filters.",
+      "exportCsvBtn": "Export CSV",
+      "exportedCsvToast": "Exported {{count}} SmartLink(s) to CSV."
     },
     "sessionDetail": {
       "title": "SmartLink Dossier",
@@ -13353,7 +13341,11 @@
       "dev_identityProof": "Identity & Proof Claims",
       "dev_interactions": "Interaction Timeline",
       "dev_dispatches": "Delivery Dispatches",
-      "dev_linkedVerification": "Linked Verification Records"
+      "dev_linkedVerification": "Linked Verification Records",
+      "autoRefreshPill": "Auto-refresh (5s)",
+      "signedUrlHiddenTitle": "Signed link URL hidden",
+      "signedUrlHiddenBody": "Signed-only security is active for this hub, so the raw URL cannot be read back.",
+      "reissueFreshUrlQrBtn": "Reissue link to get fresh URL & QR"
     },
     "dialogs": {
       "editTitle": "Edit SmartLink",
@@ -13385,7 +13377,11 @@
       "revokedToast": "SmartLink revoked.",
       "deletedToast": "SmartLink deleted.",
       "bulkDeletedToast": "{{count}} SmartLink(s) deleted.",
-      "bulkRevokedToast": "{{count}} SmartLink(s) revoked."
+      "bulkRevokedToast": "{{count}} SmartLink(s) revoked.",
+      "deleteHubTitle": "Delete SmartLink Hub?",
+      "deleteHubBody": "This permanently deletes SmartLink Hub \"{{name}}\" and its flow configuration.",
+      "deleteHubError": "Unable to delete SmartLink Hub.",
+      "deleteHubToast": "SmartLink Hub deleted."
     }
   }
 }

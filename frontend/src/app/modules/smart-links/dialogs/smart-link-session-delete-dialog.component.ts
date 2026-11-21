@@ -22,6 +22,7 @@ export interface SmartLinkSessionDeleteDialogData {
     standalone: true,
     imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule, MatProgressSpinnerModule, TranslocoModule],
     templateUrl: './smart-link-session-delete-dialog.component.html',
+    styleUrls: ['../smart-links.shared.scss'],
 })
 export class SmartLinkSessionDeleteDialogComponent {
     data = inject<SmartLinkSessionDeleteDialogData>(MAT_DIALOG_DATA);

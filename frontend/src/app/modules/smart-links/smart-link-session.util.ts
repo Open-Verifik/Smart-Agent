@@ -59,6 +59,8 @@ export function interactionIcon(type: SmartLinkInteractionEvent['type']): string
             return 'alternate_email';
         case 'ROUTED':
             return 'alt_route';
+        case 'IN_PROGRESS':
+            return 'hourglass_top';
         case 'UPDATED':
             return 'edit';
         case 'REISSUED':
@@ -85,6 +87,7 @@ export function interactionBadgeClass(type: SmartLinkInteractionEvent['type']): 
             return 'bg-emerald-600 text-white dark:bg-emerald-500';
         case 'OPENED':
         case 'ROUTED':
+        case 'IN_PROGRESS':
         case 'IDENTIFIER_SUBMITTED':
             return 'bg-blue-600 text-white dark:bg-blue-500';
         case 'FAILED':
@@ -138,6 +141,92 @@ export function formatSessionDate(date?: string, withSeconds = false): string {
     const parsed = DateTime.fromISO(date);
     if (!parsed.isValid) return date;
     return parsed.toFormat(withSeconds ? 'MMM dd, yyyy HH:mm:ss' : 'MMM dd, yyyy HH:mm');
+}
+
+export const ACTIVE_AUTO_REFRESH_STATES: ReadonlySet<string> = new Set([
+    'CREATED',
+    'OPENED',
+    'ROUTED',
+    'IN_PROGRESS',
+]);
+
+export const TERMINAL_SESSION_STATES: ReadonlySet<string> = new Set([
+    'COMPLETED',
+    'FAILED',
+    'EXPIRED',
+    'REVOKED',
+]);
+
+export function isActiveAutoRefreshState(state?: string): boolean {
+    return Boolean(state && ACTIVE_AUTO_REFRESH_STATES.has(state));
+}
+
+export function isTerminalSessionState(state?: string): boolean {
+    return Boolean(state && TERMINAL_SESSION_STATES.has(state));
+}
+
+/**
+ * Escapes a single CSV cell per RFC 4180 and mitigates CSV formula injection
+ * by prefixing leading `=`, `+`, `-`, `@` characters with a single quote.
+ */
+export function escapeCsvCell(value: unknown): string {
+    const raw = value === null || value === undefined ? '' : String(value);
+    const safe = /^[=+\-@]/.test(raw) ? `'${raw}` : raw;
+    if (/[",\r\n]/.test(safe)) {
+        return `"${safe.replace(/"/g, '""')}"`;
+    }
+    return safe;
+}
+
+export function buildSessionsCsv(
+    sessions: SmartLinkSessionRecord[],
+    openLinkLabel = 'Open link'
+): string {
+    const headers = [
+        'shortCode',
+        'state',
+        'target',
+        'email',
+        'phone',
+        'requireDocument',
+        'channel',
+        'uses',
+        'externalRefId',
+        'createdAt',
+        'completedAt',
+        'notes',
+    ];
+
+    const lines = [headers.join(',')];
+    for (const s of sessions || []) {
+        const ident = s.outcome?.identity;
+        const email = ident?.email || s.prefill?.email || '';
+        const rawPhone = ident?.phone || s.prefill?.phone || '';
+        const rawCountry = ident?.countryCode || s.prefill?.countryCode || '';
+        const phone = rawPhone
+            ? rawPhone.startsWith('+') || !rawCountry
+                ? rawPhone
+                : `${rawCountry}${rawPhone}`
+            : '';
+        const uses = `${s.useCount || 0}/${s.maxUses === 0 ? 'unlimited' : (s.maxUses ?? 1)}`;
+        const rowValues = [
+            s.shortCode || '',
+            s.state || '',
+            resolveSessionTargetLabel(s, openLinkLabel),
+            email,
+            phone,
+            s.requireDocument ? 'true' : 'false',
+            s.createdByChannel || 'api',
+            uses,
+            s.externalRefId || '',
+            s.createdAt || '',
+            s.completedAt || '',
+            s.notes || '',
+        ];
+        lines.push(rowValues.map((v) => escapeCsvCell(v)).join(','));
+    }
+
+    return lines.join('\r\n');
 }
 
 export function decodeJwtClaimsSafe(token?: string): Record<string, unknown> | null {

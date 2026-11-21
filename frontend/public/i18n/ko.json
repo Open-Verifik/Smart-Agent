@@ -179,17 +179,7 @@
     "plate_report": "Plate report",
     "plate_report_subtitle": "Vehicle lookup from a plate",
     "smart_fleet_drivers": "운전자",
-    "smart_fleet_drivers_subtitle": "운전면허 및 과태료 적격성",
-    "smart_links": "Smart Link",
-    "smart_links_projects": "Smart Links",
-    "smart_links_projects_subtitle": "통합 인증 링크, QR 및 AI 핸드오프",
-    "smart_reports": "SmartReports",
-    "smart_reports_subtitle": "PDF 빌더, 템플릿 및 일괄 처리",
-    "pdf_builder": "PDF 빌더",
-    "pdf_builder_subtitle": "브랜드 맞춤형 PDF 레이아웃 설계",
-    "pdf_templates": "PDF 템플릿",
-    "pdf_templates_subtitle": "시스템 및 사용자 정의 템플릿",
-    "smart_batch_run_subtitle": "다중 엔드포인트 배치 실행"
+    "smart_fleet_drivers_subtitle": "운전면허 및 과태료 적격성"
   },
   "smartBatchLanding": {
     "authRequiredTitle": "로그인 필요",
@@ -242,13 +232,13 @@
     "templatePreviewLoading": "Loading preview...",
     "templatePreviewFailed": "This template preview could not be shown.",
     "concept1Title": "Configurations = Endpoints you pick",
-    "concept1Badge": "API Chain",
+    "concept1Badge": "API",
     "concept1Desc": "Each configuration is the ordered chain of official verification endpoints you choose for a country.",
     "concept2Title": "Report Templates = Visual PDF layout",
-    "concept2Badge": "PDF Studio",
+    "concept2Badge": "PDF",
     "concept2Desc": "Link a custom or system Report Template to turn endpoint responses into a branded PDF certificate.",
     "concept3Title": "Run 1 Record or CSV Batch",
-    "concept3Badge": "Execution",
+    "concept3Badge": "실행",
     "concept3Desc": "Open any configuration to validate a single person/vehicle/company or upload a CSV file of thousands.",
     "newConfigCardTitle": "New Batch Configuration",
     "newConfigCardBody": "Pick the country and chain the official verification endpoints you want to run together in one automated flow.",
@@ -295,7 +285,7 @@
     "exportFailed": "The template could not be exported."
   },
   "visitaGuide": {
-    "brand": "SmartReports",
+    "brand": "VISITA",
     "progress": "{{current}} / {{total}}단계",
     "nowHint": "한 번에 한 질문입니다. 언제든 뒤로 갈 수 있습니다.",
     "back": "뒤로",
@@ -12614,7 +12604,7 @@
     "scoreFormat": "Display",
     "formatUnit": "0–1",
     "formatPercent": "98%",
-    "profileCabify": "Cabify driver (Chile)",
+    "profileCabify": "Driver onboarding",
     "branding": "Logo, colors and fonts",
     "logo": "Logo",
     "logoClear": "Remove logo",
@@ -12636,7 +12626,7 @@
       "dashboard": "Dashboard"
     },
     "hints": {
-      "premium_dark": "Cabify",
+      "premium_dark": "Dark executive",
       "light_cards": "Card layout",
       "editorial": "Certificate",
       "dashboard": "Charts and KPIs"
@@ -12730,31 +12720,8 @@
       "sourceLists": "International lists",
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
-      "sourceCompanies": "Company registry",
-      "soat": "SOAT",
-      "rtm": "Inspection",
-      "fines": "Fines",
-      "valuation": "Valuation",
-      "status": "Status"
-    },
-    "density": "Density",
-    "densityOptions": {
-      "compact": "Compact",
-      "balanced": "Balanced",
-      "full": "Full"
-    },
-    "wordmark": "Brand wordmark",
-    "coverColor": "Cover bg",
-    "pageColor": "Page bg",
-    "cardColor": "Card bg",
-    "inkColor": "Text ink",
-    "showHowItWorks": "Rules",
-    "copyCustomization": "Headlines & legal texts",
-    "coverTitle": "Cover title",
-    "headlineApproveLabel": "Approved headline",
-    "headlineReviewLabel": "Review headline",
-    "headlineRejectLabel": "Rejected headline",
-    "legalNoteLabel": "Legal footer note"
+      "sourceCompanies": "Company registry"
+    }
   },
   "plateReport": {
     "title": "Vehicle report",
@@ -13111,7 +13078,8 @@
       "revokeSelected": "선택 항목 철회",
       "deleteSelected": "선택 항목 삭제",
       "revealToken": "JWT 표시",
-      "hideToken": "JWT 숨기기"
+      "hideToken": "JWT 숨기기",
+      "deleteHub": "허브 삭제"
     },
     "modes": {
       "personal": {
@@ -13141,7 +13109,14 @@
       "minting": "서명된 링크 및 QR 생성 중...",
       "signedUrl": "서명된 확인 URL",
       "shortCode": "세션 코드",
-      "requireDocHint": "활성화하면 이 링크에서 신분증 촬영을 필수로 요구합니다."
+      "requireDocHint": "활성화하면 이 링크에서 신분증 촬영을 필수로 요구합니다.",
+      "sendImmediatelyLabel": "즉시 전송",
+      "sendImmediatelyHint": "생성 직후 이메일, WhatsApp 또는 SMS로 서명된 링크를 발송합니다.",
+      "generateAndSendBtn": "생성 및 전송",
+      "regenerateBtn": "링크 다시 생성",
+      "sendRecipientRequired": "즉시 전송할 수신자 이메일 또는 전화번호를 입력하세요.",
+      "deliverySent": "{{channel}} 통해 {{recipient}}(으)로 전송되었습니다.",
+      "deliveryFailed": "링크는 생성되었으나 {{recipient}}에게 {{channel}} 전송을 실패했습니다({{reason}})."
     },
     "analytics": {
       "created": "Created",
@@ -13194,9 +13169,11 @@
       "campaign": "Campaign Tag",
       "sendBtn": "Send Verification Link",
       "csvTitle": "Bulk CSV Dispatch",
-      "csvHint": "Columns: email,phone,countryCode,name,externalRefId",
+      "csvHint": "열: email,phone,countryCode,name,externalRefId,requireDocument",
       "batchDone": "Dispatched {{sent}} of {{total}} links.",
-      "sendCsvBtn": "Launch CSV Campaign"
+      "sendCsvBtn": "Launch CSV Campaign",
+      "csvRequireDocLabel": "모든 CSV 행에 신분증 제출 필수 적용",
+      "csvRequireDocHint": "행별 선택 설정을 재정의하고 모든 링크에서 신분증 스캔을 요구합니다."
     },
     "kit": {
       "title": "Developer & AI Agent Kit",
@@ -13251,7 +13228,7 @@
         "title": "연결된 인증 플로우",
         "subtitle": "기존 계정의 얼굴 라이브니스용 SmartAccess와 신규 등록 및 링크별 신분증 확인용 SmartEnroll을 선택하세요.",
         "none": "연결 안 됨",
-        "createInProduct": "{{product}}에서 관리",
+        "createInProduct": "{{product}}에서 생성",
         "identifiersStageTitle": "공개 URL 및 허용 식별자",
         "identifiersStageSubtitle": "이메일이나 전화번호 없이 링크를 생성하면 사용자가 아래 식별자를 입력해 자동 라우팅됩니다.",
         "identifiersCountSuffix": "활성",
@@ -13259,7 +13236,11 @@
         "enrollFlowLabel": "신규 사용자 또는 신분증 요구 링크 (SmartEnroll)",
         "autoResolve": "활성 워크스페이스 프로젝트 자동 선택",
         "autoRuleTitle": "모든 링크에 적용되는 자동 라우팅",
-        "autoRuleBody": "기존 계정 + 기본 링크 -> 얼굴 라이브니스만 진행. 기존 계정 + 링크별 requireDocument=true -> 신분증 + 얼굴 확인. 신규 사용자 -> 신분증 + 얼굴 등록. 신분증 요구는 항상 링크별로 선택됩니다."
+        "autoRuleBody": "기존 계정 + 기본 링크 -> 얼굴 라이브니스만 진행. 기존 계정 + 링크별 requireDocument=true -> 신분증 + 얼굴 확인. 신규 사용자 -> 신분증 + 얼굴 등록. 신분증 요구는 항상 링크별로 선택됩니다.",
+        "autoResolveBannerTitle": "워크스페이스 자동 연결 활성화됨",
+        "autoResolveBannerBody": "자동 선택 시 SmartLink가 워크스페이스에서 가장 최근의 활성 SmartAccess 및 SmartEnroll 플로우로 자동 라우팅합니다.",
+        "noEnginesWarningTitle": "활성화된 인증 플로우가 없습니다",
+        "noEnginesWarningBody": "자동 라우팅을 위해 SmartAccess 또는 SmartEnroll 프로젝트를 하나 이상 생성하세요."
       },
       "step2": {
         "title": "Recognition, Step-Up & Security",
@@ -13283,7 +13264,12 @@
         "kybRecertifyDays": "Recertify KYB every N days",
         "ttlMinutes": "Default session TTL (minutes)",
         "maxUses": "Max uses per link (0 = unlimited)",
-        "allowedCountries": "Allowed Countries"
+        "allowedCountries": "Allowed Countries",
+        "stepUpStatusOff": "꺼짐",
+        "stepUpEnabled": "단계별 재인증(Step-Up) 활성화",
+        "stepUpEnabledHint": "만료된 신분증이나 기간이 지난 생체 인증을 재확인하도록 요청합니다.",
+        "reverifyFaceDaysHint": "1에서 3650일 사이의 값을 입력하세요(비워두면 기간 확인 건너뜀).",
+        "reverifyFaceDaysRangeError": "1에서 3650 사이의 일수를 입력하세요."
       },
       "step3": {
         "title": "완료 전달, 웹훅, 제한 및 AI 키트",
@@ -13387,7 +13373,9 @@
       "colUses": "사용 횟수",
       "colCreated": "생성일",
       "rowActions": "링크 작업",
-      "emptyFiltered": "활성 검색어나 필터와 일치하는 SmartLink가 없습니다."
+      "emptyFiltered": "활성 검색어나 필터와 일치하는 SmartLink가 없습니다.",
+      "exportCsvBtn": "CSV 내보내기",
+      "exportedCsvToast": "{{count}}개의 SmartLink를 CSV로 내보냈습니다."
     },
     "sessionDetail": {
       "title": "SmartLink 상세 보고서",
@@ -13421,7 +13409,11 @@
       "dev_identityProof": "신원 및 증명 클레임",
       "dev_interactions": "상호작용 타임라인",
       "dev_dispatches": "발송 내역",
-      "dev_linkedVerification": "연결된 검증 기록"
+      "dev_linkedVerification": "연결된 검증 기록",
+      "autoRefreshPill": "자동 새로고침 (5초)",
+      "signedUrlHiddenTitle": "서명된 링크 URL 숨김",
+      "signedUrlHiddenBody": "서명 전용 보안이 활성화되어 기존 URL을 다시 조회할 수 없습니다.",
+      "reissueFreshUrlQrBtn": "새 URL 및 QR을 받으려면 링크 재발급"
     },
     "dialogs": {
       "editTitle": "SmartLink 수정",
@@ -13453,7 +13445,11 @@
       "revokedToast": "SmartLink가 철회되었습니다.",
       "deletedToast": "SmartLink가 삭제되었습니다.",
       "bulkDeletedToast": "{{count}}개의 SmartLink가 삭제되었습니다.",
-      "bulkRevokedToast": "{{count}}개의 SmartLink가 철회되었습니다."
+      "bulkRevokedToast": "{{count}}개의 SmartLink가 철회되었습니다.",
+      "deleteHubTitle": "SmartLink 허브를 삭제하시겠습니까?",
+      "deleteHubBody": "SmartLink 허브 \"{{name}}\" 및 해당 플로우 설정을 영구적으로 삭제합니다.",
+      "deleteHubError": "SmartLink 허브를 삭제할 수 없습니다.",
+      "deleteHubToast": "SmartLink 허브가 삭제되었습니다."
     }
   }
 }
