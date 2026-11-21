@@ -13173,7 +13173,8 @@
       "batchDone": "已发送 {{sent}} / {{total}} 个链接。",
       "sendCsvBtn": "启动 CSV 活动",
       "csvRequireDocLabel": "为所有 CSV 行强制要求证件扫描",
-      "csvRequireDocHint": "覆盖单行可选配置，要求每个链接都扫描身份证件。"
+      "csvRequireDocHint": "覆盖单行可选配置，要求每个链接都扫描身份证件。",
+      "batchQueued": "已将 {{total}} 个链接加入后台发送队列。"
     },
     "kit": {
       "title": "开发者与 AI 代理套件",

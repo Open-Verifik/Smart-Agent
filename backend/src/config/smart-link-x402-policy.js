@@ -9,6 +9,8 @@
  * and the proxy returns only the session that call created.
  */
 
+const path = require("path");
+
 const SMART_LINK_CREATE_TOOL_ID = "smart_link_create_session";
 
 /** Floor used when the create tool is missing a positive priceUsd. */
@@ -55,20 +57,27 @@ const resolveProxyPath = (ctxPath, targetUrlHeader) => {
 
 /**
  * Public `/api/v3/...` and upstream `/v3/...` paths share one comparison form.
+ * Normalizes dot-segments, duplicate slashes, and percent-encoded traversal.
  * @param {string} pathname
  * @returns {string}
  */
 const toVerifikPath = (pathname) => {
 	if (!pathname || typeof pathname !== "string") return "";
-	let path = pathname.split("?")[0].split("#")[0];
-	try {
-		path = decodeURIComponent(path);
-	} catch {
-		// Keep the raw path when it is not valid percent-encoding.
+	let raw = pathname.split("?")[0].split("#")[0];
+	for (let pass = 0; pass < 2; pass += 1) {
+		try {
+			const decoded = decodeURIComponent(raw);
+			if (decoded === raw) break;
+			raw = decoded;
+		} catch {
+			break;
+		}
 	}
-	if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
-	if (path.startsWith("/api/v3/")) path = `/v3/${path.slice("/api/v3/".length)}`;
-	return path;
+	raw = raw.replace(/\\/g, "/").replace(/\/+/g, "/");
+	let normalized = path.posix.normalize(raw.startsWith("/") ? raw : `/${raw}`).toLowerCase();
+	if (normalized.length > 1 && normalized.endsWith("/")) normalized = normalized.slice(0, -1);
+	if (normalized.startsWith("/api/v3/")) normalized = `/v3/${normalized.slice("/api/v3/".length)}`;
+	return normalized;
 };
 
 /**
@@ -78,9 +87,9 @@ const toVerifikPath = (pathname) => {
  */
 const isSmartLinkSessionCreate = (method, pathname) => {
 	if (String(method || "").toUpperCase() !== "POST") return false;
-	const path = toVerifikPath(pathname);
-	if (path === "/v3/smart-links/sessions") return true;
-	const parts = path.split("/").filter(Boolean);
+	const cleanPath = toVerifikPath(pathname);
+	if (cleanPath === "/v3/smart-links/sessions") return true;
+	const parts = cleanPath.split("/").filter(Boolean);
 	// POST /v3/smart-links/:projectId/sessions — not /sessions/status or /sessions/:id.
 	return (
 		parts.length === 4 &&
@@ -92,16 +101,17 @@ const isSmartLinkSessionCreate = (method, pathname) => {
 };
 
 /**
- * List, status, read, update, delete, exchange, resend, revoke, and bulk
- * session routes. Session creation is excluded.
+ * List, status, read, update, delete, exchange, resend, revoke, bulk, dispatch,
+ * and analytics routes. Session creation and public end-user routes are excluded.
  * @param {string} method
  * @param {string} pathname
  * @returns {boolean}
  */
 const isSmartLinkSessionManagement = (method, pathname) => {
-	const path = toVerifikPath(pathname);
-	if (!path.startsWith("/v3/smart-links/") || !path.includes("/sessions")) return false;
-	return !isSmartLinkSessionCreate(method, path);
+	const cleanPath = toVerifikPath(pathname);
+	if (cleanPath !== "/v3/smart-links" && !cleanPath.startsWith("/v3/smart-links/")) return false;
+	if (cleanPath === "/v3/smart-links/public" || cleanPath.startsWith("/v3/smart-links/public/")) return false;
+	return !isSmartLinkSessionCreate(method, cleanPath);
 };
 
 /**

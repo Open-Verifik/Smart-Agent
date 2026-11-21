@@ -13173,7 +13173,8 @@
       "batchDone": "링크 {{total}}개 중 {{sent}}개를 발송했습니다.",
       "sendCsvBtn": "CSV 캠페인 시작",
       "csvRequireDocLabel": "모든 CSV 행에 신분증 제출 필수 적용",
-      "csvRequireDocHint": "행별 선택 설정을 재정의하고 모든 링크에서 신분증 스캔을 요구합니다."
+      "csvRequireDocHint": "행별 선택 설정을 재정의하고 모든 링크에서 신분증 스캔을 요구합니다.",
+      "batchQueued": "백그라운드 전송을 위해 링크 {{total}}개를 대기열에 추가했습니다."
     },
     "kit": {
       "title": "개발자 및 AI 에이전트 키트",

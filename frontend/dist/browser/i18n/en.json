@@ -13105,7 +13105,8 @@
       "batchDone": "Dispatched {{sent}} of {{total}} links.",
       "sendCsvBtn": "Launch CSV Campaign",
       "csvRequireDocLabel": "Require ID document for all CSV rows",
-      "csvRequireDocHint": "Overrides optional per-row requireDocument values and enforces an ID scan on every link."
+      "csvRequireDocHint": "Overrides optional per-row requireDocument values and enforces an ID scan on every link.",
+      "batchQueued": "Queued {{total}} links for background delivery."
     },
     "kit": {
       "title": "Developer & AI Agent Kit",

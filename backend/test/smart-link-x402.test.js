@@ -78,15 +78,26 @@ describe("SmartLink x402 session boundary", () => {
 		}
 	});
 
-	it("classifies create separately from session reads and changes", () => {
+	it("classifies create and public routes separately from tenant session, dispatch, and analytics routes", () => {
 		assert.equal(isSmartLinkSessionCreate("POST", "/api/v3/smart-links/sessions"), true);
 		assert.equal(isSmartLinkSessionCreate("POST", "/v3/smart-links/project_123/sessions"), true);
 		assert.equal(isSmartLinkSessionCreate("GET", "/v3/smart-links/sessions"), false);
 		assert.equal(isSmartLinkSessionManagement("POST", "/api/v3/smart-links/sessions"), false);
+		assert.equal(isSmartLinkSessionManagement("POST", "/v3/smart-links/project_123/sessions"), false);
 		for (const [method, path] of blockedPaths) {
 			assert.equal(isSmartLinkSessionManagement(method, path), true, `${method} ${path}`);
 		}
-		assert.equal(isSmartLinkSessionManagement("GET", "/v3/smart-links/project_123/analytics"), false);
+		// Analytics, dispatch, and normalized traversal / casing variants must also require per-client credentials.
+		assert.equal(isSmartLinkSessionManagement("GET", "/v3/smart-links/project_123/analytics"), true);
+		assert.equal(isSmartLinkSessionManagement("GET", "/api/v3/smart-links/project_123/analytics"), true);
+		assert.equal(isSmartLinkSessionManagement("POST", "/v3/smart-links/project_123/dispatch"), true);
+		assert.equal(isSmartLinkSessionManagement("GET", "/api/v3/smart-links/public/../sessions"), true);
+		assert.equal(isSmartLinkSessionManagement("GET", "/api//v3/smart-links/sessions"), true);
+		assert.equal(isSmartLinkSessionManagement("GET", "/api/v3/SMART-LINKS/sessions"), true);
+		assert.equal(isSmartLinkSessionManagement("GET", "/api/v3/smart-links/%2e%2e/smart-links/sessions"), true);
+		// Public end-user runtime endpoints remain accessible without client Bearer auth.
+		assert.equal(isSmartLinkSessionManagement("GET", "/v3/smart-links/public/resolve/acme-demo"), false);
+		assert.equal(isSmartLinkSessionManagement("POST", "/api/v3/smart-links/public/lookup"), false);
 	});
 
 	it("accepts a client bearer token and rejects the shared service token", () => {

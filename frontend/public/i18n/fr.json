@@ -13140,7 +13140,8 @@
       "batchDone": "{{sent}} liens envoyés sur {{total}}.",
       "sendCsvBtn": "Lancer la campagne CSV",
       "csvRequireDocLabel": "Exiger une pièce d'identité pour toutes les lignes CSV",
-      "csvRequireDocHint": "Remplace la colonne optionnelle par ligne et impose le scan du document sur chaque lien."
+      "csvRequireDocHint": "Remplace la colonne optionnelle par ligne et impose le scan du document sur chaque lien.",
+      "batchQueued": "{{total}} liens mis en file d'attente pour un envoi en arrière-plan."
     },
     "kit": {
       "title": "Kit développeur et agent IA",

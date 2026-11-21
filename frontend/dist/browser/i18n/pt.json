@@ -13173,7 +13173,8 @@
       "batchDone": "{{sent}} de {{total}} links enviados.",
       "sendCsvBtn": "Iniciar campanha CSV",
       "csvRequireDocLabel": "Exigir documento de identidade em todas as linhas CSV",
-      "csvRequireDocHint": "Substitui o valor opcional por linha e exige digitalização de documento em cada link."
+      "csvRequireDocHint": "Substitui o valor opcional por linha e exige digitalização de documento em cada link.",
+      "batchQueued": "{{total}} links enfileirados para envio em segundo plano."
     },
     "kit": {
       "title": "Kit para desenvolvedores e agentes de IA",

@@ -13173,7 +13173,8 @@
       "batchDone": "{{total}} 件中 {{sent}} 件のリンクを送信しました。",
       "sendCsvBtn": "CSV キャンペーンを開始",
       "csvRequireDocLabel": "すべてのCSV行で本人確認書類を必須にする",
-      "csvRequireDocHint": "行ごとの設定を上書きし、すべてのリンクで書類スキャンを必須にします。"
+      "csvRequireDocHint": "行ごとの設定を上書きし、すべてのリンクで書類スキャンを必須にします。",
+      "batchQueued": "{{total}} 件のリンクをバックグラウンド配信キューに追加しました。"
     },
     "kit": {
       "title": "開発者・AI エージェントキット",
