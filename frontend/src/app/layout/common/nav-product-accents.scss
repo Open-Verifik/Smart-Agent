@@ -11,6 +11,10 @@
     --product: rgb(79 70 229);
     --product-soft: rgb(238 242 255);
 }
+.nav-product--reports {
+    --product: rgb(109 40 217);
+    --product-soft: rgb(245 243 255);
+}
 .nav-product--fleet {
     --product: rgb(217 119 6);
     --product-soft: rgb(255 247 237);
@@ -43,6 +47,10 @@
 .dark .nav-product--check {
     --product: rgb(165 180 252);
     --product-soft: rgb(79 70 229 / 18%);
+}
+.dark .nav-product--reports {
+    --product: rgb(196 181 253);
+    --product-soft: rgb(109 40 217 / 22%);
 }
 .dark .nav-product--fleet {
     --product: rgb(251 191 36);

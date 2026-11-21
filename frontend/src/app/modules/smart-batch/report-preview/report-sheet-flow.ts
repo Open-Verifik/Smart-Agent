@@ -18,6 +18,8 @@ export interface SheetFlowInput {
     height: number;
     natural: number;
     growable: boolean;
+    /** The designer sized this box. It stays at `height` instead of growing to every row. */
+    capped?: boolean;
     left: number;
     width: number;
     chrome: number;
@@ -65,7 +67,7 @@ function layoutFlowItems(items: SheetFlowInput[]): PlacedFlow[] {
         .sort((left, right) => left.item.top - right.item.top || left.index - right.index)
         .map(({ item }) => ({
             ...item,
-            growth: item.growable ? Math.max(0, Math.round(item.natural - item.height)) : 0,
+            growth: item.growable && !item.capped ? Math.max(0, Math.round(item.natural - item.height)) : 0,
             shift: 0,
         }));
 
@@ -166,7 +168,8 @@ function packFlowRows(
     chrome: number,
     pageHeight: number,
     contentEnd: number,
-    inset: number
+    inset: number,
+    firstBox?: number
 ): PackedRows[] {
     const stride = Math.max(1, pageHeight);
     const slices: PackedRows[] = [];
@@ -186,7 +189,9 @@ function packFlowRows(
     for (const raw of rowHeights) {
         const rowH = Math.max(1, Math.round(Number(raw) || 0));
         const pageStart = Math.floor(Math.max(0, slice!.y) / stride) * stride;
-        const room = pageStart + contentEnd - (slice!.y + slice!.h);
+        const pageRoom = pageStart + contentEnd - (slice!.y + slice!.h);
+        const room =
+            firstBox != null && slices.length === 1 ? Math.min(pageRoom, firstBox - slice!.h) : pageRoom;
         if (slice!.count > 0 && rowH > room) open(pageStart + stride + inset);
         slice!.h += rowH;
         slice!.count += 1;
@@ -217,9 +222,19 @@ export function placeSheetFlow(
 
     for (const item of laid) {
         const authoredGlobal = item.authoredPage * pageHeight + item.authoredY;
-        const canSplit = item.growable && item.rowHeights.length > 1 && crossesContent(item.y, item.h, pageHeight, end);
+        const overflowsBox = !!item.capped && item.natural > item.height + 2;
+        const canSplit =
+            item.growable && item.rowHeights.length > 1 && (crossesContent(item.y, item.h, pageHeight, end) || overflowsBox);
         const packed = canSplit
-            ? packFlowRows(item.rowHeights, item.y, Math.max(1, item.chrome), pageHeight, end, inset)
+            ? packFlowRows(
+                  item.rowHeights,
+                  item.y,
+                  Math.max(1, item.chrome),
+                  pageHeight,
+                  end,
+                  inset,
+                  item.capped ? item.height : undefined
+              )
             : [{ y: item.y, h: item.h, start: 0, count: item.rowHeights.length }];
         const parts = packed.filter((part) => part.count > 0 || !canSplit);
         const allRows = parts.length === 1 && (!canSplit || parts[0].count >= item.rowHeights.length);
@@ -237,11 +252,13 @@ export function placeSheetFlow(
         parts.forEach((part, index) => {
             const page = Math.max(0, Math.floor(Math.max(0, part.y) / pageHeight));
             const local = part.y - page * pageHeight;
+            const pageRoom = Math.max(1, end - local);
+            const drawn = item.capped && index === 0 ? Math.min(pageRoom, Math.max(part.h, item.height)) : part.h;
             slices.push({
                 sectionId: item.sectionId,
                 page,
                 y: local,
-                height: Math.max(1, part.h),
+                height: Math.max(1, drawn),
                 rowStart: allRows ? 0 : part.start,
                 rowEnd: allRows ? -1 : part.start + part.count,
                 continuation: index > 0,
