@@ -51,10 +51,16 @@ export function interactionIcon(type: SmartLinkInteractionEvent['type']): string
     switch (type) {
         case 'CREATED':
             return 'add_link';
+        case 'CHILD_SPAWNED':
+            return 'call_split';
         case 'DISPATCHED':
             return 'send';
         case 'OPENED':
             return 'visibility';
+        case 'OTP_SENT':
+            return 'sms';
+        case 'OTP_VERIFIED':
+            return 'mark_email_read';
         case 'IDENTIFIER_SUBMITTED':
             return 'alternate_email';
         case 'ROUTED':
@@ -84,8 +90,12 @@ export function interactionBadgeClass(type: SmartLinkInteractionEvent['type']): 
     switch (type) {
         case 'COMPLETED':
         case 'TOKEN_EXCHANGED':
+        case 'OTP_VERIFIED':
             return 'bg-emerald-600 text-white dark:bg-emerald-500';
+        case 'CHILD_SPAWNED':
+            return 'bg-indigo-600 text-white dark:bg-indigo-500';
         case 'OPENED':
+        case 'OTP_SENT':
         case 'ROUTED':
         case 'IN_PROGRESS':
         case 'IDENTIFIER_SUBMITTED':

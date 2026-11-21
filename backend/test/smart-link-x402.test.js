@@ -6,9 +6,11 @@ const buildOpenApiFromManifest = require("../src/utils/buildOpenApiFromManifest"
 const { buildWellKnownX402 } = buildOpenApiFromManifest;
 const config = require("../src/config");
 const guard = require("../src/middleware/smartLinkSessionGuard");
+const x402Middleware = require("../src/middleware/x402");
 const {
 	SMART_LINK_CREATE_PRICE_USD,
 	isPerClientCredential,
+	isSmartLinkPublicStatusPoll,
 	isSmartLinkSessionCreate,
 	isSmartLinkSessionManagement,
 	scopeCreatedSessionBody,
@@ -98,6 +100,106 @@ describe("SmartLink x402 session boundary", () => {
 		// Public end-user runtime endpoints remain accessible without client Bearer auth.
 		assert.equal(isSmartLinkSessionManagement("GET", "/v3/smart-links/public/resolve/acme-demo"), false);
 		assert.equal(isSmartLinkSessionManagement("POST", "/api/v3/smart-links/public/lookup"), false);
+		assert.equal(isSmartLinkSessionManagement("GET", "/api/v3/smart-links/public/sessions/AB12CD/status"), false);
+
+		assert.equal(isSmartLinkPublicStatusPoll("GET", "/v3/smart-links/public/sessions/AB12CD/status"), true);
+		assert.equal(isSmartLinkPublicStatusPoll("GET", "/api/v3/smart-links/public/sessions/AB12CD/status"), true);
+		assert.equal(isSmartLinkPublicStatusPoll("POST", "/api/v3/smart-links/public/sessions/AB12CD/status"), false);
+		assert.equal(
+			isSmartLinkPublicStatusPoll("GET", "/api/v3/smart-links/public/sessions/../sessions/status"),
+			false,
+		);
+		assert.equal(isSmartLinkPublicStatusPoll("GET", "/v3/smart-links/sessions/status"), false);
+	});
+
+	it("bypasses x402 payment requirement for public single-session status polling", async () => {
+		let nextCalled = false;
+		const ctx = {
+			method: "GET",
+			path: "/api/v3/smart-links/public/sessions/AB12CD/status",
+			header: {},
+			set() {},
+		};
+		await x402Middleware(ctx, async () => {
+			nextCalled = true;
+		});
+		assert.equal(nextCalled, true);
+		assert.equal(ctx.status, undefined);
+	});
+
+	it("preserves statusToken, statusUrl, and multi-use template metadata in scoped create responses", () => {
+		const scoped = scopeCreatedSessionBody({
+			data: {
+				sessionId: "sess_multi",
+				shortCode: "MULTI1",
+				url: "https://access.example/l/MULTI1",
+				state: "CREATED",
+				maxUses: 5,
+				useCount: 0,
+				isMultiUseTemplate: true,
+				statusToken: "slt_readonly_secret",
+				statusUrl: "https://access.example/v3/smart-links/public/sessions/MULTI1/status?statusToken=slt_readonly_secret",
+				outcome: { verificationToken: "should-strip" },
+			},
+		});
+		assert.equal(scoped.ok, true);
+		assert.equal(scoped.body.data.maxUses, 5);
+		assert.equal(scoped.body.data.useCount, 0);
+		assert.equal(scoped.body.data.isMultiUseTemplate, true);
+		assert.equal(scoped.body.data.statusToken, "slt_readonly_secret");
+		assert.match(scoped.body.data.statusUrl, /statusToken=slt_readonly_secret/);
+		assert.equal(scoped.body.data.outcome, undefined);
+	});
+
+	it("boots under VERCEL=1 without read-only FS crashes and serves /.well-known/x402 and /openapi.json", async () => {
+		const http = require("http");
+		const prevVercel = process.env.VERCEL;
+		process.env.VERCEL = "1";
+		const reloadTargets = [
+			"../src/index",
+			"../src/utils/storageDir",
+			"../src/utils/txTracker",
+			"../src/repositories/conversation.repository",
+			"../src/controllers/agent.controller",
+			"../src/routes/unprotected",
+		];
+		for (const rel of reloadTargets) {
+			delete require.cache[require.resolve(rel)];
+		}
+		let server;
+		try {
+			const app = require("../src/index");
+			server = http.createServer(app.callback());
+			await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+			const { port } = server.address();
+
+			const [wellKnownRes, openApiRes] = await Promise.all([
+				fetch(`http://127.0.0.1:${port}/.well-known/x402`),
+				fetch(`http://127.0.0.1:${port}/openapi.json`),
+			]);
+			assert.equal(wellKnownRes.status, 200);
+			assert.equal(openApiRes.status, 200);
+
+			const wellKnownJson = await wellKnownRes.json();
+			const openApiJson = await openApiRes.json();
+			assert.ok(Array.isArray(wellKnownJson.resources));
+			const createProps =
+				openApiJson.paths["/api/v3/smart-links/sessions"].post.responses["200"].content["application/json"].schema
+					.properties.data.properties;
+			assert.ok(createProps.statusToken);
+			assert.ok(createProps.statusUrl);
+			assert.ok(createProps.isMultiUseTemplate);
+			assert.ok(createProps.maxUses);
+		} finally {
+			if (server) {
+				await new Promise((resolve) => server.close(resolve));
+			}
+			if (prevVercel === undefined) {
+				delete process.env.VERCEL;
+			} else {
+				process.env.VERCEL = prevVercel;
+			}
+		}
 	});
 
 	it("accepts a client bearer token and rejects the shared service token", () => {
