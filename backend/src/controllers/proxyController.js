@@ -8,13 +8,13 @@ const {
     scopeCreatedSessionBody,
 } = require("../config/smart-link-x402-policy");
 
-const VERIFIK_BASE_URL = config.verifik.apiUrl;
+const VERIFIK_BASE_URL = config.verifik.apiUrl || "https://api.verifik.co";
 
 /** Lazy-loaded manifest (avoids circular require at startup). */
 let _manifest = null;
 const getManifest = () => {
     if (!_manifest) {
-        _manifest = require(path.resolve(__dirname, "../config/tools-manifest.json"));
+        _manifest = require("../config/tools-manifest.json");
     }
     return _manifest;
 };
