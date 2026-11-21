@@ -13308,7 +13308,10 @@
       "rowActions": "Acciones del enlace",
       "emptyFiltered": "Ningún SmartLink coincide con la búsqueda o los filtros activos.",
       "exportCsvBtn": "Exportar CSV",
-      "exportedCsvToast": "Se exportaron {{count}} enlace(s) a CSV."
+      "exportedCsvToast": "Se exportaron {{count}} enlace(s) a CSV.",
+      "multiUseBadge": "Plantilla multiuso",
+      "childUseBadge": "Uso derivado",
+      "awaitingReviewBadge": "En revisión"
     },
     "sessionDetail": {
       "title": "Expediente del SmartLink",
@@ -13346,7 +13349,9 @@
       "autoRefreshPill": "Auto-actualizar (5s)",
       "signedUrlHiddenTitle": "URL firmada oculta",
       "signedUrlHiddenBody": "La seguridad de enlaces firmados está activa en este hub y no se puede consultar la URL anterior.",
-      "reissueFreshUrlQrBtn": "Reemitir enlace para obtener URL y QR nuevos"
+      "reissueFreshUrlQrBtn": "Reemitir enlace para obtener URL y QR nuevos",
+      "awaitingAsyncTitle": "En espera de verificación manual o firma corporativa",
+      "awaitingAsyncBody": "Este SmartLink permanece en progreso hasta que finalice la revisión KYC o los representantes legales KYB. Los webhooks y consultas de estado se actualizarán automáticamente."
     },
     "dialogs": {
       "editTitle": "Editar SmartLink",

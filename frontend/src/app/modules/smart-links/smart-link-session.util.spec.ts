@@ -63,11 +63,17 @@ describe('smart-link-session.util', () => {
         expect(sessionStatePillClass('CREATED')).toContain('stone');
 
         expect(interactionIcon('CREATED')).toBe('add_link');
+        expect(interactionIcon('CHILD_SPAWNED')).toBe('call_split');
         expect(interactionIcon('OPENED')).toBe('visibility');
+        expect(interactionIcon('OTP_SENT')).toBe('sms');
+        expect(interactionIcon('OTP_VERIFIED')).toBe('mark_email_read');
         expect(interactionIcon('IN_PROGRESS')).toBe('hourglass_top');
         expect(interactionIcon('COMPLETED')).toBe('verified');
         expect(interactionIcon('TOKEN_EXCHANGED')).toBe('key');
         expect(interactionBadgeClass('COMPLETED')).toContain('emerald');
+        expect(interactionBadgeClass('OTP_VERIFIED')).toContain('emerald');
+        expect(interactionBadgeClass('CHILD_SPAWNED')).toContain('indigo');
+        expect(interactionBadgeClass('OTP_SENT')).toContain('blue');
         expect(interactionBadgeClass('IN_PROGRESS')).toContain('blue');
         expect(interactionBadgeClass('FAILED')).toContain('red');
         expect(interactionBadgeClass('REVOKED')).toContain('amber');

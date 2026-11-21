@@ -1,16 +1,25 @@
 const fs = require("fs");
 const path = require("path");
+const { getStorageDir, ensureStorageDir } = require("./storageDir");
 
-const DATA_DIR = path.resolve(__dirname, "../../data");
-const FILE_PATH = path.join(DATA_DIR, "processed_txs.json");
+const getDataDir = () => getStorageDir();
+const getFilePath = () => path.join(getDataDir(), "processed_txs.json");
+const memoryFallbackTxs = new Set();
 
-if (!fs.existsSync(DATA_DIR)) {
-	fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-if (!fs.existsSync(FILE_PATH)) {
-	fs.writeFileSync(FILE_PATH, JSON.stringify([]));
-}
+const ensureTxFile = () => {
+	const dir = ensureStorageDir();
+	if (!dir) return null;
+	const filePath = path.join(dir, "processed_txs.json");
+	try {
+		if (!fs.existsSync(filePath)) {
+			fs.writeFileSync(filePath, JSON.stringify([]));
+		}
+		return filePath;
+	} catch (err) {
+		console.warn("[TxTracker] Failed to initialize tx file:", err.message);
+		return null;
+	}
+};
 
 /**
  * Compose a chain-scoped replay key so the same tx hash on two chains
@@ -28,8 +37,10 @@ const buildKey = (txHash, chainId) => {
 };
 
 const readEntries = () => {
+	const filePath = getFilePath();
+	if (!fs.existsSync(filePath)) return [];
 	try {
-		const content = fs.readFileSync(FILE_PATH, "utf8");
+		const content = fs.readFileSync(filePath, "utf8");
 		return JSON.parse(content || "[]");
 	} catch (e) {
 		console.error("Error reading processed_txs:", e);
@@ -42,8 +53,10 @@ const readEntries = () => {
  * @param {number|string} [chainId]
  */
 const isUsed = (txHash, chainId) => {
-	const data = readEntries();
 	const key = buildKey(txHash, chainId);
+	if (key && memoryFallbackTxs.has(key)) return true;
+	if (chainId !== undefined && txHash && memoryFallbackTxs.has(txHash)) return true;
+	const data = readEntries();
 	if (data.includes(key)) return true;
 	// Backwards compat: legacy entries stored without chain prefix.
 	if (chainId !== undefined && data.includes(txHash)) return true;
@@ -55,12 +68,17 @@ const isUsed = (txHash, chainId) => {
  * @param {number|string} [chainId]
  */
 const markUsed = (txHash, chainId) => {
+	const key = buildKey(txHash, chainId);
+	if (key) {
+		memoryFallbackTxs.add(key);
+	}
 	try {
+		const filePath = ensureTxFile();
+		if (!filePath || !key) return;
 		const data = readEntries();
-		const key = buildKey(txHash, chainId);
-		if (key && !data.includes(key)) {
+		if (!data.includes(key)) {
 			data.push(key);
-			fs.writeFileSync(FILE_PATH, JSON.stringify(data, null, 2));
+			fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 		}
 	} catch (e) {
 		console.error("Failed to mark tx used:", e);
