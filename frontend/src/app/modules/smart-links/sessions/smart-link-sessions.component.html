@@ -349,7 +349,7 @@
                                             <mat-icon>edit</mat-icon>
                                             <span>{{ t('smartLinks.actions.editLink') }}</span>
                                         </button>
-                                        @if (row.state !== 'COMPLETED') {
+                                        @if (row.state !== 'COMPLETED' && row.state !== 'REVOKED') {
                                             <button mat-menu-item type="button" (click)="openResendDialog(row)">
                                                 <mat-icon>send</mat-icon>
                                                 <span>{{ t('smartLinks.actions.resendLink') }}</span>
