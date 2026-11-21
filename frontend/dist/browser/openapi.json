@@ -4,11 +4,11 @@
     "title": "Verifik AI — x402 KYC & Verifik proxy",
     "version": "1.0.0",
     "description": "x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware.",
-    "x-guidance": "Verifik Smart Agent proxy API — base URL: https://ai.verifik.co\n\nPAYMENT (x402): Most clients call concrete paths under /v2 or /v3. Without a valid Verifik **user** Bearer JWT, the API responds **402 Payment Required** until you pay.\n- Submit on-chain payment, then retry with header **x-payment-tx** set to the transaction hash (or **Authorization: L402 <txHash>**).\n- Optional **x-payment-chain-id** (decimal or 0x hex) selects the settlement chain; default is Avalanche C-Chain. Assets: native gas token, USDC, or VKA where configured — see runtime 402 JSON for chain-specific fields.\n\nCREDITS BYPASS: **Authorization: Bearer <user JWT>** (a normal Verifik client token, not the server service token) skips on-chain payment for the same routes.\n\nALTERNATE ENTRY: **GET/POST /api/proxy** with required header **x-target-url** pointing at the same /v2 or /v3 path (absolute or relative). Price is resolved from that target path. Prefer documented /v2 and /v3 operations when possible.\n\nOpenAPI is canonical for listing; **/.well-known/x402** lists payable resource strings (METHOD + path)."
+    "x-guidance": "Verifik Smart Agent proxy API — base URL: https://sandbox.verifik.co\n\nPAYMENT (x402): Most clients call concrete paths under /v2 or /v3. Without a valid Verifik **user** Bearer JWT, the API responds **402 Payment Required** until you pay.\n- Submit on-chain payment, then retry with header **x-payment-tx** set to the transaction hash (or **Authorization: L402 <txHash>**).\n- Optional **x-payment-chain-id** (decimal or 0x hex) selects the settlement chain; default is Avalanche C-Chain. Assets: native gas token, USDC, or VKA where configured — see runtime 402 JSON for chain-specific fields.\n\nCREDITS BYPASS: **Authorization: Bearer <user JWT>** (a normal Verifik client token, not the server service token) skips on-chain payment for the same routes.\n\nALTERNATE ENTRY: **GET/POST /api/proxy** with required header **x-target-url** pointing at the same /v2 or /v3 path (absolute or relative). Price is resolved from that target path. Prefer documented /v2 and /v3 operations when possible.\n\nOpenAPI is canonical for listing; **/.well-known/x402** lists payable resource strings (METHOD + path)."
   },
   "servers": [
     {
-      "url": "https://ai.verifik.co"
+      "url": "https://sandbox.verifik.co"
     }
   ],
   "tags": [
@@ -12709,7 +12709,7 @@
         ],
         "operationId": "smart_link_create_session",
         "summary": "SmartLink: Create Signed Verification Link",
-        "description": "Generate one signed SmartLink verification URL and QR code. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on this link to also require an ID document scan. This call is priced. The response contains only the session created by this request. Listing, reading, updating, or deleting sessions requires the caller's own API key or JWT.",
+        "description": "Generate one signed SmartLink verification URL and QR code. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on this link to also require an ID document scan. This call is priced. The response contains only the session created by this request plus a single-session read-only statusToken and statusUrl for polling GET /v3/smart-links/public/sessions/{shortCode}/status without an account JWT or x402 payment. Listing, reading, updating, or deleting tenant sessions requires the caller's own API key or JWT.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -12764,6 +12764,21 @@
                         },
                         "requireDocument": {
                           "type": "boolean"
+                        },
+                        "maxUses": {
+                          "type": "number"
+                        },
+                        "useCount": {
+                          "type": "number"
+                        },
+                        "isMultiUseTemplate": {
+                          "type": "boolean"
+                        },
+                        "statusToken": {
+                          "type": "string"
+                        },
+                        "statusUrl": {
+                          "type": "string"
                         },
                         "requestedMode": {
                           "type": "string"
@@ -12832,6 +12847,10 @@
                   "requireDocument": {
                     "type": "boolean",
                     "description": "Per-link override (default false). When true, requires an ID document scan in addition to Face Liveness even if the user already has a registered account."
+                  },
+                  "maxUses": {
+                    "type": "number",
+                    "description": "Maximum allowed completions for this link: 1 for single-use (default), 0 for unlimited template spawning per-use child sessions, or >1 for multi-use quota template."
                   },
                   "completionMode": {
                     "type": "string",

@@ -13343,7 +13343,10 @@
       "rowActions": "Actions du lien",
       "emptyFiltered": "Aucun SmartLink ne correspond à la recherche ou aux filtres actifs.",
       "exportCsvBtn": "Exporter CSV",
-      "exportedCsvToast": "{{count}} lien(s) SmartLink exporté(s) en CSV."
+      "exportedCsvToast": "{{count}} lien(s) SmartLink exporté(s) en CSV.",
+      "multiUseBadge": "Modèle multi-usage",
+      "childUseBadge": "Utilisation dérivée",
+      "awaitingReviewBadge": "En attente de révision"
     },
     "sessionDetail": {
       "title": "Dossier SmartLink",
@@ -13381,7 +13384,9 @@
       "autoRefreshPill": "Actualisation auto (5s)",
       "signedUrlHiddenTitle": "URL signée masquée",
       "signedUrlHiddenBody": "Le mode lien signé est actif sur ce hub ; l'URL précédente ne peut pas être réaffichée.",
-      "reissueFreshUrlQrBtn": "Réémettre le lien pour obtenir URL et QR"
+      "reissueFreshUrlQrBtn": "Réémettre le lien pour obtenir URL et QR",
+      "awaitingAsyncTitle": "En attente de vérification manuelle ou de signature",
+      "awaitingAsyncBody": "Ce SmartLink reste en cours jusqu’à la fin de l’examen KYC ou la validation des représentants KYB. Les webhooks et le statut seront mis à jour automatiquement."
     },
     "dialogs": {
       "editTitle": "Modifier le SmartLink",

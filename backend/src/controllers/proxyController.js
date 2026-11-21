@@ -2,7 +2,11 @@ const axios = require("axios");
 const https = require("https");
 const path = require("path");
 const config = require("../config");
-const { isSmartLinkSessionCreate, scopeCreatedSessionBody } = require("../config/smart-link-x402-policy");
+const {
+    isSmartLinkPublicStatusPoll,
+    isSmartLinkSessionCreate,
+    scopeCreatedSessionBody,
+} = require("../config/smart-link-x402-policy");
 
 const VERIFIK_BASE_URL = config.verifik.apiUrl;
 
@@ -50,9 +54,12 @@ const handleRequest = async (ctx) => {
     } else if (ctx.path.startsWith("/api/")) {
         // New public alias (/api/co/cedula → /v2/co/cedula on Verifik).
         // Prefer manifest verifikPath for precise mapping; fall back to
-        // stripping /api/ and prepending /v2/ as a best-effort default.
+        // stripping /api for /api/v3/* or prepending /v2/ for /api/* routes.
         const verifik = resolveVerifikPath(ctx.path);
-        const upstreamPath = verifik || "/v2/" + ctx.path.replace(/^\/api\/v3\//, "v3/").replace(/^\/api\//, "");
+        const fallbackUpstreamPath = ctx.path.startsWith("/api/v3/")
+            ? ctx.path.replace(/^\/api/, "")
+            : "/v2/" + ctx.path.replace(/^\/api\//, "");
+        const upstreamPath = verifik || fallbackUpstreamPath;
         const baseUrl = VERIFIK_BASE_URL.replace(/\/$/, "");
         targetUrl = `${baseUrl}${upstreamPath}`;
     } else {
@@ -62,21 +69,34 @@ const handleRequest = async (ctx) => {
         targetUrl = `${baseUrl}${targetPath}`;
     }
 
+    let resolvedUpstreamPath = ctx.path;
+    try {
+        resolvedUpstreamPath = new URL(targetUrl).pathname;
+    } catch {
+        // Keep inbound path when targetUrl is relative or unparseable.
+    }
+    const isPublicStatusPoll = isSmartLinkPublicStatusPoll(ctx.method, resolvedUpstreamPath);
+
     // 2. Prepare Headers
     let authHeader = ctx.header.authorization;
 
     // Strict Logic: We only inject the Service Token if the Authorization header is missing
     // AND a payment transaction is present (Postman x402 flow).
-    // This prevents "free" access if the x402 middleware is bypassed without payment.
-    if (!authHeader && ctx.get("x-payment-tx")) {
+    // Public status polls never receive shared service credentials.
+    if (!isPublicStatusPoll && !authHeader && ctx.get("x-payment-tx")) {
         authHeader = `Bearer ${config.verifik.serviceToken}`;
     }
 
     const headers = {
         "Content-Type": "application/json",
-        Authorization: authHeader,
         Accept: "application/json",
     };
+    if (authHeader) {
+        headers.Authorization = authHeader;
+    }
+    if (ctx.get("x-smartlink-status-token")) {
+        headers["x-smartlink-status-token"] = ctx.get("x-smartlink-status-token");
+    }
 
     // Forward Payment Headers
     if (ctx.get("x-payment-tx")) headers["x-payment-tx"] = ctx.get("x-payment-tx");

@@ -11,6 +11,7 @@ const {
 } = require("../config/chains");
 const {
     isSmartLinkCreateTool,
+    isSmartLinkPublicStatusPoll,
     SMART_LINK_CREATE_PRICE_USD,
 } = require("../config/smart-link-x402-policy");
 
@@ -218,6 +219,10 @@ module.exports = async (ctx, next) => {
                 pathToMatch = ctx.header["x-target-url"];
             }
         }
+    }
+
+    if (isSmartLinkPublicStatusPoll(ctx.method, pathToMatch)) {
+        return next();
     }
 
     /**

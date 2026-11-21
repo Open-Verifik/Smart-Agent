@@ -33,6 +33,9 @@ const SESSION_FIELDS = [
 	"createdByChannel",
 	"maxUses",
 	"useCount",
+	"isMultiUseTemplate",
+	"statusToken",
+	"statusUrl",
 ];
 
 const PREFILL_FIELDS = ["email", "phone", "countryCode", "fullName"];
@@ -112,6 +115,12 @@ const isSmartLinkSessionManagement = (method, pathname) => {
 	if (cleanPath !== "/v3/smart-links" && !cleanPath.startsWith("/v3/smart-links/")) return false;
 	if (cleanPath === "/v3/smart-links/public" || cleanPath.startsWith("/v3/smart-links/public/")) return false;
 	return !isSmartLinkSessionCreate(method, cleanPath);
+};
+
+const isSmartLinkPublicStatusPoll = (method, pathname) => {
+	if (String(method || "").toUpperCase() !== "GET") return false;
+	const cleanPath = toVerifikPath(pathname);
+	return /^\/v3\/smart-links\/public\/sessions\/[^/]+\/status$/i.test(cleanPath);
 };
 
 /**
@@ -283,6 +292,7 @@ module.exports = {
 	toVerifikPath,
 	isSmartLinkSessionCreate,
 	isSmartLinkSessionManagement,
+	isSmartLinkPublicStatusPoll,
 	isPerClientCredential,
 	isSmartLinkCreateTool,
 	sanitizeCreatedSession,
