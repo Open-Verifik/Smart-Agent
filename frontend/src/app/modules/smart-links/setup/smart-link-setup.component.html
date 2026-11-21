@@ -1,0 +1,743 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <!-- Sticky blurred header mirroring SmartAccessSetupHostComponent -->
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        >
+            <div class="mx-auto flex w-full max-w-5xl flex-col gap-5">
+                <nav
+                    aria-label="Breadcrumb"
+                    class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+                >
+                    <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a routerLink="/smart-links/projects" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                        {{ t('smartLinks.list.title') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    @if (projectId !== 'new') {
+                        <a
+                            [routerLink]="['/smart-links/projects', projectId]"
+                            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >
+                            {{ form?.value?.['name'] || projectId }}
+                        </a>
+                        <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    }
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">
+                        {{ t('smartLinks.setup.breadcrumbSetup') }}
+                    </span>
+                </nav>
+
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            (click)="returnToProjects()"
+                            class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                            [attr.aria-label]="t('smartLinks.actions.backToList')"
+                        >
+                            <mat-icon>arrow_back</mat-icon>
+                        </button>
+                        <div class="min-w-0">
+                            <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                                {{ projectId === 'new' ? t('smartLinks.setup.newTitle') : (form?.value?.['name'] || t('smartLinks.setup.editTitle')) }}
+                            </h1>
+                            @if (projectId === 'new') {
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartLinks.setup.subtitle') }}
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    @if (projectId !== 'new') {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="shrink-0 rounded-xl"
+                            [disabled]="!canNavigate"
+                            (click)="openLiveSmartLink()"
+                        >
+                            <span class="mr-1">{{ t('smartLinks.setup.openLive') }}</span>
+                            <mat-icon class="!h-4 !w-4">open_in_new</mat-icon>
+                        </button>
+                    }
+                </div>
+
+                @if (form) {
+                    <!-- 4-step progress bar matching SmartAccess -->
+                    <nav aria-label="Progress" class="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex min-w-0 w-full flex-wrap items-center gap-1.5 sm:w-auto sm:flex-1 sm:flex-nowrap sm:overflow-x-auto">
+                            @for (titleKey of stepTitles(); track titleKey; let i = $index) {
+                                <button
+                                    type="button"
+                                    [disabled]="!canNavigate"
+                                    [attr.aria-current]="stepIndex === i ? 'step' : null"
+                                    (click)="navigateToStep(i)"
+                                    [ngClass]="{
+                                        'bg-stone-900 text-white dark:bg-white dark:text-stone-900': stepIndex === i,
+                                        'text-stone-600 dark:text-stone-300': stepIndex !== i,
+                                        'hover:bg-stone-100 dark:hover:bg-gray-800': stepIndex !== i && canNavigate
+                                    }"
+                                    class="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold tracking-tight transition-colors"
+                                >
+                                    <span
+                                        [ngClass]="{
+                                            'bg-white/20 text-white dark:bg-stone-900/15 dark:text-stone-900': stepIndex === i,
+                                            'bg-stone-100 text-stone-500 dark:bg-gray-800': stepIndex !== i
+                                        }"
+                                        class="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold"
+                                    >
+                                        @if (isFormValidForStep(i) && (i === 0 || hasFlowId || isFormValidForStep(0))) {
+                                            <mat-icon class="!h-3 !w-3 !text-base">check</mat-icon>
+                                        } @else {
+                                            {{ i + 1 }}
+                                        }
+                                    </span>
+                                    {{ t(titleKey) }}
+                                </button>
+                            }
+                        </div>
+
+                        <div
+                            class="flex shrink-0 items-center justify-between gap-3 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 dark:border-gray-700 dark:text-stone-300 sm:justify-start"
+                        >
+                            <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-stone-200 dark:bg-gray-800 sm:w-32 sm:flex-none">
+                                <div
+                                    class="absolute left-0 top-0 h-full bg-stone-900 transition-all duration-300 dark:bg-white"
+                                    [style.width.%]="((stepIndex + 1) / stepsLength) * 100"
+                                ></div>
+                            </div>
+                            <span class="shrink-0 whitespace-nowrap">{{ t('smartEnrollProjects.setup.steps.steps_count', { current: stepIndex + 1, total: stepsLength }) }}</span>
+                        </div>
+                    </nav>
+                }
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto w-full max-w-7xl 2xl:max-w-[1600px]">
+                @if (saveError()) {
+                    <div class="mb-6 rounded-2xl border border-red-200/90 bg-red-50/90 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                        {{ saveError() }}
+                    </div>
+                }
+
+                @if (loading()) {
+                    <div class="flex justify-center py-16">
+                        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                    </div>
+                } @else if (form) {
+                    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,760px)]">
+                        <div class="flex flex-col gap-6" [formGroup]="form">
+                            @switch (stepIndex) {
+                                <!-- STEP 0: Shared Basic Setup component (100% synced with SmartEnroll & SmartAccess) -->
+                                @case (0) {
+                                    @if (devQuickFillEnabled && projectId === 'new') {
+                                        <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm dark:border-amber-900/50 dark:bg-amber-950/40">
+                                            <span class="text-amber-900 dark:text-amber-100/95">
+                                                {{ t('smartLinks.setup.devQuickFillHint') }}
+                                            </span>
+                                            <button
+                                                mat-stroked-button
+                                                type="button"
+                                                class="shrink-0 rounded-xl border-amber-400/70 text-amber-950 dark:border-amber-700 dark:text-amber-50"
+                                                [disabled]="!canNavigate"
+                                                (click)="fillDevSampleWizard()"
+                                            >
+                                                {{ t('smartLinks.setup.devQuickFill') }}
+                                            </button>
+                                        </div>
+                                    }
+                                    <setup-basic-setup
+                                        [form]="form"
+                                        [loading]="loading()"
+                                        [saving]="saving()"
+                                    ></setup-basic-setup>
+                                }
+
+                                <!-- STEP 1: Identity Lookup & Linked Verification Flows -->
+                                @case (1) {
+                                    <div class="integrations-journey" formGroupName="projectFlow">
+                                        <div class="integrations-intro">
+                                            <div class="integrations-intro__icon">
+                                                <mat-icon>fingerprint</mat-icon>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                                    <h2>{{ t('smartLinks.setup.step1.journeyTitle') }}</h2>
+                                                </div>
+                                                <p>{{ t('smartLinks.setup.step1.journeySubtitle') }}</p>
+                                            </div>
+                                        </div>
+
+                                        <ol class="integrations-timeline">
+                                            <!-- Stage 1: Public URL & Accepted Identifiers (Email / Phone) -->
+                                            <li class="integrations-stage">
+                                                <div class="integrations-stage__marker">1</div>
+                                                <section class="integrations-panel">
+                                                    <header class="integrations-panel__header">
+                                                        <div>
+                                                            <span class="integrations-panel__eyebrow">
+                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                                                            </span>
+                                                            <h3>{{ t('smartLinks.setup.step1.identifiersStageTitle') }}</h3>
+                                                            <p>{{ t('smartLinks.setup.step1.identifiersStageSubtitle') }}</p>
+                                                        </div>
+                                                        <span class="integrations-panel__status">
+                                                            {{ allowedIdentifiersList.length }} {{ t('smartLinks.setup.step1.identifiersCountSuffix') }}
+                                                        </span>
+                                                    </header>
+
+                                                    <div class="panel-body">
+                                                        <div class="slug-row">
+                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full min-w-0 sm:flex-1">
+                                                                <mat-label>{{ t('smartLinks.setup.step0.slugLabel') }}</mat-label>
+                                                                <span matTextPrefix class="text-stone-500 dark:text-stone-400">{{ accessSlugPrefix }}</span>
+                                                                <input
+                                                                    matInput
+                                                                    formControlName="slug"
+                                                                    placeholder="verify-me"
+                                                                    autocorrect="off"
+                                                                    autocapitalize="none"
+                                                                    spellcheck="false"
+                                                                    (input)="onSlugEdited()"
+                                                                />
+                                                            </mat-form-field>
+                                                            <button type="button" class="action-btn" (click)="suggestSlugFromName()">
+                                                                <mat-icon>auto_fix_high</mat-icon>
+                                                                <span>{{ t('smartLinks.setup.step0.autoSlug') }}</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="channels-grid">
+                                                            @for (idType of identifierOptions; track idType) {
+                                                                @let active = isIdentifierEnabled(idType);
+                                                                <div class="channel-card" [class.channel-card--active]="active">
+                                                                    <div class="channel-card__top">
+                                                                        <div class="channel-card__meta">
+                                                                            <div class="channel-card__icon">
+                                                                                <mat-icon>{{ identifierIcon(idType) }}</mat-icon>
+                                                                            </div>
+                                                                            <div>
+                                                                                <strong>{{ t('smartLinks.identifiers.' + idType + '.label') }}</strong>
+                                                                                <span>{{ t('smartLinks.identifiers.' + idType + '.hint') }}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <mat-slide-toggle
+                                                                            color="primary"
+                                                                            [checked]="active"
+                                                                            [disabled]="active && allowedIdentifiersList.length <= 1"
+                                                                            (change)="toggleIdentifier(idType, $event.checked)"
+                                                                        ></mat-slide-toggle>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </li>
+
+                                            <!-- Stage 2: Automatic Routing (SmartAccess for Face Liveness + SmartEnroll for New / Document) -->
+                                            <li class="integrations-stage" formGroupName="routing">
+                                                <div class="integrations-stage__marker">2</div>
+                                                <section class="integrations-panel" formGroupName="linkedProjects">
+                                                    <header class="integrations-panel__header">
+                                                        <div>
+                                                            <span class="integrations-panel__eyebrow">
+                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                                                            </span>
+                                                            <h3>{{ t('smartLinks.setup.step1.title') }}</h3>
+                                                            <p>{{ t('smartLinks.setup.step1.subtitle') }}</p>
+                                                        </div>
+                                                    </header>
+
+                                                    <div class="panel-body">
+                                                        <div class="engines-grid">
+                                                            <div class="engine-select-card">
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                                                                    <mat-label>{{ t('smartLinks.setup.step1.accessFlowLabel') }}</mat-label>
+                                                                    <mat-select formControlName="smartAccessProject">
+                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.autoResolve') }}</mat-option>
+                                                                        @for (item of engines().smartAccess; track item._id) {
+                                                                            <mat-option [value]="item._id">{{ item.name }}</mat-option>
+                                                                        }
+                                                                    </mat-select>
+                                                                </mat-form-field>
+                                                                @if (!engines().smartAccess.length) {
+                                                                    <a routerLink="/smart-access/projects" class="engine-helper-link">
+                                                                        <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartAccess' }) }}</span>
+                                                                        <mat-icon>open_in_new</mat-icon>
+                                                                    </a>
+                                                                }
+                                                            </div>
+
+                                                            <div class="engine-select-card">
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                                                                    <mat-label>{{ t('smartLinks.setup.step1.enrollFlowLabel') }}</mat-label>
+                                                                    <mat-select formControlName="smartEnrollProject">
+                                                                        <mat-option [value]="null">{{ t('smartLinks.setup.step1.autoResolve') }}</mat-option>
+                                                                        @for (item of engines().smartEnroll; track item._id) {
+                                                                            <mat-option [value]="item._id">{{ item.name }}</mat-option>
+                                                                        }
+                                                                    </mat-select>
+                                                                </mat-form-field>
+                                                                @if (!engines().smartEnroll.length) {
+                                                                    <a routerLink="/smart-enroll/projects" class="engine-helper-link">
+                                                                        <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartEnroll' }) }}</span>
+                                                                        <mat-icon>open_in_new</mat-icon>
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                        @if (isAutoResolveAll) {
+                                                            @if (enginesLoaded() && hasNoEngineFlows) {
+                                                                <div class="auto-resolve-warning" role="alert">
+                                                                    <mat-icon>warning_amber</mat-icon>
+                                                                    <div class="min-w-0 flex-1 space-y-2">
+                                                                        <strong class="block font-sans text-xs font-semibold">
+                                                                            {{ t('smartLinks.setup.step1.noEnginesWarningTitle') }}
+                                                                        </strong>
+                                                                        <span class="block">
+                                                                            {{ t('smartLinks.setup.step1.noEnginesWarningBody') }}
+                                                                        </span>
+                                                                        <div class="flex flex-wrap gap-3 pt-0.5">
+                                                                            <a routerLink="/smart-access/projects" class="auto-resolve-warning__link">
+                                                                                <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartAccess' }) }}</span>
+                                                                                <mat-icon>open_in_new</mat-icon>
+                                                                            </a>
+                                                                            <a routerLink="/smart-enroll/projects" class="auto-resolve-warning__link">
+                                                                                <span>{{ t('smartLinks.setup.step1.createInProduct', { product: 'SmartEnroll' }) }}</span>
+                                                                                <mat-icon>open_in_new</mat-icon>
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            } @else {
+                                                                <div class="auto-resolve-banner">
+                                                                    <mat-icon>info_outline</mat-icon>
+                                                                    <div class="min-w-0 flex-1 space-y-1">
+                                                                        <strong class="block font-sans text-xs font-semibold">
+                                                                            {{ t('smartLinks.setup.step1.autoResolveBannerTitle') }}
+                                                                        </strong>
+                                                                        <span class="block">
+                                                                            {{ t('smartLinks.setup.step1.autoResolveBannerBody') }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+
+                                                        <!-- How SmartLink routes automatically -->
+                                                        <div class="url-preview-card">
+                                                            <mat-icon>auto_awesome</mat-icon>
+                                                            <div class="space-y-1">
+                                                                <strong class="block font-sans text-xs">{{ t('smartLinks.setup.step1.autoRuleTitle') }}</strong>
+                                                                <span class="block">{{ t('smartLinks.setup.step1.autoRuleBody') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </li>
+
+                                            <!-- Stage 3: Step-Up Re-Verification Policy -->
+                                            <li class="integrations-stage" formGroupName="routing">
+                                                <div class="integrations-stage__marker">3</div>
+                                                <section class="integrations-panel" formGroupName="stepUpPolicy">
+                                                    <header class="integrations-panel__header">
+                                                        <div>
+                                                            <span class="integrations-panel__eyebrow">
+                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                                                            </span>
+                                                            <h3>{{ t('smartLinks.setup.step2.stepUpTitle') }}</h3>
+                                                            <p>{{ t('smartLinks.setup.step2.stepUpSubtitle') }}</p>
+                                                        </div>
+                                                        <span class="integrations-panel__status">
+                                                            {{
+                                                                stepUpEnabled
+                                                                    ? t('smartAccessProjects.list.active')
+                                                                    : t('smartLinks.setup.step2.stepUpStatusOff')
+                                                            }}
+                                                        </span>
+                                                    </header>
+
+                                                    <div class="panel-body">
+                                                        <div class="channel-card" [class.channel-card--active]="stepUpEnabled">
+                                                            <div class="channel-card__top">
+                                                                <div class="channel-card__meta">
+                                                                    <div class="channel-card__icon">
+                                                                        <mat-icon>security</mat-icon>
+                                                                    </div>
+                                                                    <div>
+                                                                        <strong>{{ t('smartLinks.setup.step2.stepUpEnabled') }}</strong>
+                                                                        <span>{{ t('smartLinks.setup.step2.stepUpEnabledHint') }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <mat-slide-toggle color="primary" formControlName="enabled"></mat-slide-toggle>
+                                                            </div>
+                                                        </div>
+
+                                                        @if (stepUpEnabled) {
+                                                            <div
+                                                                class="channel-card"
+                                                                [class.channel-card--active]="form.get('projectFlow.routing.stepUpPolicy.requireFreshDocOnExpiry')?.value"
+                                                            >
+                                                                <div class="channel-card__top">
+                                                                    <div class="channel-card__meta">
+                                                                        <div class="channel-card__icon">
+                                                                            <mat-icon>badge</mat-icon>
+                                                                        </div>
+                                                                        <div>
+                                                                            <strong>{{ t('smartLinks.setup.step2.requireFreshDoc') }}</strong>
+                                                                            <span>{{ t('smartLinks.setup.step2.requireFreshDocHint') }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <mat-slide-toggle color="primary" formControlName="requireFreshDocOnExpiry"></mat-slide-toggle>
+                                                                </div>
+                                                            </div>
+
+                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full sm:max-w-xs">
+                                                                <mat-label>{{ t('smartLinks.setup.step2.reverifyFaceDays') }}</mat-label>
+                                                                <input
+                                                                    matInput
+                                                                    type="number"
+                                                                    min="1"
+                                                                    max="3650"
+                                                                    formControlName="reverifyFaceAfterDays"
+                                                                />
+                                                                <mat-hint>{{ t('smartLinks.setup.step2.reverifyFaceDaysHint') }}</mat-hint>
+                                                                @if (form.get('projectFlow.routing.stepUpPolicy.reverifyFaceAfterDays')?.invalid) {
+                                                                    <mat-error>{{ t('smartLinks.setup.step2.reverifyFaceDaysRangeError') }}</mat-error>
+                                                                }
+                                                            </mat-form-field>
+                                                        } @else {
+                                                            <div class="disabled-stage">
+                                                                <mat-icon class="shrink-0">info_outline</mat-icon>
+                                                                <span>{{ t('smartLinks.setup.step2.stepUpDisabledHint') }}</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </section>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                }
+
+                                <!-- STEP 2: Completion Handoff, Webhooks, Link Limits & AI Agent Kit -->
+                                @case (2) {
+                                    <div class="integrations-journey" formGroupName="projectFlow">
+                                        <div class="integrations-intro">
+                                            <div class="integrations-intro__icon">
+                                                <mat-icon>webhook</mat-icon>
+                                            </div>
+                                            <div>
+                                                <h2>{{ t('smartLinks.setup.step3.title') }}</h2>
+                                                <p>{{ t('smartLinks.setup.step3.subtitle') }}</p>
+                                            </div>
+                                        </div>
+
+                                        <ol class="integrations-timeline">
+                                            <!-- Stage 1: Completion Handoff -->
+                                            <li class="integrations-stage" formGroupName="completion">
+                                                <div class="integrations-stage__marker">1</div>
+                                                <section class="integrations-panel">
+                                                    <header class="integrations-panel__header">
+                                                        <div>
+                                                            <span class="integrations-panel__eyebrow">
+                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                                                            </span>
+                                                            <h3>{{ t('smartLinks.setup.step0.completionLabel') }}</h3>
+                                                            <p>{{ t('smartLinks.setup.step3.completionSubtitle') }}</p>
+                                                        </div>
+                                                    </header>
+
+                                                    <div class="requirement-options requirement-options--three" role="radiogroup">
+                                                        @for (cm of completionOptions; track cm) {
+                                                            <button
+                                                                type="button"
+                                                                role="radio"
+                                                                [attr.aria-checked]="completionModeValue === cm"
+                                                                class="requirement-card"
+                                                                [class.requirement-card--checked]="completionModeValue === cm"
+                                                                (click)="selectCompletionMode(cm)"
+                                                            >
+                                                                <div class="requirement-option">
+                                                                    <strong>{{ t('smartLinks.completionModes.' + cm) }}</strong>
+                                                                    <small>{{ t('smartLinks.setup.step3.completionDesc_' + cm) }}</small>
+                                                                </div>
+                                                            </button>
+                                                        }
+                                                    </div>
+
+                                                    <div class="panel-body">
+                                                        @if (completionModeValue === 'redirect') {
+                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                <mat-label>{{ t('smartLinks.setup.step3.redirectUrl') }}</mat-label>
+                                                                <input
+                                                                    matInput
+                                                                    type="url"
+                                                                    formControlName="redirectUrl"
+                                                                    placeholder="https://app.company.com/verified"
+                                                                    autocorrect="off"
+                                                                    autocapitalize="none"
+                                                                    spellcheck="false"
+                                                                />
+                                                            </mat-form-field>
+                                                            @if (form.get('projectFlow.completion.redirectUrl')?.value) {
+                                                                <div class="url-preview-card">
+                                                                    <mat-icon>link</mat-icon>
+                                                                    <span>
+                                                                        {{ form.get('projectFlow.completion.redirectUrl')?.value }}<strong>?sessionCode=slc_...&amp;shortCode=...</strong>
+                                                                    </span>
+                                                                </div>
+                                                            }
+                                                        }
+
+                                                        @if (completionModeValue === 'postMessage') {
+                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                <mat-label>{{ t('smartLinks.setup.step3.postMessageOrigins') }}</mat-label>
+                                                                <input
+                                                                    matInput
+                                                                    formControlName="allowedPostMessageOriginsText"
+                                                                    placeholder="https://app.company.com, https://portal.company.com"
+                                                                    autocorrect="off"
+                                                                    autocapitalize="none"
+                                                                    spellcheck="false"
+                                                                />
+                                                            </mat-form-field>
+                                                        }
+
+                                                        @if (completionModeValue === 'receipt') {
+                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                <mat-label>{{ t('smartLinks.setup.step3.receiptMessage') }}</mat-label>
+                                                                <textarea matInput rows="2" formControlName="receiptMessage"></textarea>
+                                                            </mat-form-field>
+                                                            <div class="channel-card" [class.channel-card--active]="form.get('projectFlow.completion.allowPdfDownload')?.value">
+                                                                <div class="channel-card__top">
+                                                                    <div class="channel-card__meta">
+                                                                        <div class="channel-card__icon">
+                                                                            <mat-icon>picture_as_pdf</mat-icon>
+                                                                        </div>
+                                                                        <div>
+                                                                            <strong>{{ t('smartLinks.setup.step3.allowPdf') }}</strong>
+                                                                            <span>{{ t('smartLinks.setup.step3.allowPdfHint') }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <mat-slide-toggle color="primary" formControlName="allowPdfDownload"></mat-slide-toggle>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </section>
+                                            </li>
+
+                                            <!-- Stage 2: Webhook & Default Link Limits -->
+                                            <li class="integrations-stage">
+                                                <div class="integrations-stage__marker">2</div>
+                                                <section class="integrations-panel">
+                                                    <header class="integrations-panel__header">
+                                                        <div>
+                                                            <span class="integrations-panel__eyebrow">
+                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                                                            </span>
+                                                            <h3>{{ t('smartLinks.setup.step3.webhookTitle') }}</h3>
+                                                            <p>{{ t('smartLinks.setup.step3.webhookSubtitle') }}</p>
+                                                        </div>
+                                                    </header>
+
+                                                    <div class="panel-body">
+                                                        <div class="webhook-row" formGroupName="integrations">
+                                                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="webhook-field">
+                                                                <mat-label>{{ t('smartLinks.setup.step3.webhookLabel') }}</mat-label>
+                                                                <mat-select formControlName="webhook">
+                                                                    <mat-option [value]="null">{{ t('smartLinks.setup.step1.none') }}</mat-option>
+                                                                    @for (wh of webhookList; track wh._id) {
+                                                                        <mat-option [value]="wh._id">{{ wh.name || wh.url || wh._id }}</mat-option>
+                                                                    }
+                                                                </mat-select>
+                                                            </mat-form-field>
+
+                                                            <div class="webhook-actions">
+                                                                <button
+                                                                    type="button"
+                                                                    class="action-btn"
+                                                                    [disabled]="webhooksRefreshing()"
+                                                                    (click)="reloadWebhooks()"
+                                                                >
+                                                                    <mat-icon>refresh</mat-icon>
+                                                                    <span>{{ t('smartLinks.actions.refresh') }}</span>
+                                                                </button>
+                                                                <a routerLink="/developer/webhooks" class="action-btn">
+                                                                    <mat-icon>open_in_new</mat-icon>
+                                                                    <span>{{ t('smartLinks.setup.step3.manageWebhooks') }}</span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                        @if (!webhookList.length && !webhooksRefreshing()) {
+                                                            <div class="empty-webhook-banner">
+                                                                <div class="empty-webhook-banner__text">
+                                                                    <mat-icon>notifications_none</mat-icon>
+                                                                    <span>{{ t('smartLinks.setup.step3.noWebhooks') }}</span>
+                                                                </div>
+                                                                <a routerLink="/developer/webhooks" class="empty-webhook-banner__cta">
+                                                                    {{ t('smartLinks.setup.step3.manageWebhooks') }}
+                                                                </a>
+                                                            </div>
+                                                        }
+
+                                                        <div formGroupName="security" class="space-y-3 pt-2">
+                                                            <div class="channel-card" [class.channel-card--active]="form.get('projectFlow.security.requireSignedSession')?.value">
+                                                                <div class="channel-card__top">
+                                                                    <div class="channel-card__meta">
+                                                                        <div class="channel-card__icon">
+                                                                            <mat-icon>verified_user</mat-icon>
+                                                                        </div>
+                                                                        <div>
+                                                                            <strong>{{ t('smartLinks.setup.step2.requireSigned') }}</strong>
+                                                                            <span>{{ t('smartLinks.setup.step2.requireSignedHint') }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <mat-slide-toggle color="primary" formControlName="requireSignedSession"></mat-slide-toggle>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="field-grid-2">
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                    <mat-label>{{ t('smartLinks.setup.step2.ttlMinutes') }}</mat-label>
+                                                                    <input matInput type="number" min="5" max="10080" formControlName="defaultTokenTtlMinutes" />
+                                                                </mat-form-field>
+                                                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                                    <mat-label>{{ t('smartLinks.setup.step2.maxUses') }}</mat-label>
+                                                                    <input matInput type="number" min="0" max="1000" formControlName="defaultMaxUses" />
+                                                                </mat-form-field>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </li>
+
+                                            <!-- Stage 3: Ready-to-ship Developer & AI Agent Kit -->
+                                            <li class="integrations-stage">
+                                                <div class="integrations-stage__marker">3</div>
+                                                <section class="integrations-panel">
+                                                    <header class="integrations-panel__header">
+                                                        <div>
+                                                            <span class="integrations-panel__eyebrow">
+                                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                                                            </span>
+                                                            <h3>{{ t('smartLinks.kit.title') }}</h3>
+                                                            <p>{{ t('smartLinks.kit.subtitle') }}</p>
+                                                        </div>
+                                                    </header>
+
+                                                    <div class="panel-body">
+                                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                                            <div class="flex flex-wrap gap-1.5">
+                                                                <button
+                                                                    type="button"
+                                                                    class="gateway-tile"
+                                                                    [class.gateway-tile-active]="kitTab() === 'prompt'"
+                                                                    (click)="kitTab.set('prompt')"
+                                                                >
+                                                                    {{ t('smartLinks.kit.tabPrompt') }}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    class="gateway-tile"
+                                                                    [class.gateway-tile-active]="kitTab() === 'mcp'"
+                                                                    (click)="kitTab.set('mcp')"
+                                                                >
+                                                                    {{ t('smartLinks.kit.tabMcp') }}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    class="gateway-tile"
+                                                                    [class.gateway-tile-active]="kitTab() === 'embed'"
+                                                                    (click)="kitTab.set('embed')"
+                                                                >
+                                                                    {{ t('smartLinks.kit.tabEmbed') }}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    class="gateway-tile"
+                                                                    [class.gateway-tile-active]="kitTab() === 'curl'"
+                                                                    (click)="kitTab.set('curl')"
+                                                                >
+                                                                    {{ t('smartLinks.kit.tabCurl') }}
+                                                                </button>
+                                                            </div>
+
+                                                            <button type="button" class="action-btn action-btn--primary" (click)="copyKitSnippet()">
+                                                                <mat-icon>{{ copiedKit() ? 'check' : 'content_copy' }}</mat-icon>
+                                                                <span>{{ copiedKit() ? t('smartLinks.actions.copied') : t('smartLinks.kit.copyBtn') }}</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="code-card code-card--dark">
+                                                            <pre><code>{{ activeKitSnippet }}</code></pre>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                }
+
+                                <!-- STEP 3: Shared User Interface Styles A-F, Dropzones & Swatches -->
+                                @case (3) {
+                                    <setup-user-interface
+                                        [form]="form"
+                                        [loading]="loading()"
+                                        [saving]="saving()"
+                                        [showFlowOrder]="false"
+                                    ></setup-user-interface>
+                                }
+                            }
+
+                            <!-- Bottom Wizard Bar matching SmartAccessSetupHostComponent -->
+                            <div class="flex items-center justify-between gap-3 pt-2">
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    (click)="previousStep()"
+                                    [disabled]="!canNavigate"
+                                    class="rounded-xl"
+                                >
+                                    <mat-icon class="mr-1 !h-4 !w-4">arrow_back</mat-icon>
+                                    {{ t('smartLinks.actions.back') }}
+                                </button>
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    type="button"
+                                    (click)="nextStep()"
+                                    [disabled]="!canNavigate"
+                                    class="min-w-32 rounded-xl"
+                                >
+                                    @if (saving()) {
+                                        <mat-spinner diameter="18" class="mr-2 inline-block"></mat-spinner>
+                                    }
+                                    {{ stepIndex < stepsLength - 1 ? t('smartLinks.actions.next') : t('smartLinks.setup.finish') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sticky Live Preview Pane matching SmartAccess & SmartEnroll -->
+                        <aside class="xl:sticky xl:top-6 xl:self-start xl:max-h-[calc(100dvh-3rem)]">
+                            <smart-link-live-preview
+                                [form]="form"
+                                [project]="project"
+                                [branding]="brandingValue()"
+                            ></smart-link-live-preview>
+                        </aside>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>
