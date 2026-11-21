@@ -1,0 +1,68 @@
+:host-context(.dark) {
+    color-scheme: dark;
+
+    :is(pre, .overflow-x-auto, .overflow-auto, mat-dialog-content, select, input, textarea) {
+        color-scheme: dark;
+    }
+
+    :is(input, select, textarea):not(.mat-mdc-input-element):is(:user-invalid, .user-invalid-fallback) {
+        border-color: #f87171;
+        background-color: rgba(127, 29, 29, 0.25);
+    }
+
+    .mat-mdc-form-field:has(:is(input, textarea):is(:user-invalid, .user-invalid-fallback))
+        :is(.mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing) {
+        border-color: #f87171;
+    }
+}
+
+:is(input, select, textarea):not(.mat-mdc-input-element):is(:user-invalid, .user-invalid-fallback) {
+    border-color: #dc2626;
+    background-color: rgba(254, 242, 242, 0.7);
+}
+
+.mat-mdc-form-field:has(:is(input, textarea):is(:user-invalid, .user-invalid-fallback))
+    :is(.mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing) {
+    border-color: #dc2626;
+}
+
+:is(
+    button[mat-flat-button],
+    button[mat-stroked-button],
+    button[mat-button],
+    a[mat-flat-button],
+    a[mat-stroked-button],
+    a[mat-button],
+    .action-btn,
+    .gateway-tile,
+    .btn-live,
+    .btn-primary,
+    .btn-secondary,
+    .card-create-cta
+) {
+    white-space: nowrap;
+}
+
+@media (pointer: coarse), (max-width: 767px) {
+    :is(
+        button[mat-flat-button],
+        button[mat-stroked-button],
+        button[mat-button],
+        a[mat-flat-button],
+        a[mat-stroked-button],
+        a[mat-button],
+        .action-btn,
+        .gateway-tile,
+        .btn-live,
+        .btn-primary,
+        .btn-secondary,
+        .record-stepper-btn
+    ) {
+        min-height: 48px;
+    }
+
+    button[mat-icon-button] {
+        min-width: 48px;
+        min-height: 48px;
+    }
+}

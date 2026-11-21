@@ -2,40 +2,42 @@
     <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
         <verify-style-picker [control]="verifyStyleControl"></verify-style-picker>
 
-        <section class="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40">
-            <header>
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.ui.flowOrder.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.ui.flowOrder.subtitle') }}
-                </p>
-            </header>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" [attr.aria-label]="t('smartEnrollProjects.setup.ui.flowOrder.title')">
-                @for (order of ['contact_first', 'consent_first']; track order) {
-                    @let active = (order === 'consent_first') === (flowOrderControl?.value === 'consent_first');
-                    <button
-                        type="button"
-                        role="radio"
-                        [attr.aria-checked]="active"
-                        (click)="selectFlowOrder($any(order))"
-                        class="flex flex-col gap-1 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white"
-                        [ngClass]="
-                            active
-                                ? 'border-stone-900 bg-stone-50 dark:border-white dark:bg-gray-800'
-                                : 'border-stone-200 dark:border-gray-700'
-                        "
-                    >
-                        <span class="text-sm font-medium text-stone-900 dark:text-white">
-                            {{ t('smartEnrollProjects.setup.ui.flowOrder.' + order) }}
-                        </span>
-                        <span class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartEnrollProjects.setup.ui.flowOrder.' + order + '_desc') }}
-                        </span>
-                    </button>
-                }
-            </div>
-        </section>
+        @if (isFlowOrderVisible) {
+            <section class="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40">
+                <header>
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ t('smartEnrollProjects.setup.ui.flowOrder.title') }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.ui.flowOrder.subtitle') }}
+                    </p>
+                </header>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" [attr.aria-label]="t('smartEnrollProjects.setup.ui.flowOrder.title')">
+                    @for (order of ['contact_first', 'consent_first']; track order) {
+                        @let active = (order === 'consent_first') === (flowOrderControl?.value === 'consent_first');
+                        <button
+                            type="button"
+                            role="radio"
+                            [attr.aria-checked]="active"
+                            (click)="selectFlowOrder($any(order))"
+                            class="flex flex-col gap-1 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white"
+                            [ngClass]="
+                                active
+                                    ? 'border-stone-900 bg-stone-50 dark:border-white dark:bg-gray-800'
+                                    : 'border-stone-200 dark:border-gray-700'
+                            "
+                        >
+                            <span class="text-sm font-medium text-stone-900 dark:text-white">
+                                {{ t('smartEnrollProjects.setup.ui.flowOrder.' + order) }}
+                            </span>
+                            <span class="text-xs text-stone-500 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.setup.ui.flowOrder.' + order + '_desc') }}
+                            </span>
+                        </button>
+                    }
+                </div>
+            </section>
+        }
         @let logoCtrl = brandingFormGroup?.get('logo');
         @let imageCtrl = brandingFormGroup?.get('image');
 
