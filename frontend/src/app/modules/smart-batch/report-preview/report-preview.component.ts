@@ -76,9 +76,17 @@ import {
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
-import { ReportThemeBlockComponent } from '../report-theme/report-theme-block.component';
-import { defaultThemeTokens, isReportThemeId, themeBlockKindFromType, type ReportThemeId, type ScoreDisplayFormat } from '../report-theme/report-theme.model';
-import type { VerificationScoreModel } from '../report-theme/report-theme.model';
+import { ReportThemeBlockComponent, type ThemeInlineEdit } from '../report-theme/report-theme-block.component';
+import {
+    defaultThemeTokens,
+    extractReportThemeConfig,
+    isReportThemeId,
+    normalizeReportThemeId,
+    themeBlockKindFromType,
+    type ReportThemeId,
+    type ScoreDisplayFormat,
+    type VerificationScoreModel,
+} from '../report-theme/report-theme.model';
 import { scalableImageSrc } from '../report-image.util';
 import { resolveRuleImageSource, resolveShapeRuleValue } from '../report-shape-rules.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
@@ -601,6 +609,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         extract: boolean;
     }>();
     @Output() inlineTextChange = new EventEmitter<ReportInlineTextChange>();
+    @Output() themeInlineEdit = new EventEmitter<ThemeInlineEdit>();
     @Output() cellSizeChange = new EventEmitter<ReportCellSizeChange>();
     @Output() addPage = new EventEmitter<void>();
     @Output() removePage = new EventEmitter<void>();
@@ -814,6 +823,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         rotation: number;
         minSize: number;
         tracksMinHeight: boolean;
+        /** The drag started on a flow slice, so the saved frame is the authored box. */
+        sizedSlice: boolean;
         /** Title and free text: the handles change the font size instead of the box. */
         scalesFont: boolean;
         startFont: number;
@@ -2276,8 +2287,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._clearSectionDrag();
         const scalesFont = this._resizeScalesFont(section);
         const fixed = this._locksFrameHeight(section) || section.type === 'image';
+        const vertical = /[ns]/.test(handle);
+        const slice = vertical && this._splitsAcrossSheets(section) ? this._primarySlice(section.id) : null;
         let width = frame.width;
-        let height = frame.height;
+        let height = slice?.height || frame.height;
         const host = (event.currentTarget as HTMLElement | null)?.closest('[data-report-section]') as HTMLElement | null;
         const scales = this._scaleFactors;
         if (!width || !height) {
@@ -2292,11 +2305,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             handle,
             startClientX: event.clientX,
             startClientY: event.clientY,
-            startFrame: { ...frame, width: width || 48, height: height || 48 },
+            startFrame: {
+                ...frame,
+                width: width || 48,
+                height: height || 48,
+                ...(slice ? { y: slice.y, page: slice.page } : {}),
+            },
             keepRatio: this.isShapeSection(section) && this.shapeKeepRatio(section),
             rotation: this.sectionRotation(section),
             minSize: scalesFont ? 4 : fixed ? 12 : 40,
             tracksMinHeight: !fixed,
+            sizedSlice: Boolean(slice),
             scalesFont,
             startFont: scalesFont ? this.roleFontSize(section, 'title') : 16,
             startBoxWidth: boxWidth,
@@ -2423,7 +2442,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (resize.scalesFont) {
             this._commitFontResize(resize, moved, frame);
         } else if (frame && moved) {
-            this.sectionFrameChange.emit({ id: resize.id, frame });
+            const next = resize.sizedSlice ? this._resizedFlowFrame(resize.id, frame) : frame;
+            this.sectionFrameChange.emit({ id: resize.id, frame: next });
         }
         this.liveFrames.set({});
         this._setSheetDragging(false);
@@ -2831,6 +2851,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.liveFrames()[section.id] ?? section.frame ?? null;
     }
 
+    /** Current editor. Older templates keep the box that was saved. */
+    private _usesCurrentLayout(): boolean {
+        return Number(this.template()?.layoutVersion) >= 2;
+    }
+
     paperName(): ReportPageSizeName {
         return resolvePageSizeName(this.pageSize() ?? this.template()?.pageSize);
     }
@@ -2953,13 +2978,43 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Theme blocks follow the template theme. A bare block still has a palette to paint with. */
     themeId(): ReportThemeId {
-        return isReportThemeId(this.template()?.reportTheme) ? this.template().reportTheme! : 'premium_dark';
+        return normalizeReportThemeId(this.template()?.reportTheme) ?? 'premium_dark';
     }
 
     themeTokens() {
-        const stored = this.template()?.themeTokens;
-        const base = defaultThemeTokens(this.themeId());
-        return stored ? { ...base, ...stored } : base;
+        const tpl = this.template();
+        return extractReportThemeConfig(tpl?.reportTheme, tpl?.themeTokens, tpl?.scoreSettings, tpl?.scoreScale).tokens;
+    }
+
+    /**
+     * Resolves the rendered A4 sheet background color.
+     * Themed templates paint their theme palette (`cover` on page 1 for dark themes, `page` on inner pages)
+     * instead of falling back to the legacy `#ffffff` Mongoose default.
+     */
+    effectivePageBackground(pageIndex = 0): string {
+        const tpl = this.template();
+        const theme = normalizeReportThemeId(tpl?.reportTheme);
+        if (theme) {
+            const tokens = this.themeTokens();
+            if (pageIndex === 0 && theme === 'premium_dark' && tokens.cover) {
+                return tokens.cover;
+            }
+            return tokens.page || this.pageBackgroundColor() || '#ffffff';
+        }
+        return this.pageBackgroundColor() || '#ffffff';
+    }
+
+    effectivePageBorder(pageIndex = 0): string {
+        const bg = this.effectivePageBackground(pageIndex).trim().toLowerCase();
+        const m = /^#([0-9a-f]{6})$/.exec(bg);
+        if (m) {
+            const r = parseInt(m[1].slice(0, 2), 16);
+            const g = parseInt(m[1].slice(2, 4), 16);
+            const b = parseInt(m[1].slice(4, 6), 16);
+            const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            if (lum < 0.35) return 'rgba(255, 255, 255, 0.14)';
+        }
+        return '#e5e7eb';
     }
 
     themeScore(): VerificationScoreModel | null {
@@ -2968,12 +3023,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     themeScoreFormat(): ScoreDisplayFormat {
-        const scale = this.template()?.scoreScale ?? this.template()?.scoreSettings?.format;
+        const tpl = this.template();
+        const obj = tpl?.reportTheme && typeof tpl.reportTheme === 'object' ? tpl.reportTheme : null;
+        const scale = tpl?.scoreScale ?? obj?.scoreScale ?? tpl?.scoreSettings?.format;
         return scale === 'unit' ? 'unit' : 'percent';
     }
 
     themeScoreEnabled(): boolean {
-        return this.template()?.scoreSettings?.enabled !== false;
+        const tpl = this.template();
+        const obj = tpl?.reportTheme && typeof tpl.reportTheme === 'object' ? tpl.reportTheme : null;
+        if (obj?.scoreEnabled === false) return false;
+        return tpl?.scoreSettings?.enabled !== false;
     }
 
     /** Lists, tables and repeaters keep the designed box on the sheet. The PDF grows them. */
@@ -2999,6 +3059,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (slice) return Math.round(slice.height);
         const height = Number(this.displayFrame(section)?.height);
         return Number.isFinite(height) && height > 0 ? Math.round(height) : null;
+    }
+
+    /** The designer dragged this box. The PDF keeps that size instead of growing the table. */
+    designSized(section: ReportSection): boolean {
+        return this._splitsAcrossSheets(section) && Number(this.displayFrame(section)?.minHeight) > 0;
     }
 
     /** Body rows the design sample has. The PDF keeps this box until the count changes. */
@@ -3059,7 +3124,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const slice = this._flowSlice(section.id, pageIndex);
         const dragging =
             this.draggingSectionId() === section.id || this._groupDragIds().includes(section.id);
-        const useSlice = Boolean(slice && (slice.continuation || !dragging));
+        const sizingThis =
+            this._sectionResize?.id === section.id && /[ns]/.test(this._sectionResize.handle);
+        const useSlice = Boolean(slice && (slice.continuation || (!dragging && !sizingThis)));
         const x = Number(frame.x);
         const y = useSlice && slice ? slice.y : Number(frame.y);
         const drawnHeight = useSlice && slice ? slice.height : Number(frame.height);
@@ -3818,6 +3885,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _scheduleContentFit(followUp = false): void {
         if (!followUp) this._flowPasses = 0;
         if (this.thumbnailMode() || this._sectionDrag) return;
+        if (!this._usesCurrentLayout()) {
+            if (this._sheetFlow() !== null) this._sheetFlow.set(null);
+            return;
+        }
         if (!this.reorderable() && !this.printCapture() && !this.fullContent()) return;
         if (this._contentFitFrameId !== null) cancelAnimationFrame(this._contentFitFrameId);
         const fitFrames = this.reorderable() && !this.printCapture();
@@ -3920,14 +3991,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.sectionFramesChange.emit(updates);
     }
 
+    /** A data table is the block. A selected column still leaves the stretch handles. */
+    stretchesAsTable(section: ReportSection): boolean {
+        return section.type === 'dataTable' || section.type === 'table' || section.type === 'repeater';
+    }
+
     /** A later slice of the same table. It is not a separate block. */
     flowContinuation(section: ReportSection, pageIndex?: number): boolean {
         return this._flowSlice(section.id, pageIndex)?.continuation === true;
     }
 
-    /** The drawn size is the slice, so the resize handles would fight the split. */
-    flowLocksResize(section: ReportSection): boolean {
-        return this._splitsAcrossSheets(section) && this._primarySlice(section.id) != null;
+    /**
+     * A split table keeps its closing edge. The clip would cut the bottom
+     * border; the PDF already paints that edge, so the sheet should too.
+     */
+    flowSliceKeepsEdge(section: ReportSection, pageIndex?: number): boolean {
+        const slice = this._flowSlice(section.id, pageIndex);
+        return !!slice && slice.rowEnd > slice.rowStart;
     }
 
     flowRowIndex(section: ReportSection, pageIndex: number | undefined, localIndex: number): number {
@@ -4029,6 +4109,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             y: authoredGlobal - page * pageH,
             height: authored?.height ?? visual.height,
         };
+    }
+
+    /** A resize that started on a split slice keeps the dragged size and the authored top. */
+    private _resizedFlowFrame(id: string, visual: ReportSectionFrame): ReportSectionFrame {
+        const authored = this._authoredFrameFromVisual(id, visual);
+        return { ...authored, x: visual.x, width: visual.width, height: visual.height };
     }
 
     private _renderedRowCount(section: ReportSection): number {
@@ -4206,6 +4292,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const natural = rowHeights.length
                 ? chrome + rowHeights.reduce((sum, rowHeight) => sum + rowHeight, 0)
                 : height;
+            const capped = this._splitsAcrossSheets(section) && Number(frame.minHeight) > 0;
             items.push({
                 sectionId: section.id,
                 authoredPage,
@@ -4214,6 +4301,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 height,
                 natural,
                 growable: rowHeights.length > 0,
+                capped,
                 left: Number(frame.x) || 0,
                 width: this._flowBoxWidth(section, frame),
                 chrome,
@@ -5676,8 +5764,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!this.clickable() || event.button !== 0 || this._sectionLocked(section)) return;
         event.preventDefault();
         event.stopPropagation();
-        const cell = (event.currentTarget as HTMLElement | null)?.closest(
-            axis === 'w' ? 'th' : '[data-report-cell]'
+        const origin = event.currentTarget as HTMLElement | null;
+        const cell = (
+            axis === 'w'
+                ? origin?.closest('th') ?? origin?.closest('[data-report-cell]')
+                : origin?.closest('[data-report-cell]')
         ) as HTMLElement | null;
         if (!cell) return;
         this._clearSectionDrag();
@@ -6044,7 +6135,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const pageCount = sheets.length;
         const defaultFonts =
             '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" />';
-        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/>${defaultFonts}${fontHeadMarkup(this.template()?.customFonts)}<style>
+        const layoutMark = this._usesCurrentLayout() ? ' data-layout-version="2"' : '';
+        return `<!DOCTYPE html><html data-print-pages="${pageCount}"${layoutMark}><head><meta charset="utf-8"/>${defaultFonts}${fontHeadMarkup(this.template()?.customFonts)}<style>
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
 .print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;border-radius:0;break-after:avoid;page-break-after:avoid}
@@ -6681,11 +6773,12 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         if (elSrc.style?.gridTemplateColumns) elDst.style.gridTemplateColumns = elSrc.style.gridTemplateColumns;
         if (elSrc.style?.minHeight) elDst.style.minHeight = elSrc.style.minHeight;
         if (elSrc.hasAttribute('data-section-clip')) {
-            elDst.style.position = 'relative';
+            elDst.style.position = 'absolute';
+            elDst.style.inset = '0';
             elDst.style.width = '100%';
-            elDst.style.height = 'auto';
-            elDst.style.minHeight = '100%';
-            elDst.style.overflow = 'visible';
+            elDst.style.height = '100%';
+            elDst.style.minHeight = '0';
+            elDst.style.overflow = computed.overflowY === 'hidden' ? 'hidden' : 'visible';
         }
         if (computed.display === 'grid' || computed.display === 'inline-grid') {
             elDst.style.width = '100%';
@@ -6695,8 +6788,8 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             }
         }
         if (elSrc.hasAttribute('data-report-cell')) {
-            elDst.style.width = 'auto';
-            elDst.style.height = 'auto';
+            elDst.style.width = elSrc.style?.width || 'auto';
+            elDst.style.height = elSrc.style?.height || 'auto';
             elDst.style.minWidth = '0';
             if (elSrc.style?.gridColumn) elDst.style.gridColumn = elSrc.style.gridColumn;
             if (elSrc.style?.minHeight) elDst.style.minHeight = elSrc.style.minHeight;

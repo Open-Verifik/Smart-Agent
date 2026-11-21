@@ -12,6 +12,7 @@ import {
     REPORT_THEME_IDS,
     THEME_BLOCK_KINDS,
     THEME_FONT_OPTIONS,
+    type ReportDensity,
     type ReportThemeId,
     type ReportThemeTokens,
     type ScoreSettings,
@@ -47,11 +48,13 @@ export class ReportThemePanelComponent {
     readonly themes = REPORT_THEME_IDS;
     readonly fonts = THEME_FONT_OPTIONS;
     readonly blocks = THEME_BLOCK_KINDS;
+    readonly densities: ReportDensity[] = ['compact', 'balanced', 'full'];
 
     themeId = input.required<ReportThemeId>();
     tokens = input.required<ReportThemeTokens>();
     score = input.required<ScoreSettings>();
     blockConfig = input<ThemeBlockConfig | null>(null);
+    canUngroup = input(false);
     /** API profiles, or the adapter fallback (`cabify_driver`) when that route is down. */
     profiles = input<ScoreProfileOption[]>(FALLBACK_SCORE_PROFILES);
 
@@ -64,6 +67,7 @@ export class ReportThemePanelComponent {
 
     themeSelected = output<ReportThemeId>();
     starterRequested = output<ReportThemeId>();
+    ungroupRequested = output<void>();
     tokensChange = output<ReportThemeTokens>();
     scoreChange = output<ScoreSettings>();
     addBlock = output<ThemeBlockKind>();

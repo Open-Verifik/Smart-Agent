@@ -45,15 +45,21 @@ import {
     reportPaperSizePx,
 } from '../report-preview/report-preview.component';
 import { ReportThemePanelComponent } from '../report-theme/report-theme-panel.component';
+import type { ThemeInlineEdit } from '../report-theme/report-theme-block.component';
+import { ungroupThemeSections } from '../report-theme/report-theme-ungroup.util';
 import { mergeThemeFonts } from '../report-theme/report-theme.fonts';
 import {
     defaultScoreSettings,
     defaultThemeTokens,
+    extractReportThemeConfig,
     isReportThemeId,
+    normalizeReportThemeId,
     normalizeScoreSettings,
     readThemeBlockConfig,
     themeBlockKindFromType,
+    toBackendReportThemePayload,
     type ReportThemeId,
+    type ReportThemePayload,
     type ReportThemeTokens,
     type ScoreSettings,
     type ThemeBlockConfig,
@@ -84,8 +90,7 @@ import {
     parseFlowGraph,
     usedFeatureIds,
 } from '../endpoint-flow-graph.util';
-import { getBatchSkippedStepsFromInput, prepareStepsForRun } from '../batch-required-fields.util';
-import { getPresetStepCount } from '../batch-required-fields.util';
+import { getBatchSkippedStepsFromInput, getPresetStepCount, prepareStepsForRun } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
     collectRequiredParamFields,
@@ -314,7 +319,7 @@ type LayoutDesignSnapshot = {
     signatureWidth: number;
     signatureHeight: number;
     signaturePage?: number;
-    reportTheme?: ReportThemeId;
+    reportTheme?: ReportThemeId | ReportThemePayload;
     scoreScale?: 'percent' | 'unit';
     themeTokens?: ReportThemeTokens;
     scoreSettings?: ScoreSettings;
@@ -1352,13 +1357,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             logo: this.logoDataUrl(),
             pageSize: this.pageSize(),
             orientation: this.orientation(),
+            layoutVersion: 2,
         };
         return {
             ...base,
             name: this.reportTitle() || base.name,
             primaryColor: this.primaryColor() || base.primaryColor,
             identityColor: this.identityColor() || base.identityColor || '#000000',
-            pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
+            pageBackgroundColor: this._themedLayout()
+                ? this.themeTokens().page || this.pageBackgroundColor() || '#ffffff'
+                : this.pageBackgroundColor() || '#ffffff',
             pageSize: this.pageSize(),
             orientation: this.orientation(),
             pdfEngine: this.pdfEngine(),
@@ -1389,10 +1397,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             layoutOverlayZ: { ...this.layoutOverlayZ() },
             bodyTopPadding: base.bodyTopPadding ?? 0,
             sampleData: this.previewData(),
-            reportTheme: this._themedLayout() ? this.reportTheme() : base.reportTheme,
+            reportTheme: this._themedLayout()
+                ? toBackendReportThemePayload(this.reportTheme(), this.themeTokens(), this.scoreSettings())
+                : null,
             scoreScale: this.scoreSettings().format,
-            themeTokens: this._themedLayout() ? this.themeTokens() : base.themeTokens,
+            themeTokens: this._themedLayout() ? this.themeTokens() : undefined,
             scoreSettings: this.scoreSettings(),
+            ...(this._themedLayout() ? { layoutVersion: 2 as const } : {}),
             sections: useLayout ? layout : this._sectionsForPreview(base),
         };
     });
@@ -1410,9 +1421,38 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _retainedTemplateId: string | null = null;
 
     previewRecords = computed((): SampleReportData[] => {
+        const fallbackSteps = () => {
+            const cfgSteps = this.configuration()?.steps ?? [];
+            if (cfgSteps.length) {
+                return cfgSteps
+                    .filter((s) => s.enabled !== false)
+                    .map((s) => {
+                        const feat = typeof s.appFeature === 'object' ? s.appFeature : null;
+                        return {
+                            sequence: s.sequence,
+                            enabled: s.enabled !== false,
+                            featureCode: feat?.code,
+                            appFeature: feat?.code ? { code: feat.code } : undefined,
+                            name: feat?.nameES || feat?.name || feat?.code,
+                        };
+                    });
+            }
+            const preset = this.selectedTemplate()?.presetSteps ?? [];
+            if (preset.length) {
+                return preset.map((s) => ({
+                    sequence: s.sequence,
+                    enabled: true,
+                    featureCode: s.appFeatureCode,
+                    appFeature: { code: s.appFeatureCode },
+                }));
+            }
+            return undefined;
+        };
+
         if (this.designSource() === 'simulated') {
             const batch = this.batch();
             const row = batch?.rows?.[0];
+            const keptSample = this.selectedTemplate()?.sampleData as SampleReportData | undefined;
             return [
                 this._withConsultStats({
                     batchName: this.reportTitle() || '',
@@ -1420,8 +1460,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     inputData: (row?.inputData ?? {}) as Record<string, unknown>,
                     results: (row?.results ?? {}) as Record<string, unknown>,
                     errors: row?.errors,
+                    steps: keptSample?.steps?.length ? keptSample.steps : fallbackSteps(),
+                    scoreProfile: (keptSample as Record<string, any> | undefined)?.['scoreProfile'],
+                    reportId: (keptSample as Record<string, any> | undefined)?.['reportId'],
                     generatedAt: this.reportGeneratedAt(),
-                }),
+                } as SampleReportData),
             ];
         }
         const batch = this.batch();
@@ -1431,7 +1474,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const kept = mergeConsultSample(
             this.selectedTemplate()?.sampleData as SampleReportData | undefined,
             this.retainedConsult()
-        );
+        ) as SampleReportData & { scoreProfile?: string; reportId?: string };
+        const effectiveSteps = kept.steps?.length ? kept.steps : fallbackSteps();
         if (rows.length) {
             return rows.map((row) => {
                 const live = {
@@ -1442,6 +1486,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         batchName,
                         errors: row.errors,
                     }),
+                    steps: effectiveSteps,
                     consultStats: buildConsultStats(row, { steps }),
                     consultedAt: row.processedAt || batch?.startedAt || batch?.createdAt,
                     generatedAt: this.reportGeneratedAt(),
@@ -1449,6 +1494,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 const merged = mergeConsultSample(kept, live);
                 return this._withConsultStats({
                     ...merged,
+                    steps: merged.steps?.length ? merged.steps : effectiveSteps,
                     batchName: String(merged.batchName || batchName),
                     generatedAt: this.reportGeneratedAt(),
                 });
@@ -1460,6 +1506,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return [
                 this._withConsultStats({
                     ...merged,
+                    steps: merged.steps?.length ? merged.steps : effectiveSteps,
                     consultedAt: merged.consultedAt || merged.processedAt || batch?.startedAt || batch?.createdAt,
                     generatedAt: merged.generatedAt || this.reportGeneratedAt(),
                 }),
@@ -1475,9 +1522,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     results: kept.results ?? {},
                     errors: kept.errors,
                     report: kept.report,
+                    steps: effectiveSteps,
+                    scoreProfile: kept.scoreProfile,
+                    reportId: kept.reportId,
                     consultedAt: kept.consultedAt || kept.processedAt || batch?.startedAt || batch?.createdAt,
                     generatedAt: kept.generatedAt || this.reportGeneratedAt(),
-                }),
+                } as SampleReportData),
             ];
         }
         return [
@@ -1878,7 +1928,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     /** Paint the screen the URL names before auth finishes, so a reload cannot show a leftover step. */
     private _applyStepFromUrl(): void {
         const path = this._router.url.split('?')[0].replace(/\/$/, '');
-        const onGuide = path === '/smart-batch' || path.startsWith('/smart-batch/guide/');
+        const onGuide =
+            path === '/smart-batch' ||
+            path.startsWith('/smart-batch/guide/') ||
+            path === '/smart-reports' ||
+            path === '/smart-reports/builder' ||
+            path.startsWith('/smart-reports/builder/');
         if (!onGuide) return;
 
         const pathStep = this._route.snapshot.paramMap.get('step');
@@ -1897,9 +1952,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** "Go back" from the small-screen notice: leave the designer instead of stepping inside it. */
     private _leaveDesignerOnSmallScreen(): void {
-        void this.canLeaveGuide('/smart-batch/workspace').then((allowed) => {
+        const target = this._router.url.startsWith('/smart-reports') ? '/smart-reports/templates' : '/smart-batch/workspace';
+        void this.canLeaveGuide(target).then((allowed) => {
             if (!allowed) return;
             this._state.editingSavedLayout.set(false);
+            if (target === '/smart-reports/templates') {
+                void this._router.navigate(['/smart-reports', 'templates']);
+                return;
+            }
             void this._router.navigate(['/smart-batch', 'workspace'], { queryParams: { tab: 'templates' } });
         });
     }
@@ -1935,7 +1995,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (intent === 'other') {
             this._clearStepTrail();
             this._state.resetAll();
-            void this._router.navigate(['/smart-batch', 'workspace']);
+            const target = this._router.url.startsWith('/smart-reports')
+                ? ['/smart-reports', 'batch']
+                : ['/smart-batch', 'workspace'];
+            void this._router.navigate(target);
             return;
         }
         this._state.intent.set(intent);
@@ -2268,7 +2331,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         this.isSendingSample.set(false);
                         return;
                     }
-                    const printHtml = await this._printHtmlForCurrentRecord();
+                    const printHtml = this._themedLayout() ? undefined : await this._printHtmlForCurrentRecord();
                     this._reports
                         .sendTemplateSample(templateId, {
                             recipients: result.recipients,
@@ -2432,7 +2495,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 void this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report']);
                 return;
             }
-            void this._router.navigate(['/smart-batch', 'workspace'], {
+            const leaveTarget = this._router.url.startsWith('/smart-reports')
+                ? ['/smart-reports', 'templates']
+                : ['/smart-batch', 'workspace'];
+            if (leaveTarget[0] === '/smart-reports') {
+                void this._router.navigate(leaveTarget);
+                return;
+            }
+            void this._router.navigate(leaveTarget, {
                 queryParams: { tab: 'templates' },
             });
             return;
@@ -5056,12 +5126,22 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signatureWidth.set(snapshot.signatureWidth ?? 160);
         this._state.signatureHeight.set(snapshot.signatureHeight ?? 64);
         this._state.signaturePage.set(snapshot.signaturePage ?? 0);
-        if (isReportThemeId(snapshot.reportTheme)) this._state.reportTheme.set(snapshot.reportTheme);
-        if (snapshot.scoreScale === 'unit' || snapshot.scoreScale === 'percent') {
+        const parsedTheme = extractReportThemeConfig(
+            snapshot.reportTheme,
+            snapshot.themeTokens,
+            snapshot.scoreSettings,
+            snapshot.scoreScale
+        );
+        if (parsedTheme.themeId) {
+            this._state.reportTheme.set(parsedTheme.themeId);
+            this._state.themeTokens.set(parsedTheme.tokens);
+        } else if (snapshot.themeTokens) {
+            this._state.themeTokens.set({ ...defaultThemeTokens(this.reportTheme()), ...snapshot.themeTokens });
+        }
+        if (snapshot.scoreSettings) this._state.scoreSettings.set(parsedTheme.scoreSettings);
+        else if (snapshot.scoreScale === 'unit' || snapshot.scoreScale === 'percent') {
             this._state.scoreSettings.update((current) => ({ ...current, format: snapshot.scoreScale! }));
         }
-        if (snapshot.themeTokens) this._state.themeTokens.set({ ...defaultThemeTokens(this.reportTheme()), ...snapshot.themeTokens });
-        if (snapshot.scoreSettings) this._state.scoreSettings.set(normalizeScoreSettings(snapshot.scoreSettings));
         this.layoutOverlayZ.set({ ...(snapshot.layoutOverlayZ ?? {}) });
         this.layoutLayerFlags.set(cloneReportValue(snapshot.layoutLayerFlags ?? {}));
         this._signatureAnchored = true;
@@ -5969,7 +6049,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** True when the sheet contains a themed block, so preview/generate send the theme. */
     private _themedLayout(): boolean {
-        return this.layoutSections().some((section) => themeBlockKindFromType(section.type) != null);
+        if (this.layoutSections().some((section) => themeBlockKindFromType(section.type) != null || (section.type as string) === 'themeBlock')) {
+            return true;
+        }
+        return normalizeReportThemeId(this.selectedTemplate()?.reportTheme) != null && this.layoutSections().length === 0;
     }
 
     private _activeReportLang(): 'en' | 'es' {
@@ -5977,15 +6060,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _verificationRequest(): {
-        theme: ReportThemeId | null;
+        theme: ReportThemeId | ReportThemePayload | null;
         themeTokens: ReportThemeTokens | null;
         scoreSettings: ScoreSettings;
+        structuredTheme?: boolean;
     } {
         const themed = this._themedLayout();
         return {
-            theme: themed ? this.reportTheme() : null,
+            theme: themed ? toBackendReportThemePayload(this.reportTheme(), this.themeTokens(), this.scoreSettings()) : null,
             themeTokens: themed ? this.themeTokens() : null,
             scoreSettings: this.scoreSettings(),
+            structuredTheme: themed,
         };
     }
 
@@ -6048,6 +6133,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     onThemeTokens(tokens: ReportThemeTokens): void {
         this._state.themeTokens.set(tokens);
         this._state.primaryColor.set(tokens.accent);
+        if (tokens.page) {
+            this._state.pageBackgroundColor.set(tokens.page);
+        }
         this._state.customFonts.set(mergeThemeFonts(this.customFonts(), tokens));
     }
 
@@ -6093,6 +6181,118 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     : section
             )
         );
+    }
+
+    hasThemeBlocks = computed(() =>
+        this.layoutSections().some((section) => themeBlockKindFromType(section.type) != null)
+    );
+
+    selectedLayoutIsThemeBlock = computed(() => {
+        const section = this.selectedLayoutSection();
+        return section ? themeBlockKindFromType(section.type) != null : false;
+    });
+
+    selectedThemeBlockKind = computed((): ThemeBlockKind | null => {
+        const section = this.selectedLayoutSection();
+        return section ? themeBlockKindFromType(section.type) : null;
+    });
+
+    selectedThemeCardBgHex = computed((): string => {
+        const bg = this.selectedLayoutSection()?.style?.backgroundColor;
+        if (bg && /^#[0-9a-f]{3,8}$/i.test(bg)) return bg;
+        return this.themeTokens().surface || '#101b2d';
+    });
+
+    onThemeCardBgPicker(event: Event): void {
+        const value = (event.target as HTMLInputElement | null)?.value;
+        const id = this.selectedLayoutSectionId();
+        if (!value || !id) return;
+        this._pushLayoutUndo();
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === id
+                    ? { ...section, style: { ...(section.style ?? {}), backgroundColor: value } }
+                    : section
+            )
+        );
+    }
+
+    toggleSelectedThemeConfigFlag(flag: 'showWeights' | 'showDeductions' | 'showFields'): void {
+        const cfg = this.selectedThemeConfig();
+        if (!cfg) return;
+        this._pushLayoutUndo();
+        this.onThemeBlockConfig({ ...cfg, [flag]: cfg[flag] === false });
+    }
+
+    toggleSelectedThemeVerifiedBadge(): void {
+        const tokens = this.themeTokens();
+        this.onThemeTokens({ ...tokens, showVerifiedBadge: tokens.showVerifiedBadge === false });
+    }
+
+    onThemeInlineEdit(edit: ThemeInlineEdit): void {
+        if (edit.field === 'blockEyebrow') {
+            this._pushLayoutUndo();
+            this.layoutSections.update((list) =>
+                list.map((section) => {
+                    if (section.id !== edit.sectionId) return section;
+                    const cfg = readThemeBlockConfig(section.config);
+                    return {
+                        ...section,
+                        config: {
+                            showWeights: cfg.showWeights !== false,
+                            showDeductions: cfg.showDeductions !== false,
+                            showFields: cfg.showFields !== false,
+                            ...(edit.value ? { eyebrow: edit.value } : {}),
+                        },
+                    };
+                })
+            );
+            return;
+        }
+        const tokens = this.themeTokens();
+        if (edit.field === 'logoText') {
+            this.onThemeTokens({ ...tokens, logoText: edit.value || 'verifik' });
+        } else if (edit.field === 'eyebrow') {
+            this.onThemeTokens({ ...tokens, eyebrow: edit.value });
+        } else if (edit.field === 'coverTitle') {
+            this.onThemeTokens({ ...tokens, coverTitle: edit.value });
+        } else if (edit.field === 'legalNote') {
+            this.onThemeTokens({ ...tokens, legalNote: edit.value });
+        } else if (edit.field === 'headline') {
+            const decision = this.previewData().verificationScore?.decision ?? 'approve';
+            if (decision === 'reject') {
+                this.onThemeTokens({ ...tokens, headlineReject: edit.value });
+            } else if (decision === 'review') {
+                this.onThemeTokens({ ...tokens, headlineReview: edit.value });
+            } else {
+                this.onThemeTokens({ ...tokens, headlineApprove: edit.value });
+            }
+        }
+    }
+
+    ungroupThemedLayout(): void {
+        if (!this.hasThemeBlocks()) return;
+        this._pushLayoutUndo();
+        const tokens = this.themeTokens();
+        const score = this.previewData().verificationScore;
+        const nextSections = ungroupThemeSections(
+            this.layoutSections(),
+            this.reportTheme(),
+            tokens,
+            score,
+            this.scoreSettings().format,
+            this._activeReportLang()
+        );
+        this._state.pageBackgroundColor.set(tokens.page || '#07111f');
+        this.layoutSections.set(nextSections);
+        this.selectedLayoutSectionId.set(nextSections[0]?.id ?? null);
+        this.selectedLayoutSectionIds.set(nextSections[0] ? [nextSections[0].id] : []);
+        this._preferCompactFormatBar();
+        const msg =
+            this._activeReportLang() === 'en'
+                ? 'Ungrouped into free-form blocks — every text, card, and table is now independently editable (Ctrl+Z to undo).'
+                : 'Plantilla desagrupada a diseño libre — ahora puedes editar cada texto, tarjeta y tabla por separado (Ctrl+Z para deshacer).';
+        this._snack.open(msg, undefined, { duration: 4500 });
     }
 
 
@@ -9589,9 +9789,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const batchId = this._state.batchId();
             const rowIndex = Number(this.previewData()['rowIndex']);
             const probed = Boolean(listSize);
-            const printHtml = probed
-                ? await this._printHtmlForListProbe(Number(listSize))
-                : (_printHtmlOverride ?? (await this._printHtmlForCurrentRecord()));
+            const isThemed = this._themedLayout();
+            const printHtml = isThemed
+                ? undefined
+                : probed
+                  ? await this._printHtmlForListProbe(Number(listSize))
+                  : (_printHtmlOverride ?? (await this._printHtmlForCurrentRecord()));
             const sampleData = probed ? this.printPreviewData() : this.previewData();
             const fileName = `${this.fileBaseName()}${probed ? `-tabla-${listSize}` : ''}.pdf`;
             if (batchId) {
@@ -10238,7 +10441,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             description: draft.description,
             primaryColor: this.primaryColor() || draft.primaryColor,
             identityColor: this.identityColor() || draft.identityColor || '#000000',
-            pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
+            pageBackgroundColor: this._themedLayout()
+                ? this.themeTokens().page || this.pageBackgroundColor() || '#ffffff'
+                : this.pageBackgroundColor() || '#ffffff',
             logo: this.headerLogos().length ? '' : this.logoDataUrl() || draft.logo || '',
             header: draft.header,
             footer: draft.footer,
@@ -10275,7 +10480,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             security: this._securityPayload(),
             signature: this._signaturePayload(),
             sampleData: this._sampleDataForPersist(draft),
-            reportTheme: this._themedLayout() ? this.reportTheme() : undefined,
+            reportTheme: this._themedLayout()
+                ? toBackendReportThemePayload(this.reportTheme(), this.themeTokens(), this.scoreSettings())
+                : draft.reportTheme
+                  ? null
+                  : undefined,
             scoreScale: this.scoreSettings().format,
             themeTokens: this._themedLayout() ? this.themeTokens() : undefined,
             scoreSettings: this.scoreSettings(),
@@ -10283,6 +10492,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             batchConfiguration:
                 this.designSource() === 'simulated' ? undefined : (configId ?? draft.batchConfiguration),
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,
+            ...(this._themedLayout() || Number(draft.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
         };
 
         const isSystemTemplate = draft.type === 'System';
@@ -10292,6 +10502,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...updated,
                 name: name || updated.name,
                 sampleData: updated.sampleData ?? payload.sampleData,
+                ...(Number(payload.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
             };
             this._reports.retainTemplate(saved);
             this._state.selectedTemplate.set(saved);
@@ -10310,6 +10521,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             ...created,
             name: name || created.name,
             sampleData: created.sampleData ?? payload.sampleData,
+            ...(Number(payload.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
         };
         this._reports.retainTemplate(saved);
         this._state.selectedTemplate.set(saved);
@@ -10579,33 +10791,38 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private hydrateCustomize(template: SmartReportTemplate, force = false): void {
         if (force || !this.reportTitle()) this._state.reportTitle.set(template.name);
-        if (isReportThemeId(template.reportTheme)) {
-            this._state.reportTheme.set(template.reportTheme);
-            this._state.themeTokens.set({
-                ...defaultThemeTokens(template.reportTheme),
-                ...(template.themeTokens ?? {}),
-            });
+        const parsedTheme = extractReportThemeConfig(
+            template.reportTheme,
+            template.themeTokens,
+            template.scoreSettings,
+            template.scoreScale
+        );
+        if (parsedTheme.themeId) {
+            this._state.reportTheme.set(parsedTheme.themeId);
+            this._state.themeTokens.set(parsedTheme.tokens);
+            this._state.primaryColor.set(parsedTheme.tokens.accent);
+            this._state.pageBackgroundColor.set(parsedTheme.tokens.page);
         }
-        if (template.scoreSettings || template.scoreScale) {
-            const settings = normalizeScoreSettings(template.scoreSettings);
-            this._state.scoreSettings.set(
-                template.scoreScale === 'unit' || template.scoreScale === 'percent'
-                    ? { ...settings, format: template.scoreScale, enabled: template.scoreSettings?.enabled ?? true }
-                    : settings
-            );
+        if (parsedTheme.themeId || template.scoreSettings || template.scoreScale) {
+            this._state.scoreSettings.set(parsedTheme.scoreSettings);
         } else if (force) {
             this._state.scoreSettings.set({ ...defaultScoreSettings(), enabled: false });
         }
-        if (force || template.primaryColor) this._state.primaryColor.set(template.primaryColor || '#0f172a');
+        if (!parsedTheme.themeId && (force || template.primaryColor)) {
+            this._state.primaryColor.set(template.primaryColor || '#0f172a');
+        }
         if (force || template.identityColor) this._state.identityColor.set(template.identityColor || '#000000');
-        if (force || template.pageBackgroundColor) {
+        if (!parsedTheme.themeId && (force || template.pageBackgroundColor)) {
             this._state.pageBackgroundColor.set(template.pageBackgroundColor || '#ffffff');
         }
         if (force || template.logo) this._state.logoDataUrl.set(template.logo || null);
         const headerLogos = this._headerLogosFromTemplate(template);
         this._state.headerLogos.set(headerLogos);
         this._state.sheetImages.set(cloneReportValue(Array.isArray(template.sheetImages) ? template.sheetImages : []));
-        this._state.customFonts.set(sanitizeCustomFonts(template.customFonts));
+        const baseFonts = sanitizeCustomFonts(template.customFonts);
+        this._state.customFonts.set(
+            parsedTheme.themeId ? mergeThemeFonts(baseFonts, parsedTheme.tokens) : baseFonts
+        );
         if (force || template.layoutLayerFlags) {
             this.layoutLayerFlags.set(cloneReportValue(template.layoutLayerFlags ?? {}));
         }
@@ -11176,10 +11393,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {
         if (!this._guideUrlReady) return;
         const path = this._router.url.split('?')[0].replace(/\/$/, '');
-        const onGuide = path === '/smart-batch' || path.startsWith('/smart-batch/guide/');
+        const onGuide =
+            path === '/smart-batch' ||
+            path.startsWith('/smart-batch/guide/') ||
+            path === '/smart-reports' ||
+            path === '/smart-reports/builder' ||
+            path.startsWith('/smart-reports/builder/');
         if (!onGuide) return;
 
-        const target = guideStepPath(state.step);
+        const target = guideStepPath(state.step, this._router.url);
         // The step is the path. Query params only keep choices this screen has already reached.
         const query = serializeGuideUrl(state);
         query.step = null;
@@ -11239,9 +11461,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }
 
                 this.hydrateCustomize(template, true);
-                this.layoutSections.set(
-                    cloneReportValue(template.sections ?? []).map((section, index) => ({ ...section, order: index }))
-                );
+                const themeId = normalizeReportThemeId(template.reportTheme);
+                const rawSections = cloneReportValue(template.sections ?? []).map((section, index) => ({
+                    ...section,
+                    order: index,
+                }));
+                const hydratedSections = themeId
+                    ? rawSections.length
+                        ? withStarterFrames(
+                              rawSections.filter((s) => (s.type as string) !== 'sourceCards'),
+                              themeId
+                          )
+                        : starterSections(themeId)
+                    : rawSections;
+                this.layoutSections.set(hydratedSections);
                 this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
                 this._preferCompactFormatBar();
                 this.enterLayout();
