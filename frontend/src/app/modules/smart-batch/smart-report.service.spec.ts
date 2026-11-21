@@ -24,6 +24,7 @@ describe('smart-report.service', () => {
             expect(TEMPLATE_WRITE_KEYS).toContain('name');
             expect(TEMPLATE_WRITE_KEYS).toContain('pageSize');
             expect(TEMPLATE_WRITE_KEYS).toContain('orientation');
+            expect(TEMPLATE_WRITE_KEYS).toContain('layoutVersion');
         });
 
         it('retains pageNumberDivider and endpointDesign while removing disallowed top-level keys', () => {
@@ -35,6 +36,7 @@ describe('smart-report.service', () => {
                 updatedAt: '2026-01-02',
                 name: 'Test Template',
                 pageNumberDivider: true,
+                layoutVersion: 2,
                 endpointDesign: {
                     source: 'simulated',
                     endpoints: [{ sequence: 1, appFeatureCode: 'co_runt' }],
@@ -49,6 +51,7 @@ describe('smart-report.service', () => {
             expect((sanitized as any).randomGarbageField).toBeUndefined();
             expect(sanitized.name).toBe('Test Template');
             expect(sanitized.pageNumberDivider).toBe(true);
+            expect(sanitized.layoutVersion).toBe(2);
             expect(sanitized.endpointDesign?.source).toBe('simulated');
         });
 

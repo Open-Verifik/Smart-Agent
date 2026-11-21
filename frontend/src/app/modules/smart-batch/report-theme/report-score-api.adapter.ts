@@ -1,4 +1,10 @@
-import type { ReportThemeId, ReportThemeTokens, ScoreSettings } from './report-theme.model';
+import {
+    toBackendReportThemePayload,
+    type ReportThemeId,
+    type ReportThemePayload,
+    type ReportThemeTokens,
+    type ScoreSettings,
+} from './report-theme.model';
 
 /**
  * API contract — verifik-backend PR #760
@@ -79,6 +85,12 @@ export interface ScoreProfileOption {
 
 export const FALLBACK_SCORE_PROFILES: ScoreProfileOption[] = [
     { id: 'cabify_driver', labelKey: 'reportTheme.profileCabify' },
+    { id: 'fleet', label: 'Vehículo / Flota (fleet)' },
+    { id: 'vehicle_purchase', label: 'Compra / Concesionario (vehicle_purchase)' },
+    { id: 'background_check', label: 'Antecedentes (background_check)' },
+    { id: 'identity_lookup', label: 'Identidad (identity_lookup)' },
+    { id: 'kyc', label: 'KYC persona' },
+    { id: 'kyb', label: 'KYB empresa' },
 ];
 
 export const parseScoreProfiles = (body: unknown): ScoreProfileOption[] => {
@@ -110,9 +122,10 @@ export const resolveScoreProfileId = (current: string | undefined, profiles: Sco
 };
 
 export interface VerificationRequestInput {
-    theme?: ReportThemeId | null;
+    theme?: ReportThemeId | ReportThemePayload | null;
     themeTokens?: ReportThemeTokens | null;
     scoreSettings?: ScoreSettings | null;
+    structuredTheme?: boolean;
 }
 
 export const verificationRequestFields = (input: VerificationRequestInput): Record<string, unknown> => {
@@ -121,7 +134,13 @@ export const verificationRequestFields = (input: VerificationRequestInput): Reco
     if (!themed && !enabled) return {};
 
     const body: Record<string, unknown> = {};
-    if (input.theme) body[SCORE_API.theme] = input.theme;
+    if (input.theme) {
+        if (input.structuredTheme && typeof input.theme === 'string' && input.themeTokens && input.scoreSettings) {
+            body[SCORE_API.theme] = toBackendReportThemePayload(input.theme, input.themeTokens, input.scoreSettings);
+        } else {
+            body[SCORE_API.theme] = input.theme;
+        }
+    }
     if (input.theme && input.themeTokens) body[SCORE_API.tokens] = input.themeTokens;
     if (input.scoreSettings) {
         body[SCORE_API.enabled] = enabled;

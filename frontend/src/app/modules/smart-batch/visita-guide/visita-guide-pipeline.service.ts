@@ -268,6 +268,7 @@ export class VisitaGuidePipelineService {
                     security: base?.security,
                     signature: base?.signature,
                     logoSettings: base?.logoSettings,
+                    ...(Number(base?.layoutVersion) >= 2 ? { layoutVersion: 2 as const } : {}),
                 })
             );
             await firstValueFrom(

@@ -21,19 +21,19 @@
                     >
                     <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
                     <a
-                        routerLink="/smart-batch"
+                        routerLink="/smart-reports/builder"
                         class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                        >{{ t('visitaGuide.brand') }}</a
+                        >{{ t('nav.smart_reports') }}</a
                     >
                     <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
                     <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                        t('smartBatchLanding.workspaceTitle')
+                        activeTab() === 'templates' ? t('nav.pdf_templates') : t('nav.smart_batch')
                     }}</span>
                 </div>
 
                 <div class="flex items-start gap-3">
                     <a
-                        routerLink="/smart-batch"
+                        routerLink="/smart-reports/builder"
                         class="sb-back-btn"
                         [attr.aria-label]="t('smartBatchLanding.backToGuide')"
                         [matTooltip]="t('smartBatchLanding.backToGuide')"
@@ -152,13 +152,13 @@
                         >
                             01
                         </span>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-2">
                                 <p class="text-sm font-semibold text-stone-950 dark:text-white">
                                     {{ t('smartBatchLanding.concept1Title') }}
                                 </p>
                                 <span
-                                    class="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                                    class="shrink-0 whitespace-nowrap rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                                 >
                                     {{ t('smartBatchLanding.concept1Badge') }}
                                 </span>
@@ -184,13 +184,13 @@
                         >
                             02
                         </span>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-2">
                                 <p class="text-sm font-semibold text-stone-950 dark:text-white">
                                     {{ t('smartBatchLanding.concept2Title') }}
                                 </p>
                                 <span
-                                    class="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
+                                    class="shrink-0 whitespace-nowrap rounded-full bg-indigo-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
                                 >
                                     {{ t('smartBatchLanding.concept2Badge') }}
                                 </span>
@@ -209,13 +209,13 @@
                         >
                             03
                         </span>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-2">
                                 <p class="text-sm font-semibold text-stone-950 dark:text-white">
                                     {{ t('smartBatchLanding.concept3Title') }}
                                 </p>
                                 <span
-                                    class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                                    class="shrink-0 whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                 >
                                     {{ t('smartBatchLanding.concept3Badge') }}
                                 </span>
@@ -914,6 +914,20 @@
                         <div class="flex min-h-[50vh] flex-col items-center justify-center gap-3">
                             <mat-spinner diameter="36"></mat-spinner>
                             <p class="text-sm text-stone-500">{{ t('smartBatchLanding.templatePreviewLoading') }}</p>
+                        </div>
+                    } @else if (previewHtmlDoc()) {
+                        <iframe
+                            [attr.title]="templateTitle(preview)"
+                            [srcdoc]="previewHtmlDoc()"
+                            class="h-[78vh] w-full rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"
+                        ></iframe>
+                    } @else if (preview.reportTheme && preview.thumbnail?.image) {
+                        <div class="flex justify-center">
+                            <img
+                                [src]="preview.thumbnail!.image"
+                                [alt]="templateTitle(preview)"
+                                class="max-h-[78vh] w-auto rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"
+                            />
                         </div>
                     } @else {
                         <report-preview

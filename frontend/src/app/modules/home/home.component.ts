@@ -220,10 +220,17 @@ export class HomeComponent implements OnInit {
             icon: 'checklist',
         },
         {
+            id: 'smart-reports',
+            titleKey: 'nav.smart_reports',
+            subtitleKey: 'nav.smart_reports_subtitle',
+            link: '/smart-reports/builder',
+            icon: 'description',
+        },
+        {
             id: 'smart-batch',
             titleKey: 'home.shortcuts.smartBatch',
-            subtitleKey: 'nav.visita_guide_subtitle',
-            link: '/smart-batch',
+            subtitleKey: 'nav.smart_batch_run_subtitle',
+            link: '/smart-reports/batch',
             icon: 'queue',
         },
         {

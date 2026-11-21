@@ -357,7 +357,7 @@
         "templatePreviewLoading": "Cargando vista previa...",
         "templatePreviewFailed": "No se pudo mostrar la vista previa de esta plantilla.",
         "concept1Title": "Configuraciones = Endpoints que eliges",
-        "concept1Badge": "Cadena de APIs",
+        "concept1Badge": "APIs",
         "concept1Desc": "Cada configuración es la cadena ordenada de endpoints oficiales de verificación que eliges para un país.",
         "concept2Title": "Plantillas de Reporte = Diseño PDF",
         "concept2Badge": "Estudio PDF",
@@ -12853,7 +12853,7 @@
         "scoreFormat": "Formato",
         "formatUnit": "0–1",
         "formatPercent": "98%",
-        "profileCabify": "Conductor Cabify (Chile)",
+        "profileCabify": "Incorporación de conductores",
         "branding": "Logo, colores y fuentes",
         "logo": "Logo",
         "logoClear": "Quitar logo",
@@ -12875,7 +12875,7 @@
             "dashboard": "Dashboard"
         },
         "hints": {
-            "premium_dark": "Cabify",
+            "premium_dark": "Ejecutivo oscuro",
             "light_cards": "Maquetación en tarjetas",
             "editorial": "Certificado",
             "dashboard": "Gráficos y KPIs"
