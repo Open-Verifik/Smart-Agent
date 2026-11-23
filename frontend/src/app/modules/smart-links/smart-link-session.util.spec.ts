@@ -7,6 +7,7 @@ import {
     escapeCsvCell,
     extractLinkedSelfieDataUrl,
     formatSessionDate,
+    formatTimelineMetaEntries,
     interactionBadgeClass,
     interactionIcon,
     isActiveAutoRefreshState,
@@ -14,6 +15,7 @@ import {
     isTerminalSessionState,
     resolveSessionTargetLabel,
     resolveSessionTargetSubLabel,
+    resolveTimelineSummaryDescriptor,
     sessionStatePillClass,
 } from './smart-link-session.util';
 import type { SmartLinkSessionDetail, SmartLinkSessionRecord } from './smart-links.types';
@@ -185,5 +187,71 @@ describe('smart-link-session.util', () => {
             'shortCode,state,target,email,phone,requireDocument,channel,uses,externalRefId,createdAt,completedAt,notes'
         );
         expect(row).toContain('CODE123,COMPLETED,Alice Smith,alice@example.com,\'+573001112233,true,portal,1/1,\'=1+1,2026-11-20T10:00:00.000Z,2026-11-20T10:05:00.000Z,"\'@admin check, urgent"');
+    });
+
+    it('formats interaction timeline metadata and summaries for human readability while hiding internal IDs', () => {
+        const routed = formatTimelineMetaEntries({
+            type: 'ROUTED',
+            at: '2026-11-20T23:21:24.000Z',
+            actor: 'system',
+            summary: 'Routed to enroll',
+            meta: {
+                resolvedMode: 'personal',
+                verificationAction: 'enroll',
+                hasExistingAccount: false,
+                requireDocument: false,
+                targetProjectId: '6266193db77ccc8111730c90',
+                targetRoute: '/verify/6266193db77ccc8111730c90',
+            },
+        });
+
+        expect(routed.map((m) => m.key)).toEqual([
+            'resolvedMode',
+            'verificationAction',
+            'hasExistingAccount',
+            'requireDocument',
+        ]);
+        expect(routed[0].labelKey).toBe('smartLinks.timeline.metaLabels.resolvedMode');
+        expect(routed[0].valueKey).toBe('smartLinks.timeline.metaValues.personal');
+        expect(routed[2].valueKey).toBe('smartLinks.timeline.metaValues.false');
+
+        const summary = resolveTimelineSummaryDescriptor({
+            type: 'ROUTED',
+            at: '2026-11-20T23:21:24.000Z',
+            actor: 'system',
+            summary: 'Routed to enroll',
+            meta: { resolvedMode: 'personal', verificationAction: 'enroll' },
+        });
+        expect(summary.key).toBe('smartLinks.timeline.summaries.ROUTED_enroll');
+
+        const reissued = formatTimelineMetaEntries({
+            type: 'REISSUED',
+            at: '2026-11-20T23:21:21.000Z',
+            actor: 'portal',
+            summary: 'Reissued signed verification link & QR',
+            meta: { expiresAt: '2026-11-21T15:21:21.656Z' },
+        });
+        expect(reissued).toHaveLength(1);
+        expect(reissued[0].rawValue).toMatch(/Nov 21, 2026/);
+
+        const opened = resolveTimelineSummaryDescriptor({
+            type: 'OPENED',
+            at: '2026-11-20T23:21:23.000Z',
+            actor: 'end_user',
+            summary: 'Link opened (#1)',
+            meta: { openCount: 1, via: 'signed_link' },
+        });
+        expect(opened).toEqual({
+            key: 'smartLinks.timeline.summaries.OPENED_count',
+            params: { count: 1 },
+            fallback: 'Link opened (#1)',
+        });
+        expect(
+            formatTimelineMetaEntries({
+                type: 'OPENED',
+                at: '2026-11-20T23:21:23.000Z',
+                meta: { openCount: 1, via: 'signed_link' },
+            }).map((m) => m.key)
+        ).toEqual(['via']);
     });
 });
