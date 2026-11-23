@@ -12987,7 +12987,25 @@
       "sourceInsurance": "Seguro obligatorio",
       "sourceVehicle": "Registro de vehículos",
       "sourceCompanies": "Registro de empresas"
-    }
+    },
+    "density": "Densidad",
+    "densityOptions": {
+      "compact": "Compacto",
+      "balanced": "Equilibrado",
+      "full": "Completo"
+    },
+    "wordmark": "Marca / Wordmark",
+    "coverColor": "Fondo portada",
+    "pageColor": "Fondo página",
+    "cardColor": "Fondo tarjeta",
+    "inkColor": "Color texto",
+    "showHowItWorks": "Reglas",
+    "copyCustomization": "Títulos y textos legales",
+    "coverTitle": "Título de portada",
+    "headlineApproveLabel": "Titular aprobado",
+    "headlineReviewLabel": "Titular revisión",
+    "headlineRejectLabel": "Titular rechazado",
+    "legalNoteLabel": "Nota legal al pie"
   },
   "smartLinks": {
     "badge": "Enlace de Verificación",

@@ -12738,7 +12738,25 @@
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
       "sourceCompanies": "Company registry"
-    }
+    },
+    "density": "밀도",
+    "densityOptions": {
+      "compact": "간략히",
+      "balanced": "균형",
+      "full": "전체"
+    },
+    "wordmark": "브랜드 워드마크",
+    "coverColor": "표지 배경",
+    "pageColor": "페이지 배경",
+    "cardColor": "카드 배경",
+    "inkColor": "텍스트 색상",
+    "showHowItWorks": "규칙",
+    "copyCustomization": "제목 및 법적 문구",
+    "coverTitle": "표지 제목",
+    "headlineApproveLabel": "승인 제목",
+    "headlineReviewLabel": "검토 제목",
+    "headlineRejectLabel": "거부 제목",
+    "legalNoteLabel": "바닥글 법적 고지"
   },
   "plateReport": {
     "title": "Vehicle report",

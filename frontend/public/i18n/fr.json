@@ -12705,7 +12705,25 @@
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
       "sourceCompanies": "Company registry"
-    }
+    },
+    "density": "Densité",
+    "densityOptions": {
+      "compact": "Compact",
+      "balanced": "Équilibré",
+      "full": "Complet"
+    },
+    "wordmark": "Nom de marque",
+    "coverColor": "Fond couverture",
+    "pageColor": "Fond de page",
+    "cardColor": "Fond de carte",
+    "inkColor": "Couleur du texte",
+    "showHowItWorks": "Règles",
+    "copyCustomization": "Titres et mentions légales",
+    "coverTitle": "Titre de couverture",
+    "headlineApproveLabel": "Titre approuvé",
+    "headlineReviewLabel": "Titre en révision",
+    "headlineRejectLabel": "Titre rejeté",
+    "legalNoteLabel": "Note légale de pied de page"
   },
   "plateReport": {
     "title": "Vehicle report",
