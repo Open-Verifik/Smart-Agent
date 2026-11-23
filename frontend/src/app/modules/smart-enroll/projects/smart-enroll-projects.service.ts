@@ -251,12 +251,37 @@ export class SmartEnrollProjectsService {
     }
 
     /**
+     * Build a clean, filesystem-safe PDF filename from the user's full name.
+     * Falls back to `enrollment-<id>.pdf` when no usable name is available.
+     */
+    buildEnrollmentPdfFilename(fullName: string | null | undefined, id: string): string {
+        const fallback = `enrollment-${id}.pdf`;
+        const raw = typeof fullName === 'string' ? fullName.trim() : '';
+        if (!raw) return fallback;
+
+        const normalized = raw
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^A-Za-z0-9\s]+/g, ' ')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join('_')
+            .slice(0, 80)
+            .replace(/^_+|_+$/g, '');
+
+        return normalized ? `${normalized}.pdf` : fallback;
+    }
+
+    /**
      * Download the CV-style enrollment summary as a PDF Blob (and the suggested filename).
-     * The backend may set `Content-Disposition: attachment; filename="..."`; we parse it when present.
+     * Parses `Content-Disposition` when exposed by the server and falls back to the user's full name.
      */
     exportAppRegistrationCV(
         id: string,
-        language?: string
+        language?: string,
+        fallbackName?: string | null
     ): Observable<{ blob: Blob; filename: string }> {
         return this._http
             .post(
@@ -274,8 +299,17 @@ export class SmartEnrollProjectsService {
             .pipe(
                 map((res) => {
                     const disposition = res.headers.get('Content-Disposition') || '';
-                    const match = /filename="?([^";]+)"?/i.exec(disposition);
-                    const filename = match?.[1] ?? `enrollment-${id}.pdf`;
+                    const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+                    const asciiMatch = /filename="?([^";]+)"?/i.exec(disposition);
+                    const headerFilename = utf8Match?.[1]
+                        ? decodeURIComponent(utf8Match[1].trim())
+                        : asciiMatch?.[1]?.trim();
+                    const legacyDefault = `enrollment-${id}.pdf`;
+                    const nameBasedFilename = this.buildEnrollmentPdfFilename(fallbackName, id);
+                    const filename =
+                        headerFilename && headerFilename !== legacyDefault
+                            ? headerFilename
+                            : nameBasedFilename;
                     return { blob: res.body as Blob, filename };
                 }),
                 catchError((err) => {
