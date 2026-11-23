@@ -85,6 +85,12 @@ export const queryModeForBatchStep = (
     return modes.length > 1 ? modes[0].id : '';
 };
 
+const isPinnedDefaultValue = (value: unknown): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return true;
+};
+
 const suppliedByChain = (step: BatchStep, config: BatchConfiguration | null | undefined): Set<string> => {
     const supplied = new Set<string>();
     const defaults =
@@ -93,6 +99,8 @@ const suppliedByChain = (step: BatchStep, config: BatchConfiguration | null | un
             : {};
     for (const [key, value] of Object.entries(defaults)) {
         if (typeof value === 'string' && CHAIN_TEMPLATE.test(value.trim())) {
+            supplied.add(canonicalChainField(key));
+        } else if (isPinnedDefaultValue(value)) {
             supplied.add(canonicalChainField(key));
         }
     }
@@ -151,7 +159,7 @@ const usesFlowInputPlan = (config: BatchConfiguration | null | undefined): boole
                     step.parameterDefaults && typeof step.parameterDefaults === 'object'
                         ? (step.parameterDefaults as Record<string, unknown>)
                         : {}
-                ).some((value) => typeof value === 'string' && CHAIN_TEMPLATE.test(value.trim()))
+                ).some((value) => isPinnedDefaultValue(value))
         )
     ) {
         return true;
