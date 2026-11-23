@@ -756,6 +756,22 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Extract the user's real full name (not email/phone fallback) for PDF export filenames.
+     */
+    private _exportCandidateName(r: AppRegistrationDetail): string | null {
+        const iv = r.informationValidation as Record<string, unknown> | null | undefined;
+        const full = iv?.['fullName'];
+        if (typeof full === 'string' && full.trim()) return full.trim();
+        const parts = [iv?.['firstName'], iv?.['lastName']].filter(
+            (x): x is string => typeof x === 'string' && x.trim().length > 0
+        );
+        if (parts.length) return parts.join(' ');
+        const personName = (r.person as { name?: string } | null | undefined)?.name;
+        if (typeof personName === 'string' && personName.trim()) return personName.trim();
+        return null;
+    }
+
+    /**
      * Request the backend-rendered CV PDF and download it via a temporary blob URL.
      */
     downloadCv(): void {
@@ -764,7 +780,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         this.exportLoading.set(true);
         this._cdr.markForCheck();
         this._projectsService
-            .exportAppRegistrationCV(r._id, this._currentLanguage())
+            .exportAppRegistrationCV(r._id, this._currentLanguage(), this._exportCandidateName(r))
             .pipe(
                 finalize(() => {
                     this.exportLoading.set(false);

@@ -22,14 +22,17 @@
     display: flex;
     max-height: min(92vh, 860px);
     flex-direction: column;
-    overflow: auto;
+    overflow: hidden;
     background: #fff;
 }
 
 .leave-decision {
     display: grid;
+    flex: 1 1 auto;
     grid-template-columns: minmax(0, 1.08fr) minmax(16rem, 0.92fr);
     min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .leave-choices,
@@ -338,7 +341,10 @@
 }
 
 .leave-footer {
+    position: relative;
+    z-index: 1;
     display: flex;
+    flex: 0 0 auto;
     justify-content: flex-end;
     padding: 0.85rem 1.35rem 1.1rem;
     border-top: 1px solid #e7e5e4;

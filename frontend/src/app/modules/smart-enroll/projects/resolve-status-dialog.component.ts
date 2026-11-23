@@ -86,12 +86,37 @@ export class ResolveStatusDialogComponent {
         return !this.data.preselected;
     }
 
-    /** Best-effort preview of the webhook type this override will fire, for transparency. */
-    webhookTypePreview(): string {
-        const status = this.selected();
-        if (!status) return '';
-        const flowType = this.data.record?.projectFlow?.type || 'onboarding';
-        return `${flowType}_app_registration_${status.toLowerCase()}`;
+    /** User-friendly impact notice key tailored to the selected status. */
+    statusNoticeKey(): string {
+        switch (this.selected()) {
+            case 'COMPLETED':
+                return 'smartEnrollProjects.recordDetail.resolveDialog.noticeCompleted';
+            case 'COMPLETED_WITHOUT_KYC':
+                return 'smartEnrollProjects.recordDetail.resolveDialog.noticeCompletedNoKyc';
+            case 'FAILED':
+                return 'smartEnrollProjects.recordDetail.resolveDialog.noticeFailed';
+            default:
+                return '';
+        }
+    }
+
+    private _resolveErrorMessage(error: { status?: number; error?: { message?: string; code?: string } }): string {
+        const status = error?.status;
+        const rawCode = `${error?.error?.code || error?.error?.message || ''}`.toLowerCase();
+
+        if (status === 0) {
+            return this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.errorNetwork');
+        }
+        if (status === 401 || rawCode.includes('unauthorized') || rawCode.includes('token')) {
+            return this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.errorUnauthorized');
+        }
+        if (status === 403 || rawCode.includes('access_denied') || rawCode.includes('forbidden')) {
+            return this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.errorForbidden');
+        }
+        if (status === 404 || rawCode.includes('not_found')) {
+            return this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.errorNotFound');
+        }
+        return this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.genericError');
     }
 
     select(option: ResolvableAppRegistrationStatus): void {
@@ -120,10 +145,7 @@ export class ResolveStatusDialogComponent {
                     this._dialogRef.close({ success: true, record: response?.data, status } as ResolveStatusDialogResult);
                 },
                 error: (error) => {
-                    const message =
-                        error?.error?.message ??
-                        this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.genericError');
-                    this.errorMessage.set(message);
+                    this.errorMessage.set(this._resolveErrorMessage(error));
                 },
             });
     }
