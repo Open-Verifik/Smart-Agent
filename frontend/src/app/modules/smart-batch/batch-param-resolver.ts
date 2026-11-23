@@ -21,20 +21,77 @@ const normalizeMapping = (mapping: unknown): Record<string, string> => {
     return {};
 };
 
-const getByPath = (source: unknown, path: string): unknown => {
+const formatDmyDate = (value: unknown): string => {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        const dd = String(value.getUTCDate()).padStart(2, '0');
+        const mm = String(value.getUTCMonth() + 1).padStart(2, '0');
+        return `${dd}/${mm}/${value.getUTCFullYear()}`;
+    }
+    const text = String(value ?? '').trim();
+    const dmy = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmy) return `${dmy[1].padStart(2, '0')}/${dmy[2].padStart(2, '0')}/${dmy[3]}`;
+    const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+    return text;
+};
+
+const deriveLeafField = (obj: Record<string, unknown>, segment: string): unknown => {
+    if (segment === 'firstSurname') {
+        const direct = obj['primerApellido'] ?? obj['firstLastName'];
+        if (!isEmpty(direct)) return String(direct).trim().split(/\s+/)[0];
+        if (!isEmpty(obj['lastName'])) return String(obj['lastName']).trim().split(/\s+/)[0];
+        return undefined;
+    }
+    if (segment === 'date') {
+        const raw = obj['expeditionDate'] ?? obj['fechaExpedicion'] ?? obj['issueDate'];
+        if (!isEmpty(raw)) return formatDmyDate(raw);
+        return undefined;
+    }
+    if (segment === 'fullName') {
+        const combined = [obj['firstName'], obj['lastName']]
+            .filter((part) => !isEmpty(part))
+            .join(' ')
+            .trim();
+        return combined || undefined;
+    }
+    return undefined;
+};
+
+const getSinglePath = (source: unknown, path: string): unknown => {
     if (!path || source == null) return undefined;
     const segments = String(path)
+        .trim()
         .replace(/\[(\d+)\]/g, '.$1')
         .split('.')
         .filter(Boolean);
     let current: unknown = source;
-    for (const segment of segments) {
+    for (let i = 0; i < segments.length; i += 1) {
+        const segment = segments[i];
         if (current == null || typeof current !== 'object') return undefined;
-        current = Array.isArray(current)
-            ? current[Number(segment)]
-            : (current as Record<string, unknown>)[segment];
+        if (Array.isArray(current)) {
+            current = current[Number(segment)];
+            continue;
+        }
+        const record = current as Record<string, unknown>;
+        let next = record[segment];
+        if (isEmpty(next) && i === segments.length - 1) {
+            const derived = deriveLeafField(record, segment);
+            if (!isEmpty(derived)) next = derived;
+        }
+        current = next;
     }
     return current;
+};
+
+const getByPath = (source: unknown, path: string): unknown => {
+    if (!path || source == null) return undefined;
+    const expr = String(path);
+    if (!expr.includes('||')) return getSinglePath(source, expr);
+    for (const branch of expr.split('||')) {
+        const candidate = getSinglePath(source, branch);
+        if (!isEmpty(candidate)) return candidate;
+    }
+    return undefined;
 };
 
 const resolveTemplate = (value: unknown, context: Record<string, unknown>): unknown => {
@@ -43,11 +100,14 @@ const resolveTemplate = (value: unknown, context: Record<string, unknown>): unkn
     if (!exact) return value;
     const direct = getByPath(context, exact[1]);
     if (!isEmpty(direct)) return direct;
-    const segments = exact[1].split('.').filter(Boolean);
-    const leaf = segments.pop() ?? '';
-    const parent = getByPath(context, segments.join('.'));
-    const alias = collectCanonicalScalarValues(parent)[canonicalChainField(leaf)];
-    return isEmpty(alias) ? direct : alias;
+    for (const branch of exact[1].split('||')) {
+        const segments = branch.trim().split('.').filter(Boolean);
+        const leaf = segments.pop() ?? '';
+        const parent = getSinglePath(context, segments.join('.'));
+        const alias = collectCanonicalScalarValues(parent)[canonicalChainField(leaf)];
+        if (!isEmpty(alias)) return alias;
+    }
+    return direct;
 };
 
 const groupOf = (dependency: { dependencyGroup?: string }): string => (dependency.dependencyGroup ?? '').trim();

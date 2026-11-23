@@ -154,6 +154,110 @@ describe('extractRequiredFieldsFromConfig', () => {
         } as BatchConfiguration);
         expect(fields.map((field) => field.field)).toEqual(['documentNumber', 'documentType', 'fullName']);
     });
+
+    it('asks only for documentNumber and documentType on chained driver preset steps', () => {
+        const driverConfig: BatchConfiguration = {
+            name: 'Validación de conductor (Colombia)',
+            country: 'Colombia',
+            inputFormat: 'csv',
+            outputFormat: 'csv',
+            mergeStrategy: 'sequential',
+            steps: [
+                {
+                    sequence: 1,
+                    enabled: true,
+                    parameterDefaults: {},
+                    appFeature: {
+                        _id: 's1',
+                        code: 'colombia_api_identity_lookup_premium',
+                        name: 'Identity Premium',
+                        dependencies: [{ field: 'documentNumber', required: true }],
+                    },
+                },
+                {
+                    sequence: 2,
+                    enabled: true,
+                    parameterDefaults: {},
+                    appFeature: {
+                        _id: 's2',
+                        code: 'colombia_special_api_police_identity_lookup',
+                        name: 'Police',
+                        dependencies: [
+                            { field: 'documentType', required: true, enum: ['CC', 'CE', 'PPT', 'PA', 'DP'] },
+                            { field: 'documentNumber', required: true },
+                        ],
+                    },
+                },
+                {
+                    sequence: 3,
+                    enabled: true,
+                    parameterDefaults: { date: '{{results.1.date}}' },
+                    appFeature: {
+                        _id: 's3',
+                        code: 'colombia_api_registraduria_certificate',
+                        name: 'Registraduría',
+                        dependencies: [
+                            { field: 'documentType', required: true, enum: ['CC'] },
+                            { field: 'documentNumber', required: true },
+                            { field: 'date', required: true },
+                        ],
+                    },
+                },
+                {
+                    sequence: 4,
+                    enabled: true,
+                    parameterDefaults: { firstSurname: '{{results.1.firstSurname || results.2.firstSurname}}' },
+                    appFeature: {
+                        _id: 's4',
+                        code: 'colombia_inpec_lookup',
+                        name: 'INPEC',
+                        dependencies: [
+                            { field: 'documentType', required: true, enum: ['CC'] },
+                            { field: 'documentNumber', required: true },
+                            { field: 'firstSurname', required: true },
+                        ],
+                    },
+                },
+                {
+                    sequence: 9,
+                    enabled: true,
+                    parameterDefaults: { city: 'bogota' },
+                    appFeature: {
+                        _id: 's9',
+                        code: 'colombia_api_rama_jepms',
+                        name: 'JEPMS',
+                        dependencies: [
+                            { field: 'documentType', required: false, enum: ['CC', 'CE', 'NIT'] },
+                            { field: 'documentNumber', required: true },
+                            { field: 'city', required: false },
+                        ],
+                    },
+                },
+                {
+                    sequence: 12,
+                    enabled: true,
+                    queryMode: '2',
+                    parameterDefaults: { fullName: '{{results.1.fullName || results.2.fullName}}' },
+                    appFeature: {
+                        _id: 's12',
+                        code: 'world_api_ofac',
+                        name: 'OFAC',
+                        dependencies: [
+                            { field: 'fullName', required: false, dependencyGroup: '2' },
+                            { field: 'documentType', required: false, dependencyGroup: '1' },
+                            { field: 'documentNumber', required: false, dependencyGroup: '1' },
+                            { field: 'dateOfBirth', required: false, dependencyGroup: '1', requiredWhen: { field: 'documentType', in: ['CCPA'] } },
+                            { field: 'expirationDate', required: false, dependencyGroup: '1', requiredWhen: { field: 'documentType', in: ['CE', 'PPT'] } },
+                        ],
+                    },
+                },
+            ],
+        };
+
+        const fields = extractRequiredFieldsFromConfig(driverConfig);
+        expect(fields.map((field) => field.field)).toEqual(['documentNumber', 'documentType']);
+        expect(fields.every((field) => field.required)).toBe(true);
+    });
 });
 
 describe('step compatibility', () => {
