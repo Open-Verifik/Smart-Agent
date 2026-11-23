@@ -101,7 +101,20 @@ export class QuickValidateComponent implements OnInit {
     documentTypeValue = signal<string>('');
 
     isAppendMode = computed(() => !!this.batchId());
-    requiredFields = computed(() => extractRequiredFieldsFromConfig(this.configuration()));
+    requiredFields = computed(() => {
+        const preferredOrder = ['documentType', 'documentNumber', 'plate', 'vin'];
+        return [...extractRequiredFieldsFromConfig(this.configuration())].sort((a, b) => {
+            if (a.required !== b.required) return a.required ? -1 : 1;
+            const ia = preferredOrder.indexOf(a.field);
+            const ib = preferredOrder.indexOf(b.field);
+            if (ia !== -1 || ib !== -1) {
+                if (ia === -1) return 1;
+                if (ib === -1) return -1;
+                return ia - ib;
+            }
+            return a.field.localeCompare(b.field);
+        });
+    });
     hasDocumentTypeField = computed(() =>
         this.requiredFields().some((field) => field.field === 'documentType')
     );
