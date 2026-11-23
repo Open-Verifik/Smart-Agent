@@ -13419,7 +13419,12 @@
       "signedUrlHiddenBody": "서명 전용 보안이 활성화되어 기존 URL을 다시 조회할 수 없습니다.",
       "reissueFreshUrlQrBtn": "새 URL 및 QR을 받으려면 링크 재발급",
       "awaitingAsyncTitle": "수동 검토 또는 법인 대표자 서명 대기 중",
-      "awaitingAsyncBody": "연결된 KYC 수동 검토 또는 KYB 대표자 인증이 완료될 때까지 이 SmartLink는 진행 중 상태로 유지되며 완료 시 웹훅과 상태 조회가 자동 업데이트됩니다."
+      "awaitingAsyncBody": "연결된 KYC 수동 검토 또는 KYB 대표자 인증이 완료될 때까지 이 SmartLink는 진행 중 상태로 유지되며 완료 시 웹훅과 상태 조회가 자동 업데이트됩니다.",
+      "livePollingLabel": "실시간 ({{seconds}}초)",
+      "livePollingPaused": "실시간 일시 중지됨",
+      "livePollingTooltipOn": "5초마다 자동으로 업데이트를 확인합니다. 클릭하여 일시 중지합니다.",
+      "livePollingTooltipOff": "실시간 업데이트가 일시 중지되었습니다. 클릭하여 5초마다 확인을 재개합니다.",
+      "manualRefreshLabel": "새로고침"
     },
     "dialogs": {
       "editTitle": "SmartLink 수정",
