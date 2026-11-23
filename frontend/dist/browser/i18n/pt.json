@@ -13419,7 +13419,12 @@
       "signedUrlHiddenBody": "A segurança por link assinado está ativa neste hub e não permite consultar a URL anterior.",
       "reissueFreshUrlQrBtn": "Reemitir link para obter URL e QR novos",
       "awaitingAsyncTitle": "Aguardando revisão manual ou assinatura societária",
-      "awaitingAsyncBody": "Este SmartLink permanece em andamento até a conclusão da revisão KYC ou dos representantes KYB. Webhooks e consultas de status serão atualizados automaticamente."
+      "awaitingAsyncBody": "Este SmartLink permanece em andamento até a conclusão da revisão KYC ou dos representantes KYB. Webhooks e consultas de status serão atualizados automaticamente.",
+      "livePollingLabel": "Ao vivo ({{seconds}}s)",
+      "livePollingPaused": "Ao vivo pausado",
+      "livePollingTooltipOn": "Verifica atualizações automaticamente a cada 5s. Clique para pausar.",
+      "livePollingTooltipOff": "Atualizações ao vivo pausadas. Clique para retomar a cada 5s.",
+      "manualRefreshLabel": "Atualizar"
     },
     "dialogs": {
       "editTitle": "Editar SmartLink",

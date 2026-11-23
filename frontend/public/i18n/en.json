@@ -13351,7 +13351,12 @@
       "signedUrlHiddenBody": "Signed-only security is active for this hub, so the raw URL cannot be read back.",
       "reissueFreshUrlQrBtn": "Reissue link to get fresh URL & QR",
       "awaitingAsyncTitle": "Awaiting manual verification or corporate sign-off",
-      "awaitingAsyncBody": "This SmartLink stays in progress until the linked KYC review or KYB legal representatives complete. Webhooks and status polls will update automatically."
+      "awaitingAsyncBody": "This SmartLink stays in progress until the linked KYC review or KYB legal representatives complete. Webhooks and status polls will update automatically.",
+      "livePollingLabel": "Live ({{seconds}}s)",
+      "livePollingPaused": "Live paused",
+      "livePollingTooltipOn": "Automatically checks for updates every 5s. Click to pause.",
+      "livePollingTooltipOff": "Live updates paused. Click to resume checking every 5s.",
+      "manualRefreshLabel": "Refresh"
     },
     "dialogs": {
       "editTitle": "Edit SmartLink",
