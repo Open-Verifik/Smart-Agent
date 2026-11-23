@@ -12738,7 +12738,25 @@
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
       "sourceCompanies": "Company registry"
-    }
+    },
+    "density": "表示密度",
+    "densityOptions": {
+      "compact": "コンパクト",
+      "balanced": "標準",
+      "full": "詳細"
+    },
+    "wordmark": "ブランド名",
+    "coverColor": "表紙背景",
+    "pageColor": "ページ背景",
+    "cardColor": "カード背景",
+    "inkColor": "文字色",
+    "showHowItWorks": "ルール",
+    "copyCustomization": "見出しと法的文言",
+    "coverTitle": "表紙タイトル",
+    "headlineApproveLabel": "承認時の見出し",
+    "headlineReviewLabel": "確認時の見出し",
+    "headlineRejectLabel": "却下時の見出し",
+    "legalNoteLabel": "フッター法的注記"
   },
   "plateReport": {
     "title": "Vehicle report",

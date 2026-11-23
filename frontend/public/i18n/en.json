@@ -12987,7 +12987,25 @@
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
       "sourceCompanies": "Company registry"
-    }
+    },
+    "density": "Density",
+    "densityOptions": {
+      "compact": "Compact",
+      "balanced": "Balanced",
+      "full": "Full"
+    },
+    "wordmark": "Brand wordmark",
+    "coverColor": "Cover bg",
+    "pageColor": "Page bg",
+    "cardColor": "Card bg",
+    "inkColor": "Text ink",
+    "showHowItWorks": "Rules",
+    "copyCustomization": "Headlines & legal texts",
+    "coverTitle": "Cover title",
+    "headlineApproveLabel": "Approved headline",
+    "headlineReviewLabel": "Review headline",
+    "headlineRejectLabel": "Rejected headline",
+    "legalNoteLabel": "Legal footer note"
   },
   "smartLinks": {
     "badge": "Identity Verification Link",

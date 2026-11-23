@@ -12738,7 +12738,25 @@
       "sourceInsurance": "Mandatory insurance",
       "sourceVehicle": "Vehicle registry",
       "sourceCompanies": "Company registry"
-    }
+    },
+    "density": "排版密度",
+    "densityOptions": {
+      "compact": "紧凑",
+      "balanced": "均衡",
+      "full": "完整"
+    },
+    "wordmark": "品牌标识文字",
+    "coverColor": "封面背景",
+    "pageColor": "页面背景",
+    "cardColor": "卡片背景",
+    "inkColor": "文字颜色",
+    "showHowItWorks": "规则",
+    "copyCustomization": "标题与法律文本",
+    "coverTitle": "封面标题",
+    "headlineApproveLabel": "通过标题",
+    "headlineReviewLabel": "复核标题",
+    "headlineRejectLabel": "拒绝标题",
+    "legalNoteLabel": "页脚法律声明"
   },
   "plateReport": {
     "title": "Vehicle report",
