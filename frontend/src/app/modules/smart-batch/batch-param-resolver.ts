@@ -78,6 +78,10 @@ const getSinglePath = (source: unknown, path: string): unknown => {
             const derived = deriveLeafField(record, segment);
             if (!isEmpty(derived)) next = derived;
         }
+        if (isEmpty(next) && record['data'] && typeof record['data'] === 'object' && !Array.isArray(record['data'])) {
+            const unwrapped = getSinglePath(record['data'], segments.slice(i).join('.'));
+            if (!isEmpty(unwrapped)) return unwrapped;
+        }
         current = next;
     }
     return current;

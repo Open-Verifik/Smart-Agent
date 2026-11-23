@@ -399,7 +399,8 @@
                                             *ngIf="
                                                 view.requiredFields.length === 0 &&
                                                     view.conditionalFields.length === 0 &&
-                                                    view.optionalFields.length === 0;
+                                                    view.optionalFields.length === 0 &&
+                                                    view.autoFilledFields.length === 0;
                                                 else nonEmptyFlat
                                             "
                                         >
@@ -409,6 +410,27 @@
                                         </ng-container>
                                         <ng-template #nonEmptyFlat>
                                             <div class="space-y-4">
+                                                <div *ngIf="view.autoFilledFields.length > 0">
+                                                    <h6
+                                                        class="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400"
+                                                    >
+                                                        {{ autoFilledLabel() }}
+                                                    </h6>
+                                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                                        <div
+                                                            *ngFor="let af of view.autoFilledFields"
+                                                            class="flex items-start gap-2.5 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/20"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 shrink-0 text-emerald-600 dark:text-emerald-400">bolt</mat-icon>
+                                                            <div class="min-w-0 flex-1">
+                                                                <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs font-medium text-emerald-950 dark:bg-gray-900 dark:text-emerald-200">{{ af.field }}</code>
+                                                                <p class="mt-1 text-xs text-emerald-800 dark:text-emerald-300">
+                                                                    {{ autoFilledBadgeText(af) }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div *ngIf="view.requiredFields.length > 0">
                                                     <h6
                                                         class="mb-2 text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
