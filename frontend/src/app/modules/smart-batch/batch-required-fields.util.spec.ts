@@ -3,11 +3,13 @@ import type { BatchConfiguration } from './smart-batch.service';
 import { addEndpointNode, applyQueryMode, connectPorts, emptyFlowGraph } from './endpoint-flow-graph.util';
 import { queryModesForFeature } from './query-modes.util';
 import {
+    autoFilledFieldsForStep,
     extractRequiredFieldsFromConfig,
     getStepCompatibilityViews,
     isStepInputCompatible,
     mergeEnumValues,
     prepareStepsForRun,
+    stripInlineMarkdown,
 } from './batch-required-fields.util';
 
 const colombiaVehicleConfig: BatchConfiguration = {
@@ -257,6 +259,22 @@ describe('extractRequiredFieldsFromConfig', () => {
         const fields = extractRequiredFieldsFromConfig(driverConfig);
         expect(fields.map((field) => field.field)).toEqual(['documentNumber', 'documentType']);
         expect(fields.every((field) => field.required)).toBe(true);
+
+        expect(autoFilledFieldsForStep(driverConfig.steps[2], driverConfig)).toEqual([
+            { field: 'date', source: 'chain', fromSteps: [1] },
+        ]);
+        expect(autoFilledFieldsForStep(driverConfig.steps[3], driverConfig)).toEqual([
+            { field: 'firstSurname', source: 'chain', fromSteps: [1, 2] },
+        ]);
+        expect(autoFilledFieldsForStep(driverConfig.steps[4], driverConfig)).toEqual([
+            { field: 'city', source: 'default', defaultValue: 'bogota' },
+        ]);
+        expect(autoFilledFieldsForStep(driverConfig.steps[5], driverConfig)).toEqual([
+            { field: 'fullName', source: 'chain', fromSteps: [1, 2] },
+        ]);
+        expect(stripInlineMarkdown('**Fecha de expedición** en **`DD/MM/AAAA`**.')).toBe(
+            'Fecha de expedición en DD/MM/AAAA.'
+        );
     });
 });
 

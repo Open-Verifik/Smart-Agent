@@ -389,6 +389,79 @@ export const stripBatchInputMeta = (
     return rest;
 };
 
+export interface StepAutoFilledField {
+    field: string;
+    source: 'chain' | 'default';
+    fromSteps?: number[];
+    defaultValue?: string;
+}
+
+const RESULT_REF_RE = /(?:results|steps)\.(\d+)/g;
+
+/** Strip raw inline Markdown (`**bold**`, `` `code` ``) so API schema descriptions read cleanly in form labels/hints. */
+export const stripInlineMarkdown = (text?: string | null): string => {
+    if (!text) return '';
+    return String(text)
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/__([^_]+)__/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
+/**
+ * Describe parameters on a step that are automatically satisfied by earlier step
+ * outputs (`{{results.N...}}` or flow wires) or pinned step defaults (e.g. `city: "bogota"`).
+ */
+export const autoFilledFieldsForStep = (
+    step: BatchStep,
+    config: BatchConfiguration | null | undefined
+): StepAutoFilledField[] => {
+    const out: StepAutoFilledField[] = [];
+    const seen = new Set<string>();
+    const defaults =
+        step.parameterDefaults && typeof step.parameterDefaults === 'object'
+            ? (step.parameterDefaults as Record<string, unknown>)
+            : {};
+
+    for (const [key, value] of Object.entries(defaults)) {
+        if (!key) continue;
+        const canonical = canonicalChainField(key);
+        if (typeof value === 'string' && CHAIN_TEMPLATE.test(value.trim())) {
+            const fromSteps = [...new Set([...value.matchAll(RESULT_REF_RE)].map((m) => Number(m[1])).filter(Number.isFinite))];
+            seen.add(canonical);
+            out.push({ field: key, source: 'chain', fromSteps });
+        } else if (isPinnedDefaultValue(value)) {
+            seen.add(canonical);
+            out.push({ field: key, source: 'default', defaultValue: String(value).trim() });
+        }
+    }
+
+    const graph = parseFlowGraph(config?.visitaFlow);
+    const featureId = featureIdOf(step);
+    if (graph && featureId) {
+        const enabled = getEnabledSteps(config);
+        const seqByFeature = new Map(enabled.map((s) => [featureIdOf(s), s.sequence]));
+        const nodeId =
+            graph.nodes.find((node) => node.id === featureId || node.feature?._id === featureId)?.id ?? featureId;
+        for (const edge of graph.edges) {
+            if (edge.to !== nodeId || edge.toPort === '*' || edge.from === FLOW_START_ID) continue;
+            const canonical = canonicalChainField(edge.toPort);
+            if (seen.has(canonical)) continue;
+            const fromNode = graph.nodes.find((node) => node.id === edge.from);
+            const fromSeq = seqByFeature.get(fromNode?.feature?._id || edge.from);
+            seen.add(canonical);
+            out.push({
+                field: edge.toPort,
+                source: 'chain',
+                fromSteps: fromSeq ? [fromSeq] : [],
+            });
+        }
+    }
+
+    return out;
+};
+
 export const getPresetStepCount = (template: { presetSteps?: unknown[]; sections?: unknown[] }): number => {
     if (template.presetSteps?.length) return template.presetSteps.length;
     return template.sections?.length ?? 0;
