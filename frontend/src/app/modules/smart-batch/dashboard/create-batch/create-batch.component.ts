@@ -29,9 +29,12 @@ import {
 import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
 import * as XLSX from 'xlsx';
 import {
+    autoFilledFieldsForStep,
     dependenciesAskedOfTheUser,
     extractRequiredFieldsFromConfig,
     getUnionEnumValuesForField,
+    StepAutoFilledField,
+    stripInlineMarkdown,
 } from '../../batch-required-fields.util';
 import { getBatchInputCsvHeaders } from '../../batch-input-csv.util';
 import { stripClientHiddenRowFields } from '../../smart-batch-dependency.constants';
@@ -130,6 +133,7 @@ interface EndpointFieldsView {
     requiredFields: RequiredField[];
     conditionalFields: RequiredField[];
     optionalFields: RequiredField[];
+    autoFilledFields: StepAutoFilledField[];
 }
 
 @Component({
@@ -1461,7 +1465,7 @@ export class CreateBatchComponent implements OnInit {
             stepSequence: step.sequence,
             enumValues: dep.enum || undefined,
             type: dep.type || 'string',
-            description: dep.description,
+            description: stripInlineMarkdown(dep.description),
             dependencyGroup: dep.dependencyGroup,
             requiredWhen: dep.requiredWhen,
             dateFormat: dep.dateFormat,
@@ -1469,11 +1473,13 @@ export class CreateBatchComponent implements OnInit {
 
         const xor = this.computeXorFieldGroups(fields);
 
+        const autoFilledFields = autoFilledFieldsForStep(step, this.configuration());
         const baseView = {
             sequence: step.sequence,
             name: feature?.name || 'Unknown Step',
             code: feature?.code || '',
             enabled: step.enabled !== false,
+            autoFilledFields,
         };
 
         if (xor) {
@@ -1503,6 +1509,29 @@ export class CreateBatchComponent implements OnInit {
             conditionalFields,
             optionalFields,
         };
+    }
+
+    autoFilledLabel(): string {
+        return (this._transloco.getActiveLang() || 'en').toLowerCase().startsWith('es')
+            ? 'Completado automáticamente'
+            : 'Auto-filled automatically';
+    }
+
+    autoFilledBadgeText(item: StepAutoFilledField): string {
+        const isEs = (this._transloco.getActiveLang() || 'en').toLowerCase().startsWith('es');
+        if (item.source === 'default') {
+            return isEs ? `Predeterminado: ${item.defaultValue}` : `Default: ${item.defaultValue}`;
+        }
+        const steps = item.fromSteps ?? [];
+        if (steps.length === 1) {
+            return isEs ? `Automático desde Paso ${steps[0]}` : `Auto-filled from Step ${steps[0]}`;
+        }
+        if (steps.length > 1) {
+            return isEs
+                ? `Automático desde Paso ${steps[0]} (respaldo Paso ${steps.slice(1).join(', ')})`
+                : `Auto-filled from Step ${steps[0]} (fallback Step ${steps.slice(1).join(', ')})`;
+        }
+        return isEs ? 'Automático desde paso anterior' : 'Auto-filled from prior step';
     }
 
     /**
