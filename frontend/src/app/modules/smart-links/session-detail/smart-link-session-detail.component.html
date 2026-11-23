@@ -57,25 +57,45 @@
 
                     @if (detail(); as d) {
                         <div class="flex flex-wrap items-center gap-2">
+                            @if (!isTerminalState()) {
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="shrink-0 rounded-full whitespace-nowrap"
+                                    [attr.aria-pressed]="autoRefresh()"
+                                    [matTooltip]="autoRefresh() ? t('smartLinks.sessionDetail.livePollingTooltipOn') : t('smartLinks.sessionDetail.livePollingTooltipOff')"
+                                    [ngClass]="autoRefresh()
+                                        ? '!border-emerald-500/70 !bg-emerald-50/90 !text-emerald-800 dark:!border-emerald-500/50 dark:!bg-emerald-950/40 dark:!text-emerald-200'
+                                        : ''"
+                                    (click)="toggleAutoRefresh()"
+                                >
+                                    <span class="inline-flex items-center gap-1.5 tabular-nums">
+                                        <span
+                                            class="h-2 w-2 rounded-full"
+                                            [ngClass]="autoRefresh() ? 'animate-pulse bg-emerald-500' : 'bg-stone-400 dark:bg-stone-500'"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span>
+                                            {{
+                                                autoRefresh()
+                                                    ? t('smartLinks.sessionDetail.livePollingLabel', { seconds: refreshCountdown() })
+                                                    : t('smartLinks.sessionDetail.livePollingPaused')
+                                            }}
+                                        </span>
+                                    </span>
+                                </button>
+                            }
                             <button
                                 mat-stroked-button
                                 type="button"
-                                class="shrink-0 rounded-full whitespace-nowrap"
-                                [disabled]="isTerminalState()"
-                                [attr.aria-pressed]="autoRefresh()"
-                                [ngClass]="autoRefresh()
-                                    ? '!border-emerald-500/70 !bg-emerald-50/90 !text-emerald-800 dark:!border-emerald-500/50 dark:!bg-emerald-950/40 dark:!text-emerald-200'
-                                    : ''"
-                                (click)="toggleAutoRefresh()"
+                                class="shrink-0 rounded-xl whitespace-nowrap"
+                                [disabled]="refreshing()"
+                                [matTooltip]="t('smartLinks.sessionDetail.manualRefreshLabel')"
+                                [attr.aria-label]="t('smartLinks.sessionDetail.manualRefreshLabel')"
+                                (click)="manualRefresh()"
                             >
-                                <span class="inline-flex items-center gap-1.5">
-                                    <span
-                                        class="h-2 w-2 rounded-full"
-                                        [ngClass]="autoRefresh() ? 'animate-pulse bg-emerald-500' : 'bg-stone-400 dark:bg-stone-500'"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span>{{ t('smartLinks.sessionDetail.autoRefreshPill') }}</span>
-                                </span>
+                                <mat-icon class="!h-4 !w-4 mr-1" [class.animate-spin]="refreshing()">refresh</mat-icon>
+                                {{ t('smartLinks.sessionDetail.manualRefreshLabel') }}
                             </button>
                             @if (d.state !== 'COMPLETED' && d.state !== 'REVOKED') {
                                 <button mat-stroked-button type="button" class="shrink-0 rounded-xl whitespace-nowrap" (click)="openResendDialog()">

@@ -13419,7 +13419,12 @@
       "signedUrlHiddenBody": "署名付きリンク専用セキュリティが有効なため、元のURLは再表示できません。",
       "reissueFreshUrlQrBtn": "リンクを再発行して新しいURLとQRを取得",
       "awaitingAsyncTitle": "手動審査または代表者承認の待機中",
-      "awaitingAsyncBody": "関連する KYC 手動審査または KYB 代表者手続きが完了するまで、この SmartLink は進行中のままになります。完了時に Webhook とステータスが自動更新されます。"
+      "awaitingAsyncBody": "関連する KYC 手動審査または KYB 代表者手続きが完了するまで、この SmartLink は進行中のままになります。完了時に Webhook とステータスが自動更新されます。",
+      "livePollingLabel": "ライブ ({{seconds}}秒)",
+      "livePollingPaused": "自動更新を一時停止中",
+      "livePollingTooltipOn": "5秒ごとに自動で更新を確認します。クリックして一時停止します。",
+      "livePollingTooltipOff": "自動更新は一時停止中です。クリックして5秒ごとの確認を再開します。",
+      "manualRefreshLabel": "更新"
     },
     "dialogs": {
       "editTitle": "SmartLink を編集",
