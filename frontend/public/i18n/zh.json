@@ -179,7 +179,17 @@
         "plate_report": "Plate report",
         "plate_report_subtitle": "Vehicle lookup from a plate",
         "smart_fleet_drivers": "驾驶员",
-        "smart_fleet_drivers_subtitle": "驾驶证与违章合规核验"
+        "smart_fleet_drivers_subtitle": "驾驶证与违章合规核验",
+        "pdf_builder": "PDF 构建器",
+        "pdf_builder_subtitle": "设计定制品牌 PDF 报告",
+        "pdf_templates": "PDF 模板",
+        "pdf_templates_subtitle": "系统与自定义报告模板",
+        "smart_batch_run_subtitle": "运行多接口批量查询",
+        "smart_links": "Smart Link",
+        "smart_links_projects": "Smart Links",
+        "smart_links_projects_subtitle": "统一认证链接、二维码与 AI 交接",
+        "smart_reports": "SmartReports",
+        "smart_reports_subtitle": "PDF 构建器、模板与批量报告"
     },
     "smartBatchLanding": {
         "authRequiredTitle": "需要登录",
@@ -4337,24 +4347,31 @@
                 "EXPIRED": "已过期"
             },
             "resolveDialog": {
-                "resolveTitle": "解决人工审核",
-                "resolveSubtitle": "选择如何结束此案例。确认后将立即通过 webhook 通知您的系统。",
-                "overrideTitle": "更改状态",
-                "overrideSubtitle": "手动更正此注册的状态。仅在确定时使用 — 会立即通知您的系统。",
+                "resolveTitle": "处理人工审核",
+                "resolveSubtitle": "请选择此记录的最终状态。确认后，系统将更新记录并立即通知您的集成服务。",
+                "overrideTitle": "更改记录状态",
+                "overrideSubtitle": "手动更新此记录的状态。请核实信息后再确认，确认后将立即通知您的集成服务。",
                 "optionCompletedTitle": "已完成",
-                "optionCompletedDescription": "批准为完全已验证 — 最强的结果。",
-                "optionCompletedNoKycTitle": "已完成（无 KYC）",
+                "optionCompletedDescription": "批准该用户为已完全通过验证。",
+                "optionCompletedNoKycTitle": "无 KYC 完成",
                 "optionCompletedNoKycDescription": "在未完成完整身份验证的情况下允许用户通过。",
                 "optionFailedTitle": "失败",
-                "optionFailedDescription": "拒绝此注册。",
+                "optionFailedDescription": "拒绝此记录并将验证标记为失败。",
                 "noteLabel": "备注（可选）",
-                "notePlaceholder": "为团队添加说明，例如您是如何核实的。",
-                "webhookNotice": "确认后将立即向您的系统发送 {{type}} webhook，且无法自动撤销。",
+                "notePlaceholder": "为团队补充说明，例如您的核实方式。",
+                "noticeCompleted": "确认后，此记录将被批准为已完成，并立即向您的集成服务发送通过通知。此更改无法自动撤销。",
+                "noticeCompletedNoKyc": "确认后，此记录将被批准为无 KYC 完成，并立即通知您的集成服务。此更改无法自动撤销。",
+                "noticeFailed": "确认后，此记录将被标记为失败，并立即向您的集成服务发送拒绝通知。此更改无法自动撤销。",
+                "webhookNotice": "确认后将更新此记录并立即通知您的集成服务。此更改无法自动撤销。",
                 "cancel": "取消",
                 "confirm": "确认",
                 "close": "关闭",
-                "genericError": "出现问题，请重试或检查您的权限。",
-                "success": "已标记为{{status}}。Webhook 已发送。"
+                "errorUnauthorized": "登录会话已过期，请重新登录后再试。",
+                "errorForbidden": "您没有权限更改此记录的状态，请联系管理员获取权限。",
+                "errorNotFound": "未找到该记录，请刷新页面查看最新状态。",
+                "errorNetwork": "无法连接到服务器，请检查网络连接后重试。",
+                "genericError": "无法更新记录状态，请重试或检查您的权限。",
+                "success": "状态已更新为 {{status}}，已通知您的集成服务。"
             },
             "field": {
                 "fullName": "姓名",
@@ -12721,7 +12738,25 @@
             "sourceInsurance": "Mandatory insurance",
             "sourceVehicle": "Vehicle registry",
             "sourceCompanies": "Company registry"
-        }
+        },
+        "density": "排版密度",
+        "densityOptions": {
+            "compact": "紧凑",
+            "balanced": "均衡",
+            "full": "完整"
+        },
+        "wordmark": "品牌标识文字",
+        "coverColor": "封面背景",
+        "pageColor": "页面背景",
+        "cardColor": "卡片背景",
+        "inkColor": "文字颜色",
+        "showHowItWorks": "规则",
+        "copyCustomization": "标题与法律文本",
+        "coverTitle": "封面标题",
+        "headlineApproveLabel": "通过标题",
+        "headlineReviewLabel": "复核标题",
+        "headlineRejectLabel": "拒绝标题",
+        "legalNoteLabel": "页脚法律声明"
     },
     "plateReport": {
         "title": "Vehicle report",

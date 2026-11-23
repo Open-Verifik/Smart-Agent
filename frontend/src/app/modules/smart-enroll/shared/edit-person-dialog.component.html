@@ -131,7 +131,9 @@
                     <div class="flex flex-col gap-2">
                         <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-dob">
                             {{ t('smartEnrollPeople.dateOfBirth') }}
-                            <span class="text-red-500">*</span>
+                            @if (isCreateMode) {
+                                <span class="text-red-500">*</span>
+                            }
                         </label>
                         <div class="edit-person-dialog__date-field relative">
                             <input

@@ -192,9 +192,10 @@ export class EditPersonDialogComponent implements OnInit {
         }
 
         const formData = this.editForm.value;
-        const dob = this._formatDateOfBirth(formData.date_of_birth);
+        const hasDobInput = formData.date_of_birth !== null && formData.date_of_birth !== undefined && `${formData.date_of_birth}`.trim() !== '';
+        const dob = hasDobInput ? this._formatDateOfBirth(formData.date_of_birth) : '';
 
-        if (!dob) {
+        if ((this.isCreateMode && !dob) || (hasDobInput && !dob)) {
             this.editForm.get('date_of_birth')?.setErrors({ invalid: true });
             this.editForm.get('date_of_birth')?.markAsTouched();
             this._cdr.markForCheck();
@@ -245,14 +246,16 @@ export class EditPersonDialogComponent implements OnInit {
             return;
         }
 
+        const normalizedNationality = normalizeNationalityCode(formData.nationality);
+
         if (!this.data?.person?._id) {
             this.dialogRef.close({
                 action: 'update',
                 person: {
                     ...formData,
                     collections: formData.collections || [],
-                    date_of_birth: dob,
-                    nationality: normalizeNationalityCode(formData.nationality),
+                    ...(dob ? { date_of_birth: dob } : { date_of_birth: undefined }),
+                    nationality: normalizedNationality,
                     notes: formData.notes || '',
                 },
             });
@@ -263,8 +266,8 @@ export class EditPersonDialogComponent implements OnInit {
             _id: this.data.person._id,
             name: formData.name?.trim(),
             gender: formData.gender || 'M',
-            date_of_birth: dob,
-            nationality: normalizeNationalityCode(formData.nationality) || undefined,
+            ...(dob ? { date_of_birth: dob } : {}),
+            nationality: normalizedNationality,
             collections: formData.collections || [],
             notes: formData.notes?.trim() || '',
         };
@@ -341,7 +344,7 @@ export class EditPersonDialogComponent implements OnInit {
         this.editForm = this._fb.group({
             collection_id: [''],
             collections: [this.data.person?.collections || []],
-            date_of_birth: [dateOfBirth, [Validators.required]],
+            date_of_birth: [dateOfBirth, this.isCreateMode ? [Validators.required] : []],
             gender: [this.data.person?.gender || 'M', [Validators.required]],
             liveness_min_score: [0.65],
             min_score: [0.8],
