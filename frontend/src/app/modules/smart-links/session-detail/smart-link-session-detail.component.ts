@@ -29,12 +29,14 @@ import {
     decodeJwtClaimsSafe,
     extractLinkedSelfieDataUrl,
     formatSessionDate,
+    formatTimelineMetaEntries,
     interactionBadgeClass,
     interactionIcon,
     isActiveAutoRefreshState,
     isLinkedSelfieSuppressed,
     isTerminalSessionState,
     resolveSessionTargetLabel,
+    resolveTimelineSummaryDescriptor,
     sessionStatePillClass,
 } from '../smart-link-session.util';
 import { SmartLinksService } from '../smart-links.service';
@@ -348,6 +350,53 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
 
     formatDate(value?: string, withSeconds = false): string {
         return formatSessionDate(value, withSeconds);
+    }
+
+    eventTitle(type: SmartLinkInteractionEvent['type']): string {
+        const key = `smartLinks.timeline.types.${type}`;
+        const translated = this._transloco.translate(key);
+        return translated && translated !== key ? translated : type;
+    }
+
+    eventActor(actor?: string): string {
+        if (!actor) return '';
+        const key = `smartLinks.timeline.actors.${actor}`;
+        const translated = this._transloco.translate(key);
+        return translated && translated !== key ? translated : actor;
+    }
+
+    eventSummary(ev: SmartLinkInteractionEvent): string {
+        const desc = resolveTimelineSummaryDescriptor(ev);
+        if (desc.key) {
+            const translated = this._transloco.translate(desc.key, desc.params);
+            if (translated && translated !== desc.key) return translated;
+        }
+        return desc.fallback;
+    }
+
+    eventDetails(ev: SmartLinkInteractionEvent): Array<{ key: string; label: string; value: string; isMono?: boolean }> {
+        const out: Array<{ key: string; label: string; value: string; isMono?: boolean }> = [];
+        const items = formatTimelineMetaEntries(ev);
+        for (const item of items) {
+            const translatedLabel = item.labelKey ? this._transloco.translate(item.labelKey) : '';
+            const label =
+                translatedLabel && translatedLabel !== item.labelKey ? translatedLabel : item.fallbackLabel;
+            const translatedValue = item.valueKey ? this._transloco.translate(item.valueKey) : '';
+            const value =
+                translatedValue && translatedValue !== item.valueKey ? translatedValue : item.rawValue;
+            out.push({ key: item.key, label, value, isMono: item.isMono });
+        }
+        if (ev.ip) {
+            const ipKey = 'smartLinks.timeline.metaLabels.ip';
+            const translatedIp = this._transloco.translate(ipKey);
+            out.push({
+                key: 'ip',
+                label: translatedIp && translatedIp !== ipKey ? translatedIp : 'IP',
+                value: ev.ip,
+                isMono: true,
+            });
+        }
+        return out;
     }
 
     metaEntries(meta?: Record<string, unknown>): Array<{ key: string; value: string }> {
