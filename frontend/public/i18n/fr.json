@@ -13386,7 +13386,12 @@
       "signedUrlHiddenBody": "Le mode lien signé est actif sur ce hub ; l'URL précédente ne peut pas être réaffichée.",
       "reissueFreshUrlQrBtn": "Réémettre le lien pour obtenir URL et QR",
       "awaitingAsyncTitle": "En attente de vérification manuelle ou de signature",
-      "awaitingAsyncBody": "Ce SmartLink reste en cours jusqu’à la fin de l’examen KYC ou la validation des représentants KYB. Les webhooks et le statut seront mis à jour automatiquement."
+      "awaitingAsyncBody": "Ce SmartLink reste en cours jusqu’à la fin de l’examen KYC ou la validation des représentants KYB. Les webhooks et le statut seront mis à jour automatiquement.",
+      "livePollingLabel": "En direct ({{seconds}}s)",
+      "livePollingPaused": "En direct en pause",
+      "livePollingTooltipOn": "Vérifie automatiquement les mises à jour toutes les 5s. Cliquez pour mettre en pause.",
+      "livePollingTooltipOff": "Mises à jour en direct en pause. Cliquez pour reprendre toutes les 5s.",
+      "manualRefreshLabel": "Actualiser"
     },
     "dialogs": {
       "editTitle": "Modifier le SmartLink",

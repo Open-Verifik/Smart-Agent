@@ -13419,7 +13419,12 @@
       "signedUrlHiddenBody": "此中心已启用仅签名链接安全策略，无法回显历史原始 URL。",
       "reissueFreshUrlQrBtn": "重新签发以获取新 URL 和二维码",
       "awaitingAsyncTitle": "等待人工审核或企业代表签署",
-      "awaitingAsyncBody": "在关联的 KYC 人工复核或 KYB 法定代表完成前，此 SmartLink 将保持进行中状态。完成后将自动更新 Webhook 和状态轮询。"
+      "awaitingAsyncBody": "在关联的 KYC 人工复核或 KYB 法定代表完成前，此 SmartLink 将保持进行中状态。完成后将自动更新 Webhook 和状态轮询。",
+      "livePollingLabel": "实时 ({{seconds}}秒)",
+      "livePollingPaused": "实时更新已暂停",
+      "livePollingTooltipOn": "每 5 秒自动检查更新。点击暂停。",
+      "livePollingTooltipOff": "实时更新已暂停。点击恢复每 5 秒自动检查。",
+      "manualRefreshLabel": "刷新"
     },
     "dialogs": {
       "editTitle": "编辑 SmartLink",

@@ -79,11 +79,21 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
     private _refreshTimer: ReturnType<typeof setInterval> | null = null;
     private _userToggledAutoRefresh = false;
     private _visibilityHandler = (): void => {
-        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        if (typeof document === 'undefined') return;
+        if (document.visibilityState === 'hidden') {
             this._stopAutoRefresh();
+            this._cdr.markForCheck();
+        } else if (
+            document.visibilityState === 'visible' &&
+            !this._userToggledAutoRefresh &&
+            isActiveAutoRefreshState(this.detail()?.state)
+        ) {
+            this._startAutoRefresh();
             this._cdr.markForCheck();
         }
     };
+
+    readonly autoRefreshIntervalSeconds = 5;
 
     readonly dossierSteps: DossierStepId[] = [
         'overview',
@@ -104,6 +114,8 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
     activeStep = signal<DossierStepId>('overview');
     qrDataUrl = signal('');
     autoRefresh = signal(false);
+    refreshCountdown = signal(5);
+    refreshing = signal(false);
     reissuedPreview = signal<SmartLinkResendResult | null>(null);
 
     isTerminalState = computed(() => isTerminalSessionState(this.detail()?.state));
@@ -202,6 +214,8 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
         if (!silent) {
             this.loading.set(true);
             this.errorMessage.set(null);
+        } else {
+            this.refreshing.set(true);
         }
         this._service
             .getSessionDetail(this.sessionId())
@@ -210,6 +224,7 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
                 next: (d) => {
                     this.detail.set(d);
                     this.loading.set(false);
+                    this.refreshing.set(false);
                     if (d?.shareUrl) {
                         this.reissuedPreview.set(null);
                         void QRCode.toDataURL(d.shareUrl, { margin: 1, width: 220 }).then((qr) => {
@@ -242,10 +257,18 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
                         this.errorMessage.set(err?.error?.message || 'SmartLink session not found');
                         this.loading.set(false);
                     }
+                    this.refreshing.set(false);
                     this._stopAutoRefresh();
                     this._cdr.markForCheck();
                 },
             });
+    }
+
+    manualRefresh(): void {
+        if (this.autoRefresh()) {
+            this.refreshCountdown.set(this.autoRefreshIntervalSeconds);
+        }
+        this.loadDetail(true);
     }
 
     toggleAutoRefresh(): void {
@@ -260,12 +283,14 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
         } else {
             if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
             this._startAutoRefresh();
+            this.loadDetail(true);
         }
         this._cdr.markForCheck();
     }
 
     private _startAutoRefresh(): void {
         this.autoRefresh.set(true);
+        this.refreshCountdown.set(this.autoRefreshIntervalSeconds);
         if (this._refreshTimer !== null) return;
         this._refreshTimer = setInterval(() => {
             if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
@@ -278,12 +303,20 @@ export class SmartLinkSessionDetailComponent implements OnInit, OnDestroy {
                 this._cdr.markForCheck();
                 return;
             }
-            this.loadDetail(true);
-        }, 5000);
+            const next = this.refreshCountdown() - 1;
+            if (next <= 0) {
+                this.refreshCountdown.set(this.autoRefreshIntervalSeconds);
+                this.loadDetail(true);
+            } else {
+                this.refreshCountdown.set(next);
+            }
+            this._cdr.markForCheck();
+        }, 1000);
     }
 
     private _stopAutoRefresh(): void {
         this.autoRefresh.set(false);
+        this.refreshCountdown.set(this.autoRefreshIntervalSeconds);
         if (this._refreshTimer !== null) {
             clearInterval(this._refreshTimer);
             this._refreshTimer = null;
