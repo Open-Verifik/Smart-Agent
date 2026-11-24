@@ -34,8 +34,10 @@ import { catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
+import { hasColombiaVehicleReportSteps } from '../colombia-vehicle-report/colombia-vehicle-report.composer';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
+import { applyTextCase, isReportTextCase } from '../report-text-case.util';
 import {
     BatchConfiguration,
     BatchStep,
@@ -365,7 +367,15 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     goToPreviewPage(index: number): void {
         const max = this.previewDataForAllRows().length - 1;
-        this.previewPageIndex.set(Math.min(Math.max(0, index), max));
+        const next = Math.min(Math.max(0, index), max);
+        if (next !== this.previewPageIndex()) {
+            this._clearGeneratedPdf();
+        }
+        this.previewPageIndex.set(next);
+    }
+
+    showHtmlPreview(): void {
+        this._clearGeneratedPdf();
     }
 
     /** Key `{rowIndex}_{sequence}` while that step JSON copy feedback is visible */
@@ -384,8 +394,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         effect(() => {
             const batchId = this.batchId();
             const b = this.batch();
+            const config = this.configuration();
             this.selectedRowIndex();
-            if (!batchId || !b?.rows?.length) {
+            const steps = config?.steps ?? [];
+            if (!batchId || !b?.rows?.length || !steps.length || !hasColombiaVehicleReportSteps(steps)) {
                 this._composedReportsByRowIndex.set({});
                 return;
             }
@@ -478,7 +490,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     private _setHtmlPreviewDocument(html: string): void {
         this._releaseHtmlPreviewUrl();
-        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        // Strip inline scripts before loading in the sandboxed preview iframe (prevents Chrome's
+        // "Blocked script execution in 'blob:...'" error; --text-case is applied in onHtmlPreviewIframeLoad).
+        const safeHtml = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+        const url = URL.createObjectURL(new Blob([safeHtml], { type: 'text/html' }));
         this._htmlPreviewObjectUrl = url;
         this.htmlPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
         this.htmlPreviewError.set(null);
@@ -498,10 +513,31 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     onHtmlPreviewIframeLoad(event: Event): void {
         const iframe = event.target as HTMLIFrameElement | null;
         if (!iframe) return;
+        this._applyIframeTextCase(iframe);
         this._bindHtmlPreviewContextMenu(iframe);
         this._syncHtmlPreviewIframeHeight(iframe);
         window.setTimeout(() => this._syncHtmlPreviewIframeHeight(iframe), 150);
         window.setTimeout(() => this._syncHtmlPreviewIframeHeight(iframe), 600);
+    }
+
+    private _applyIframeTextCase(iframe: HTMLIFrameElement): void {
+        try {
+            const doc = iframe.contentDocument;
+            if (!doc) return;
+            doc.querySelectorAll<HTMLElement>('[style*="--text-case"]').forEach((host) => {
+                const mode = host.style.getPropertyValue('--text-case').trim();
+                if (!isReportTextCase(mode) || (mode !== 'sentence' && mode !== 'title')) return;
+                const walker = doc.createTreeWalker(host, NodeFilter.SHOW_TEXT);
+                for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+                    if (node.parentElement?.closest('[style*="--text-case"]') !== host) continue;
+                    if (node.nodeValue) {
+                        node.nodeValue = applyTextCase(node.nodeValue, mode);
+                    }
+                }
+            });
+        } catch {
+            /* ignore cross-origin access */
+        }
     }
 
     private _bindHtmlPreviewContextMenu(iframe: HTMLIFrameElement): void {
