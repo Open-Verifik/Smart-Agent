@@ -565,7 +565,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     : undefined,
             appFeature:
                 typeof step.appFeature === 'object' && step.appFeature != null
-                    ? { code: step.appFeature.code }
+                    ? {
+                          code: step.appFeature.code,
+                          ...(step.appFeature.name ? { name: step.appFeature.name } : {}),
+                          ...(step.appFeature.nameES ? { nameES: step.appFeature.nameES } : {}),
+                      }
                     : undefined,
         }));
     }

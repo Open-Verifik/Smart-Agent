@@ -1,0 +1,28 @@
+dialog.sb-preview-dialog {
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: calc(100vw - 2rem);
+    max-width: 72rem;
+    max-height: 92vh;
+    overflow: visible;
+}
+
+/* Scope display to [open] so the closed state is never overridden. */
+dialog.sb-preview-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+dialog.sb-preview-dialog:modal {
+    overscroll-behavior: contain;
+}
+
+dialog.sb-preview-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background-color: rgb(12 10 9 / 0.72);
+    backdrop-filter: blur(2px);
+}
