@@ -1,5 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, HostListener, inject, OnDestroy, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+    viewChild,
+    ViewEncapsulation,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -15,6 +26,13 @@ import { DemoRelatedDocsSectionComponent } from '../smart-enroll/demos/shared/de
 import type { DemoRelatedDocItem } from '../smart-enroll/demos/shared/demo-related-docs-section.types';
 import { batchStepFeatureId, batchStepLabel, orderedBatchSteps } from './batch-config-steps.util';
 import { getPresetStepCount } from './batch-required-fields.util';
+import {
+    getSmartBatchRoutePrefix,
+    PreviewRunTarget,
+    resolveBatchConfigReference,
+    resolvePreviewRunTarget,
+    toEntityIdString,
+} from './preview-run-target.util';
 import { ReportPreviewComponent } from './report-preview/report-preview.component';
 import { ReportTemplateThumbComponent } from './report-template-thumb.component';
 import { normalizeReportThemeId } from './report-theme/report-theme.model';
@@ -46,6 +64,7 @@ type WorkspaceConfigCard =
         DemoRelatedDocsSectionComponent,
     ],
     templateUrl: './smart-batch.component.html',
+    styleUrl: './smart-batch.component.scss',
     encapsulation: ViewEncapsulation.None,
 })
 export class SmartBatchComponent implements OnInit, OnDestroy {
@@ -60,6 +79,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     private _confirm = inject(FuseConfirmationService);
     private _transfer = inject(SmartTemplateTransferService);
     private _sanitizer = inject(DomSanitizer);
+    private _cdr = inject(ChangeDetectorRef);
 
     exportingTemplateId = signal<string | null>(null);
     isImportingTemplate = signal(false);
@@ -88,11 +108,28 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     availableFeatures = signal<AppFeature[]>([]);
     isCloningPreset = signal(false);
     isModeDialogOpen = signal(false);
+    previewDialogRef = viewChild<ElementRef<HTMLDialogElement>>('previewDialog');
     previewTemplate = signal<SmartReportTemplate | null>(null);
+    previewSourceConfig = signal<BatchConfiguration | null>(null);
     previewLoading = signal(false);
     previewHtmlDoc = signal<SafeHtml | null>(null);
+    previewRunMode = signal<'single' | 'batch' | null>(null);
+    previewRunError = signal<string | null>(null);
     previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
+    previewRunTarget = computed<PreviewRunTarget | null>(() => {
+        const template = this.previewTemplate();
+        if (!template) return null;
+        return resolvePreviewRunTarget({
+            template,
+            sourceConfig: this.previewSourceConfig(),
+            configurations: this.configurations(),
+        });
+    });
+    previewCountry = computed<string | undefined>(
+        () => this.previewSourceConfig()?.country ?? this.previewTemplate()?.country
+    );
     private _previewGen = 0;
+    private _previewPointerDownOutside = false;
 
     relatedDocs(): DemoRelatedDocItem[] {
         return [
@@ -213,18 +250,22 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.closeTemplatePreview();
+        this._closePreviewDialogImmediate();
     }
 
-    @HostListener('document:keydown.escape')
-    onEscapePreview(): void {
-        if (this.previewTemplate()) this.closeTemplatePreview();
-    }
-
-    openTemplatePreview(template: SmartReportTemplate): void {
+    openTemplatePreview(
+        template: SmartReportTemplate,
+        sourceConfig: BatchConfiguration | null = null
+    ): void {
         const gen = ++this._previewGen;
         this.previewTemplate.set(template);
+        this.previewSourceConfig.set(sourceConfig);
+        this.previewRunMode.set(null);
+        this.previewRunError.set(null);
+        this.previewHtmlDoc.set(null);
         this.previewLoading.set(true);
+        this._cdr.detectChanges();
+        this._openPreviewDialogElement();
 
         const id = template._id;
         if (!id) {
@@ -239,10 +280,175 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     closeTemplatePreview(): void {
+        if (this.previewRunMode()) return;
+        this._closePreviewDialogImmediate();
+    }
+
+    onPreviewDialogCancel(event: Event): void {
+        if (this.previewRunMode()) {
+            event.preventDefault();
+        }
+    }
+
+    onPreviewDialogClose(): void {
+        const dialog = this.previewDialogRef()?.nativeElement;
+        if (dialog) {
+            dialog.returnValue = '';
+            if (dialog.open) return;
+        }
+        this._previewPointerDownOutside = false;
+        if (this.previewTemplate()) {
+            this._resetPreviewState();
+        }
+    }
+
+    onPreviewDialogPointerDown(event: PointerEvent): void {
+        if (this._supportsNativeClosedBy() || this.previewRunMode()) {
+            this._previewPointerDownOutside = false;
+            return;
+        }
+        const dialog = this.previewDialogRef()?.nativeElement;
+        this._previewPointerDownOutside = dialog ? this._isPointerOutsideDialog(event, dialog) : false;
+    }
+
+    onPreviewDialogPointerUp(event: PointerEvent): void {
+        if (this._supportsNativeClosedBy() || this.previewRunMode()) {
+            this._previewPointerDownOutside = false;
+            return;
+        }
+        const dialog = this.previewDialogRef()?.nativeElement;
+        const shouldClose =
+            this._previewPointerDownOutside && Boolean(dialog && this._isPointerOutsideDialog(event, dialog));
+        this._previewPointerDownOutside = false;
+        if (shouldClose && dialog?.open) {
+            dialog.close();
+        }
+    }
+
+    runFromPreview(mode: 'single' | 'batch', event: Event): void {
+        event.stopPropagation();
+        if (this.previewRunMode() || this.isCloningPreset()) return;
+
+        const target = this.previewRunTarget();
+        if (!target) return;
+
+        this.previewRunError.set(null);
+
+        if (target.kind === 'config') {
+            this._closePreviewDialogImmediate();
+            this._navigateForMode(target.configId, mode);
+            return;
+        }
+
+        if (target.kind !== 'systemPreset') return;
+
+        const runGen = this._previewGen;
+        this.previewRunMode.set(mode);
+        this._smartBatchService.cloneSystemPreset(target.systemKey).subscribe({
+            next: (res) => {
+                if (runGen !== this._previewGen) return;
+                const configId = res.data.batchConfiguration._id ?? res.data.batchConfiguration.id;
+                if (!configId) {
+                    this.previewRunMode.set(null);
+                    this.previewRunError.set(
+                        this._transloco.translate('smartBatchSystemPresets.cloneFailed')
+                    );
+                    return;
+                }
+
+                this._smartBatchService.getConfigurations().subscribe();
+                this._smartReportService.getTemplates().subscribe();
+
+                this._closePreviewDialogImmediate();
+
+                if (res.data.reused) {
+                    this._snackBar.open(
+                        this._transloco.translate('smartBatchSystemPresets.reusedExisting'),
+                        undefined,
+                        { duration: 3500 }
+                    );
+                }
+
+                this._navigateForMode(configId, mode);
+            },
+            error: (err) => {
+                if (runGen !== this._previewGen) return;
+                this.previewRunMode.set(null);
+                console.error('[SmartBatch] cloneSystemPreset from preview error', err);
+                this.previewRunError.set(
+                    this._transloco.translate('smartBatchSystemPresets.cloneFailed')
+                );
+            },
+        });
+    }
+
+    editPreviewTemplate(template: SmartReportTemplate, event: Event): void {
+        event.stopPropagation();
+        if (this.previewRunMode() || this.isCloningPreset()) return;
+        if (template.type === 'System') {
+            this.editSystemTemplateCopy(template, event);
+            return;
+        }
+        this._closePreviewDialogImmediate();
+        this.openTemplateEditor(template, event);
+    }
+
+    getPreviewSingleIcon(template: SmartReportTemplate): string {
+        const icons: Record<string, string> = {
+            citizen: 'person_search',
+            company: 'business',
+            vehicle: 'directions_car',
+        };
+        if (template.category && icons[template.category]) {
+            return icons[template.category];
+        }
+        const key = template.clonedFromSystemKey ?? template.systemKey ?? '';
+        if (key.includes('.vehicle.')) return 'directions_car';
+        if (key.includes('.company.')) return 'business';
+        return 'person_search';
+    }
+
+    private _openPreviewDialogElement(): void {
+        const dialog = this.previewDialogRef()?.nativeElement;
+        if (!dialog || dialog.open) return;
+        dialog.returnValue = '';
+        if (typeof dialog.showModal === 'function') {
+            dialog.showModal();
+        }
+    }
+
+    private _closePreviewDialogImmediate(): void {
+        const dialog = this.previewDialogRef()?.nativeElement;
+        this._previewPointerDownOutside = false;
+        this._resetPreviewState();
+        if (dialog?.open) {
+            dialog.returnValue = '';
+            dialog.close();
+        }
+    }
+
+    private _resetPreviewState(): void {
         this._previewGen += 1;
         this.previewTemplate.set(null);
+        this.previewSourceConfig.set(null);
         this.previewHtmlDoc.set(null);
         this.previewLoading.set(false);
+        this.previewRunMode.set(null);
+        this.previewRunError.set(null);
+    }
+
+    private _supportsNativeClosedBy(): boolean {
+        return typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype;
+    }
+
+    private _isPointerOutsideDialog(event: PointerEvent, dialog: HTMLDialogElement): boolean {
+        const rect = dialog.getBoundingClientRect();
+        return (
+            event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom
+        );
     }
 
     private _showPreview(template: SmartReportTemplate, gen: number): void {
@@ -507,7 +713,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         event.stopPropagation();
         const tpl = this.workspaceConfigLinkedTemplate(card);
         if (!tpl) return;
-        this.openTemplatePreview(tpl);
+        this.openTemplatePreview(tpl, card.kind === 'owned' ? card.config : null);
     }
 
     openConfigTemplateEditor(card: WorkspaceConfigCard, event: Event): void {
@@ -573,12 +779,13 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     private _navigateForMode(configId: string, mode: 'single' | 'batch'): void {
+        const prefix = getSmartBatchRoutePrefix(this._router.url);
         if (mode === 'single') {
-            this._router.navigate(['/smart-batch', configId, 'quick-validate']);
+            this._router.navigate([prefix, configId, 'quick-validate']);
             return;
         }
 
-        this._router.navigate(['/smart-batch', configId, 'batch', 'new']);
+        this._router.navigate([prefix, configId, 'batch', 'new']);
     }
 
     private _cloneAndNavigate(systemKey: string, mode: 'single' | 'batch' | 'dashboard'): void {
@@ -736,22 +943,8 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     resolveBatchConfigRef(
         ref: string | BatchConfiguration | BatchConfigurationRef | null | undefined
     ): { id: string | null; name: string | null } {
-        if (!ref) {
-            return { id: null, name: null };
-        }
-
-        const id = this._toConfigIdString(typeof ref === 'string' ? ref : (ref._id ?? ref.id));
-        if (!id) {
-            return { id: null, name: null };
-        }
-
-        const populatedName = typeof ref === 'object' ? ref.name ?? null : null;
-        const config = this.configurations().find((c) => this._toConfigIdString(c._id ?? c.id) === id);
-
-        return {
-            id,
-            name: populatedName ?? config?.name ?? null,
-        };
+        const { id, name } = resolveBatchConfigReference(ref, this.configurations());
+        return { id, name };
     }
 
     getConfigName(
@@ -762,31 +955,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     private _toConfigIdString(value: unknown): string | null {
-        if (value == null) {
-            return null;
-        }
-
-        if (typeof value === 'string') {
-            return value;
-        }
-
-        if (typeof value === 'object') {
-            const record = value as { _id?: unknown; id?: unknown; toString?: () => string };
-            const nestedId = record._id ?? record.id;
-
-            if (nestedId != null && nestedId !== value) {
-                return this._toConfigIdString(nestedId);
-            }
-
-            if (typeof record.toString === 'function') {
-                const asString = record.toString();
-                if (asString && asString !== '[object Object]') {
-                    return asString;
-                }
-            }
-        }
-
-        return null;
+        return toEntityIdString(value);
     }
 
     templateTitle(template: SmartReportTemplate): string {

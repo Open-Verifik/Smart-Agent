@@ -924,7 +924,12 @@ export interface SampleReportData {
     /** Pre-composed Colombia vehicle report (optional; built at runtime when omitted). */
     report?: Record<string, any>;
     /** Batch steps so the PDF composer can match each result to its feature, same as Smart Batch. */
-    steps?: { sequence: number; enabled?: boolean; featureCode?: string; appFeature?: { code?: string } }[];
+    steps?: {
+        sequence: number;
+        enabled?: boolean;
+        featureCode?: string;
+        appFeature?: { code?: string; name?: string; nameES?: string };
+    }[];
     consultedAt?: string;
     /** Frozen when the sheet first paints the generation date; reused in PDF and email. */
     generatedAt?: string;

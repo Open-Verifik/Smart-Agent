@@ -867,41 +867,60 @@
         </main>
     </div>
 
-    @if (previewTemplate(); as preview) {
-        <div
-            class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4"
-            (click)="closeTemplatePreview()"
-        >
-            <div
-                class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
-                (click)="$event.stopPropagation()"
-            >
+    <dialog
+        #previewDialog
+        class="sb-preview-dialog rounded-2xl border border-stone-200/80 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-950"
+        [attr.closedby]="previewRunMode() ? 'none' : 'any'"
+        aria-labelledby="smart-batch-preview-title"
+        (cancel)="onPreviewDialogCancel($event)"
+        (close)="onPreviewDialogClose()"
+        (pointerdown)="onPreviewDialogPointerDown($event)"
+        (pointerup)="onPreviewDialogPointerUp($event)"
+    >
+        @if (previewTemplate(); as preview) {
+            @let target = previewRunTarget();
+            <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <div
-                    class="flex items-start justify-between gap-4 border-b border-stone-200 px-5 py-4 dark:border-gray-800"
+                    class="flex items-center justify-between gap-4 border-b border-stone-200 px-5 py-4 dark:border-gray-800"
                 >
                     <div class="min-w-0">
-                        <p class="text-xs font-medium uppercase tracking-wide text-stone-400">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-400 dark:text-stone-500">
                             {{ t('smartBatchLanding.templatePreviewHint') }}
                         </p>
-                        <h2 class="mt-1 truncate text-lg font-semibold text-stone-950 dark:text-white">
+                        <h1
+                            id="smart-batch-preview-title"
+                            class="mt-0.5 truncate text-lg font-semibold tracking-tight text-stone-950 dark:text-white"
+                        >
                             {{ templateTitle(preview) }}
-                        </h2>
+                        </h1>
                     </div>
                     <div class="flex shrink-0 items-center gap-2">
                         @if (preview.type === 'System' && isSystemPresetAvailable(preview)) {
                             <button
                                 type="button"
-                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-950 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
-                                [matTooltip]="t('smartBatchSystemPresets.editCopyHint')"
-                                (click)="editSystemTemplateCopy(preview, $event)"
+                                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 text-xs font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-gray-500 dark:hover:text-white"
+                                [disabled]="previewRunMode() !== null"
+                                [title]="t('smartBatchSystemPresets.editCopyHint')"
+                                (click)="editPreviewTemplate(preview, $event)"
                             >
                                 <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
-                                {{ t('smartBatchSystemPresets.editCopy') }}
+                                <span>{{ t('smartBatchSystemPresets.editCopy') }}</span>
+                            </button>
+                        } @else if (preview.type !== 'System' && preview._id) {
+                            <button
+                                type="button"
+                                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 text-xs font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-gray-500 dark:hover:text-white"
+                                [disabled]="previewRunMode() !== null"
+                                (click)="editPreviewTemplate(preview, $event)"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                <span>{{ t('smartBatchLanding.edit') }}</span>
                             </button>
                         }
                         <button
                             type="button"
-                            mat-icon-button
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:ring-white"
+                            [disabled]="previewRunMode() !== null"
                             (click)="closeTemplatePreview()"
                             [attr.aria-label]="t('smartBatchLanding.templatePreviewClose')"
                         >
@@ -909,9 +928,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="min-h-[50vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
+
+                <div class="min-h-[46vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
                     @if (previewLoading()) {
-                        <div class="flex min-h-[50vh] flex-col items-center justify-center gap-3">
+                        <div class="flex min-h-[46vh] flex-col items-center justify-center gap-3">
                             <mat-spinner diameter="36"></mat-spinner>
                             <p class="text-sm text-stone-500">{{ t('smartBatchLanding.templatePreviewLoading') }}</p>
                         </div>
@@ -919,14 +939,14 @@
                         <iframe
                             [attr.title]="templateTitle(preview)"
                             [srcdoc]="previewHtmlDoc()"
-                            class="h-[78vh] w-full rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"
+                            class="h-[68vh] w-full rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"
                         ></iframe>
                     } @else if (preview.reportTheme && preview.thumbnail?.image) {
                         <div class="flex justify-center">
                             <img
                                 [src]="preview.thumbnail!.image"
                                 [alt]="templateTitle(preview)"
-                                class="max-h-[78vh] w-auto rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"
+                                class="max-h-[68vh] w-auto rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"
                             />
                         </div>
                     } @else {
@@ -978,7 +998,108 @@
                         ></report-preview>
                     }
                 </div>
+
+                @if (target) {
+                    <footer
+                        class="flex flex-col gap-3 border-t border-stone-200 bg-white px-5 py-3.5 dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <div class="min-w-0 flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
+                            @if (previewRunError(); as runError) {
+                                <span
+                                    role="alert"
+                                    class="inline-flex items-center gap-1.5 font-medium text-red-600 dark:text-red-400"
+                                >
+                                    <mat-icon class="!h-4 !w-4 shrink-0 !text-base">error_outline</mat-icon>
+                                    <span>{{ runError }}</span>
+                                </span>
+                            } @else if (target.kind === 'config' || target.kind === 'systemPreset') {
+                                @if (previewCountry(); as country) {
+                                    <span class="shrink-0 text-sm leading-none" aria-hidden="true">{{
+                                        getCountryFlag(country)
+                                    }}</span>
+                                }
+                                @if (target.stepCount > 0) {
+                                    <span
+                                        class="shrink-0 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    >
+                                        {{ target.stepCount }}
+                                        {{
+                                            target.stepCount === 1
+                                                ? t('smartBatchLanding.endpointSingular')
+                                                : t('smartBatchLanding.endpointPlural')
+                                        }}
+                                    </span>
+                                }
+                                <span class="truncate">
+                                    @if (target.kind === 'config' && target.configName) {
+                                        {{ target.configName }}
+                                    } @else {
+                                        {{ t('smartBatchLanding.previewReadySummary') }}
+                                    }
+                                </span>
+                            } @else if (target.kind === 'unlinked') {
+                                <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-400">link_off</mat-icon>
+                                <span>{{ t('smartBatchLanding.previewUnlinkedHint') }}</span>
+                            } @else {
+                                <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-400">schedule</mat-icon>
+                                <span>{{ t('smartBatchLanding.comingSoonHint') }}</span>
+                            }
+                        </div>
+
+                        <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                            @if (target.kind === 'config' || target.kind === 'systemPreset') {
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-800 transition hover:border-stone-500 hover:bg-stone-50 hover:text-stone-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:ring-white"
+                                    [disabled]="previewRunMode() !== null"
+                                    (click)="runFromPreview('single', $event)"
+                                >
+                                    @if (previewRunMode() === 'single') {
+                                        <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
+                                        <span>{{ t('smartBatchLanding.previewPreparingSingle') }}</span>
+                                    } @else {
+                                        <mat-icon class="!h-4 !w-4 !text-base">{{
+                                            getPreviewSingleIcon(preview)
+                                        }}</mat-icon>
+                                        <span>{{ t('smartBatchLanding.previewRunSingle') }}</span>
+                                    }
+                                </button>
+                                <button
+                                    type="button"
+                                    autofocus
+                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white shadow-xs transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200 dark:focus-visible:ring-white dark:focus-visible:ring-offset-gray-950"
+                                    [disabled]="previewRunMode() !== null"
+                                    (click)="runFromPreview('batch', $event)"
+                                >
+                                    @if (previewRunMode() === 'batch') {
+                                        <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
+                                        <span>{{ t('smartBatchLanding.previewPreparingBatch') }}</span>
+                                    } @else {
+                                        <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
+                                        <span>{{ t('smartBatchLanding.previewRunBatch') }}</span>
+                                        <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                    }
+                                </button>
+                            } @else if (target.kind === 'unlinked' && preview._id) {
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-900 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
+                                    (click)="editPreviewTemplate(preview, $event)"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                    <span>{{ t('smartBatchLanding.previewEditTemplate') }}</span>
+                                </button>
+                            } @else if (target.kind === 'comingSoon') {
+                                <span
+                                    class="inline-flex min-h-9 items-center rounded-xl border border-stone-200 bg-stone-100 px-3.5 text-xs font-medium text-stone-500 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-400"
+                                >
+                                    {{ t('smartBatchLanding.comingSoon') }}
+                                </span>
+                            }
+                        </div>
+                    </footer>
+                }
             </div>
-        </div>
-    }
+        }
+    </dialog>
 </ng-container>
