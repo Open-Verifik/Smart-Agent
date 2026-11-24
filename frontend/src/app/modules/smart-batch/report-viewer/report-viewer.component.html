@@ -404,7 +404,52 @@
                                             <div
                                                 class="relative mx-auto w-full overflow-x-auto border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
                                             >
-                                                @if (htmlPreviewError()) {
+                                                @if (pdfSafeUrl()) {
+                                                    <div
+                                                        class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 bg-white px-4 py-2.5 dark:border-gray-800 dark:bg-gray-950"
+                                                    >
+                                                        <span
+                                                            class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 !text-base">check_circle</mat-icon>
+                                                            {{ 'smartReport.pdfReady' | transloco }}
+                                                        </span>
+                                                        <div class="flex flex-wrap items-center gap-2">
+                                                            <button
+                                                                type="button"
+                                                                (click)="showHtmlPreview()"
+                                                                class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                                                            >
+                                                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">visibility</mat-icon>
+                                                                {{ 'smartReport.backToLivePreview' | transloco }}
+                                                            </button>
+                                                            @if (pdfDataUrl(); as pdfHref) {
+                                                                <a
+                                                                    [href]="pdfHref"
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                                                                >
+                                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">open_in_new</mat-icon>
+                                                                    {{ 'smartReport.openInNewTab' | transloco }}
+                                                                </a>
+                                                            }
+                                                            <button
+                                                                type="button"
+                                                                (click)="downloadReport()"
+                                                                class="inline-flex items-center gap-1 rounded-lg bg-stone-950 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                                            >
+                                                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">download</mat-icon>
+                                                                {{ 'smartReport.downloadPdf' | transloco }}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <iframe
+                                                        [src]="pdfSafeUrl()"
+                                                        [attr.title]="selectedTemplate()?.name || 'Generated PDF'"
+                                                        class="block h-[76vh] min-h-[640px] w-full border-0 bg-stone-100"
+                                                    ></iframe>
+                                                } @else if (htmlPreviewError()) {
                                                     <div
                                                         class="flex min-h-[480px] flex-col items-center justify-center gap-2 px-4 text-stone-400 dark:text-stone-500"
                                                     >
@@ -436,7 +481,7 @@
                                                         <p class="text-sm">{{ 'smartReport.rendering' | transloco }}</p>
                                                     </div>
                                                 }
-                                                @if (htmlPreviewLoading() && htmlPreviewUrl()) {
+                                                @if (!pdfSafeUrl() && htmlPreviewLoading() && htmlPreviewUrl()) {
                                                     <div
                                                         class="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-white/60 dark:bg-gray-950/60"
                                                     >
