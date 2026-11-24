@@ -2083,7 +2083,10 @@
     "lineStyleSolid": "Sólida",
     "lineStyleDashed": "Guiones",
     "lineStyleDotted": "Punteada",
-    "dividerSpacing": "Espaciado vertical"
+    "dividerSpacing": "Espaciado vertical",
+    "pdfReady": "PDF listo",
+    "backToLivePreview": "Vista previa",
+    "openInNewTab": "Abrir en nueva pestaña"
   },
   "guestFeatureAuth": {
     "title": "Inicio de sesión obligatorio",

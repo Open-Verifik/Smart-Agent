@@ -1766,7 +1766,10 @@
     "lineStyleSolid": "Solid",
     "lineStyleDashed": "Dashed",
     "lineStyleDotted": "Dotted",
-    "dividerSpacing": "Vertical spacing"
+    "dividerSpacing": "Vertical spacing",
+    "pdfReady": "PDF prêt",
+    "backToLivePreview": "Aperçu en direct",
+    "openInNewTab": "Ouvrir dans un nouvel onglet"
   },
   "guestFeatureAuth": {
     "title": "Connexion requise",

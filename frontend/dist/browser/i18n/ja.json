@@ -1766,7 +1766,10 @@
     "lineStyleSolid": "Solid",
     "lineStyleDashed": "Dashed",
     "lineStyleDotted": "Dotted",
-    "dividerSpacing": "Vertical spacing"
+    "dividerSpacing": "Vertical spacing",
+    "pdfReady": "PDFの準備ができました",
+    "backToLivePreview": "ライブプレビュー",
+    "openInNewTab": "新しいタブで開く"
   },
   "guestFeatureAuth": {
     "title": "サインインが必要です",
