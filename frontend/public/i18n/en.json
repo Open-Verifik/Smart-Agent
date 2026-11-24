@@ -2083,7 +2083,10 @@
     "lineStyleSolid": "Solid",
     "lineStyleDashed": "Dashed",
     "lineStyleDotted": "Dotted",
-    "dividerSpacing": "Vertical spacing"
+    "dividerSpacing": "Vertical spacing",
+    "pdfReady": "PDF ready",
+    "backToLivePreview": "Live preview",
+    "openInNewTab": "Open in new tab"
   },
   "guestFeatureAuth": {
     "title": "Sign in required",

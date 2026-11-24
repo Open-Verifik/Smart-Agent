@@ -1766,7 +1766,10 @@
     "lineStyleSolid": "Solid",
     "lineStyleDashed": "Dashed",
     "lineStyleDotted": "Dotted",
-    "dividerSpacing": "Vertical spacing"
+    "dividerSpacing": "Vertical spacing",
+    "pdfReady": "PDF가 준비되었습니다",
+    "backToLivePreview": "실시간 미리보기",
+    "openInNewTab": "새 탭에서 열기"
   },
   "guestFeatureAuth": {
     "title": "로그인 필요",

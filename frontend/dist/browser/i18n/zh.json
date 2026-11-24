@@ -1766,7 +1766,10 @@
     "lineStyleSolid": "Solid",
     "lineStyleDashed": "Dashed",
     "lineStyleDotted": "Dotted",
-    "dividerSpacing": "Vertical spacing"
+    "dividerSpacing": "Vertical spacing",
+    "pdfReady": "PDF 已就绪",
+    "backToLivePreview": "实时预览",
+    "openInNewTab": "在新标签页中打开"
   },
   "guestFeatureAuth": {
     "title": "需要登录",
