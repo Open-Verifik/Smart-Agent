@@ -9,6 +9,8 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
  * Compact Production / Sandbox toggle for the app shell header.
  * Only rendered when the user is authenticated (canRecharge check lives in service).
  */
+import { StaffPermissionService } from '../../../core/permissions';
+
 @Component({
     selector: 'production-mode-toggle',
     standalone: true,
@@ -34,12 +36,8 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
                 </span>
                 <mat-slide-toggle
                     [checked]="env.productionModeOn()"
-                    [disabled]="env.productionToggleDisabled()"
-                    [matTooltip]="
-                        env.productionToggleDisabled() && !env.sandboxToggleLoading()
-                            ? ('accountEnv.toggle.tooltipDisabled' | transloco)
-                            : ''
-                    "
+                    [disabled]="toggleDisabled"
+                    [matTooltip]="toggleTooltip"
                     [aria-label]="'accountEnv.toggle.aria' | transloco"
                     (change)="onToggle($event)"
                 ></mat-slide-toggle>
@@ -57,8 +55,30 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
 export class ProductionModeToggleComponent {
     readonly env = inject(AccountEnvironmentService);
     private _transloco = inject(TranslocoService);
+    private readonly _permissions = inject(StaffPermissionService);
+
+    get canManageKeys(): boolean {
+        return this._permissions.can('apiKeys', 'manageKeys');
+    }
+
+    get toggleDisabled(): boolean {
+        return this.env.productionToggleDisabled() || !this.canManageKeys;
+    }
+
+    get toggleTooltip(): string {
+        if (!this.canManageKeys) {
+            return this._transloco.translate('staffRbac.tooltips.toggleEnvironmentLocked');
+        }
+        if (this.env.productionToggleDisabled() && !this.env.sandboxToggleLoading()) {
+            return this._transloco.translate('accountEnv.toggle.tooltipDisabled');
+        }
+        return '';
+    }
 
     onToggle(change: MatSlideToggleChange): void {
+        if (!this.canManageKeys) {
+            return;
+        }
         this.env.toggleProductionMode(change.checked);
     }
 }

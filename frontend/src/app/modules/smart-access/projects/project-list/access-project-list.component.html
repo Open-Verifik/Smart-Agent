@@ -38,10 +38,10 @@
                 </div>
             } @else if (projects().length === 0) {
                 <div class="empty-hero-card">
-                    <div class="empty-hero-icon" [class.empty-hero-icon--muted]="isWorkspaceStaff()">
+                    <div class="empty-hero-icon" [class.empty-hero-icon--muted]="!canCreateProject()">
                         <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
                     </div>
-                    @if (isWorkspaceStaff()) {
+                    @if (!canCreateProject()) {
                         <h2 class="empty-hero-title">{{ t('smartAccessProjects.emptyStaffTitle') }}</h2>
                         <p class="empty-hero-text">{{ t('smartAccessProjects.emptyStaffSubtitle') }}</p>
                     } @else {
@@ -61,7 +61,7 @@
                 </div>
             } @else {
                 <div class="grid">
-                    @if (!isWorkspaceStaff()) {
+                    @if (canCreateProject()) {
                         <button
                             type="button"
                             class="card card-create"
@@ -113,6 +113,7 @@
                                             <mat-slide-toggle
                                                 color="primary"
                                                 [checked]="flowToggleChecked(flow)"
+                                                [disabled]="!canUpdateProject()"
                                                 (click)="$event.stopPropagation()"
                                                 (change)="onFlowStatusToggle($event, project)"
                                             ></mat-slide-toggle>

@@ -21,6 +21,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { take } from 'rxjs';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { DemoRelatedDocsSectionComponent } from '../smart-enroll/demos/shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../smart-enroll/demos/shared/demo-related-docs-section.types';
@@ -62,6 +63,7 @@ type WorkspaceConfigCard =
         ReportPreviewComponent,
         ReportTemplateThumbComponent,
         DemoRelatedDocsSectionComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './smart-batch.component.html',
     styleUrl: './smart-batch.component.scss',

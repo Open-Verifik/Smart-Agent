@@ -5,7 +5,7 @@
             <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('settings.costCenters.subtitle') }}</p>
         </div>
         @if (userClientId) {
-            <button mat-flat-button color="primary" class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-6 h-10" (click)="openCreate()">
+            <button *hasStaffPermission="'billingUsage.create'" mat-flat-button color="primary" class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-6 h-10" (click)="openCreate()">
                 <mat-icon class="mr-2 !h-5 !w-5 !text-xl">add</mat-icon>
                 {{ t('settings.costCenters.add') }}
             </button>
@@ -44,10 +44,11 @@
                                 </span>
                             </div>
                             <div class="col-span-2 md:col-span-2 flex justify-end gap-1">
-                                <button mat-icon-button type="button" [matTooltip]="t('settings.costCenters.edit')" [attr.aria-label]="t('settings.costCenters.edit')" (click)="openEdit(center)">
+                                <button *hasStaffPermission="'billingUsage.update'" mat-icon-button type="button" [matTooltip]="t('settings.costCenters.edit')" [attr.aria-label]="t('settings.costCenters.edit')" (click)="openEdit(center)">
                                     <mat-icon>edit</mat-icon>
                                 </button>
                                 <button
+                                    *hasStaffPermission="'billingUsage.update'"
                                     mat-icon-button
                                     type="button"
                                     [matTooltip]="t(center.active ? 'settings.costCenters.deactivate' : 'settings.costCenters.reactivate')"

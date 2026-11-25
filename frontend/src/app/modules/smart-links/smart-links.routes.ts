@@ -1,9 +1,12 @@
 import { Routes } from '@angular/router';
+import { staffPermissionGuard } from 'app/core/permissions';
 
 export default [
     { path: '', redirectTo: 'projects', pathMatch: 'full' },
     {
         path: 'projects',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartLinks', action: 'read' } },
         children: [
             {
                 path: '',

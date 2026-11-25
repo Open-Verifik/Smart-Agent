@@ -28,6 +28,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import QRCode from 'qrcode';
 import { map, of, switchMap } from 'rxjs';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 
 import { SmartLinkProjectDeleteDialogComponent } from '../dialogs/smart-link-project-delete-dialog.component';
@@ -59,6 +60,7 @@ import type {
         MatSlideToggleModule,
         MatSnackBarModule,
         TranslocoModule,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './smart-link-project-list.component.html',
     styleUrls: ['./smart-link-project-list.component.scss'],

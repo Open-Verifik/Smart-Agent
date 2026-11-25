@@ -1,0 +1,92 @@
+<div class="space-y-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+                {{ 'staffRbac.hub.title' | transloco }}
+            </h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                {{ 'staffRbac.hub.subtitle' | transloco }}
+            </p>
+        </div>
+
+        @if (permService.isStaff()) {
+            <a mat-stroked-button routerLink="/settings/my-access">
+                <mat-icon class="mr-1.5">verified_user</mat-icon>
+                {{ 'staffRbac.hub.myAccessBtn' | transloco }}
+            </a>
+        }
+    </div>
+
+    <mat-tab-group
+        [selectedIndex]="selectedTabIndex()"
+        (selectedIndexChange)="onTabChange($event)"
+        animationDuration="150ms"
+        class="team-hub-tabs"
+    >
+        <!-- Tab 1: Members -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-1.5 !w-4 !h-4 !text-[16px]">group</mat-icon>
+                {{ 'staffRbac.hub.tabMembers' | transloco }}
+            </ng-template>
+            <div class="pt-5">
+                <app-staff-list
+                    [user]="user"
+                    (staffChanged)="staffChanged.emit()"
+                    (userChange)="userChange.emit($event)"
+                ></app-staff-list>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 2: Sub-Teams & Budgets -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-1.5 !w-4 !h-4 !text-[16px]">account_balance_wallet</mat-icon>
+                {{ 'staffRbac.hub.tabTeams' | transloco }}
+            </ng-template>
+            <div class="pt-5">
+                <app-team-subteams></app-team-subteams>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 3: Roles & Permissions -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-1.5 !w-4 !h-4 !text-[16px]">admin_panel_settings</mat-icon>
+                {{ 'staffRbac.hub.tabRoles' | transloco }}
+            </ng-template>
+            <div class="pt-5">
+                <app-team-roles></app-team-roles>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 4: Access & Budget Requests -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-1.5 !w-4 !h-4 !text-[16px]">mark_email_unread</mat-icon>
+                <span>{{ 'staffRbac.hub.tabRequests' | transloco }}</span>
+                @if (permService.pendingRequestsCount() > 0) {
+                    <span class="ml-1.5 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white leading-none">
+                        {{ permService.pendingRequestsCount() }}
+                    </span>
+                }
+            </ng-template>
+            <div class="pt-5">
+                <app-team-access-requests
+                    (pendingCountChange)="onPendingCountChange($event)"
+                ></app-team-access-requests>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 5: Access Policy -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-1.5 !w-4 !h-4 !text-[16px]">policy</mat-icon>
+                {{ 'staffRbac.hub.tabPolicy' | transloco }}
+            </ng-template>
+            <div class="pt-5">
+                <app-team-access-policy [user]="user"></app-team-access-policy>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</div>

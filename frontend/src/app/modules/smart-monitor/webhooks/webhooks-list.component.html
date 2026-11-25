@@ -34,6 +34,7 @@
                             </span>
                         </div>
                         <mat-slide-toggle
+                            *hasStaffPermission="'smartMonitorWebhooks.update'"
                             [(ngModel)]="webhook.isActive"
                             (change)="activeWebhook(webhook)"
                             color="primary"
@@ -89,13 +90,13 @@
                         <button type="button" class="btn-primary" (click)="goDetail(webhook)">
                             {{ t('webhooks.list.view') }}
                         </button>
-                        <button type="button" class="btn-ghost" (click)="openNew(webhook)">
+                        <button *hasStaffPermission="'smartMonitorWebhooks.update'" type="button" class="btn-ghost" (click)="openNew(webhook)">
                             {{ t('webhooks.list.edit') }}
                         </button>
                     </div>
                 </article>
 
-                <button type="button" class="card card-dashed" (click)="openNew()">
+                <button *hasStaffPermission="'smartMonitorWebhooks.create'" type="button" class="card card-dashed" (click)="openNew()">
                     <div class="add-inner">
                         <div class="add-icon">
                             <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>

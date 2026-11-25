@@ -1,10 +1,15 @@
 <div class="settings-container flex min-h-0 flex-1 flex-col">
     <!-- Mobile Header -->
-    <div class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-        <button mat-icon-button (click)="drawerOpened = !drawerOpened">
+    <div class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+        <button
+            mat-icon-button
+            type="button"
+            class="text-gray-700 dark:text-gray-200"
+            (click)="drawerOpened = !drawerOpened"
+        >
             <mat-icon>menu</mat-icon>
         </button>
-        <h1 class="text-lg font-semibold">{{ 'settings.title' | transloco }}</h1>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ 'settings.title' | transloco }}</h1>
         <div class="w-10"></div>
     </div>
 
@@ -36,7 +41,7 @@
 
                 <!-- Navigation Sections -->
                 <div class="flex-1 overflow-y-auto p-4">
-                    <ng-container *ngFor="let section of sections; let last = last">
+                    <ng-container *ngFor="let section of visibleSections; let last = last">
                         <div class="mb-6" [class.mb-0]="last">
                             <h3
                                 class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
@@ -50,6 +55,7 @@
                                     (click)="selectPanel(panel.id)"
                                     [class.active]="isPanelSelected(panel.id)"
                                     [class.disabled]="panel.disabled"
+                                    [class.opacity-60]="panel.locked"
                                     class="nav-item w-full"
                                 >
                                     <mat-icon [svgIcon]="panel.icon" class="nav-icon"></mat-icon>
@@ -57,6 +63,18 @@
                                     <span *ngIf="panel.badge" class="nav-badge">
                                         {{ panel.badge | transloco }}
                                     </span>
+                                    <span
+                                        *ngIf="panel.id === 'team' && permService.canApproveRequests() && permService.pendingRequestsCount() > 0"
+                                        class="ml-auto px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white leading-none"
+                                    >
+                                        {{ permService.pendingRequestsCount() }}
+                                    </span>
+                                    <mat-icon
+                                        *ngIf="panel.locked"
+                                        class="ml-auto !w-4 !h-4 !text-[16px] text-slate-400"
+                                    >
+                                        lock
+                                    </mat-icon>
                                 </button>
                             </div>
                         </div>
@@ -86,7 +104,7 @@
 
         <!-- Main Content -->
         <mat-sidenav-content class="flex min-h-0 flex-1 flex-col bg-gray-50 dark:bg-gray-900">
-            <div class="flex min-h-0 flex-1 flex-col p-6 lg:p-8 max-w-4xl mx-auto w-full">
+            <div class="flex min-h-0 flex-1 flex-col p-6 lg:p-8 max-w-6xl mx-auto w-full">
                 <app-api-key-settings
                     *ngIf="selectedPanel === 'api_key'"
                     [user]="settingsUser"
@@ -141,11 +159,13 @@
                     (userChange)="onUserChanged($event)"
                 ></app-workspace-settings>
 
-                <app-staff-list
+                <app-my-access *ngIf="selectedPanel === 'my_access'"></app-my-access>
+
+                <app-team-hub
                     *ngIf="selectedPanel === 'team'"
                     [user]="settingsUser"
                     (userChange)="onUserChanged($event)"
-                ></app-staff-list>
+                ></app-team-hub>
 
                 <app-data-retention-settings
                     *ngIf="selectedPanel === 'data_retention'"

@@ -11,6 +11,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { forkJoin } from 'rxjs';
 import { environment } from 'environments/environment';
+import { StaffPermissionService } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { requiresSmartAccessSubscription } from 'app/core/client-settings/override-conditions';
 import { smartAccessLoginFlow } from '../login-flow.util';
@@ -41,6 +42,7 @@ export class AccessProjectListComponent implements OnInit {
     private _projectsService = inject(SmartAccessProjectsService);
     private _router = inject(Router);
     private _authGate = inject(AuthRequiredGateService);
+    private _permissions = inject(StaffPermissionService);
     projects = signal<AccessProject[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
@@ -85,6 +87,14 @@ export class AccessProjectListComponent implements OnInit {
 
     isWorkspaceStaff(): boolean {
         return !!this._projectsService.parseStoredUser()?.staff;
+    }
+
+    canCreateProject(): boolean {
+        return this._permissions.can('smartAccess', 'create');
+    }
+
+    canUpdateProject(): boolean {
+        return this._permissions.can('smartAccess', 'update');
     }
 
     createProject(): void {

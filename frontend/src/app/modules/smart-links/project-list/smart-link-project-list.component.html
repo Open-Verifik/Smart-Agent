@@ -65,6 +65,7 @@
                     <h2 class="empty-hero-title">{{ t('smartLinks.list.emptyTitle') }}</h2>
                     <p class="empty-hero-text">{{ t('smartLinks.list.emptySubtitle') }}</p>
                     <button
+                        *hasStaffPermission="'smartLinks.create'"
                         mat-flat-button
                         color="primary"
                         type="button"
@@ -97,6 +98,7 @@
                 <div class="grid">
                     <!-- Dashed Create New Card mirroring AccessProjectListComponent -->
                     <button
+                        *hasStaffPermission="'smartLinks.create'"
                         type="button"
                         class="card card-create"
                         (click)="createNew()"
@@ -186,7 +188,7 @@
                                         {{ t('smartLinks.sessions.viewAllBtn') }}
                                     </button>
                                     <mat-divider></mat-divider>
-                                    <button mat-menu-item type="button" class="!text-red-600 dark:!text-red-400" (click)="openDeleteHubDialog(project, $event)">
+                                    <button *hasStaffPermission="'smartLinks.delete'" mat-menu-item type="button" class="!text-red-600 dark:!text-red-400" (click)="openDeleteHubDialog(project, $event)">
                                         <mat-icon class="menu-item-icon !text-red-600 dark:!text-red-400">delete_outline</mat-icon>
                                         <span>{{ t('smartLinks.actions.deleteHub') }}</span>
                                     </button>

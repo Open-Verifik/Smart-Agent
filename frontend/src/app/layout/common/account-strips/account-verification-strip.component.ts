@@ -10,12 +10,14 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
  * Full-width strip shown above the header when `canRecharge === false`.
  * Prompts the user to complete company verification to unlock production access.
  */
+import { StaffPermissionService } from '../../../core/permissions';
+
 @Component({
     selector: 'account-verification-strip',
     standalone: true,
     imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink, TranslocoModule],
     template: `
-        @if (env.showVerifyStrip()) {
+        @if (env.showVerifyStrip() && canManageVerification()) {
             <section class="verification-strip" aria-labelledby="verification-strip-title">
                 <div class="verification-strip__glow" aria-hidden="true"></div>
 
@@ -378,4 +380,9 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
 })
 export class AccountVerificationStripComponent {
     readonly env = inject(AccountEnvironmentService);
+    private readonly _permissions = inject(StaffPermissionService);
+
+    canManageVerification(): boolean {
+        return !this._permissions.isStaff() || this._permissions.can('billingCredits', 'update');
+    }
 }
