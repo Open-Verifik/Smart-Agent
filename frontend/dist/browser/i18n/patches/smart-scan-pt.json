@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "Esta imagem de documento é mantida temporariamente e está programada para eliminação permanente em {{date}}.",
     "imagePurgedPlaceholderTitle": "Imagem Não Mais Armazenada",
     "imagePurgedPlaceholderDesc": "A imagem original do documento foi excluída em {{date}} de acordo com a política de retenção de dados da sua organização.",
+    "imageLoadErrorTitle": "Imagem indisponível",
     "imageUnavailableDesc": "A imagem do documento não está disponível.",
     "categories": {
       "proof_of_address": "Comprovante de Endereço"

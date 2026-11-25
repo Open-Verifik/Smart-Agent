@@ -1,22 +1,26 @@
-<section class="rounded-2xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
-    <div class="flex flex-wrap items-end justify-between gap-2">
-        <div>
+<section class="sr-theme-panel rounded-2xl border border-stone-200 bg-white p-3.5 dark:border-gray-800 dark:bg-gray-950">
+    <!-- Top header + global actions -->
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="min-w-0">
             <h2 class="m-0 text-sm font-semibold text-stone-950 dark:text-white">{{ 'reportTheme.title' | transloco }}</h2>
-            <p class="m-0 mt-0.5 max-w-xl text-[11px] leading-snug text-stone-500">{{ 'reportTheme.hint' | transloco }}</p>
+            <p class="m-0 mt-0.5 max-w-2xl text-xs leading-snug text-stone-500 dark:text-stone-400">
+                {{ 'reportTheme.hint' | transloco }}
+            </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             @if (canUngroup()) {
                 <button
                     type="button"
-                    class="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-200 dark:hover:bg-indigo-900/60"
+                    class="inline-flex min-h-8 items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-950/60 dark:text-indigo-200 dark:hover:bg-indigo-900/60"
+                    [title]="'reportTheme.ungroupHint' | transloco"
                     (click)="ungroupRequested.emit()"
                 >
-                    Desagrupar (diseño libre)
+                    {{ 'reportTheme.ungroup' | transloco }}
                 </button>
             }
             <button
                 type="button"
-                class="inline-flex min-h-9 items-center rounded-xl bg-stone-950 px-3 text-xs font-semibold text-white dark:bg-white dark:text-gray-950"
+                class="inline-flex min-h-8 items-center rounded-xl bg-stone-900 px-3 text-xs font-semibold text-white transition hover:bg-stone-800 dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-500"
                 (click)="starterRequested.emit(themeId())"
             >
                 {{ 'reportTheme.useStarter' | transloco }}
@@ -24,27 +28,29 @@
         </div>
     </div>
 
+    <!-- 4 visual theme starters -->
     <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4" role="listbox" [attr.aria-label]="'reportTheme.title' | transloco">
         @for (theme of themes; track theme) {
             <button
                 type="button"
                 role="option"
                 class="overflow-hidden rounded-xl border text-left transition"
-                [class.border-indigo-500]="themeId() === theme"
-                [class.ring-2]="themeId() === theme"
-                [class.ring-indigo-400]="themeId() === theme"
-                [class.border-stone-200]="themeId() !== theme"
+                [ngClass]="
+                    themeId() === theme
+                        ? 'border-indigo-500 bg-white ring-2 ring-indigo-500/35 dark:border-indigo-400 dark:bg-gray-900'
+                        : 'border-stone-200 bg-white hover:border-stone-300 dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-gray-600'
+                "
                 [attr.aria-selected]="themeId() === theme"
                 (click)="themeSelected.emit(theme)"
             >
-                <span class="block h-[72px] w-full" [attr.data-theme-thumb]="theme">
+                <span class="block h-[58px] w-full" [attr.data-theme-thumb]="theme">
                     @switch (theme) {
                         @case ('premium_dark') {
                             <span class="flex h-full flex-col gap-1 bg-[#07111f] p-2">
                                 <span class="h-1.5 w-10 rounded-full bg-[#c4b8ff]"></span>
-                                <span class="mt-1 h-2 w-16 rounded bg-white/80"></span>
+                                <span class="mt-0.5 h-2 w-16 rounded bg-white/80"></span>
                                 <span class="flex flex-1 items-center gap-1">
-                                    <span class="h-8 w-8 rounded-full border-2 border-[#f5a524]"></span>
+                                    <span class="h-6 w-6 rounded-full border-2 border-[#f5a524]"></span>
                                     <span class="h-2 flex-1 rounded bg-[#3dd68c]"></span>
                                 </span>
                             </span>
@@ -54,303 +60,538 @@
                                 <span class="h-1.5 w-8 rounded-full bg-[#6d4aff]"></span>
                                 <span class="mt-1 flex-1 rounded-lg bg-white p-1">
                                     <span class="block h-2 w-14 rounded bg-stone-900"></span>
-                                    <span class="mt-1 block h-4 w-8 rounded-full bg-[#1f9d55]"></span>
+                                    <span class="mt-1 block h-3 w-8 rounded-full bg-[#1f9d55]"></span>
                                 </span>
                             </span>
                         }
                         @case ('editorial') {
                             <span class="flex h-full flex-col bg-[#f6f3ec] p-2">
                                 <span class="h-1 w-12 rounded bg-[#5b4dff]"></span>
-                                <span class="mt-1 h-3 w-20 rounded bg-stone-950"></span>
-                                <span class="mt-2 h-px w-full bg-stone-800"></span>
-                                <span class="mt-1 h-6 w-6 rounded-full border-2 border-[#1f8a4c]"></span>
+                                <span class="mt-1 h-2.5 w-20 rounded bg-stone-950"></span>
+                                <span class="mt-1.5 h-px w-full bg-stone-800"></span>
+                                <span class="mt-1 h-4 w-4 rounded-full border-2 border-[#1f8a4c]"></span>
                             </span>
                         }
                         @case ('dashboard') {
                             <span class="flex h-full flex-col gap-1 bg-[#eef0f6] p-2">
                                 <span class="h-1.5 w-8 rounded-full bg-[#6d4aff]"></span>
                                 <span class="flex flex-1 items-end gap-0.5">
-                                    <span class="h-6 w-2 rounded-sm bg-[#22a559]"></span>
                                     <span class="h-5 w-2 rounded-sm bg-[#22a559]"></span>
-                                    <span class="h-4 w-2 rounded-sm bg-[#f08a24]"></span>
+                                    <span class="h-4 w-2 rounded-sm bg-[#22a559]"></span>
                                     <span class="h-3 w-2 rounded-sm bg-[#f08a24]"></span>
+                                    <span class="h-2.5 w-2 rounded-sm bg-[#f08a24]"></span>
                                 </span>
                             </span>
                         }
                     }
                 </span>
-                <span class="block px-2 py-1.5">
+                <span class="block px-2.5 py-1.5">
                     <span class="block text-[11px] font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.names.' + theme | transloco }}</span>
-                    <span class="block text-[10px] text-stone-500">{{ 'reportTheme.hints.' + theme | transloco }}</span>
+                    <span class="block text-[10px] text-stone-500 dark:text-stone-400">{{ 'reportTheme.hints.' + theme | transloco }}</span>
                 </span>
             </button>
         }
     </div>
 
-    <div class="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <fieldset class="m-0 min-w-0 rounded-xl border border-stone-200 p-2.5 dark:border-gray-800">
-            <legend class="px-1 text-[11px] font-semibold uppercase tracking-wide text-stone-500">{{ 'reportTheme.score' | transloco }}</legend>
-            <label class="mt-1 flex items-center gap-2 text-sm text-stone-800 dark:text-stone-100">
-                <input type="checkbox" [checked]="score().enabled" (change)="patchScore({ enabled: !score().enabled })" />
-                {{ 'reportTheme.includeScore' | transloco }}
-            </label>
-            <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.scoreProfile' | transloco }}
-                    <select
-                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                        [disabled]="!score().enabled"
-                        [ngModel]="profileId()"
-                        (ngModelChange)="patchScore({ profile: $event })"
-                    >
-                        @for (profile of profileChoices(); track profile.id) {
-                            <option [ngValue]="profile.id">{{ profileLabel(profile) }}</option>
-                        }
-                    </select>
+    <!-- Progressive disclosure panels (non-exclusive, collapsed by default so canvas stays prominent) -->
+    <div class="mt-3 space-y-2">
+        <!-- 1. Score & visible details -->
+        <details class="sr-theme-disclosure rounded-xl border border-stone-200 bg-stone-50/70 dark:border-gray-800 dark:bg-gray-900/50">
+            <summary class="px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-100/80 dark:text-stone-100 dark:hover:bg-gray-800/70 rounded-xl">
+                <span class="flex-1 truncate">{{ 'reportTheme.sectionScoreContent' | transloco }}</span>
+                <span class="flex shrink-0 flex-wrap items-center gap-1.5 text-[11px] font-normal text-stone-500 dark:text-stone-400">
+                    @if (score().enabled) {
+                        <span class="rounded-md bg-white px-2 py-0.5 font-medium text-stone-700 ring-1 ring-stone-200/80 dark:bg-gray-950 dark:text-stone-200 dark:ring-gray-700">
+                            {{ selectedProfileLabel() }}
+                        </span>
+                        <span class="rounded-md bg-white px-2 py-0.5 font-medium text-stone-700 ring-1 ring-stone-200/80 dark:bg-gray-950 dark:text-stone-200 dark:ring-gray-700">
+                            {{ score().format === 'unit' ? ('reportTheme.formatUnit' | transloco) : ('reportTheme.formatPercent' | transloco) }}
+                        </span>
+                    } @else {
+                        <span class="rounded-md bg-stone-200/70 px-2 py-0.5 text-stone-600 dark:bg-gray-800 dark:text-stone-300">
+                            {{ 'reportTheme.scoreHiddenBadge' | transloco }}
+                        </span>
+                    }
+                    <span class="rounded-md bg-white px-2 py-0.5 text-stone-600 ring-1 ring-stone-200/80 dark:bg-gray-950 dark:text-stone-300 dark:ring-gray-700">
+                        {{ 'reportTheme.densityOptions.' + tokens().density | transloco }} · {{ visibilitySummaryCount() }}/5
+                    </span>
+                </span>
+            </summary>
+
+            <div class="border-t border-stone-200/80 px-3 pb-3 pt-2.5 dark:border-gray-800">
+                <!-- Master Verification Score switch -->
+                <label class="sr-toggle-card flex cursor-pointer items-start gap-2.5 rounded-xl border border-stone-200 bg-white px-3 py-2 transition hover:border-stone-300 dark:border-gray-800 dark:bg-gray-950/80 dark:hover:border-gray-700">
+                    <input
+                        type="checkbox"
+                        class="sr-theme-checkbox mt-0.5 shrink-0"
+                        [checked]="score().enabled"
+                        (change)="patchScore({ enabled: !score().enabled })"
+                    />
+                    <span class="sr-toggle-copy min-w-0">
+                        <span class="block text-xs font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.includeScore' | transloco }}</span>
+                        <span class="block text-[11px] leading-snug text-stone-500 dark:text-stone-400">
+                            {{ 'reportTheme.includeScoreHint' | transloco }}
+                        </span>
+                    </span>
                 </label>
-                <div class="text-[11px] text-stone-500">
-                    {{ 'reportTheme.scoreFormat' | transloco }}
-                    <div class="mt-1 grid grid-cols-2 gap-1" role="group" [attr.aria-label]="'reportTheme.scoreFormat' | transloco">
-                        <button
-                            type="button"
-                            class="rounded-lg border px-2 py-1.5 text-xs font-semibold"
+
+                <div class="mt-2.5 grid gap-2.5 sm:grid-cols-3">
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.scoreProfile' | transloco }}
+                        <select
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                             [disabled]="!score().enabled"
-                            [ngClass]="score().format === 'unit' ? selectedFormatClass : idleFormatClass"
-                            (click)="patchScore({ format: 'unit' })"
-                        >{{ 'reportTheme.formatUnit' | transloco }}</button>
-                        <button
-                            type="button"
-                            class="rounded-lg border px-2 py-1.5 text-xs font-semibold"
-                            [disabled]="!score().enabled"
-                            [ngClass]="score().format === 'percent' ? selectedFormatClass : idleFormatClass"
-                            (click)="patchScore({ format: 'percent' })"
-                        >{{ 'reportTheme.formatPercent' | transloco }}</button>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <div class="text-[11px] text-stone-500">
-                    {{ 'reportTheme.density' | transloco }}
-                    <div class="mt-1 grid grid-cols-3 gap-1" role="group">
-                        @for (d of densities; track d) {
+                            [ngModel]="profileId()"
+                            (ngModelChange)="patchScore({ profile: $event })"
+                        >
+                            @for (profile of profileChoices(); track profile.id) {
+                                <option [ngValue]="profile.id">{{ profileLabel(profile) }}</option>
+                            }
+                        </select>
+                    </label>
+
+                    <div class="text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.scoreFormat' | transloco }}
+                        <div class="mt-1 grid grid-cols-2 gap-1" role="group" [attr.aria-label]="'reportTheme.scoreFormat' | transloco">
                             <button
                                 type="button"
-                                class="rounded-lg border px-1.5 py-1.5 text-[11px] font-semibold"
-                                [ngClass]="tokens().density === d ? selectedFormatClass : idleFormatClass"
-                                (click)="patchTokens({ density: d })"
-                            >{{ 'reportTheme.densityOptions.' + d | transloco }}</button>
+                                class="rounded-lg border px-2 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50"
+                                [disabled]="!score().enabled"
+                                [ngClass]="score().format === 'unit' ? selectedFormatClass : idleFormatClass"
+                                (click)="patchScore({ format: 'unit' })"
+                            >{{ 'reportTheme.formatUnit' | transloco }}</button>
+                            <button
+                                type="button"
+                                class="rounded-lg border px-2 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50"
+                                [disabled]="!score().enabled"
+                                [ngClass]="score().format === 'percent' ? selectedFormatClass : idleFormatClass"
+                                (click)="patchScore({ format: 'percent' })"
+                            >{{ 'reportTheme.formatPercent' | transloco }}</button>
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        <span>{{ 'reportTheme.density' | transloco }}</span>
+                        <div class="mt-1 grid grid-cols-3 gap-1" role="group" [attr.aria-label]="'reportTheme.density' | transloco">
+                            @for (density of densities; track density) {
+                                <button
+                                    type="button"
+                                    class="rounded-lg border px-1.5 py-1.5 text-[11px] font-semibold transition-colors"
+                                    [ngClass]="tokens().density === density ? selectedFormatClass : idleFormatClass"
+                                    (click)="patchTokens({ density: density })"
+                                >{{ 'reportTheme.densityOptions.' + density | transloco }}</button>
+                            }
+                        </div>
+                        <span class="mt-1 block text-[10px] font-normal text-stone-500 dark:text-stone-400">
+                            {{ 'reportTheme.densityHint' | transloco }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Plain-English explanation of all 5 report visibility checkboxes -->
+                <div class="mt-3">
+                    <p class="m-0 text-[11px] font-semibold uppercase tracking-wide text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.visibilityTitle' | transloco }}
+                    </p>
+                    <p class="m-0 mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">
+                        {{ 'reportTheme.visibilitySubtitle' | transloco }}
+                    </p>
+                    <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                        <label
+                            class="sr-toggle-card flex cursor-pointer items-start gap-2 rounded-xl border px-2.5 py-2 transition"
+                            [ngClass]="
+                                tokens().showVerifiedBadge !== false
+                                    ? 'border-indigo-300 bg-white dark:border-indigo-500/40 dark:bg-gray-950'
+                                    : 'border-stone-200 bg-white/60 dark:border-gray-800 dark:bg-gray-950/50'
+                            "
+                        >
+                            <input
+                                type="checkbox"
+                                class="sr-theme-checkbox mt-0.5 shrink-0"
+                                [checked]="tokens().showVerifiedBadge !== false"
+                                (change)="patchTokens({ showVerifiedBadge: tokens().showVerifiedBadge === false })"
+                            />
+                            <span class="sr-toggle-copy min-w-0">
+                                <span class="block text-xs font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.showVerifiedBadge' | transloco }}</span>
+                                <span class="block text-[11px] leading-snug text-stone-500 dark:text-stone-400">
+                                    {{ 'reportTheme.showVerifiedBadgeHint' | transloco }}
+                                </span>
+                            </span>
+                        </label>
+
+                        <label
+                            class="sr-toggle-card flex cursor-pointer items-start gap-2 rounded-xl border px-2.5 py-2 transition"
+                            [ngClass]="
+                                tokens().showWeights !== false
+                                    ? 'border-indigo-300 bg-white dark:border-indigo-500/40 dark:bg-gray-950'
+                                    : 'border-stone-200 bg-white/60 dark:border-gray-800 dark:bg-gray-950/50'
+                            "
+                        >
+                            <input
+                                type="checkbox"
+                                class="sr-theme-checkbox mt-0.5 shrink-0"
+                                [checked]="tokens().showWeights !== false"
+                                (change)="patchTokens({ showWeights: tokens().showWeights === false })"
+                            />
+                            <span class="sr-toggle-copy min-w-0">
+                                <span class="block text-xs font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.showWeights' | transloco }}</span>
+                                <span class="block text-[11px] leading-snug text-stone-500 dark:text-stone-400">
+                                    {{ 'reportTheme.showWeightsHint' | transloco }}
+                                </span>
+                            </span>
+                        </label>
+
+                        <label
+                            class="sr-toggle-card flex cursor-pointer items-start gap-2 rounded-xl border px-2.5 py-2 transition"
+                            [ngClass]="
+                                tokens().showDeductions !== false
+                                    ? 'border-indigo-300 bg-white dark:border-indigo-500/40 dark:bg-gray-950'
+                                    : 'border-stone-200 bg-white/60 dark:border-gray-800 dark:bg-gray-950/50'
+                            "
+                        >
+                            <input
+                                type="checkbox"
+                                class="sr-theme-checkbox mt-0.5 shrink-0"
+                                [checked]="tokens().showDeductions !== false"
+                                (change)="patchTokens({ showDeductions: tokens().showDeductions === false })"
+                            />
+                            <span class="sr-toggle-copy min-w-0">
+                                <span class="block text-xs font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.showDeductions' | transloco }}</span>
+                                <span class="block text-[11px] leading-snug text-stone-500 dark:text-stone-400">
+                                    {{ 'reportTheme.showDeductionsHint' | transloco }}
+                                </span>
+                            </span>
+                        </label>
+
+                        <label
+                            class="sr-toggle-card flex cursor-pointer items-start gap-2 rounded-xl border px-2.5 py-2 transition"
+                            [ngClass]="
+                                tokens().showFields !== false
+                                    ? 'border-indigo-300 bg-white dark:border-indigo-500/40 dark:bg-gray-950'
+                                    : 'border-stone-200 bg-white/60 dark:border-gray-800 dark:bg-gray-950/50'
+                            "
+                        >
+                            <input
+                                type="checkbox"
+                                class="sr-theme-checkbox mt-0.5 shrink-0"
+                                [checked]="tokens().showFields !== false"
+                                (change)="patchTokens({ showFields: tokens().showFields === false })"
+                            />
+                            <span class="sr-toggle-copy min-w-0">
+                                <span class="block text-xs font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.showFields' | transloco }}</span>
+                                <span class="block text-[11px] leading-snug text-stone-500 dark:text-stone-400">
+                                    {{ 'reportTheme.showFieldsHint' | transloco }}
+                                </span>
+                            </span>
+                        </label>
+
+                        <label
+                            class="sr-toggle-card flex cursor-pointer items-start gap-2 rounded-xl border px-2.5 py-2 transition"
+                            [ngClass]="
+                                tokens().showHowItWorks !== false
+                                    ? 'border-indigo-300 bg-white dark:border-indigo-500/40 dark:bg-gray-950'
+                                    : 'border-stone-200 bg-white/60 dark:border-gray-800 dark:bg-gray-950/50'
+                            "
+                        >
+                            <input
+                                type="checkbox"
+                                class="sr-theme-checkbox mt-0.5 shrink-0"
+                                [checked]="tokens().showHowItWorks !== false"
+                                (change)="patchTokens({ showHowItWorks: tokens().showHowItWorks === false })"
+                            />
+                            <span class="sr-toggle-copy min-w-0">
+                                <span class="block text-xs font-semibold text-stone-900 dark:text-white">{{ 'reportTheme.showHowItWorks' | transloco }}</span>
+                                <span class="block text-[11px] leading-snug text-stone-500 dark:text-stone-400">
+                                    {{ 'reportTheme.showHowItWorksHint' | transloco }}
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- 2. Brand, logo & colors -->
+        <details class="sr-theme-disclosure rounded-xl border border-stone-200 bg-stone-50/70 dark:border-gray-800 dark:bg-gray-900/50">
+            <summary class="px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-100/80 dark:text-stone-100 dark:hover:bg-gray-800/70 rounded-xl">
+                <span class="flex-1 truncate">{{ 'reportTheme.sectionBranding' | transloco }}</span>
+                <span class="flex shrink-0 items-center gap-2 text-[11px] font-normal text-stone-500 dark:text-stone-400">
+                    <span class="flex items-center gap-1" aria-hidden="true">
+                        <span class="h-3.5 w-3.5 rounded-full border border-black/15 dark:border-white/20" [style.background-color]="tokens().accent"></span>
+                        <span class="h-3.5 w-3.5 rounded-full border border-black/15 dark:border-white/20" [style.background-color]="tokens().brand"></span>
+                        <span class="h-3.5 w-3.5 rounded-full border border-black/15 dark:border-white/20" [style.background-color]="tokens().cover || tokens().surface"></span>
+                        <span class="h-3.5 w-3.5 rounded-full border border-black/15 dark:border-white/20" [style.background-color]="tokens().page"></span>
+                    </span>
+                    <span class="rounded-md bg-white px-2 py-0.5 text-stone-600 ring-1 ring-stone-200/80 dark:bg-gray-950 dark:text-stone-300 dark:ring-gray-700">
+                        {{ tokens().displayFont }}
+                    </span>
+                </span>
+            </summary>
+
+            <div class="border-t border-stone-200/80 px-3 pb-3 pt-2.5 dark:border-gray-800">
+                <div class="grid gap-2.5 sm:grid-cols-2">
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.wordmark' | transloco }}
+                        <input
+                            type="text"
+                            maxlength="40"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.wordmarkPlaceholder' | transloco"
+                            [ngModel]="tokens().logoText"
+                            (ngModelChange)="patchTokens({ logoText: $event })"
+                        />
+                        <span class="mt-0.5 block text-[10px] font-normal text-stone-500 dark:text-stone-400">
+                            {{ 'reportTheme.wordmarkHint' | transloco }}
+                        </span>
+                    </label>
+                    <div class="flex flex-wrap items-end gap-2">
+                        <label class="min-w-0 flex-1 text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                            {{ 'reportTheme.logo' | transloco }}
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,image/gif"
+                                class="sr-logo-file-input mt-1 block w-full text-[11px] text-stone-600 dark:text-stone-300"
+                                (change)="onLogo($event)"
+                            />
+                        </label>
+                        @if (tokens().logo) {
+                            <button
+                                type="button"
+                                class="text-[11px] font-medium text-indigo-700 underline dark:text-indigo-400"
+                                (click)="patchTokens({ logo: '' })"
+                            >
+                                {{ 'reportTheme.logoClear' | transloco }}
+                            </button>
                         }
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 text-[11px] text-stone-700 dark:text-stone-200">
-                    <label class="flex items-center gap-1.5">
-                        <input type="checkbox" [checked]="tokens().showVerifiedBadge !== false" (change)="patchTokens({ showVerifiedBadge: !tokens().showVerifiedBadge })" />
-                        Verifik badge
+
+                <div class="mt-2.5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.accent' | transloco }}
+                        <color-hex-field class="mt-1 block" [ngModel]="tokens().accent" (ngModelChange)="patchTokens({ accent: $event })" />
                     </label>
-                    <label class="flex items-center gap-1.5">
-                        <input type="checkbox" [checked]="tokens().showWeights !== false" (change)="patchTokens({ showWeights: !tokens().showWeights })" />
-                        {{ 'reportTheme.showWeights' | transloco }}
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.brand' | transloco }}
+                        <color-hex-field class="mt-1 block" [ngModel]="tokens().brand" (ngModelChange)="patchTokens({ brand: $event })" />
                     </label>
-                    <label class="flex items-center gap-1.5">
-                        <input type="checkbox" [checked]="tokens().showDeductions !== false" (change)="patchTokens({ showDeductions: !tokens().showDeductions })" />
-                        {{ 'reportTheme.showDeductions' | transloco }}
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.coverColor' | transloco }}
+                        <color-hex-field class="mt-1 block" [ngModel]="tokens().cover || tokens().surface" (ngModelChange)="patchTokens({ cover: $event })" />
                     </label>
-                    <label class="flex items-center gap-1.5">
-                        <input type="checkbox" [checked]="tokens().showFields !== false" (change)="patchTokens({ showFields: !tokens().showFields })" />
-                        {{ 'reportTheme.showFields' | transloco }}
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.pageColor' | transloco }}
+                        <color-hex-field class="mt-1 block" [ngModel]="tokens().page" (ngModelChange)="patchTokens({ page: $event })" />
                     </label>
-                    <label class="flex items-center gap-1.5">
-                        <input type="checkbox" [checked]="tokens().showHowItWorks !== false" (change)="patchTokens({ showHowItWorks: !tokens().showHowItWorks })" />
-                        {{ 'reportTheme.showHowItWorks' | transloco }}
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.cardColor' | transloco }}
+                        <color-hex-field class="mt-1 block" [ngModel]="tokens().card" (ngModelChange)="patchTokens({ card: $event })" />
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.inkColor' | transloco }}
+                        <color-hex-field class="mt-1 block" [ngModel]="tokens().ink" (ngModelChange)="patchTokens({ ink: $event })" />
+                    </label>
+                </div>
+
+                <div class="mt-2.5 grid gap-2 sm:grid-cols-2">
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.displayFont' | transloco }}
+                        <select
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [value]="tokens().displayFont"
+                            (change)="patchTokens({ displayFont: $any($event.target).value })"
+                        >
+                            @for (font of fonts; track font) {
+                                <option [value]="font">{{ font }}</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.bodyFont' | transloco }}
+                        <select
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [value]="tokens().bodyFont"
+                            (change)="patchTokens({ bodyFont: $any($event.target).value })"
+                        >
+                            @for (font of fonts; track font) {
+                                <option [value]="font">{{ font }}</option>
+                            }
+                        </select>
                     </label>
                 </div>
             </div>
-        </fieldset>
+        </details>
 
-        <fieldset class="m-0 min-w-0 rounded-xl border border-stone-200 p-2.5 dark:border-gray-800">
-            <legend class="px-1 text-[11px] font-semibold uppercase tracking-wide text-stone-500">{{ 'reportTheme.branding' | transloco }}</legend>
-            <div class="mt-1 grid gap-2 sm:grid-cols-2">
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.wordmark' | transloco }}
+        <!-- 3. Titles & verdict wording -->
+        <details class="sr-theme-disclosure rounded-xl border border-stone-200 bg-stone-50/70 dark:border-gray-800 dark:bg-gray-900/50">
+            <summary class="px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-100/80 dark:text-stone-100 dark:hover:bg-gray-800/70 rounded-xl">
+                <span class="flex-1 truncate">{{ 'reportTheme.sectionWording' | transloco }}</span>
+                @if (tokens().coverTitle) {
+                    <span class="max-w-[16rem] truncate rounded-md bg-white px-2 py-0.5 text-[11px] font-normal text-stone-600 ring-1 ring-stone-200/80 dark:bg-gray-950 dark:text-stone-300 dark:ring-gray-700">
+                        {{ tokens().coverTitle }}
+                    </span>
+                }
+            </summary>
+
+            <div class="border-t border-stone-200/80 px-3 pb-3 pt-2.5 dark:border-gray-800">
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.eyebrow' | transloco }}
+                        <input
+                            type="text"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.eyebrowPlaceholder' | transloco"
+                            [ngModel]="tokens().eyebrow"
+                            (ngModelChange)="patchTokens({ eyebrow: $event })"
+                        />
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.coverTitle' | transloco }}
+                        <input
+                            type="text"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.coverTitlePlaceholder' | transloco"
+                            [ngModel]="tokens().coverTitle"
+                            (ngModelChange)="patchTokens({ coverTitle: $event })"
+                        />
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.headlineApproveLabel' | transloco }}
+                        <input
+                            type="text"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.headlineApprovePlaceholder' | transloco"
+                            [ngModel]="tokens().headlineApprove"
+                            (ngModelChange)="patchTokens({ headlineApprove: $event })"
+                        />
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.headlineReviewLabel' | transloco }}
+                        <input
+                            type="text"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.headlineReviewPlaceholder' | transloco"
+                            [ngModel]="tokens().headlineReview"
+                            (ngModelChange)="patchTokens({ headlineReview: $event })"
+                        />
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.headlineRejectLabel' | transloco }}
+                        <input
+                            type="text"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.headlineRejectPlaceholder' | transloco"
+                            [ngModel]="tokens().headlineReject"
+                            (ngModelChange)="patchTokens({ headlineReject: $event })"
+                        />
+                    </label>
+                    <label class="block text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                        {{ 'reportTheme.legalNoteLabel' | transloco }}
+                        <input
+                            type="text"
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                            [placeholder]="'reportTheme.legalNotePlaceholder' | transloco"
+                            [ngModel]="tokens().legalNote"
+                            (ngModelChange)="patchTokens({ legalNote: $event })"
+                        />
+                    </label>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- Add report block strip -->
+    <div class="mt-3 flex flex-wrap items-center gap-1.5">
+        <span
+            class="mr-1 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400"
+            [title]="'reportTheme.blocksHint' | transloco"
+        >
+            {{ 'reportTheme.blocks' | transloco }}:
+        </span>
+        @for (block of blocks; track block) {
+            <button
+                type="button"
+                class="inline-flex min-h-7 items-center gap-1 rounded-lg border border-stone-200 bg-stone-50 px-2.5 text-[11px] font-semibold text-stone-800 transition hover:border-indigo-400 hover:bg-indigo-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-indigo-400 dark:hover:bg-indigo-950/50"
+                (click)="addBlock.emit(block)"
+            >
+                <span aria-hidden="true">+</span>
+                {{ 'reportTheme.block.' + block | transloco }}
+            </button>
+        }
+    </div>
+
+    <!-- Context-aware selected block bar: only renders controls relevant to the selected block -->
+    @if (blockConfig(); as config) {
+        <div class="mt-2.5 rounded-xl border border-stone-200 bg-stone-50 p-2.5 dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex flex-wrap items-end gap-3">
+                <label class="min-w-[14rem] flex-1 text-[11px] font-medium text-stone-600 dark:text-stone-300">
+                    <span class="font-semibold text-stone-800 dark:text-stone-100">
+                        {{ 'reportTheme.selectedBlockTitle' | transloco }}:
+                        {{ blockKind() ? ('reportTheme.block.' + blockKind() | transloco) : ('reportTheme.blocks' | transloco) }}
+                    </span>
+                    · {{ 'reportTheme.eyebrow' | transloco }}
                     <input
                         type="text"
-                        maxlength="40"
-                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                        placeholder="verifik / Mi Empresa"
-                        [ngModel]="tokens().logoText"
-                        (ngModelChange)="patchTokens({ logoText: $event })"
+                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-950 placeholder:text-stone-400 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500"
+                        [placeholder]="'reportTheme.blockEyebrowPlaceholder' | transloco"
+                        [ngModel]="config.eyebrow || ''"
+                        (ngModelChange)="patchConfig({ eyebrow: $event })"
                     />
                 </label>
-                <div class="flex flex-wrap items-end gap-2">
-                    <label class="min-w-0 flex-1 text-[11px] text-stone-500">
-                        {{ 'reportTheme.logo' | transloco }}
-                        <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="mt-1 block w-full text-[11px]" (change)="onLogo($event)" />
-                    </label>
-                    @if (tokens().logo) {
-                        <button type="button" class="text-[11px] font-medium text-indigo-700 underline dark:text-indigo-400" (click)="patchTokens({ logo: '' })">
-                            {{ 'reportTheme.logoClear' | transloco }}
-                        </button>
-                    }
-                </div>
-            </div>
-            <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.accent' | transloco }}
-                    <color-hex-field class="mt-1 block" [ngModel]="tokens().accent" (ngModelChange)="patchTokens({ accent: $event })" />
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.brand' | transloco }}
-                    <color-hex-field class="mt-1 block" [ngModel]="tokens().brand" (ngModelChange)="patchTokens({ brand: $event })" />
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.coverColor' | transloco }}
-                    <color-hex-field class="mt-1 block" [ngModel]="tokens().cover || tokens().surface" (ngModelChange)="patchTokens({ cover: $event })" />
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.pageColor' | transloco }}
-                    <color-hex-field class="mt-1 block" [ngModel]="tokens().page" (ngModelChange)="patchTokens({ page: $event })" />
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.cardColor' | transloco }}
-                    <color-hex-field class="mt-1 block" [ngModel]="tokens().card" (ngModelChange)="patchTokens({ card: $event })" />
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.inkColor' | transloco }}
-                    <color-hex-field class="mt-1 block" [ngModel]="tokens().ink" (ngModelChange)="patchTokens({ ink: $event })" />
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.displayFont' | transloco }}
-                    <select
-                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                        [value]="tokens().displayFont"
-                        (change)="patchTokens({ displayFont: $any($event.target).value })"
-                    >
-                        @for (font of fonts; track font) {
-                            <option [value]="font">{{ font }}</option>
+
+                @if (hasBlockToggleOverrides()) {
+                    <div class="flex flex-wrap items-center gap-2">
+                        @if (showBlockWeights()) {
+                            <label
+                                class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                [title]="'reportTheme.showWeightsHint' | transloco"
+                            >
+                                <input
+                                    type="checkbox"
+                                    [checked]="config.showWeights !== false"
+                                    (change)="patchConfig({ showWeights: config.showWeights === false })"
+                                />
+                                <span>{{ 'reportTheme.showWeights' | transloco }}</span>
+                                @if (tokens().showWeights === false) {
+                                    <span class="text-[10px] text-amber-600 dark:text-amber-400">({{ 'reportTheme.globalOffHint' | transloco }})</span>
+                                }
+                            </label>
                         }
-                    </select>
-                </label>
-                <label class="block text-[11px] text-stone-500">
-                    {{ 'reportTheme.bodyFont' | transloco }}
-                    <select
-                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                        [value]="tokens().bodyFont"
-                        (change)="patchTokens({ bodyFont: $any($event.target).value })"
-                    >
-                        @for (font of fonts; track font) {
-                            <option [value]="font">{{ font }}</option>
+                        @if (showBlockFields()) {
+                            <label
+                                class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                [title]="'reportTheme.showFieldsHint' | transloco"
+                            >
+                                <input
+                                    type="checkbox"
+                                    [checked]="config.showFields !== false"
+                                    (change)="patchConfig({ showFields: config.showFields === false })"
+                                />
+                                <span>{{ 'reportTheme.showFields' | transloco }}</span>
+                                @if (tokens().showFields === false) {
+                                    <span class="text-[10px] text-amber-600 dark:text-amber-400">({{ 'reportTheme.globalOffHint' | transloco }})</span>
+                                }
+                            </label>
                         }
-                    </select>
-                </label>
+                        @if (showBlockDeductions()) {
+                            <label
+                                class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                [title]="'reportTheme.showDeductionsHint' | transloco"
+                            >
+                                <input
+                                    type="checkbox"
+                                    [checked]="config.showDeductions !== false"
+                                    (change)="patchConfig({ showDeductions: config.showDeductions === false })"
+                                />
+                                <span>{{ 'reportTheme.showDeductions' | transloco }}</span>
+                                @if (tokens().showDeductions === false) {
+                                    <span class="text-[10px] text-amber-600 dark:text-amber-400">({{ 'reportTheme.globalOffHint' | transloco }})</span>
+                                }
+                            </label>
+                        }
+                    </div>
+                }
             </div>
-        </fieldset>
-    </div>
-
-    <fieldset class="m-0 mt-3 min-w-0 rounded-xl border border-stone-200 p-2.5 dark:border-gray-800">
-        <legend class="px-1 text-[11px] font-semibold uppercase tracking-wide text-stone-500">{{ 'reportTheme.copyCustomization' | transloco }}</legend>
-        <div class="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <label class="block text-[11px] text-stone-500">
-                {{ 'reportTheme.eyebrow' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    placeholder="Informe de verificación · Colombia"
-                    [ngModel]="tokens().eyebrow"
-                    (ngModelChange)="patchTokens({ eyebrow: $event })"
-                />
-            </label>
-            <label class="block text-[11px] text-stone-500">
-                {{ 'reportTheme.coverTitle' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    placeholder="Verificación de vehículo / conductor"
-                    [ngModel]="tokens().coverTitle"
-                    (ngModelChange)="patchTokens({ coverTitle: $event })"
-                />
-            </label>
-            <label class="block text-[11px] text-stone-500">
-                {{ 'reportTheme.headlineApproveLabel' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    placeholder="Conductor aprobado / Vehículo aprobado"
-                    [ngModel]="tokens().headlineApprove"
-                    (ngModelChange)="patchTokens({ headlineApprove: $event })"
-                />
-            </label>
-            <label class="block text-[11px] text-stone-500">
-                {{ 'reportTheme.headlineReviewLabel' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    placeholder="Revisión manual"
-                    [ngModel]="tokens().headlineReview"
-                    (ngModelChange)="patchTokens({ headlineReview: $event })"
-                />
-            </label>
-            <label class="block text-[11px] text-stone-500">
-                {{ 'reportTheme.headlineRejectLabel' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    placeholder="Rechazado"
-                    [ngModel]="tokens().headlineReject"
-                    (ngModelChange)="patchTokens({ headlineReject: $event })"
-                />
-            </label>
-            <label class="block text-[11px] text-stone-500">
-                {{ 'reportTheme.legalNoteLabel' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    placeholder="Aviso legal al pie..."
-                    [ngModel]="tokens().legalNote"
-                    (ngModelChange)="patchTokens({ legalNote: $event })"
-                />
-            </label>
-        </div>
-    </fieldset>
-
-    <div class="mt-3">
-        <p class="m-0 text-[11px] font-semibold uppercase tracking-wide text-stone-500">{{ 'reportTheme.blocks' | transloco }}</p>
-        <div class="mt-1.5 flex flex-wrap gap-1.5">
-            @for (block of blocks; track block) {
-                <button
-                    type="button"
-                    class="inline-flex min-h-8 items-center rounded-lg border border-stone-200 bg-stone-50 px-2.5 text-[11px] font-semibold text-stone-800 hover:border-indigo-300 hover:bg-indigo-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100"
-                    (click)="addBlock.emit(block)"
-                >
-                    {{ 'reportTheme.block.' + block | transloco }}
-                </button>
-            }
-        </div>
-    </div>
-
-    @if (blockConfig(); as config) {
-        <div class="mt-3 grid gap-2 rounded-xl border border-stone-200 bg-stone-50 p-2.5 dark:border-gray-800 dark:bg-gray-900 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
-            <label class="block text-[11px] text-stone-500">
-                <span class="font-semibold text-stone-700 dark:text-stone-300">{{ 'reportTheme.blocks' | transloco }}</span> · {{ 'reportTheme.eyebrow' | transloco }}
-                <input
-                    type="text"
-                    class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                    placeholder="Opcional: etiqueta solo para el bloque seleccionado..."
-                    [ngModel]="config.eyebrow || ''"
-                    (ngModelChange)="patchConfig({ eyebrow: $event })"
-                />
-            </label>
-            <label class="flex items-center gap-2 text-[12px] text-stone-700 dark:text-stone-200">
-                <input type="checkbox" [checked]="config.showWeights !== false" (change)="patchConfig({ showWeights: !config.showWeights })" />
-                {{ 'reportTheme.showWeights' | transloco }}
-            </label>
-            <label class="flex items-center gap-2 text-[12px] text-stone-700 dark:text-stone-200">
-                <input type="checkbox" [checked]="config.showDeductions !== false" (change)="patchConfig({ showDeductions: !config.showDeductions })" />
-                {{ 'reportTheme.showDeductions' | transloco }}
-            </label>
-            <label class="flex items-center gap-2 text-[12px] text-stone-700 dark:text-stone-200">
-                <input type="checkbox" [checked]="config.showFields !== false" (change)="patchConfig({ showFields: !config.showFields })" />
-                {{ 'reportTheme.showFields' | transloco }}
-            </label>
         </div>
     }
 </section>

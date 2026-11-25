@@ -67,16 +67,18 @@
                             mat-flat-button
                             color="primary"
                             type="button"
+                            class="shrink-0 whitespace-nowrap !px-4"
                             (click)="refreshAccess()"
                             [disabled]="refreshing()"
                         >
-                            <mat-icon class="mr-1">refresh</mat-icon>
+                            <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">refresh</mat-icon>
                             {{ 'staffRbac.restricted.refreshAccess' | transloco }}
                         </button>
                         <button
                             mat-stroked-button
                             color="warn"
                             type="button"
+                            class="shrink-0 whitespace-nowrap !px-4"
                             (click)="cancelPendingRequest()"
                             [disabled]="cancelling()"
                         >
@@ -205,21 +207,21 @@
 
         <!-- Footer -->
         <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-                <a mat-stroked-button routerLink="/home">
-                    <mat-icon class="mr-1">home</mat-icon>
+            <div class="flex flex-wrap items-center gap-2">
+                <a mat-stroked-button routerLink="/home" class="shrink-0 whitespace-nowrap !px-4">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">home</mat-icon>
                     {{ 'staffRbac.restricted.goHome' | transloco }}
                 </a>
                 @if (permService.isStaff()) {
-                    <a mat-button routerLink="/settings/my-access">
-                        <mat-icon class="mr-1">verified_user</mat-icon>
+                    <a mat-button routerLink="/settings/my-access" class="shrink-0 whitespace-nowrap !px-3.5">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">verified_user</mat-icon>
                         {{ 'staffRbac.restricted.viewMyAccess' | transloco }}
                     </a>
                 }
             </div>
             @if (!pendingRequest()) {
-                <button mat-button type="button" (click)="refreshAccess()" [disabled]="refreshing()">
-                    <mat-icon class="mr-1">refresh</mat-icon>
+                <button mat-button type="button" class="shrink-0 whitespace-nowrap !px-3.5" (click)="refreshAccess()" [disabled]="refreshing()">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">refresh</mat-icon>
                     {{ 'staffRbac.restricted.refreshAccess' | transloco }}
                 </button>
             }

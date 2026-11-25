@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "此证件图像为临时保留，计划于 {{date}} 永久清除。",
     "imagePurgedPlaceholderTitle": "图像已不再存储",
     "imagePurgedPlaceholderDesc": "原始证件图像已于 {{date}} 根据贵组织的数据保留策略删除。",
+    "imageLoadErrorTitle": "图片不可用",
     "imageUnavailableDesc": "证件图像不可用。",
     "categories": {
       "proof_of_address": "地址证明"

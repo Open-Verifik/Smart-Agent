@@ -1,0 +1,27 @@
+dialog.sr-viewer-kit-dialog {
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: calc(100vw - 2rem);
+    max-width: 56rem;
+    max-height: 90vh;
+    overflow: visible;
+}
+
+dialog.sr-viewer-kit-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+dialog.sr-viewer-kit-dialog:modal {
+    overscroll-behavior: contain;
+}
+
+dialog.sr-viewer-kit-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background-color: rgb(12 10 9 / 0.72);
+    backdrop-filter: blur(2px);
+}

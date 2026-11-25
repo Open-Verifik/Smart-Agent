@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <!-- Header + Create CTA -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <div class="min-w-0 flex-1">
             <h2 class="text-lg font-bold text-slate-900 dark:text-white">
                 {{ 'staffRbac.teams.title' | transloco }}
             </h2>
@@ -13,10 +13,10 @@
             *hasStaffPermission="'team.create'"
             mat-flat-button
             color="primary"
-            class="!rounded-lg"
+            class="shrink-0 whitespace-nowrap !px-4 !rounded-lg"
             (click)="openTeamModal()"
         >
-            <mat-icon class="mr-1.5">add</mat-icon>
+            <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">add</mat-icon>
             {{ 'staffRbac.teams.createBtn' | transloco }}
         </button>
     </div>
@@ -214,10 +214,10 @@
                                 *hasStaffPermission="'team.update'"
                                 mat-stroked-button
                                 type="button"
-                                class="!text-xs !h-8"
+                                class="shrink-0 whitespace-nowrap !text-xs !min-h-8 !h-8 !px-3.5"
                                 (click)="openBoostModal(team)"
                             >
-                                <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">add</mat-icon>
+                                <mat-icon class="!w-3.5 !h-3.5 !text-[14px] !mr-1">add</mat-icon>
                                 {{ 'staffRbac.teams.addBoostShort' | transloco }}
                             </button>
                         }
@@ -225,10 +225,10 @@
                             *hasStaffPermission="'apiKeys.manageKeys'"
                             mat-stroked-button
                             type="button"
-                            class="!text-xs !h-8"
+                            class="shrink-0 whitespace-nowrap !text-xs !min-h-8 !h-8 !px-3.5"
                             (click)="openApiKeyModal(team)"
                         >
-                            <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">vpn_key</mat-icon>
+                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px] !mr-1">vpn_key</mat-icon>
                             {{ 'staffRbac.teams.teamKeyShort' | transloco }}
                         </button>
                     </div>
@@ -343,10 +343,10 @@
             }
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     {{ 'staffRbac.teams.assignMembers' | transloco }}
                 </label>
-                <mat-select [(ngModel)]="teamForm.memberIds" multiple class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                <mat-select [(ngModel)]="teamForm.memberIds" multiple class="block w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
                     @for (m of staffList(); track m._id) {
                         <mat-option [value]="m._id">{{ m.name }} ({{ m.email }})</mat-option>
                     }
@@ -355,6 +355,7 @@
 
             <!-- Endpoint Access Policy & Per-Endpoint Monthly Caps -->
             <app-endpoint-policy-picker
+                class="block pt-1"
                 [policy]="teamForm.endpointPolicy"
                 [showFeatureBudgets]="true"
                 [featureBudgets]="teamForm.featureBudgets"

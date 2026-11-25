@@ -1,0 +1,41 @@
+:host {
+    display: block;
+}
+
+.sr-kit-tablist {
+    scrollbar-width: none;
+}
+
+.sr-kit-tablist::-webkit-scrollbar {
+    display: none;
+}
+
+.sr-kit-tab {
+    position: relative;
+}
+
+/* Non-color active indicator for WCAG 1.4.1 & forced-colors mode, zero layout shift */
+.sr-kit-tab[aria-selected='true']::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.75rem;
+    inset-block-end: -0.25rem;
+    border-block-end: 2px solid currentColor;
+}
+
+.sr-kit-code {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.9rem;
+    border: 1px solid #1e293b;
+    background: #0f172a;
+    color: #e2e8f0;
+    color-scheme: dark;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    max-height: 28rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

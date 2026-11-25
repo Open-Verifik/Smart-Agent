@@ -122,8 +122,8 @@
       "currentRoleLabel": "Rol Efectivo",
       "subTeamLabel": "Subequipo Asignado",
       "noSubTeamAssigned": "No estás asignado a ningún subequipo con tope.",
-      "requestAccessBtn": "Solicitar Acceso a Función",
-      "requestUpgradeBtn": "Solicitar Cambio de Rol",
+      "requestAccessBtn": "Solicitar Acceso",
+      "requestUpgradeBtn": "Cambiar Rol",
       "requestBoostBtn": "Solicitar Aumento de Presupuesto",
       "activeJitGrants": "Permisos Temporales Activos",
       "submittedRequestsTitle": "Solicitudes Enviadas",
@@ -131,7 +131,7 @@
       "requestCancelled": "Solicitud cancelada",
       "effectiveMatrixTitle": "Tus Permisos Efectivos",
       "needSpecificFeature": "¿Necesitas acceso a otra función? Envía una solicitud temporal o permanente.",
-      "requestSelectedBtn": "Solicitar Acceso"
+      "requestSelectedBtn": "Solicitar Función"
     },
     "policyTab": {
       "title": "Política de Acceso del Equipo",
@@ -249,7 +249,7 @@
       "requestFormTitle": "Solicitar Acceso Temporal o Permanente",
       "requestsDisabledHint": "Las solicitudes automáticas están deshabilitadas. Contacta al Administrador o Propietario.",
       "cancelRequest": "Cancelar Solicitud",
-      "refreshAccess": "Actualizar Mi Acceso",
+      "refreshAccess": "Actualizar Acceso",
       "accessGrantedToast": "¡Acceso concedido! Redirigiendo…",
       "stillRestrictedToast": "El acceso sigue restringido para este recurso.",
       "goHome": "Ir al Inicio",
@@ -286,10 +286,10 @@
       "immutablePreset": "Preajuste inmutable del sistema",
       "builtInBadge": "Sistema",
       "customRoles": "Roles Personalizados",
-      "newCustomRole": "Nuevo Rol Personalizado",
+      "newCustomRole": "Nuevo Rol",
       "noCustomRoles": "Aún no hay roles personalizados. Duplica uno existente o crea uno nuevo.",
       "duplicate": "Duplicar",
-      "duplicateAsCustom": "Duplicar como Personalizado",
+      "duplicateAsCustom": "Clonar Rol",
       "createCustomTitle": "Crear Rol Personalizado",
       "editCustomTitle": "Editar Rol Personalizado",
       "roleNameLabel": "Nombre del Rol",
@@ -301,7 +301,8 @@
       "deleteModalDesc": "Selecciona a qué rol se reasignarán los miembros actuales antes de eliminarlo.",
       "reassignMembersLabel": "Reasignar Miembros a",
       "confirmDeleteBtn": "Reasignar y Eliminar",
-      "deletedToast": "Rol personalizado eliminado"
+      "deletedToast": "Rol personalizado eliminado",
+      "duplicateAsCustomTooltip": "Duplicar este preajuste del sistema como un rol personalizado editable"
     },
     "statuses": {
       "pending": "Pendiente",

@@ -13,7 +13,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import {
+    buildDuplicateTemplateName,
+    canDeleteReportTemplate,
+    computeFallbackMenuPosition,
+} from './template-actions.util';
 import { catchError, firstValueFrom, interval, of, Subscription, take } from 'rxjs';
 import { endpointsNotInAccountCodes } from '../account-endpoint-access.util';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
@@ -483,6 +489,7 @@ const SMART_DEFAULT_VALUE_RULES: ReportValueRule[] = [
         MatTooltipModule,
         OverlayModule,
         TranslocoModule,
+        HasStaffPermissionDirective,
         ReportPreviewComponent,
         ReportThemePanelComponent,
         ReportTemplateThumbComponent,
@@ -744,6 +751,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     });
     selectedTemplate = this._state.selectedTemplate;
     clonedTemplate = this._state.clonedTemplate;
+    @ViewChild('deleteTemplateDialog') private _deleteTemplateDialog?: ElementRef<HTMLDialogElement>;
+    readonly isDeletingTemplate = signal(false);
+    readonly isDuplicatingTemplate = signal(false);
+    readonly pendingDeleteTemplate = signal<{ template: SmartReportTemplate; source: 'studio' | 'list' } | null>(null);
+    readonly canDeleteSelectedTemplate = computed(() => canDeleteReportTemplate(this.selectedTemplate()));
+    private _dialogPressedOutside = false;
+    private _pendingKeyboardEnterMenu = new WeakSet<HTMLElement>();
     reportTitle = this._state.reportTitle;
     primaryColor = this._state.primaryColor;
     reportTheme = this._state.reportTheme;
@@ -1978,6 +1992,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._stopPoll();
         this._browserRunner.stop();
         this._syncLayoutEditorPortal(false);
+        const deleteDialog = this._deleteTemplateDialog?.nativeElement;
+        if (deleteDialog?.open) {
+            deleteDialog.returnValue = '';
+            deleteDialog.close();
+        }
     }
 
     selectIntent(intent: GuideIntent): void {
@@ -9028,6 +9047,244 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
+    onActionMenuTriggerClick(event: Event, menuElement: HTMLElement): void {
+        event.stopPropagation();
+        if (typeof HTMLButtonElement !== 'undefined' && 'commandForElement' in HTMLButtonElement.prototype) {
+            return;
+        }
+        if (typeof menuElement.togglePopover === 'function') {
+            menuElement.togglePopover();
+        }
+    }
+
+    onActionMenuTriggerKeydown(event: KeyboardEvent, menuElement: HTMLElement, triggerElement: HTMLElement): void {
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            event.stopPropagation();
+            const isOpen = this._isPopoverOpen(menuElement);
+            if (isOpen) {
+                this._focusFirstMenuItem(menuElement);
+            } else {
+                this._pendingKeyboardEnterMenu.add(menuElement);
+                triggerElement.click();
+            }
+            return;
+        }
+        if (event.key === 'Enter' || event.key === ' ') {
+            this._pendingKeyboardEnterMenu.add(menuElement);
+        }
+    }
+
+    onActionMenuToggle(event: Event, triggerElement: HTMLElement, menuElement: HTMLElement): void {
+        const toggleEvent = event as Event & { newState?: string };
+        const open = toggleEvent.newState ? toggleEvent.newState === 'open' : this._isPopoverOpen(menuElement);
+        triggerElement.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!open) return;
+
+        const group = menuElement.querySelector<HTMLElement>('[focusgroup~="menu"]');
+        if (group && typeof HTMLElement !== 'undefined' && !('focusGroup' in HTMLElement.prototype)) {
+            group.setAttribute('role', 'menu');
+            group.querySelectorAll<HTMLButtonElement>('button:not([role])').forEach((item) => {
+                item.setAttribute('role', 'menuitem');
+            });
+        }
+
+        if (typeof CSS === 'undefined' || !CSS.supports('position-area: block-end')) {
+            const menuPosition = computeFallbackMenuPosition(
+                triggerElement.getBoundingClientRect(),
+                menuElement.getBoundingClientRect(),
+                { width: window.innerWidth, height: window.innerHeight }
+            );
+            menuElement.style.left = `${menuPosition.left}px`;
+            menuElement.style.top = `${menuPosition.top}px`;
+        }
+
+        if (this._pendingKeyboardEnterMenu.delete(menuElement)) {
+            this._focusFirstMenuItem(menuElement);
+        }
+    }
+
+    onActionMenuKeydown(event: KeyboardEvent, menuElement: HTMLElement, triggerElement: HTMLElement): void {
+        if (event.key === 'Tab') {
+            this.closeActionMenu(menuElement);
+            return;
+        }
+        if (event.key === 'Escape') {
+            event.stopPropagation();
+            this.closeActionMenu(menuElement);
+            triggerElement.focus();
+            return;
+        }
+        if (typeof HTMLElement !== 'undefined' && 'focusGroup' in HTMLElement.prototype) return;
+        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+        const items = this._enabledMenuItems(menuElement);
+        if (!items.length) return;
+        const current = items.indexOf(document.activeElement as HTMLButtonElement);
+        const next =
+            event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? items.length - 1
+                  : current < 0
+                    ? 0
+                    : (current + (event.key === 'ArrowUp' ? -1 : 1) + items.length) % items.length;
+        event.preventDefault();
+        event.stopPropagation();
+        items[next].focus({ preventScroll: true });
+    }
+
+    closeActionMenu(menuElement?: HTMLElement | null): void {
+        if (!menuElement) return;
+        if (this._isPopoverOpen(menuElement) && typeof menuElement.hidePopover === 'function') {
+            menuElement.hidePopover();
+        }
+    }
+
+    async duplicateLayoutTemplate(menuElement?: HTMLElement): Promise<void> {
+        this.closeActionMenu(menuElement);
+        if (this.isSavingLayout() || this.isDuplicatingTemplate() || this.isDeletingTemplate()) return;
+        this.isDuplicatingTemplate.set(true);
+        try {
+            const copyName = buildDuplicateTemplateName(
+                this.reportTitle() || this.selectedTemplate()?.name,
+                this._transloco.translate('visitaGuide.templateCopyWord'),
+                this._transloco.translate('visitaGuide.defaultReportTitle')
+            );
+            await this._ensureLinkedConfiguration();
+            const created = await this._persistWorkingTemplate({ forceCreate: true, nameOverride: copyName });
+            if (!created?._id) throw new Error('template');
+            this.reportTitle.set(created.name || copyName);
+            this._markLayoutClean();
+            this._persistLayoutDraft(this._layoutDesignSnapshot());
+            this._refreshTemplates();
+            void this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { templateId: created._id, templateChoice: 'mine' },
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+            });
+            this._snack.open(this._transloco.translate('visitaGuide.templateDuplicated'), undefined, {
+                duration: 2800,
+            });
+        } catch (error: unknown) {
+            console.error('Failed to duplicate template:', error);
+            const detail = this._extractSaveErrorMessage(error);
+            const fallback = this._transloco.translate('visitaGuide.templateDuplicateFailed');
+            this._snack.open(detail ? `${fallback}: ${detail}` : fallback, undefined, { duration: 4500 });
+        } finally {
+            this.isDuplicatingTemplate.set(false);
+        }
+    }
+
+    requestDeleteTemplate(
+        template: SmartReportTemplate | null | undefined,
+        source: 'studio' | 'list',
+        event?: Event,
+        menuElement?: HTMLElement
+    ): void {
+        event?.stopPropagation();
+        this.closeActionMenu(menuElement);
+        if (!canDeleteReportTemplate(template) || this.isDeletingTemplate()) return;
+        this.pendingDeleteTemplate.set({ template: template!, source });
+        const dialog = this._deleteTemplateDialog?.nativeElement;
+        if (dialog && !dialog.open) {
+            dialog.returnValue = '';
+            dialog.showModal();
+        }
+    }
+
+    onDeleteDialogPointerDown(event: PointerEvent, dialog: HTMLDialogElement): void {
+        if (typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype) return;
+        this._dialogPressedOutside = this._isOutsideRect(event, dialog);
+    }
+
+    onDeleteDialogPointerUp(event: PointerEvent, dialog: HTMLDialogElement): void {
+        if (typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype) return;
+        if (this._dialogPressedOutside && this._isOutsideRect(event, dialog)) {
+            dialog.close('');
+        }
+        this._dialogPressedOutside = false;
+    }
+
+    onDeleteDialogClose(dialog: HTMLDialogElement): void {
+        const action = dialog.returnValue;
+        dialog.returnValue = '';
+        const pending = this.pendingDeleteTemplate();
+        if (action !== 'delete' || !pending?.template?._id) {
+            this.pendingDeleteTemplate.set(null);
+            return;
+        }
+        void this._executeDeleteTemplate(pending.template, pending.source);
+    }
+
+    private async _executeDeleteTemplate(template: SmartReportTemplate, source: 'studio' | 'list'): Promise<void> {
+        const templateId = template._id;
+        if (!templateId || this.isDeletingTemplate()) return;
+        this.isDeletingTemplate.set(true);
+        try {
+            await firstValueFrom(this._reports.deleteTemplate(templateId));
+            if (this.selectedTemplate()?._id === templateId) {
+                this._state.selectedTemplate.set(null);
+            }
+            if (this.clonedTemplate()?._id === templateId) {
+                this._state.clonedTemplate.set(null);
+            }
+            this._refreshTemplates();
+            this._snack.open(this._transloco.translate('visitaGuide.templateDeleted'), undefined, {
+                duration: 3000,
+            });
+            if (source === 'studio') {
+                this._layoutLeaveConfirmed = true;
+                clearScratchDraft();
+                this._markLayoutClean();
+                const target = this._router.url.startsWith('/smart-reports')
+                    ? ['/smart-reports', 'templates']
+                    : ['/smart-batch', 'templates'];
+                void this._router.navigate(target, { replaceUrl: true });
+            }
+        } catch (error: unknown) {
+            console.error('Failed to delete template:', error);
+            const detail = this._extractSaveErrorMessage(error);
+            const fallback = this._transloco.translate('visitaGuide.templateDeleteFailed');
+            this._snack.open(detail ? `${fallback}: ${detail}` : fallback, undefined, { duration: 4500 });
+        } finally {
+            this.isDeletingTemplate.set(false);
+            this.pendingDeleteTemplate.set(null);
+        }
+    }
+
+    private _isPopoverOpen(popoverElement: HTMLElement): boolean {
+        try {
+            return popoverElement.matches(':popover-open') || popoverElement.classList.contains(':popover-open');
+        } catch {
+            return popoverElement.classList.contains(':popover-open');
+        }
+    }
+
+    private _enabledMenuItems(menuElement: HTMLElement): HTMLButtonElement[] {
+        const group = menuElement.querySelector<HTMLElement>('[focusgroup~="menu"]');
+        if (!group) return [];
+        return Array.from(group.querySelectorAll<HTMLButtonElement>('button')).filter(
+            (item) => !item.disabled && item.getAttribute('aria-disabled') !== 'true'
+        );
+    }
+
+    private _focusFirstMenuItem(menuElement: HTMLElement): void {
+        const firstItem = this._enabledMenuItems(menuElement)[0];
+        firstItem?.focus({ preventScroll: true });
+    }
+
+    private _isOutsideRect(event: PointerEvent, targetElement: HTMLElement): boolean {
+        const boundingRect = targetElement.getBoundingClientRect();
+        return (
+            event.clientX < boundingRect.left ||
+            event.clientX > boundingRect.right ||
+            event.clientY < boundingRect.top ||
+            event.clientY > boundingRect.bottom
+        );
+    }
+
     private _extractSaveErrorMessage(err: unknown): string | null {
         if (!err) return null;
         if (typeof err === 'string') return err;
@@ -10430,12 +10687,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return next;
     }
 
-    private async _persistWorkingTemplate(): Promise<SmartReportTemplate | null> {
+    private async _persistWorkingTemplate(options?: {
+        forceCreate?: boolean;
+        nameOverride?: string;
+    }): Promise<SmartReportTemplate | null> {
         const draft = this.previewTemplate();
         if (!draft) return null;
         const configId = this._state.configId();
-        const name = (this.reportTitle().trim() || draft.name || '').slice(0, 150);
-        if (name) this._applyTemplateNameToTitle(name, this.reportTitle());
+        const name = ((options?.nameOverride ?? this.reportTitle()).trim() || draft.name || '').slice(0, 150);
+        if (name && !options?.forceCreate) this._applyTemplateNameToTitle(name, this.reportTitle());
         const payload: Partial<SmartReportTemplate> = {
             name,
             description: draft.description,
@@ -10496,7 +10756,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
 
         const isSystemTemplate = draft.type === 'System';
-        if (draft._id && !isSystemTemplate) {
+        if (draft._id && !isSystemTemplate && !options?.forceCreate) {
             const updated = await firstValueFrom(this._reports.updateTemplate(draft._id, payload));
             const saved = {
                 ...updated,

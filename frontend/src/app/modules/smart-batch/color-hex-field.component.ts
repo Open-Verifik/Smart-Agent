@@ -17,6 +17,19 @@ const withAlpha = (rgb: string, alpha: number): string => {
     selector: 'color-hex-field',
     standalone: true,
     imports: [TranslocoModule],
+    styles: [
+        `
+            :host {
+                display: block;
+                color-scheme: light;
+                accent-color: #4f46e5;
+            }
+            :host-context(.dark) {
+                color-scheme: dark;
+                accent-color: #818cf8;
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -42,7 +55,7 @@ const withAlpha = (rgb: string, alpha: number): string => {
                 </span>
                 <input
                     type="text"
-                    class="min-w-0 flex-1 rounded-lg border border-stone-200 bg-white px-2 py-1.5 font-mono text-xs uppercase tracking-wide dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    class="min-w-0 flex-1 rounded-lg border border-stone-200 bg-white px-2 py-1.5 font-mono text-xs uppercase tracking-wide text-stone-900 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                     maxlength="9"
                     spellcheck="false"
                     autocomplete="off"

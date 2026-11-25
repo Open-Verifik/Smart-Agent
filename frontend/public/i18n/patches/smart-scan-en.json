@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "This document image is held temporarily and is scheduled for permanent purge on {{date}}.",
     "imagePurgedPlaceholderTitle": "Image No Longer Stored",
     "imagePurgedPlaceholderDesc": "The original document image was deleted on {{date}} according to your organization's data retention policy.",
+    "imageLoadErrorTitle": "Image unavailable",
     "imageUnavailableDesc": "Document image is not available.",
     "categories": {
       "proof_of_address": "Proof of Address"

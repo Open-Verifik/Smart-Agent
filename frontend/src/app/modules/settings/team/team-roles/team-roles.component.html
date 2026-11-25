@@ -40,10 +40,10 @@
                     *hasStaffPermission="'team.create'"
                     mat-stroked-button
                     type="button"
-                    class="!h-7 !text-xs !px-2.5"
+                    class="shrink-0 whitespace-nowrap !min-h-8 !h-8 !text-xs !px-3"
                     (click)="startNewCustomRole('viewer')"
                 >
-                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px] mr-1">add</mat-icon>
+                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px] !mr-1">add</mat-icon>
                     {{ 'staffRbac.rolesTab.newCustomRole' | transloco }}
                 </button>
             </div>
@@ -96,11 +96,11 @@
     </div>
 
     <!-- Right Matrix / Detail Editor -->
-    <div class="lg:col-span-8 space-y-5">
+    <div class="lg:col-span-8 min-w-0 space-y-5">
         @if (selectedKind() === 'system' && !isCreatingNew) {
             <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-2">
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
                         <h2 class="text-lg font-bold text-slate-900 dark:text-white">
                             {{ currentSystemMeta.nameKey | transloco }}
                         </h2>
@@ -116,26 +116,28 @@
                     *hasStaffPermission="'team.create'"
                     mat-stroked-button
                     type="button"
+                    class="shrink-0 whitespace-nowrap !px-4"
+                    [matTooltip]="'staffRbac.rolesTab.duplicateAsCustomTooltip' | transloco"
                     (click)="duplicateSelected()"
                 >
-                    <mat-icon class="mr-1.5">content_copy</mat-icon>
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">content_copy</mat-icon>
                     {{ 'staffRbac.rolesTab.duplicateAsCustom' | transloco }}
                 </button>
             </div>
         } @else {
             <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                    <h2 class="min-w-0 flex-1 text-lg font-bold text-slate-900 dark:text-white truncate">
                         {{ (isCreatingNew ? 'staffRbac.rolesTab.createCustomTitle' : 'staffRbac.rolesTab.editCustomTitle') | transloco }}
                     </h2>
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
                         @if (!isCreatingNew && selectedCustomRole()) {
-                            <button *hasStaffPermission="'team.create'" mat-stroked-button type="button" (click)="duplicateSelected()">
-                                <mat-icon class="mr-1">content_copy</mat-icon>
+                            <button *hasStaffPermission="'team.create'" mat-stroked-button type="button" class="shrink-0 whitespace-nowrap !px-3.5" (click)="duplicateSelected()">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">content_copy</mat-icon>
                                 {{ 'staffRbac.rolesTab.duplicate' | transloco }}
                             </button>
-                            <button *hasStaffPermission="'team.delete'" mat-stroked-button color="warn" type="button" (click)="openDeleteCustomRole()">
-                                <mat-icon class="mr-1">delete</mat-icon>
+                            <button *hasStaffPermission="'team.delete'" mat-stroked-button color="warn" type="button" class="shrink-0 whitespace-nowrap !px-3.5" (click)="openDeleteCustomRole()">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">delete</mat-icon>
                                 {{ 'staffRbac.common.delete' | transloco }}
                             </button>
                         }
@@ -144,6 +146,7 @@
                             mat-flat-button
                             color="primary"
                             type="button"
+                            class="shrink-0 whitespace-nowrap !px-4"
                             [disabled]="saving() || !editName.trim()"
                             (click)="saveCustomRole()"
                         >
