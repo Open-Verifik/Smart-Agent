@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { NewWebhookDialogComponent, WebhookDialogCloseResult } from './dialogs/new-webhook-dialog.component';
 import { WebhookStatsBarsComponent } from './webhook-stats-bars.component';
 import { WebhooksService } from './webhooks.service';
@@ -27,6 +28,7 @@ import { WebhooksService } from './webhooks.service';
         MatProgressSpinnerModule,
         MatSlideToggleModule,
         WebhookStatsBarsComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './webhooks-list.component.html',
     styleUrls: ['./webhooks-list.component.scss'],

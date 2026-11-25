@@ -125,13 +125,15 @@
                     <span class="account-menu__meter-value">{{
                         totalCredits | number: '1.2-4'
                     }}</span>
-                    <button
-                        type="button"
-                        class="account-menu__meter-cta"
-                        (click)="navigateTo('/add-credits')"
-                    >
-                        {{ 'userMenu.add' | transloco }}
-                    </button>
+                    @if (canAddCredits) {
+                        <button
+                            type="button"
+                            class="account-menu__meter-cta"
+                            (click)="navigateTo('/add-credits')"
+                        >
+                            {{ 'userMenu.add' | transloco }}
+                        </button>
+                    }
                 </div>
 
                 <div class="account-menu__meter account-menu__meter--plan">
@@ -147,15 +149,40 @@
                     } @else {
                         <span class="account-menu__meter-value">{{ planName || '—' }}</span>
                     }
-                    <button
-                        type="button"
-                        class="account-menu__meter-cta"
-                        (click)="navigateTo('/subscription-plans')"
-                    >
-                        {{ 'userMenu.view' | transloco }}
-                    </button>
+                    @if (canViewPlans) {
+                        <button
+                            type="button"
+                            class="account-menu__meter-cta"
+                            (click)="navigateTo('/subscription-plans')"
+                        >
+                            {{ 'userMenu.view' | transloco }}
+                        </button>
+                    }
                 </div>
 
+                @if (staffTeamBudget; as budget) {
+                    <div class="mx-1 mt-1 rounded-lg border border-stone-200 bg-stone-50/80 px-2.5 py-2 dark:border-gray-800 dark:bg-gray-900/60">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="font-medium text-stone-700 dark:text-stone-200 truncate">
+                                {{ budget.name }}
+                            </span>
+                            <span class="font-mono text-stone-600 dark:text-stone-300">
+                                {{ budget.used | number: '1.0-2' }} / {{ budget.cap | number: '1.0-2' }}
+                            </span>
+                        </div>
+                        <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-gray-800">
+                            <div
+                                class="h-full rounded-full transition-all"
+                                [class.bg-emerald-500]="budget.percent < 80 && !budget.paused"
+                                [class.bg-amber-500]="budget.percent >= 80 && budget.percent < 100 && !budget.paused"
+                                [class.bg-rose-500]="budget.percent >= 100 || budget.paused"
+                                [style.width.%]="budget.percent"
+                            ></div>
+                        </div>
+                    </div>
+                }
+
+                @if (canViewTeam) {
                 <button
                     type="button"
                     class="account-menu__seats"
@@ -204,11 +231,12 @@
                         }}</span>
                     }
                 </button>
+                }
             </section>
 
             <!-- Shortcuts -->
             <section class="account-menu__shortcuts">
-                @for (shortcut of shortcuts; track shortcut.id) {
+                @for (shortcut of visibleShortcuts; track shortcut.id) {
                     <button
                         type="button"
                         class="account-menu__shortcut"
@@ -243,17 +271,33 @@
                     <span>{{ 'userMenu.settings' | transloco }}</span>
                 </button>
 
-                <button
-                    type="button"
-                    class="account-menu__row"
-                    (click)="navigateTo('/settings/billing-details')"
-                >
-                    <mat-icon
-                        class="icon-size-5"
-                        svgIcon="heroicons_outline:credit-card"
-                    ></mat-icon>
-                    <span>{{ 'userMenu.billing' | transloco }}</span>
-                </button>
+                @if (permissions.isStaff()) {
+                    <button
+                        type="button"
+                        class="account-menu__row"
+                        (click)="navigateTo('/settings/my-access')"
+                    >
+                        <mat-icon
+                            class="icon-size-5"
+                            svgIcon="heroicons_outline:shield-check"
+                        ></mat-icon>
+                        <span>{{ 'settings.panels.my_access' | transloco }}</span>
+                    </button>
+                }
+
+                @if (canViewBilling) {
+                    <button
+                        type="button"
+                        class="account-menu__row"
+                        (click)="navigateTo('/settings/billing-details')"
+                    >
+                        <mat-icon
+                            class="icon-size-5"
+                            svgIcon="heroicons_outline:credit-card"
+                        ></mat-icon>
+                        <span>{{ 'userMenu.billing' | transloco }}</span>
+                    </button>
+                }
             </section>
         }
 
@@ -345,12 +389,12 @@
 
         <!-- Footer: role + sign out -->
         <footer class="account-menu__footer">
-            @if (user?.role) {
+            @if (displayRoleLabel) {
                 <span class="account-menu__role">
                     <span class="account-menu__section-label">{{
                         'userMenu.role' | transloco
                     }}</span>
-                    <span class="account-menu__role-value">{{ user.role }}</span>
+                    <span class="account-menu__role-value">{{ displayRoleLabel }}</span>
                 </span>
             }
 

@@ -84,6 +84,25 @@ const mergeSmartScanPatch = (
     .pipe(
       map((patch) => deepMergeTranslations(merged, patch)),
       catchError(() => of(merged)),
+      switchMap((withSmartScan) => mergeStaffRbacPatch(http, lang, withSmartScan)),
+    );
+
+/**
+ * Staff RBAC, sub-team budgets, and self-service access request copy (main locale files are root-owned).
+ */
+const mergeStaffRbacPatch = (
+  http: HttpClient,
+  lang: string,
+  merged: Translation,
+): Observable<Translation> =>
+  http
+    .get<Translation>(`./i18n/patches/staff-rbac-${lang}.json`, {
+      responseType: 'json',
+      observe: 'body',
+    })
+    .pipe(
+      map((patch) => deepMergeTranslations(merged, patch)),
+      catchError(() => of(merged)),
     );
 
 /** Optional patch files for AppFeature URL strings (avoids editing root-owned features-*.json). */

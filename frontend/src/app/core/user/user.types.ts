@@ -28,10 +28,19 @@ export interface PendingWelcomeCredits {
     message?: string;
 }
 
+import {
+    CustomRoleSummary,
+    PermissionMap,
+    StaffAccessPolicy,
+    StaffTeamSummary,
+    StaffTemporaryGrant,
+} from 'app/core/permissions/staff-permission.types';
+
 export interface ClientSettingsSnapshot {
     _id?: string;
     sandboxMode?: boolean;
     overrideConditions?: OverrideConditionsSnapshot;
+    staffAccessPolicy?: StaffAccessPolicy;
 }
 
 export interface OverrideConditionsSnapshot {
@@ -48,8 +57,18 @@ export interface User {
     email?: string;
     avatar?: string;
     role?: string;
+    canonicalRole?: string;
+    isStaff?: boolean;
+    staff?: string;
+    permissions?: PermissionMap | null;
+    customRole?: CustomRoleSummary | null;
+    team?: StaffTeamSummary | null;
+    useCustomPermissions?: boolean;
+    temporaryGrants?: StaffTemporaryGrant[];
+    pendingAccessRequestsCount?: number;
     credits?: number;
     language?: string;
+    clientSettings?: ClientSettingsSnapshot;
     promotion?: SmartAgentWeekOneUsd50Promotion;
     /** Active bring-back win-back offer from session (proposed, not expired). */
     bringBackOffer?: BringBackOffer;

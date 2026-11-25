@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { staffPermissionGuard } from 'app/core/permissions';
 
 export default [
     {
@@ -8,6 +9,8 @@ export default [
     },
     {
         path: 'status-check',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartMonitorStatus' } },
         loadComponent: () =>
             import('app/modules/status-check/status-check.component').then(
                 (m) => m.StatusCheckComponent
@@ -15,6 +18,8 @@ export default [
     },
     {
         path: 'incidents',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartMonitorStatus' } },
         loadComponent: () =>
             import('app/modules/smart-monitor/incidents/incidents.component').then(
                 (m) => m.IncidentsComponent
@@ -22,6 +27,8 @@ export default [
     },
     {
         path: 'incidents/:id',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartMonitorStatus' } },
         loadComponent: () =>
             import(
                 'app/modules/smart-monitor/incidents/incident-detail/incident-detail.component'
@@ -29,6 +36,8 @@ export default [
     },
     {
         path: 'webhooks',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartMonitorWebhooks' } },
         loadComponent: () =>
             import('app/modules/smart-monitor/webhooks/webhooks-list.component').then(
                 (m) => m.WebhooksListComponent
@@ -36,6 +45,8 @@ export default [
     },
     {
         path: 'webhooks/:id',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartMonitorWebhooks' } },
         loadComponent: () =>
             import('app/modules/smart-monitor/webhooks/webhook-detail.component').then(
                 (m) => m.WebhookDetailComponent

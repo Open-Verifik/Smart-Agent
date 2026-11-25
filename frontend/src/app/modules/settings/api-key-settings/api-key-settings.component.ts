@@ -36,6 +36,7 @@ import {
     getTokenRemainingDays,
     TokenLifecycleStatus,
 } from './api-key-expiration.util';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { CostCenter, UsageApiService } from 'app/core/usage/usage-api.service';
 import { environment } from 'environments/environment';
 import { SavedJsonWebToken, SettingsService } from '../settings.service';
@@ -74,6 +75,7 @@ interface TokenExpiration {
         SettingsBusinessAccountEmptyStateComponent,
         ApiKeyHelpModalComponent,
         ApiKeyMcpSetupModalComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './api-key-settings.component.html',
     styleUrl: './api-key-settings.component.scss',

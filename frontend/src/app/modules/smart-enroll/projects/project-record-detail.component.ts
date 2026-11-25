@@ -17,6 +17,7 @@ import { catchError, finalize, forkJoin, of, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
 import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
 import { manualEraseErrorKey } from 'app/core/data-retention/manual-erase.util';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { BarcodeValidationPanelComponent, type CedulaBarcodeValidation } from './barcode-validation-panel.component';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
@@ -240,6 +241,7 @@ const RESUME_DOCUMENT_OCR_EXCLUDE = new Set<string>([
         BarcodeValidationPanelComponent,
         TranslocoModule,
         WebhookEventsComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './project-record-detail.component.html',
     styleUrls: ['./project-record-detail.component.scss'],

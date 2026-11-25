@@ -56,6 +56,7 @@
                     <div class="flex flex-wrap items-center gap-3">
                         @if (activeTab() === 'configurations') {
                             <button
+                                *hasStaffPermission="'smartReportsBatch.create'"
                                 mat-flat-button
                                 color="primary"
                                 type="button"
@@ -67,28 +68,30 @@
                             </button>
                         }
                         @if (activeTab() === 'templates') {
-                            <button
-                                type="button"
-                                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-800 transition hover:bg-stone-50 disabled:opacity-60 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
-                                [disabled]="isImportingTemplate()"
-                                [matTooltip]="t('smartBatchLanding.importTemplateHint')"
-                                (click)="templateImportInput.click()"
-                            >
-                                @if (isImportingTemplate()) {
-                                    <mat-progress-spinner mode="indeterminate" diameter="16"></mat-progress-spinner>
-                                } @else {
-                                    <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
-                                }
-                                {{ t(isImportingTemplate() ? 'smartBatchLanding.importingTemplate' : 'smartBatchLanding.importTemplate') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
-                                (click)="createBlankTemplate()"
-                            >
-                                <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
-                                {{ t('smartBatchLanding.createBlankTemplate') }}
-                            </button>
+                            <ng-container *hasStaffPermission="'smartReportsTemplates.create'">
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-800 transition hover:bg-stone-50 disabled:opacity-60 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                    [disabled]="isImportingTemplate()"
+                                    [matTooltip]="t('smartBatchLanding.importTemplateHint')"
+                                    (click)="templateImportInput.click()"
+                                >
+                                    @if (isImportingTemplate()) {
+                                        <mat-progress-spinner mode="indeterminate" diameter="16"></mat-progress-spinner>
+                                    } @else {
+                                        <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
+                                    }
+                                    {{ t(isImportingTemplate() ? 'smartBatchLanding.importingTemplate' : 'smartBatchLanding.importTemplate') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                    (click)="createBlankTemplate()"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
+                                    {{ t('smartBatchLanding.createBlankTemplate') }}
+                                </button>
+                            </ng-container>
                         }
                     </div>
                 </div>
@@ -723,6 +726,7 @@
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                                     <!-- Gradient Dashed "New Report Template" Card (matches /human-authn/projects) -->
                                     <button
+                                        *hasStaffPermission="'smartReportsTemplates.create'"
                                         type="button"
                                         (click)="createBlankTemplate()"
                                         class="group flex min-h-[290px] w-full cursor-pointer flex-col justify-between rounded-[22px] border border-dashed border-blue-200 p-6 text-left transition hover:border-blue-300 hover:shadow-md dark:border-blue-900/60 dark:hover:border-blue-700"
@@ -758,6 +762,7 @@
                                         >
                                             <div class="mb-3 flex items-center justify-end gap-1">
                                                 <button
+                                                    *hasStaffPermission="'smartReportsTemplates.update'"
                                                     type="button"
                                                     mat-icon-button
                                                     (click)="openTemplateEditor(template, $event)"
@@ -766,6 +771,7 @@
                                                     <mat-icon class="icon-size-5">edit</mat-icon>
                                                 </button>
                                                 <button
+                                                    *hasStaffPermission="'smartReportsTemplates.export'"
                                                     type="button"
                                                     mat-icon-button
                                                     [disabled]="exportingTemplateId() !== null"
@@ -779,6 +785,7 @@
                                                     }
                                                 </button>
                                                 <button
+                                                    *hasStaffPermission="'smartReportsTemplates.delete'"
                                                     type="button"
                                                     mat-icon-button
                                                     color="warn"
@@ -1048,40 +1055,43 @@
 
                         <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
                             @if (target.kind === 'config' || target.kind === 'systemPreset') {
-                                <button
-                                    type="button"
-                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-800 transition hover:border-stone-500 hover:bg-stone-50 hover:text-stone-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:ring-white"
-                                    [disabled]="previewRunMode() !== null"
-                                    (click)="runFromPreview('single', $event)"
-                                >
-                                    @if (previewRunMode() === 'single') {
-                                        <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
-                                        <span>{{ t('smartBatchLanding.previewPreparingSingle') }}</span>
-                                    } @else {
-                                        <mat-icon class="!h-4 !w-4 !text-base">{{
-                                            getPreviewSingleIcon(preview)
-                                        }}</mat-icon>
-                                        <span>{{ t('smartBatchLanding.previewRunSingle') }}</span>
-                                    }
-                                </button>
-                                <button
-                                    type="button"
-                                    autofocus
-                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white shadow-xs transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200 dark:focus-visible:ring-white dark:focus-visible:ring-offset-gray-950"
-                                    [disabled]="previewRunMode() !== null"
-                                    (click)="runFromPreview('batch', $event)"
-                                >
-                                    @if (previewRunMode() === 'batch') {
-                                        <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
-                                        <span>{{ t('smartBatchLanding.previewPreparingBatch') }}</span>
-                                    } @else {
-                                        <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
-                                        <span>{{ t('smartBatchLanding.previewRunBatch') }}</span>
-                                        <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
-                                    }
-                                </button>
+                                <ng-container *hasStaffPermission="'smartReportsBatch.execute'">
+                                    <button
+                                        type="button"
+                                        class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-800 transition hover:border-stone-500 hover:bg-stone-50 hover:text-stone-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:ring-white"
+                                        [disabled]="previewRunMode() !== null"
+                                        (click)="runFromPreview('single', $event)"
+                                    >
+                                        @if (previewRunMode() === 'single') {
+                                            <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
+                                            <span>{{ t('smartBatchLanding.previewPreparingSingle') }}</span>
+                                        } @else {
+                                            <mat-icon class="!h-4 !w-4 !text-base">{{
+                                                getPreviewSingleIcon(preview)
+                                            }}</mat-icon>
+                                            <span>{{ t('smartBatchLanding.previewRunSingle') }}</span>
+                                        }
+                                    </button>
+                                    <button
+                                        type="button"
+                                        autofocus
+                                        class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white shadow-xs transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200 dark:focus-visible:ring-white dark:focus-visible:ring-offset-gray-950"
+                                        [disabled]="previewRunMode() !== null"
+                                        (click)="runFromPreview('batch', $event)"
+                                    >
+                                        @if (previewRunMode() === 'batch') {
+                                            <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
+                                            <span>{{ t('smartBatchLanding.previewPreparingBatch') }}</span>
+                                        } @else {
+                                            <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
+                                            <span>{{ t('smartBatchLanding.previewRunBatch') }}</span>
+                                            <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                        }
+                                    </button>
+                                </ng-container>
                             } @else if (target.kind === 'unlinked' && preview._id) {
                                 <button
+                                    *hasStaffPermission="'smartReportsTemplates.update'"
                                     type="button"
                                     class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-900 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
                                     (click)="editPreviewTemplate(preview, $event)"

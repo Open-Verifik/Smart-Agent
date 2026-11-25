@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, Routes } from '@angular/router';
+import { staffPermissionGuard } from 'app/core/permissions';
 import { CreateBatchConfigComponent } from './create/create-batch-config.component';
 import { SmartBatchComponent } from './smart-batch.component';
 import { visitaGuideLeaveGuard } from './visita-guide/visita-guide-leave.guard';
@@ -24,7 +25,9 @@ const redirectLegacyReportBuilder: CanActivateFn = (route: ActivatedRouteSnapsho
 export default [
     {
         path: '',
+        canActivate: [staffPermissionGuard],
         canDeactivate: [visitaGuideLeaveGuard],
+        data: { permission: { resource: 'smartReportsTemplates' } },
         loadComponent: () =>
             import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
                 (m) => m.VisitaGuideComponent
@@ -32,7 +35,9 @@ export default [
     },
     {
         path: 'builder',
+        canActivate: [staffPermissionGuard],
         canDeactivate: [visitaGuideLeaveGuard],
+        data: { permission: { resource: 'smartReportsTemplates' } },
         loadComponent: () =>
             import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
                 (m) => m.VisitaGuideComponent
@@ -40,7 +45,9 @@ export default [
     },
     {
         path: 'builder/:step',
+        canActivate: [staffPermissionGuard],
         canDeactivate: [visitaGuideLeaveGuard],
+        data: { permission: { resource: 'smartReportsTemplates' } },
         loadComponent: () =>
             import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
                 (m) => m.VisitaGuideComponent
@@ -48,17 +55,21 @@ export default [
     },
     {
         path: 'templates',
+        canActivate: [staffPermissionGuard],
         component: SmartBatchComponent,
-        data: { defaultTab: 'templates', viewMode: 'templates' },
+        data: { defaultTab: 'templates', viewMode: 'templates', permission: { resource: 'smartReportsTemplates' } },
     },
     {
         path: 'batch',
+        canActivate: [staffPermissionGuard],
         component: SmartBatchComponent,
-        data: { defaultTab: 'configurations', viewMode: 'batch' },
+        data: { defaultTab: 'configurations', viewMode: 'batch', permission: { resource: 'smartReportsBatch' } },
     },
     {
         path: 'guide/:step',
+        canActivate: [staffPermissionGuard],
         canDeactivate: [visitaGuideLeaveGuard],
+        data: { permission: { resource: 'smartReportsTemplates' } },
         loadComponent: () =>
             import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
                 (m) => m.VisitaGuideComponent
@@ -66,15 +77,21 @@ export default [
     },
     {
         path: 'workspace',
+        canActivate: [staffPermissionGuard],
         component: SmartBatchComponent,
+        data: { permission: { resource: 'smartReportsBatch' } },
     },
     {
         path: 'create',
+        canActivate: [staffPermissionGuard],
         component: CreateBatchConfigComponent,
+        data: { permission: { resource: 'smartReportsBatch', action: 'create' } },
     },
     {
         path: 'edit/:id',
+        canActivate: [staffPermissionGuard],
         component: CreateBatchConfigComponent,
+        data: { permission: { resource: 'smartReportsBatch', action: 'update' } },
     },
     {
         path: 'report-builder/:templateId',
@@ -98,6 +115,8 @@ export default [
     },
     {
         path: ':configId/quick-validate',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'execute' } },
         loadComponent: () =>
             import('app/modules/smart-batch/quick-validate/quick-validate.component').then(
                 (m) => m.QuickValidateComponent
@@ -105,6 +124,8 @@ export default [
     },
     {
         path: ':configId/batch/new',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'execute' } },
         loadComponent: () =>
             import('app/modules/smart-batch/dashboard/create-batch/create-batch.component').then(
                 (m) => m.CreateBatchComponent
@@ -112,6 +133,8 @@ export default [
     },
     {
         path: ':configId/batch/:batchId/inputs',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
         loadComponent: () =>
             import('app/modules/smart-batch/dashboard/create-batch/create-batch.component').then(
                 (m) => m.CreateBatchComponent
@@ -119,6 +142,8 @@ export default [
     },
     {
         path: ':configId/batch/:batchId/quick-validate',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'execute' } },
         loadComponent: () =>
             import('app/modules/smart-batch/quick-validate/quick-validate.component').then(
                 (m) => m.QuickValidateComponent
@@ -126,6 +151,8 @@ export default [
     },
     {
         path: ':configId/batch/:batchId/report',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
         loadComponent: () =>
             import('app/modules/smart-batch/report-viewer/report-viewer.component').then(
                 (m) => m.ReportViewerComponent
@@ -133,6 +160,8 @@ export default [
     },
     {
         path: ':configId/batch/:batchId',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
         loadComponent: () =>
             import(
                 'app/modules/smart-batch/dashboard/batch-processing/batch-processing.component'
@@ -140,6 +169,8 @@ export default [
     },
     {
         path: ':configId',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
         loadComponent: () =>
             import('app/modules/smart-batch/dashboard/batch-dashboard.component').then(
                 (m) => m.BatchDashboardComponent

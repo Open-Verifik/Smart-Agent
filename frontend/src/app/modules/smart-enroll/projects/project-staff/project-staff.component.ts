@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { StaffPermissionService } from 'app/core/permissions/staff-permission.service';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import { SettingsService, StaffMember } from 'app/modules/settings/settings.service';
 import { resolveStaffSaveErrorMessage } from 'app/modules/settings/utils/staff-save-error.util';
@@ -49,6 +50,7 @@ export class ProjectStaffComponent implements OnInit {
     private _countryService = inject(CountryService);
     private _snackBar = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
+    private _permService = inject(StaffPermissionService);
 
     project = signal<EnrollProject | null>(null);
     projectMembers = signal<EnrollProjectMember[]>([]);
@@ -113,10 +115,7 @@ export class ProjectStaffComponent implements OnInit {
     }
 
     canManageWorkspaceStaff(): boolean {
-        const u = this._clientUser;
-        if (!u) return false;
-        if (u.staff && u.role !== 'administrador') return false;
-        return true;
+        return this._permService.can('team', 'create');
     }
 
     canAddMoreWorkspaceStaff(): boolean {
@@ -182,8 +181,9 @@ export class ProjectStaffComponent implements OnInit {
     }
 
     get isCurrentUserMemberAdminOrOwner(): boolean {
+        if (!this._permService.isStaff()) return true;
         const m = this.currentUserProjectMember();
-        return m?.role === 'admin' || m?.role === 'owner' || !m;
+        return m?.role === 'admin' || m?.role === 'owner' || this._permService.can('smartEnrollProjects', 'update');
     }
 
     get hasSelectedStaff(): boolean {
@@ -401,10 +401,21 @@ export class ProjectStaffComponent implements OnInit {
     }
 
     private _parseUser(): { _id?: string; staff?: string; role?: string } | null {
-        const raw = localStorage.getItem('user');
+        const raw = localStorage.getItem('verifik_account') || localStorage.getItem('user');
         if (!raw) return null;
         try {
-            return JSON.parse(raw) as { _id?: string; staff?: string; role?: string };
+            const parsed = JSON.parse(raw) as {
+                _id?: string;
+                staff?: string;
+                isStaff?: boolean;
+                canonicalRole?: string;
+                role?: string;
+            };
+            return {
+                _id: parsed._id,
+                staff: parsed.staff || (parsed.isStaff ? parsed._id : undefined),
+                role: parsed.canonicalRole || parsed.role,
+            };
         } catch {
             return null;
         }

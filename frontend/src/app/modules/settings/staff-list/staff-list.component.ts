@@ -5,6 +5,7 @@ import {
     Component,
     EventEmitter,
     HostListener,
+    inject,
     Input,
     OnChanges,
     OnDestroy,
@@ -15,25 +16,44 @@ import {
     ViewChild,
     ViewEncapsulation,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
 import { resolveStaffSeatLimit } from 'app/core/client-settings/staff-seat-limit';
+import { HasStaffPermissionDirective } from 'app/core/permissions/has-staff-permission.directive';
+import {
+    defaultPermissionsForRole,
+    normalizePermissions,
+    RESOURCE_MAP,
+    resolveRoleSlug,
+    SYSTEM_ROLE_METADATA,
+    SYSTEM_ROLES,
+} from 'app/core/permissions/staff-permission.constants';
+import { StaffPermissionService } from 'app/core/permissions/staff-permission.service';
+import {
+    ClientRoleDto,
+    EndpointPolicy,
+    PermissionMap,
+    StaffTemporaryGrant,
+    SystemRoleSlug,
+    TeamDto,
+} from 'app/core/permissions/staff-permission.types';
+import { StaffRbacApiService } from 'app/core/permissions/staff-rbac-api.service';
+import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import { forkJoin, of, Subject, takeUntil } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { SettingsService, StaffMember } from '../settings.service';
+import { SettingsService, StaffMember, StaffRoleSlug } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { EndpointPolicyPickerComponent } from '../team/endpoint-policy-picker/endpoint-policy-picker.component';
+import { StaffPermissionMatrixComponent } from '../team/permission-matrix/staff-permission-matrix.component';
 import { extractClientSettingsPayload } from '../utils/invoice-billing-complete';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 import { resolveStaffSaveErrorMessage } from '../utils/staff-save-error.util';
@@ -43,18 +63,20 @@ import { resolveStaffSaveErrorMessage } from '../utils/staff-save-error.util';
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         ReactiveFormsModule,
         MatButtonModule,
-        MatFormFieldModule,
         MatIconModule,
         MatMenuModule,
-        MatSelectModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatDialogModule,
         TranslocoModule,
         RouterModule,
+        HasStaffPermissionDirective,
         SettingsBusinessAccountEmptyStateComponent,
+        StaffPermissionMatrixComponent,
+        EndpointPolicyPickerComponent,
     ],
     templateUrl: './staff-list.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -65,28 +87,44 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     @Output() staffChanged = new EventEmitter<void>();
     @Output() userChange = new EventEmitter<unknown>();
 
+    private readonly _rbacApi = inject(StaffRbacApiService);
+    readonly permService = inject(StaffPermissionService);
+
     private _unsubscribeAll = new Subject<void>();
 
     staffMembers: StaffMember[] = [];
+    teams: TeamDto[] = [];
+    customRoles: ClientRoleDto[] = [];
     staffLoaded = false;
+    endpointPolicyBuffer: EndpointPolicy = { mode: 'all', features: [] };
+    showEndpointPolicyPanel = false;
     isLoadingStaff = false;
     isSavingStaff = false;
-    editingStaff: StaffMember = null;
+    staffFormSubmitted = false;
+    editingStaff: StaffMember | null = null;
     staffForm: FormGroup;
+    customPermissionsBuffer: PermissionMap = defaultPermissionsForRole('operator');
+
     countryCodes: CountryDialCode[] = [];
     filteredStaffCountryCodes: CountryDialCode[] = [];
     isStaffCountryDropdownOpen = false;
     staffCountrySearchTerm = '';
     staffCountryDropdownPosition: { top: string; left: string } | null = null;
 
-    // Subscription state for team limits
     selectedSubscription: any = null;
     staffLimit = 0;
     hasSubscription = false;
     private clientSettingsSnapshot: ClientSettingsOverrideSnapshot | null = null;
 
-    @ViewChild('staffFormDialog') staffFormDialog: TemplateRef<any>;
-    staffDialogRef: any;
+    readonly systemRoles = SYSTEM_ROLES.map((slug) => SYSTEM_ROLE_METADATA[slug]);
+
+    @ViewChild('staffFormDialog') staffFormDialog!: TemplateRef<any>;
+    @ViewChild('grantsDialog') grantsDialog!: TemplateRef<any>;
+    @ViewChild('confirmRemoveDialog') confirmRemoveDialog!: TemplateRef<any>;
+
+    staffDialogRef: MatDialogRef<any> | null = null;
+    grantsTargetStaff: StaffMember | null = null;
+    removingStaff: StaffMember | null = null;
 
     constructor(
         private _cdr: ChangeDetectorRef,
@@ -127,6 +165,26 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         return getBusinessUserClientId(this.user);
     }
 
+    get callerCeiling(): PermissionMap | null {
+        if (!this.permService.isStaff()) return null;
+        return this.permService.permissions();
+    }
+
+    get selectedSystemRoleMeta() {
+        const slug = resolveRoleSlug(this.staffForm?.get('role')?.value);
+        return SYSTEM_ROLE_METADATA[slug] ?? SYSTEM_ROLE_METADATA.operator;
+    }
+
+    isControlInvalid(name: string): boolean {
+        const control = this.staffForm?.get(name);
+        return Boolean(control && control.invalid && (control.touched || this.staffFormSubmitted));
+    }
+
+    teamBudgetOptionLabel(team: TeamDto): string {
+        const cap = team.budget?.effectiveCap ?? team.monthlyBudget;
+        return cap != null && cap > 0 ? `${team.name} ($${cap}/mo)` : team.name;
+    }
+
     onBusinessAccountLinked(account: unknown): void {
         this.user = account;
         this.userChange.emit(account);
@@ -145,7 +203,11 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             email: ['', [Validators.required, Validators.email]],
             countryCode: ['+1'],
             phone: ['', [Validators.required, Validators.pattern(/^\d{8,15}$/)]],
-            role: ['empleado'],
+            role: ['operator' as StaffRoleSlug],
+            customRole: [''],
+            team: [''],
+            useCustomPermissions: [false],
+            status: ['joined'],
         });
     }
 
@@ -160,11 +222,13 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         this.isLoadingStaff = true;
         this._cdr.markForCheck();
 
-        // Load subscription first to get the staff limit
         this._loadSubscription();
 
-        this._settingsService
-            .getStaff()
+        forkJoin({
+            staff: this._settingsService.getStaff().pipe(catchError(() => of({ data: [] }))),
+            teams: this._rbacApi.listTeams().pipe(catchError(() => of([]))),
+            roles: this._rbacApi.listClientRoles().pipe(catchError(() => of([]))),
+        })
             .pipe(
                 finalize(() => {
                     this.isLoadingStaff = false;
@@ -173,13 +237,10 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
                 }),
                 takeUntil(this._unsubscribeAll)
             )
-            .subscribe({
-                next: (response) => {
-                    this.staffMembers = response?.data || [];
-                },
-                error: () => {
-                    this.staffMembers = [];
-                },
+            .subscribe(({ staff, teams, roles }) => {
+                this.staffMembers = staff?.data || [];
+                this.teams = teams;
+                this.customRoles = roles;
             });
     }
 
@@ -190,26 +251,16 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         const empty = of({ data: null });
 
         forkJoin({
-            smartCheck: this._settingsService
-                .getMySubscription(clientId)
-                .pipe(catchError(() => empty)),
-            smartAccess: this._settingsService
-                .getSmartAccessPlan(clientId)
-                .pipe(catchError(() => empty)),
-            smartEnroll: this._settingsService
-                .getSmartEnrollPlan(clientId)
-                .pipe(catchError(() => empty)),
-            clientSettings: this._settingsService
-                .getBillingConfig(clientId)
-                .pipe(catchError(() => empty)),
+            smartCheck: this._settingsService.getMySubscription(clientId).pipe(catchError(() => empty)),
+            smartAccess: this._settingsService.getSmartAccessPlan(clientId).pipe(catchError(() => empty)),
+            smartEnroll: this._settingsService.getSmartEnrollPlan(clientId).pipe(catchError(() => empty)),
+            clientSettings: this._settingsService.getBillingConfig(clientId).pipe(catchError(() => empty)),
         })
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: ({ smartCheck, smartAccess, smartEnroll, clientSettings }) => {
                     this.clientSettingsSnapshot =
-                        (extractClientSettingsPayload(
-                            clientSettings
-                        ) as ClientSettingsOverrideSnapshot | null) ??
+                        (extractClientSettingsPayload(clientSettings) as ClientSettingsOverrideSnapshot | null) ??
                         this.user?.settings ??
                         null;
                     this._applyTeamSubscriptionLimits(smartCheck, smartAccess, smartEnroll);
@@ -225,9 +276,6 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         return this.clientSettingsSnapshot ?? this.user?.settings ?? null;
     }
 
-    /**
-     * SmartCheck chair count plus bonus and optional clientSettings override.
-     */
     private _applyTeamSubscriptionLimits(smartCheckRes: any, accessRes: any, enrollRes: any): void {
         const smartCheckData = smartCheckRes?.data;
         const subscriptionPlan = smartCheckData?.subscriptionPlan;
@@ -239,10 +287,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         const { eligible, seatLimit } = resolveStaffSeatLimit(
             {
                 clientSubscriptionPlan: smartCheckData
-                    ? {
-                          active: smartCheckData.active !== false,
-                          subscriptionPlan,
-                      }
+                    ? { active: smartCheckData.active !== false, subscriptionPlan }
                     : null,
                 smartAccessPlan: accessData,
                 smartEnrollPlan: enrollData,
@@ -256,9 +301,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         if (hasSmartCheck) {
             this.selectedSubscription = subscriptionPlan;
         } else if (hasAccess && hasEnroll) {
-            this.selectedSubscription = {
-                name: `${accessData.name} + ${enrollData.name}`,
-            };
+            this.selectedSubscription = { name: `${accessData.name} + ${enrollData.name}` };
         } else if (hasAccess) {
             this.selectedSubscription = { name: accessData.name };
         } else if (hasEnroll) {
@@ -273,7 +316,6 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
 
     private _resetTeamSubscriptionState(): void {
         const { eligible, seatLimit } = resolveStaffSeatLimit(null, this._getClientSettingsSnapshot());
-
         this.selectedSubscription = eligible && seatLimit > 0 ? { name: 'Override' } : { name: 'PAYG' };
         this.hasSubscription = eligible;
         this.staffLimit = seatLimit;
@@ -284,7 +326,6 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.hasSubscription || this.staffLimit <= 0) {
             return false;
         }
-
         return this.staffMembers.length < this.staffLimit;
     }
 
@@ -293,25 +334,64 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         this._resetStaffCountryPicker();
         if (staff) {
             this.editingStaff = staff;
+            const canonicalRole = resolveRoleSlug(staff.canonicalRole || staff.role);
+            const customRoleId =
+                typeof staff.customRole === 'object' ? staff.customRole?._id || '' : staff.customRole || '';
+            const teamId = typeof staff.team === 'object' ? staff.team?._id || '' : staff.team || '';
+
+            this.customPermissionsBuffer = staff.customPermissions
+                ? normalizePermissions(staff.customPermissions)
+                : defaultPermissionsForRole(canonicalRole);
+            this.endpointPolicyBuffer = staff.endpointPolicy
+                ? {
+                      mode: staff.endpointPolicy.mode || 'all',
+                      features: [...(staff.endpointPolicy.features || [])],
+                  }
+                : { mode: 'all', features: [] };
+            this.showEndpointPolicyPanel = this.endpointPolicyBuffer.mode !== 'all';
+
             this.staffForm.patchValue({
                 name: staff.name,
                 email: staff.email,
                 countryCode: staff.countryCode || '+1',
                 phone: staff.phone,
-                role: staff.role || 'empleado',
+                role: canonicalRole,
+                customRole: customRoleId,
+                team: teamId,
+                useCustomPermissions: Boolean(staff.useCustomPermissions),
+                status: staff.status || 'joined',
             });
+        } else {
+            this.customPermissionsBuffer = defaultPermissionsForRole('operator');
+            this.endpointPolicyBuffer = { mode: 'all', features: [] };
+            this.showEndpointPolicyPanel = false;
         }
 
         this.staffDialogRef = this._dialog.open(this.staffFormDialog, {
-            width: '500px',
-            maxWidth: '90vw',
+            width: this.staffForm.get('useCustomPermissions')?.value ? '920px' : '640px',
+            maxWidth: '94vw',
+            maxHeight: '90vh',
+            panelClass: 'staff-member-dialog-panel',
+            autoFocus: false,
         });
     }
 
-    closeStaffDialog(): void {
-        if (this.staffDialogRef) {
-            this.staffDialogRef.close();
+    onRoleOrOverrideChange(): void {
+        const useCustom = Boolean(this.staffForm.get('useCustomPermissions')?.value);
+        if (!this.editingStaff?.customPermissions && useCustom) {
+            const roleSlug = this.staffForm.get('role')?.value as SystemRoleSlug;
+            const customRoleId = this.staffForm.get('customRole')?.value as string;
+            const cr = customRoleId ? this.customRoles.find((r) => r._id === customRoleId) : null;
+            this.customPermissionsBuffer = cr
+                ? normalizePermissions(cr.permissions)
+                : defaultPermissionsForRole(roleSlug);
         }
+        this.staffDialogRef?.updateSize(useCustom ? '920px' : '640px');
+        this._cdr.markForCheck();
+    }
+
+    closeStaffDialog(): void {
+        this.staffDialogRef?.close();
         this._resetStaffForm();
         this._resetStaffCountryPicker();
     }
@@ -363,47 +443,70 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
 
     isStaffCountryRowSelected(country: CountryDialCode): boolean {
         const sel = this.getSelectedStaffCountry();
-        return (
-            !!sel && sel.dialCode === country.dialCode && sel.countryCode === country.countryCode
-        );
+        return !!sel && sel.dialCode === country.dialCode && sel.countryCode === country.countryCode;
     }
 
     private _resetStaffForm(): void {
         this.editingStaff = null;
+        this.staffFormSubmitted = false;
+        this.endpointPolicyBuffer = { mode: 'all', features: [] };
+        this.showEndpointPolicyPanel = false;
         this.staffForm.reset({
             name: '',
             email: '',
             countryCode: '+1',
             phone: '',
-            role: 'empleado',
+            role: 'operator',
+            customRole: '',
+            team: '',
+            useCustomPermissions: false,
+            status: 'joined',
         });
     }
 
     saveStaff(): void {
-        if (this.staffForm.invalid || this.isSavingStaff) return;
+        if (this.isSavingStaff) return;
 
-        // Check staff limit before creating (not when editing)
+        if (this.staffForm.invalid) {
+            this.staffFormSubmitted = true;
+            this.staffForm.markAllAsTouched();
+            this._cdr.markForCheck();
+            setTimeout(() => {
+                const firstInvalid = document.querySelector<HTMLElement>(
+                    '.staff-dialog [aria-invalid="true"]'
+                );
+                firstInvalid?.focus();
+            });
+            return;
+        }
+
         if (!this.editingStaff && !this.canAddMoreStaff()) {
             const message = this._translocoService.translate('settings.team.limit_reached');
-            this._snackBar.open(message, null, { duration: 4000 });
+            this._snackBar.open(message, undefined, { duration: 4000 });
             return;
         }
 
         this.isSavingStaff = true;
         this._cdr.markForCheck();
 
-        const formValue = this.staffForm.value;
+        const fv = this.staffForm.value;
         const payload: Partial<StaffMember> = {
-            name: formValue.name,
-            email: formValue.email,
-            countryCode: formValue.countryCode,
-            phone: String(formValue.phone),
-            role: formValue.role,
+            name: fv.name,
+            email: fv.email,
+            countryCode: fv.countryCode,
+            phone: String(fv.phone),
+            role: fv.role,
+            customRole: fv.customRole || null,
+            team: fv.team || null,
+            useCustomPermissions: Boolean(fv.useCustomPermissions),
+            ...(fv.useCustomPermissions ? { customPermissions: this.customPermissionsBuffer } : {}),
+            endpointPolicy: this.endpointPolicyBuffer,
+            ...(this.editingStaff ? { status: fv.status } : {}),
             client: this.user._id,
         };
 
         const saveOperation = this.editingStaff
-            ? this._settingsService.updateStaff(this.editingStaff._id, payload)
+            ? this._settingsService.updateStaff(this.editingStaff._id!, payload)
             : this._settingsService.createStaff(payload);
 
         saveOperation
@@ -419,60 +522,163 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
                     this.closeStaffDialog();
                     this.loadStaffData();
                     const message = this._translocoService.translate('settings.team.save_success');
-                    this._snackBar.open(message, null, { duration: 3000 });
+                    this._snackBar.open(message, undefined, { duration: 3000 });
                     this.staffChanged.emit();
                 },
                 error: (error) => {
                     const message = resolveStaffSaveErrorMessage(error, (key) =>
                         this._translocoService.translate(key)
                     );
-                    this._snackBar.open(message, null, { duration: 5000 });
+                    this._snackBar.open(message, undefined, { duration: 5000 });
                 },
             });
     }
 
-    deleteStaff(staff: StaffMember): void {
+    toggleSuspend(staff: StaffMember): void {
         if (!staff?._id) return;
+        const nextStatus = staff.status === 'banned' ? 'joined' : 'banned';
+        this._settingsService
+            .updateStaff(staff._id, { status: nextStatus })
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: () => {
+                    this._snackBar.open(
+                        this._translocoService.translate(
+                            nextStatus === 'banned'
+                                ? 'staffRbac.members.suspendedToast'
+                                : 'staffRbac.members.reactivatedToast'
+                        ),
+                        undefined,
+                        { duration: 3000 }
+                    );
+                    this.loadStaffData();
+                },
+                error: (err) => {
+                    this._snackBar.open(err?.error?.message || 'Action failed', undefined, { duration: 4000 });
+                },
+            });
+    }
 
+    forceRevokeSession(staff: StaffMember): void {
+        if (!staff?._id) return;
+        this._rbacApi.revokeStaffSession(staff._id).subscribe({
+            next: () => {
+                this._snackBar.open(
+                    this._translocoService.translate('staffRbac.members.sessionRevokedToast'),
+                    undefined,
+                    { duration: 3500 }
+                );
+            },
+            error: (err) => {
+                this._snackBar.open(err?.error?.message || 'Revoke failed', undefined, { duration: 4000 });
+            },
+        });
+    }
+
+    openGrantsModal(staff: StaffMember): void {
+        this.grantsTargetStaff = staff;
+        this.staffDialogRef = this._dialog.open(this.grantsDialog, {
+            width: '540px',
+            maxWidth: '94vw',
+            panelClass: 'staff-member-dialog-panel',
+        });
+    }
+
+    revokeGrant(staff: StaffMember, grant: StaffTemporaryGrant): void {
+        if (!staff._id || !grant._id) return;
+        this._rbacApi.revokeStaffGrant(staff._id, grant._id).subscribe({
+            next: () => {
+                this._snackBar.open(
+                    this._translocoService.translate('staffRbac.members.grantRevokedToast'),
+                    undefined,
+                    { duration: 3000 }
+                );
+                this.staffDialogRef?.close();
+                this.loadStaffData();
+            },
+        });
+    }
+
+    promptRemoveStaff(staff: StaffMember): void {
+        this.removingStaff = staff;
+        this.staffDialogRef = this._dialog.open(this.confirmRemoveDialog, {
+            width: '440px',
+            maxWidth: '94vw',
+            panelClass: 'staff-member-dialog-panel',
+        });
+    }
+
+    confirmDeleteStaff(): void {
+        const staff = this.removingStaff;
+        if (!staff?._id) return;
         this._settingsService
             .deleteStaff(staff._id)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: () => {
+                    this.staffDialogRef?.close();
+                    this.removingStaff = null;
                     this.loadStaffData();
-                    const message = this._translocoService.translate(
-                        'settings.team.delete_success'
-                    );
-                    this._snackBar.open(message, null, { duration: 3000 });
+                    const message = this._translocoService.translate('settings.team.delete_success');
+                    this._snackBar.open(message, undefined, { duration: 3000 });
                     this.staffChanged.emit();
                 },
-                error: () => {
-                    const message = this._translocoService.translate('settings.team.delete_error');
-                    this._snackBar.open(message, null, { duration: 3000 });
+                error: (err) => {
+                    const msg =
+                        err?.error?.message === 'cannot_delete_self'
+                            ? this._translocoService.translate('staffRbac.members.cannotDeleteSelf')
+                            : this._translocoService.translate('settings.team.delete_error');
+                    this._snackBar.open(msg, undefined, { duration: 4000 });
                 },
             });
     }
 
     reinviteStaff(staff: StaffMember): void {
         if (!staff?._id) return;
-
         this._settingsService
             .reinviteStaff(staff)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: () => {
-                    const message = this._translocoService.translate(
-                        'settings.team.reinvite_success'
-                    );
-                    this._snackBar.open(message, null, { duration: 3000 });
+                    const message = this._translocoService.translate('settings.team.reinvite_success');
+                    this._snackBar.open(message, undefined, { duration: 3000 });
                 },
                 error: () => {
-                    const message = this._translocoService.translate(
-                        'settings.team.reinvite_error'
-                    );
-                    this._snackBar.open(message, null, { duration: 3000 });
+                    const message = this._translocoService.translate('settings.team.reinvite_error');
+                    this._snackBar.open(message, undefined, { duration: 3000 });
                 },
             });
+    }
+
+    roleDisplayName(staff: StaffMember): string {
+        if (staff.customRole && typeof staff.customRole === 'object' && staff.customRole.name) {
+            return staff.customRole.name;
+        }
+        const canonical = resolveRoleSlug(staff.canonicalRole || staff.role);
+        const meta = SYSTEM_ROLE_METADATA[canonical];
+        return meta ? this._translocoService.translate(meta.nameKey) || meta.name : canonical;
+    }
+
+    teamDisplayName(staff: StaffMember): string | null {
+        if (!staff.team) return null;
+        if (typeof staff.team === 'object') return staff.team.name || null;
+        const found = this.teams.find((t) => String(t._id) === String(staff.team));
+        return found?.name || null;
+    }
+
+    grantResourceLabel(resourceKey: string): string {
+        const meta = RESOURCE_MAP[resourceKey];
+        return meta ? this._translocoService.translate(meta.labelKey) || meta.label : resourceKey;
+    }
+
+    isActiveStatus(status?: string): boolean {
+        return status === 'joined' || status === 'active';
+    }
+
+    statusTranslationKey(status?: string): string {
+        if (status === 'joined' || status === 'active') return 'settings.team.status_active';
+        if (status === 'banned' || status === 'inactive') return 'staffRbac.members.statusSuspended';
+        return 'settings.team.status_pending';
     }
 
     getStaffInitials(name: string): string {

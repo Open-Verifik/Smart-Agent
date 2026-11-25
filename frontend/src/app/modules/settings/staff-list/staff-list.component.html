@@ -1,23 +1,24 @@
-<div class="flex flex-col h-full min-h-[calc(100vh-200px)]">
+<div class="flex flex-col h-full">
     <!-- Panel Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">
                 {{ 'settings.team.title' | transloco }}
             </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {{ 'settings.team.subtitle' | transloco }}
             </p>
         </div>
 
         <button
-            *ngIf="userClientId && (!user?.staff || user?.role === 'administrador')"
+            *hasStaffPermission="'team.create'"
             mat-flat-button
             color="primary"
-            class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-6 h-10"
-            [class.!bg-gray-400]="!canAddMoreStaff()"
-            [class.hover:!bg-gray-400]="!canAddMoreStaff()"
-            [class.cursor-not-allowed]="!canAddMoreStaff()"
+            class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-5 h-10"
+            [class.!bg-gray-400]="userClientId && !canAddMoreStaff()"
+            [class.hover:!bg-gray-400]="userClientId && !canAddMoreStaff()"
+            [class.cursor-not-allowed]="userClientId && !canAddMoreStaff()"
+            [hidden]="!userClientId"
             (click)="canAddMoreStaff() ? openStaffModal() : null"
             [matTooltip]="!canAddMoreStaff() ? ('settings.team.limit_reached' | transloco) : ''"
         >
@@ -33,393 +34,708 @@
     />
 
     <ng-container *ngIf="userClientId">
-    <!-- Staff Limit Alert -->
-    <div *ngIf="selectedSubscription && staffLoaded" class="mb-6">
-        <div
-            class="rounded-xl p-4 flex items-start gap-4"
-            [ngClass]="{
-                'bg-blue-50 border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800':
-                    hasSubscription && canAddMoreStaff(),
-                'bg-amber-50 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-800':
-                    hasSubscription && !canAddMoreStaff(),
-                'bg-red-50 border border-red-100 dark:bg-red-900/20 dark:border-red-800':
-                    !hasSubscription,
-            }"
-        >
-            <mat-icon
-                class="mt-0.5"
+        <!-- Staff Limit Alert -->
+        <div *ngIf="selectedSubscription && staffLoaded" class="mb-6">
+            <div
+                class="rounded-xl p-4 flex items-start gap-4"
                 [ngClass]="{
-                    'text-blue-600 dark:text-blue-400': hasSubscription && canAddMoreStaff(),
-                    'text-amber-600 dark:text-amber-400': hasSubscription && !canAddMoreStaff(),
-                    'text-red-600 dark:text-red-400': !hasSubscription,
+                    'bg-blue-50 border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800':
+                        hasSubscription && canAddMoreStaff(),
+                    'bg-amber-50 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-800':
+                        hasSubscription && !canAddMoreStaff(),
+                    'bg-red-50 border border-red-100 dark:bg-red-900/20 dark:border-red-800':
+                        !hasSubscription,
                 }"
-                style="width: 24px; height: 24px; font-size: 24px"
-                >info</mat-icon
             >
-            <div class="text-sm">
-                <p
+                <mat-icon
+                    class="mt-0.5"
                     [ngClass]="{
-                        'text-blue-900 dark:text-blue-100': hasSubscription && canAddMoreStaff(),
-                        'text-amber-900 dark:text-amber-100': hasSubscription && !canAddMoreStaff(),
-                        'text-red-900 dark:text-red-100': !hasSubscription,
+                        'text-blue-600 dark:text-blue-400': hasSubscription && canAddMoreStaff(),
+                        'text-amber-600 dark:text-amber-400': hasSubscription && !canAddMoreStaff(),
+                        'text-red-600 dark:text-red-400': !hasSubscription,
                     }"
+                    style="width: 24px; height: 24px; font-size: 24px"
+                    >info</mat-icon
                 >
-                    <ng-container *ngIf="hasSubscription">
-                        {{ 'settings.team.limit_info_1' | transloco }}
-                        <span class="font-bold">{{
-                            selectedSubscription.name === 'PyG' ? 'PAYG' : selectedSubscription.name
-                        }}</span>
-                        {{ 'settings.team.limit_info_2' | transloco }}
-                        <span class="font-bold">{{ staffLimit }}</span>
-                        {{ 'settings.team.limit_info_3' | transloco }}
-                        (<span class="font-semibold"
-                            >{{ staffMembers.length }}/{{ staffLimit }}</span
-                        >
-                        {{ 'settings.team.used' | transloco }})
-                    </ng-container>
-                    <ng-container *ngIf="!hasSubscription">
-                        {{ 'settings.team.no_plan_warning' | transloco }}
-                    </ng-container>
-                    <a
-                        routerLink="/subscription-plans"
-                        class="underline hover:opacity-80 ml-1 font-medium"
+                <div class="text-sm">
+                    <p
                         [ngClass]="{
-                            'text-blue-700 dark:text-blue-300':
-                                hasSubscription && canAddMoreStaff(),
-                            'text-amber-700 dark:text-amber-300':
-                                hasSubscription && !canAddMoreStaff(),
-                            'text-red-700 dark:text-red-300': !hasSubscription,
+                            'text-blue-900 dark:text-blue-100': hasSubscription && canAddMoreStaff(),
+                            'text-amber-900 dark:text-amber-100': hasSubscription && !canAddMoreStaff(),
+                            'text-red-900 dark:text-red-100': !hasSubscription,
                         }"
                     >
-                        {{ 'settings.team.view_plans' | transloco }}
-                    </a>
-                </p>
+                        <ng-container *ngIf="hasSubscription">
+                            {{ 'settings.team.limit_info_1' | transloco }}
+                            <span class="font-bold">{{
+                                selectedSubscription.name === 'PyG' ? 'PAYG' : selectedSubscription.name
+                            }}</span>
+                            {{ 'settings.team.limit_info_2' | transloco }}
+                            <span class="font-bold">{{ staffLimit }}</span>
+                            {{ 'settings.team.limit_info_3' | transloco }}
+                            (<span class="font-semibold">{{ staffMembers.length }}/{{ staffLimit }}</span>
+                            {{ 'settings.team.used' | transloco }})
+                        </ng-container>
+                        <ng-container *ngIf="!hasSubscription">
+                            {{ 'settings.team.no_plan_warning' | transloco }}
+                        </ng-container>
+                        <a
+                            routerLink="/subscription-plans"
+                            class="underline hover:opacity-80 ml-1 font-medium"
+                        >
+                            {{ 'settings.team.view_plans' | transloco }}
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div *ngIf="isLoadingStaff" class="flex-1 flex items-center justify-center py-12">
-        <mat-spinner diameter="32"></mat-spinner>
-    </div>
+        <div *ngIf="isLoadingStaff" class="flex-1 flex items-center justify-center py-12">
+            <mat-spinner diameter="32"></mat-spinner>
+        </div>
 
-    <!-- Staff List -->
-    <div
-        *ngIf="staffLoaded && !isLoadingStaff"
-        class="content-card overflow-hidden flex-1 flex flex-col"
-    >
-        <!-- List Header -->
+        <!-- Staff List -->
         <div
-            class="hidden md:grid grid-cols-12 gap-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+            *ngIf="staffLoaded && !isLoadingStaff"
+            class="content-card overflow-hidden flex-1 flex flex-col"
         >
-            <div class="col-span-4">{{ 'settings.team.name' | transloco }}</div>
-            <div class="col-span-3">
-                {{ 'settings.team.email_label' | transloco }}
-            </div>
-            <div class="col-span-2">{{ 'settings.team.status' | transloco }}</div>
-            <div class="col-span-2">{{ 'settings.team.role' | transloco }}</div>
-            <div class="col-span-1 text-right">
-                {{ 'settings.team.actions' | transloco }}
-            </div>
-        </div>
-
-        <!-- List Body -->
-        <div class="divide-y divide-gray-100 dark:divide-gray-700">
-            <ng-container *ngFor="let staff of staffMembers">
-                <div
-                    class="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                >
-                    <!-- Name -->
-                    <div class="col-span-4 flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm overflow-hidden shrink-0"
-                        >
-                            <img
-                                *ngIf="staff.avatar"
-                                [src]="staff.avatar"
-                                class="w-full h-full object-cover"
-                            />
-                            <span *ngIf="!staff.avatar">{{ getStaffInitials(staff.name) }}</span>
-                        </div>
-                        <div class="font-medium text-gray-900 dark:text-white truncate">
-                            {{ staff.name }}
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div
-                        class="col-span-3 text-sm text-gray-600 dark:text-gray-400 truncate"
-                        [matTooltip]="staff.email"
-                    >
-                        {{ truncateEmail(staff.email, 25) }}
-                    </div>
-
-                    <!-- Status -->
-                    <div class="col-span-2">
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                            [ngClass]="{
-                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400':
-                                    staff.status === 'active',
-                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400':
-                                    staff.status !== 'active',
-                            }"
-                        >
-                            {{ 'settings.team.status_' + (staff.status || 'pending') | transloco }}
-                        </span>
-                    </div>
-
-                    <!-- Role -->
-                    <div class="col-span-2 text-sm text-gray-600 dark:text-gray-400 capitalize">
-                        {{ 'settings.team.role_' + staff.role | transloco }}
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="col-span-1 flex justify-end">
-                        <button
-                            mat-icon-button
-                            [matMenuTriggerFor]="staffMenu"
-                            *ngIf="!user?.staff || user?.role === 'administrador'"
-                        >
-                            <mat-icon class="text-gray-400">more_vert</mat-icon>
-                        </button>
-                        <mat-menu #staffMenu="matMenu">
-                            <button mat-menu-item (click)="openStaffModal(staff)">
-                                <mat-icon class="text-gray-400 mr-2">edit</mat-icon>
-                                {{ 'settings.team.edit' | transloco }}
-                            </button>
-                            <button mat-menu-item (click)="reinviteStaff(staff)">
-                                <mat-icon class="text-gray-400 mr-2">send</mat-icon>
-                                {{ 'settings.team.reinvite' | transloco }}
-                            </button>
-                            <button mat-menu-item class="text-red-600" (click)="deleteStaff(staff)">
-                                <mat-icon class="text-red-400 mr-2">delete</mat-icon>
-                                {{ 'settings.team.remove' | transloco }}
-                            </button>
-                        </mat-menu>
-                    </div>
-                </div>
-            </ng-container>
-
-            <!-- Empty State -->
+            <!-- List Header -->
             <div
-                *ngIf="!staffMembers?.length"
-                class="flex-1 p-12 flex flex-col items-center justify-center text-center"
+                class="hidden md:grid grid-cols-12 gap-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider"
             >
-                <div
-                    class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4"
-                >
-                    <mat-icon
-                        class="text-gray-400"
-                        style="width: 32px; height: 32px; font-size: 32px"
-                        >group</mat-icon
+                <div class="col-span-4">{{ 'settings.team.name' | transloco }}</div>
+                <div class="col-span-2">{{ 'staffRbac.members.subTeamColumn' | transloco }}</div>
+                <div class="col-span-2">{{ 'settings.team.status' | transloco }}</div>
+                <div class="col-span-3">{{ 'settings.team.role' | transloco }}</div>
+                <div class="col-span-1 text-right">{{ 'settings.team.actions' | transloco }}</div>
+            </div>
+
+            <!-- List Body -->
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <ng-container *ngFor="let staff of staffMembers">
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                     >
+                        <!-- Name & Email -->
+                        <div class="col-span-4 flex items-center gap-3 min-w-0">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm overflow-hidden shrink-0"
+                            >
+                                <img
+                                    *ngIf="staff.avatar"
+                                    [src]="staff.avatar"
+                                    class="w-full h-full object-cover"
+                                />
+                                <span *ngIf="!staff.avatar">{{ getStaffInitials(staff.name) }}</span>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="font-medium text-gray-900 dark:text-white truncate">
+                                    {{ staff.name }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 truncate" [matTooltip]="staff.email">
+                                    {{ truncateEmail(staff.email, 28) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Team -->
+                        <div class="col-span-2 text-xs">
+                            @if (teamDisplayName(staff); as tName) {
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">
+                                    {{ tName }}
+                                </span>
+                            } @else {
+                                <span class="text-slate-400">—</span>
+                            }
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-span-2">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                [ngClass]="{
+                                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400':
+                                        isActiveStatus(staff.status),
+                                    'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400':
+                                        staff.status === 'banned' || staff.status === 'inactive',
+                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400':
+                                        !isActiveStatus(staff.status) && staff.status !== 'banned' && staff.status !== 'inactive',
+                                }"
+                            >
+                                {{ statusTranslationKey(staff.status) | transloco }}
+                            </span>
+                        </div>
+
+                        <!-- Role + Custom / JIT Badges -->
+                        <div class="col-span-3 flex flex-wrap items-center gap-1.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                                {{ roleDisplayName(staff) }}
+                            </span>
+                            @if (staff.useCustomPermissions) {
+                                <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300">
+                                    {{ 'staffRbac.members.customBadge' | transloco }}
+                                </span>
+                            }
+                            @if (staff.endpointPolicy && staff.endpointPolicy.mode !== 'all') {
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                                    [ngClass]="
+                                        staff.endpointPolicy.mode === 'blocklist'
+                                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                                            : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                    "
+                                >
+                                    {{
+                                        (staff.endpointPolicy.mode === 'blocklist'
+                                            ? 'staffRbac.endpoints.badgeBlocked'
+                                            : 'staffRbac.endpoints.badgeAllowed')
+                                            | transloco : { count: staff.endpointPolicy.features?.length || 0 }
+                                    }}
+                                </span>
+                            }
+                            @if ((staff.activeTemporaryGrantsCount || 0) > 0) {
+                                <button
+                                    type="button"
+                                    (click)="openGrantsModal(staff)"
+                                    class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:opacity-80"
+                                >
+                                    +{{ staff.activeTemporaryGrantsCount }} JIT
+                                </button>
+                            }
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-span-1 flex justify-end">
+                            <button
+                                *hasStaffPermission="['team.update', 'team.delete']; mode: 'any'"
+                                mat-icon-button
+                                [matMenuTriggerFor]="staffMenu"
+                            >
+                                <mat-icon class="text-gray-400">more_vert</mat-icon>
+                            </button>
+                            <mat-menu #staffMenu="matMenu">
+                                <button *hasStaffPermission="'team.update'" mat-menu-item (click)="openStaffModal(staff)">
+                                    <mat-icon class="text-gray-400 mr-2">edit</mat-icon>
+                                    {{ 'settings.team.edit' | transloco }}
+                                </button>
+                                <button *hasStaffPermission="'team.create'" mat-menu-item (click)="reinviteStaff(staff)">
+                                    <mat-icon class="text-gray-400 mr-2">send</mat-icon>
+                                    {{ 'settings.team.reinvite' | transloco }}
+                                </button>
+                                @if ((staff.activeTemporaryGrants?.length || 0) > 0) {
+                                    <button *hasStaffPermission="'team.update'" mat-menu-item (click)="openGrantsModal(staff)">
+                                        <mat-icon class="text-amber-500 mr-2">schedule</mat-icon>
+                                        {{ 'staffRbac.members.manageGrants' | transloco }}
+                                    </button>
+                                }
+                                <button *hasStaffPermission="'team.update'" mat-menu-item (click)="toggleSuspend(staff)">
+                                    <mat-icon class="text-gray-400 mr-2">{{ staff.status === 'banned' ? 'person_check' : 'person_off' }}</mat-icon>
+                                    {{ (staff.status === 'banned' ? 'staffRbac.members.reactivate' : 'staffRbac.members.suspend') | transloco }}
+                                </button>
+                                <button *hasStaffPermission="'team.update'" mat-menu-item (click)="forceRevokeSession(staff)">
+                                    <mat-icon class="text-gray-400 mr-2">logout</mat-icon>
+                                    {{ 'staffRbac.members.revokeSession' | transloco }}
+                                </button>
+                                <button *hasStaffPermission="'team.delete'" mat-menu-item class="text-red-600" (click)="promptRemoveStaff(staff)">
+                                    <mat-icon class="text-red-400 mr-2">delete</mat-icon>
+                                    {{ 'settings.team.remove' | transloco }}
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Empty State -->
+                <div
+                    *ngIf="!staffMembers?.length"
+                    class="flex-1 p-12 flex flex-col items-center justify-center text-center"
+                >
+                    <div
+                        class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4"
+                    >
+                        <mat-icon class="text-gray-400" style="width: 32px; height: 32px; font-size: 32px">group</mat-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                        {{ 'settings.team.no_members' | transloco }}
+                    </h3>
+                    <p class="text-gray-500 mt-1 max-w-sm">
+                        {{ 'settings.team.no_members_desc' | transloco }}
+                    </p>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    {{ 'settings.team.no_members' | transloco }}
-                </h3>
-                <p class="text-gray-500 mt-1 max-w-sm">
-                    {{ 'settings.team.no_members_desc' | transloco }}
-                </p>
             </div>
         </div>
-        <!-- end divide-y list body -->
-    </div>
-    <!-- end content-card -->
     </ng-container>
 </div>
 
 <!-- Staff Form Dialog -->
 <ng-template #staffFormDialog>
-    <div class="staff-dialog flex flex-col bg-white dark:bg-gray-900">
+    <form
+        class="staff-dialog flex flex-col bg-white dark:bg-[#0f172a] max-h-[90vh] border border-slate-200/90 dark:border-slate-700/80"
+        [formGroup]="staffForm"
+        (ngSubmit)="saveStaff()"
+        novalidate
+        aria-labelledby="staff-dialog-title"
+    >
         <!-- Modal Header -->
-        <div
-            class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700"
-        >
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-                {{
-                    (editingStaff ? 'settings.team.edit_member' : 'settings.team.add_member')
-                        | transloco
-                }}
-            </h2>
+        <div class="flex items-start justify-between gap-4 px-6 pt-6 pb-5 border-b border-slate-200/80 dark:border-slate-800">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/15 to-blue-500/15 dark:from-indigo-500/20 dark:to-blue-500/20 border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-semibold text-base">
+                    @if (editingStaff?.name) {
+                        {{ editingStaff.name.charAt(0).toUpperCase() }}
+                    } @else {
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">person_add</mat-icon>
+                    }
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h2 id="staff-dialog-title" class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white truncate">
+                            {{ (editingStaff ? 'settings.team.edit_member' : 'settings.team.add_member') | transloco }}
+                        </h2>
+                        @if (editingStaff) {
+                            <span
+                                class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                [ngClass]="getStaffStatusClass(editingStaff.status)"
+                            >
+                                {{ getStaffStatusLabel(editingStaff.status) | transloco }}
+                            </span>
+                        }
+                    </div>
+                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                        {{ 'settings.team.modal_desc' | transloco }}
+                    </p>
+                </div>
+            </div>
+            <button
+                type="button"
+                (click)="closeStaffDialog()"
+                [attr.aria-label]="'settings.team.cancel' | transloco"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            >
+                <mat-icon class="!w-5 !h-5 !text-[20px]">close</mat-icon>
+            </button>
         </div>
 
-        <!-- Modal Body -->
-        <div class="flex-1 p-6 flex flex-col gap-5 overflow-y-auto" [formGroup]="staffForm">
-            <p class="text-sm text-gray-500 mb-2">
-                {{ 'settings.team.form_description' | transloco }}
-            </p>
+        <!-- Scrollable Form Body -->
+        <div class="staff-dialog__body flex-1 px-6 py-5 flex flex-col gap-6 overflow-y-auto">
+            <!-- Section 1: Member Identity -->
+            <fieldset class="space-y-4 border-0 p-0 m-0">
+                <legend class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
+                    {{ 'settings.team.member' | transloco }}
+                </legend>
 
-            <!-- Name -->
-            <div class="flex flex-col gap-1.5">
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {{ 'settings.team.full_name' | transloco }}
-                </label>
-                <input
-                    type="text"
-                    formControlName="name"
-                    class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    placeholder="e.g. John Doe"
-                />
-            </div>
-
-            <!-- Email -->
-            <div class="flex flex-col gap-1.5">
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {{ 'settings.team.email' | transloco }}
-                </label>
-                <input
-                    type="email"
-                    formControlName="email"
-                    class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    placeholder="e.g. john@example.com"
-                />
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Country Code (searchable; matches auth-modal pattern) -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.team.country_code' | transloco }}
-                    </label>
-                    <div class="relative staff-country-picker">
-                        <button
-                            type="button"
-                            (click)="toggleStaffCountryDropdown($event)"
-                            class="h-11 w-full px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white flex items-center justify-between gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                        >
-                            <span class="flex items-center gap-2 text-sm min-w-0 flex-1">
-                                <ng-container *ngIf="getSelectedStaffCountry() as sel">
-                                    <span class="shrink-0">{{ sel.flag }}</span>
-                                    <span class="font-medium shrink-0">{{ sel.dialCode }}</span>
-                                    <span class="text-gray-500 dark:text-gray-400 truncate">{{
-                                        sel.name
-                                    }}</span>
-                                </ng-container>
-                                <span
-                                    *ngIf="!getSelectedStaffCountry()"
-                                    class="text-gray-400 text-sm"
-                                >
-                                    {{ 'authModal.phoneInput.selectCountry' | transloco }}
-                                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="staff-full-name" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {{ 'settings.team.full_name' | transloco }}
+                            <span class="text-rose-500" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                            id="staff-full-name"
+                            name="name"
+                            type="text"
+                            formControlName="name"
+                            autocomplete="name"
+                            enterkeyhint="next"
+                            required
+                            minlength="2"
+                            autofocus
+                            [class.staff-input-invalid]="isControlInvalid('name')"
+                            [attr.aria-invalid]="isControlInvalid('name') ? 'true' : 'false'"
+                            [attr.aria-describedby]="isControlInvalid('name') ? 'staff-name-error' : null"
+                            class="staff-field-control"
+                            placeholder="e.g. Elena Vasquez"
+                        />
+                        @if (isControlInvalid('name')) {
+                            <span id="staff-name-error" class="text-xs text-rose-600 dark:text-rose-400">
+                                {{ 'settings.team.full_name' | transloco }} — min. 2 chars
                             </span>
-                            <mat-icon class="!w-5 !h-5 !text-[20px] text-gray-400 shrink-0"
-                                >arrow_drop_down</mat-icon
+                        }
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="staff-email" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {{ 'settings.team.email' | transloco }}
+                            <span class="text-rose-500" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                            id="staff-email"
+                            name="email"
+                            type="email"
+                            formControlName="email"
+                            autocomplete="email"
+                            autocorrect="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            enterkeyhint="next"
+                            required
+                            [class.staff-input-invalid]="isControlInvalid('email')"
+                            [attr.aria-invalid]="isControlInvalid('email') ? 'true' : 'false'"
+                            [attr.aria-describedby]="isControlInvalid('email') ? 'staff-email-error' : null"
+                            class="staff-field-control"
+                            placeholder="name@company.com"
+                        />
+                        @if (isControlInvalid('email')) {
+                            <span id="staff-email-error" class="text-xs text-rose-600 dark:text-rose-400">
+                                Enter a valid email address (e.g. name&#64;company.com)
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label id="staff-country-label" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {{ 'settings.team.country_code' | transloco }}
+                        </label>
+                        <div class="relative staff-country-picker">
+                            <button
+                                type="button"
+                                (click)="toggleStaffCountryDropdown($event)"
+                                aria-labelledby="staff-country-label"
+                                [attr.aria-expanded]="isStaffCountryDropdownOpen"
+                                class="staff-field-control flex items-center justify-between gap-2 text-left"
                             >
-                        </button>
-                        <div
-                            *ngIf="isStaffCountryDropdownOpen && staffCountryDropdownPosition"
-                            class="fixed z-[1000] w-[min(calc(100vw-2rem),20rem)] max-h-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden"
-                            [style.top]="staffCountryDropdownPosition.top"
-                            [style.left]="staffCountryDropdownPosition.left"
-                            (click)="$event.stopPropagation()"
-                        >
-                            <div class="p-2 border-b border-gray-200 dark:border-gray-700">
-                                <div class="relative">
-                                    <mat-icon
-                                        class="absolute left-2 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-400"
-                                        >search</mat-icon
-                                    >
-                                    <input
-                                        type="text"
-                                        [value]="staffCountrySearchTerm"
-                                        (input)="onStaffCountrySearchChange($any($event.target).value)"
-                                        [placeholder]="'authModal.phoneInput.searchCountry' | transloco"
-                                        class="w-full pl-8 pr-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                                    />
+                                <span class="flex items-center gap-2 text-sm min-w-0 flex-1">
+                                    <ng-container *ngIf="getSelectedStaffCountry() as sel">
+                                        <span class="shrink-0 text-base leading-none">{{ sel.flag }}</span>
+                                        <span class="font-medium shrink-0">{{ sel.dialCode }}</span>
+                                        <span class="text-slate-500 dark:text-slate-400 truncate">{{ sel.name }}</span>
+                                    </ng-container>
+                                    <span *ngIf="!getSelectedStaffCountry()" class="text-slate-400 text-sm">
+                                        {{ 'authModal.phoneInput.selectCountry' | transloco }}
+                                    </span>
+                                </span>
+                                <mat-icon class="!w-4 !h-4 !text-[18px] text-slate-400 shrink-0 transition-transform" [class.rotate-180]="isStaffCountryDropdownOpen">expand_more</mat-icon>
+                            </button>
+                            <div
+                                *ngIf="isStaffCountryDropdownOpen && staffCountryDropdownPosition"
+                                class="fixed z-[1100] w-[min(calc(100vw-2rem),20rem)] max-h-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden"
+                                [style.top]="staffCountryDropdownPosition.top"
+                                [style.left]="staffCountryDropdownPosition.left"
+                                (click)="$event.stopPropagation()"
+                            >
+                                <div class="p-2 border-b border-slate-200 dark:border-slate-800">
+                                    <div class="relative">
+                                        <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-slate-400">search</mat-icon>
+                                        <input
+                                            type="search"
+                                            [value]="staffCountrySearchTerm"
+                                            (input)="onStaffCountrySearchChange($any($event.target).value)"
+                                            [placeholder]="'authModal.phoneInput.searchCountry' | transloco"
+                                            autocorrect="off"
+                                            autocapitalize="none"
+                                            spellcheck="false"
+                                            class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="max-h-64 overflow-y-auto">
-                                <button
-                                    *ngFor="let country of filteredStaffCountryCodes"
-                                    type="button"
-                                    (click)="selectStaffCountry(country)"
-                                    class="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors"
-                                    [ngClass]="{
-                                        'bg-blue-50 dark:bg-blue-900/30':
-                                            isStaffCountryRowSelected(country),
-                                    }"
-                                >
-                                    <span class="text-2xl shrink-0">{{ country.flag }}</span>
-                                    <div class="flex-1 min-w-0">
-                                        <div
-                                            class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate"
-                                        >
+                                <div class="max-h-64 overflow-y-auto">
+                                    <button
+                                        *ngFor="let country of filteredStaffCountryCodes"
+                                        type="button"
+                                        (click)="selectStaffCountry(country)"
+                                        class="w-full px-3.5 py-2.5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors"
+                                        [ngClass]="{ 'bg-indigo-50/70 dark:bg-indigo-950/50': isStaffCountryRowSelected(country) }"
+                                    >
+                                        <span class="text-xl shrink-0">{{ country.flag }}</span>
+                                        <div class="flex-1 min-w-0 text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                                             {{ country.name }}
                                         </div>
-                                    </div>
-                                    <span
-                                        class="text-sm text-gray-500 dark:text-gray-400 font-medium shrink-0"
-                                        >{{ country.dialCode }}</span
-                                    >
-                                </button>
-                                <div
-                                    *ngIf="filteredStaffCountryCodes.length === 0"
-                                    class="px-4 py-3 text-sm text-gray-500 text-center"
-                                >
-                                    {{ 'authModal.phoneInput.noCountries' | transloco }}
+                                        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ country.dialCode }}</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="staff-phone" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {{ 'settings.team.phone' | transloco }}
+                            <span class="text-rose-500" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                            id="staff-phone"
+                            name="phone"
+                            type="tel"
+                            inputmode="tel"
+                            autocomplete="tel-national"
+                            enterkeyhint="next"
+                            required
+                            pattern="\d{8,15}"
+                            formControlName="phone"
+                            [class.staff-input-invalid]="isControlInvalid('phone')"
+                            [attr.aria-invalid]="isControlInvalid('phone') ? 'true' : 'false'"
+                            [attr.aria-describedby]="isControlInvalid('phone') ? 'staff-phone-error' : null"
+                            class="staff-field-control"
+                            placeholder="5551234567"
+                        />
+                        @if (isControlInvalid('phone')) {
+                            <span id="staff-phone-error" class="text-xs text-rose-600 dark:text-rose-400">
+                                Enter 8–15 digits without spaces or symbols
+                            </span>
+                        }
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="border-slate-200/80 dark:border-slate-800 m-0" />
+
+            <!-- Section 2: Role & Sub-Team Access -->
+            <fieldset class="space-y-4 border-0 p-0 m-0">
+                <legend class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
+                    {{ 'staffRbac.hub.tabRoles' | transloco }} &amp; {{ 'staffRbac.members.subTeamColumn' | transloco }}
+                </legend>
+
+                <!-- System Role Preset + Live Role Description -->
+                <div class="flex flex-col gap-2">
+                    <label for="staff-system-role" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        {{ 'staffRbac.members.systemRole' | transloco }}
+                    </label>
+                    <div class="relative">
+                        <select
+                            id="staff-system-role"
+                            name="role"
+                            formControlName="role"
+                            (change)="onRoleOrOverrideChange()"
+                            aria-describedby="staff-role-desc"
+                            class="staff-field-control staff-select-control"
+                        >
+                            @for (r of systemRoles; track r.slug) {
+                                <option [value]="r.slug">{{ r.nameKey | transloco }}</option>
+                            }
+                        </select>
+                        <mat-icon class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[18px] text-slate-400">expand_more</mat-icon>
+                    </div>
+                    <div
+                        id="staff-role-desc"
+                        class="flex items-start gap-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed"
+                    >
+                        <mat-icon class="!w-4 !h-4 !text-[16px] text-indigo-500 dark:text-indigo-400 shrink-0 mt-0.5">verified_user</mat-icon>
+                        <span>{{ selectedSystemRoleMeta.descriptionKey | transloco }}</span>
+                    </div>
                 </div>
 
-                <!-- Phone -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.team.phone' | transloco }}
-                    </label>
-                    <input
-                        type="tel"
-                        formControlName="phone"
-                        class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    />
+                <!-- Custom Role + Assigned Sub-Team (2 spacious columns — zero truncation) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="staff-custom-role" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {{ 'staffRbac.members.customRoleOptional' | transloco }}
+                        </label>
+                        <div class="relative">
+                            <select
+                                id="staff-custom-role"
+                                name="customRole"
+                                formControlName="customRole"
+                                (change)="onRoleOrOverrideChange()"
+                                class="staff-field-control staff-select-control"
+                            >
+                                <option value="">{{ 'staffRbac.common.none' | transloco }}</option>
+                                @for (cr of customRoles; track cr._id) {
+                                    <option [value]="cr._id">{{ cr.name }}</option>
+                                }
+                            </select>
+                            <mat-icon class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[18px] text-slate-400">expand_more</mat-icon>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="staff-subteam" class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {{ 'staffRbac.members.subTeamLabel' | transloco }}
+                        </label>
+                        <div class="relative">
+                            <select
+                                id="staff-subteam"
+                                name="team"
+                                formControlName="team"
+                                class="staff-field-control staff-select-control"
+                            >
+                                <option value="">{{ 'staffRbac.members.noSubTeam' | transloco }}</option>
+                                @for (t of teams; track t._id) {
+                                    <option [value]="t._id">{{ teamBudgetOptionLabel(t) }}</option>
+                                }
+                            </select>
+                            <mat-icon class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[18px] text-slate-400">expand_more</mat-icon>
+                        </div>
+                    </div>
                 </div>
+            </fieldset>
+
+            <!-- Section 3: Per-staff Custom Permission Override Toggle -->
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/40 overflow-hidden transition-colors">
+                <label
+                    for="staff-override-matrix"
+                    class="flex items-center justify-between gap-3 px-4 py-3.5 cursor-pointer select-none hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors"
+                >
+                    <span class="flex items-center gap-3 min-w-0">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                            <mat-icon class="!w-4 !h-4 !text-[18px]">tune</mat-icon>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-sm font-medium text-slate-900 dark:text-slate-100">
+                                {{ 'staffRbac.members.overrideMatrixToggle' | transloco }}
+                            </span>
+                            <span class="block text-xs text-slate-500 dark:text-slate-400">
+                                {{ 'staffRbac.members.customBadge' | transloco }}
+                            </span>
+                        </span>
+                    </span>
+                    <input
+                        id="staff-override-matrix"
+                        type="checkbox"
+                        formControlName="useCustomPermissions"
+                        (change)="onRoleOrOverrideChange()"
+                        [attr.aria-expanded]="!!staffForm.get('useCustomPermissions')?.value"
+                        aria-controls="staff-custom-matrix-panel"
+                        class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 cursor-pointer shrink-0"
+                    />
+                </label>
+
+                @if (staffForm.get('useCustomPermissions')?.value) {
+                    <div
+                        id="staff-custom-matrix-panel"
+                        class="border-t border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 p-4"
+                    >
+                        <app-staff-permission-matrix
+                            [permissions]="customPermissionsBuffer"
+                            [ceilingPermissions]="callerCeiling"
+                            (permissionsChange)="customPermissionsBuffer = $event"
+                        ></app-staff-permission-matrix>
+                    </div>
+                }
             </div>
 
-            <!-- Role -->
-            <mat-form-field
-                class="w-full staff-role-field"
-                appearance="outline"
-                subscriptSizing="dynamic"
-            >
-                <mat-label>{{ 'settings.team.role' | transloco }}</mat-label>
-                <mat-select formControlName="role" panelClass="staff-role-panel">
-                    <mat-option value="empleado">{{
-                        'settings.team.role_empleado' | transloco
-                    }}</mat-option>
-                    <mat-option value="contabilidad">{{
-                        'settings.team.role_contabilidad' | transloco
-                    }}</mat-option>
-                    <mat-option value="desarrollador">{{
-                        'settings.team.role_desarrollador' | transloco
-                    }}</mat-option>
-                    <mat-option value="administrador">{{
-                        'settings.team.role_administrador' | transloco
-                    }}</mat-option>
-                </mat-select>
-            </mat-form-field>
+            <!-- Section 4: Per-Member API Endpoint Restrictions (Collapsible) -->
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/40 overflow-hidden transition-colors">
+                <button
+                    type="button"
+                    (click)="showEndpointPolicyPanel = !showEndpointPolicyPanel"
+                    [attr.aria-expanded]="showEndpointPolicyPanel"
+                    class="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors"
+                >
+                    <span class="flex items-center gap-3 min-w-0">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                            <mat-icon class="!w-4 !h-4 !text-[18px]">api</mat-icon>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-sm font-medium text-slate-900 dark:text-slate-100">
+                                {{ 'staffRbac.endpoints.memberToggleTitle' | transloco }}
+                            </span>
+                            <span class="block text-xs text-slate-500 dark:text-slate-400">
+                                @if (endpointPolicyBuffer.mode === 'all') {
+                                    {{ 'staffRbac.endpoints.memberToggleAllSummary' | transloco }}
+                                } @else if (endpointPolicyBuffer.mode === 'blocklist') {
+                                    {{
+                                        'staffRbac.endpoints.badgeBlocked'
+                                            | transloco : { count: endpointPolicyBuffer.features.length }
+                                    }}
+                                } @else {
+                                    {{
+                                        'staffRbac.endpoints.badgeAllowed'
+                                            | transloco : { count: endpointPolicyBuffer.features.length }
+                                    }}
+                                }
+                            </span>
+                        </span>
+                    </span>
+                    <mat-icon class="text-slate-400 shrink-0 transition-transform" [class.rotate-180]="showEndpointPolicyPanel">
+                        expand_more
+                    </mat-icon>
+                </button>
+
+                @if (showEndpointPolicyPanel) {
+                    <div class="border-t border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 p-4">
+                        <app-endpoint-policy-picker
+                            [policy]="endpointPolicyBuffer"
+                            [compact]="true"
+                            (policyChange)="endpointPolicyBuffer = $event"
+                        ></app-endpoint-policy-picker>
+                    </div>
+                }
+            </div>
         </div>
 
-        <!-- Modal Footer -->
-        <div
-            class="p-6 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/50"
-        >
-            <button mat-stroked-button (click)="closeStaffDialog()">
+        <!-- Sticky Footer -->
+        <div class="px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-end gap-2.5 bg-slate-50/70 dark:bg-slate-900/90">
+            <button
+                type="button"
+                (click)="closeStaffDialog()"
+                class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent px-4 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            >
                 {{ 'settings.team.cancel' | transloco }}
             </button>
             <button
-                mat-flat-button
-                color="primary"
-                [disabled]="isSavingStaff || staffForm.invalid"
-                class="!bg-blue-600 hover:!bg-blue-700 text-white"
-                (click)="saveStaff()"
+                type="submit"
+                [disabled]="isSavingStaff"
+                class="inline-flex h-10 min-w-[104px] items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed px-5 text-sm font-semibold text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
             >
-                <mat-spinner *ngIf="isSavingStaff" diameter="18" class="mr-2"></mat-spinner>
-                {{
-                    isSavingStaff
-                        ? ('settings.team.saving' | transloco)
-                        : ('settings.team.save' | transloco)
-                }}
+                <mat-spinner *ngIf="isSavingStaff" diameter="16"></mat-spinner>
+                <span>{{ isSavingStaff ? ('settings.team.saving' | transloco) : ('settings.team.save' | transloco) }}</span>
+            </button>
+        </div>
+    </form>
+</ng-template>
+
+<!-- Active Temporary Grants Modal -->
+<ng-template #grantsDialog>
+    <div class="staff-dialog bg-white dark:bg-[#0f172a] border border-slate-200/90 dark:border-slate-700/80 p-6 space-y-4">
+        <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+                {{ 'staffRbac.members.activeGrantsFor' | transloco : { name: grantsTargetStaff?.name } }}
+            </h2>
+            <button
+                type="button"
+                (click)="staffDialogRef?.close()"
+                [attr.aria-label]="'settings.team.cancel' | transloco"
+                class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+                <mat-icon class="!w-5 !h-5 !text-[20px]">close</mat-icon>
+            </button>
+        </div>
+        <div class="space-y-2.5">
+            @for (g of grantsTargetStaff?.activeTemporaryGrants || []; track g._id) {
+                <div class="flex items-center justify-between gap-3 rounded-xl border border-amber-200 dark:border-amber-800/80 bg-amber-50/60 dark:bg-amber-950/30 p-3.5">
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                            {{ grantResourceLabel(g.resource) }}
+                        </div>
+                        <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                            {{ g.actions.join(', ') }} ·
+                            {{ g.permanent ? ('staffRbac.durations.permanent' | transloco) : (g.expiresAt | date : 'medium') }}
+                        </div>
+                    </div>
+                    <button mat-stroked-button color="warn" type="button" (click)="revokeGrant(grantsTargetStaff!, g)">
+                        {{ 'staffRbac.requestsTab.revokeBtn' | transloco }}
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</ng-template>
+
+<!-- Confirm Remove Staff Modal -->
+<ng-template #confirmRemoveDialog>
+    <div class="staff-dialog bg-white dark:bg-[#0f172a] border border-slate-200/90 dark:border-slate-700/80 p-6 space-y-4">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+            {{ 'staffRbac.members.removeConfirmTitle' | transloco : { name: removingStaff?.name } }}
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            {{ 'staffRbac.members.removeConfirmDesc' | transloco }}
+        </p>
+        <div class="flex justify-end gap-2.5 pt-2">
+            <button
+                type="button"
+                autofocus
+                (click)="staffDialogRef?.close()"
+                class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 px-4 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+                {{ 'settings.team.cancel' | transloco }}
+            </button>
+            <button
+                type="button"
+                (click)="confirmDeleteStaff()"
+                class="inline-flex h-10 items-center justify-center rounded-xl bg-rose-600 hover:bg-rose-500 px-4 text-sm font-semibold text-white transition-colors"
+            >
+                {{ 'settings.team.remove' | transloco }}
             </button>
         </div>
     </div>

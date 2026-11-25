@@ -72,6 +72,7 @@
                 </div>
                 <div class="no-print flex flex-wrap items-center gap-2">
                     <button
+                        *hasStaffPermission="'smartEnrollRecords.export'"
                         mat-stroked-button
                         type="button"
                         class="shrink-0 rounded-xl"
@@ -278,6 +279,7 @@
                     }
                     <span class="text-sm text-stone-500 dark:text-stone-400">{{ formatDate(r.updatedAt || r.createdAt) }}</span>
                     <button
+                        *hasStaffPermission="'smartEnrollRecords.approve'"
                         mat-stroked-button
                         type="button"
                         class="no-print !rounded-xl"
@@ -1888,7 +1890,7 @@
                                                 </ul>
                                             }
                                             @if (r.status === 'NEEDS_MANUAL_VERIFICATION') {
-                                                <div class="no-print mt-2 flex w-full max-w-lg flex-col gap-2 sm:flex-row">
+                                                <div *hasStaffPermission="'smartEnrollRecords.approve'" class="no-print mt-2 flex w-full max-w-lg flex-col gap-2 sm:flex-row">
                                                     <button
                                                         type="button"
                                                         class="triage-btn triage-btn--ok"
@@ -1973,9 +1975,12 @@
                             }
                             <div class="flex flex-wrap items-center gap-3">
                                 @if (showManualErase()) {
-                                    <ng-container *ngTemplateOutlet="eraseDataButton"></ng-container>
+                                    <ng-container *hasStaffPermission="'smartEnrollRecords.delete'">
+                                        <ng-container *ngTemplateOutlet="eraseDataButton"></ng-container>
+                                    </ng-container>
                                 }
                                 <button
+                                    *hasStaffPermission="'smartEnrollRecords.delete'"
                                     mat-stroked-button
                                     type="button"
                                     color="warn"

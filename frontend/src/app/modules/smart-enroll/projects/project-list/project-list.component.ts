@@ -10,6 +10,7 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { requiresSmartEnrollSubscription } from 'app/core/client-settings/override-conditions';
+import { StaffPermissionService } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import {
@@ -124,9 +125,19 @@ export class ProjectListComponent implements OnInit {
         this._router.navigate(['/smart-enroll/plans']);
     }
 
+    private readonly _permissions = inject(StaffPermissionService);
+
     /** Staff users cannot create workspace projects — list is scoped to assignments only. */
     isWorkspaceStaff(): boolean {
         return !!this._projectsService.parseStoredUser()?.staff;
+    }
+
+    canCreateProject(): boolean {
+        return this._permissions.can('smartEnrollProjects', 'create');
+    }
+
+    canUpdateProject(): boolean {
+        return this._permissions.can('smartEnrollProjects', 'update');
     }
 
     /** Opens the Smart Enroll setup wizard (`/projects/new/setup/0`). */

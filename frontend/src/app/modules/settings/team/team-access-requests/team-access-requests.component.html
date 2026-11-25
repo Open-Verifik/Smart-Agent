@@ -1,0 +1,285 @@
+<div class="space-y-5">
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-1.5">
+            @for (st of ['pending', 'approved', 'rejected', 'revoked', 'all']; track st) {
+                <button
+                    type="button"
+                    (click)="statusFilter = st; loadRequests()"
+                    class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                    [ngClass]="
+                        statusFilter === st
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'
+                    "
+                >
+                    {{ 'staffRbac.requestsTab.filter_' + st | transloco }}
+                </button>
+            }
+        </div>
+
+        <mat-select
+            [(ngModel)]="typeFilter"
+            (ngModelChange)="loadRequests()"
+            class="w-48 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+        >
+            <mat-option value="all">{{ 'staffRbac.requestsTab.typeAll' | transloco }}</mat-option>
+            <mat-option value="resource_access">{{ 'staffRbac.requestsTab.typeResource' | transloco }}</mat-option>
+            <mat-option value="role_upgrade">{{ 'staffRbac.requestsTab.typeRole' | transloco }}</mat-option>
+            <mat-option value="budget_increase">{{ 'staffRbac.requestsTab.typeBudget' | transloco }}</mat-option>
+        </mat-select>
+    </div>
+
+    @if (loading()) {
+        <div class="flex justify-center py-12"><mat-spinner diameter="32"></mat-spinner></div>
+    } @else if (requests().length === 0) {
+        <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-10 text-center">
+            <mat-icon class="!w-12 !h-12 !text-[48px] text-slate-300 dark:text-slate-600 mb-3">inbox</mat-icon>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+                {{ 'staffRbac.requestsTab.emptyTitle' | transloco }}
+            </h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                {{ 'staffRbac.requestsTab.emptyDesc' | transloco }}
+            </p>
+        </div>
+    } @else {
+        <div class="space-y-3">
+            @for (req of requests(); track req._id) {
+                <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-semibold text-slate-900 dark:text-white">
+                                    {{ requesterInfo(req).name }}
+                                </span>
+                                <span class="text-xs text-slate-500">{{ requesterInfo(req).email }}</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                                    [ngClass]="{
+                                        'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300': req.status === 'pending',
+                                        'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300': req.status === 'approved',
+                                        'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300': req.status === 'rejected' || req.status === 'revoked',
+                                        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300': req.status === 'expired' || req.status === 'cancelled',
+                                    }"
+                                >
+                                    {{ 'staffRbac.statuses.' + req.status | transloco }}
+                                </span>
+                            </div>
+
+                            <!-- Request Details -->
+                            <div class="text-sm text-slate-700 dark:text-slate-200 pt-1">
+                                @if (req.requestType === 'budget_increase') {
+                                    <span class="font-medium text-indigo-600 dark:text-indigo-400">
+                                        +${{ req.requestedTeamBudget?.requestedAmount | number : '1.2-2' }} USD
+                                    </span>
+                                    ·
+                                    <span>
+                                        {{ req.requestedTeamBudget?.boostMode === 'recurring' ? ('staffRbac.budget.recurringMonthly' | transloco) : ('staffRbac.budget.oneTimeThisMonth' | transloco) }}
+                                    </span>
+                                } @else if (req.requestType === 'role_upgrade') {
+                                    <span class="font-medium text-indigo-600 dark:text-indigo-400">
+                                        {{ 'staffRbac.requestsTab.typeRole' | transloco }}:
+                                        {{ req.requestedRole?.role || 'Custom Role' }}
+                                    </span>
+                                } @else {
+                                    <div class="flex flex-wrap gap-2">
+                                        @for (item of req.requestedResources || []; track item.resource) {
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-medium">
+                                                <span>{{ resourceLabel(item.resource) }}:</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400">
+                                                    @for (a of item.actions; track a; let last = $last) {
+                                                        <span>{{ actionLabel(a) }}{{ last ? '' : ', ' }}</span>
+                                                    }
+                                                </span>
+                                            </span>
+                                        }
+                                        <span class="px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-medium">
+                                            {{ 'staffRbac.durations.' + req.requestedDuration | transloco }}
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-400 shrink-0">
+                            {{ req.createdAt | date : 'medium' }}
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
+                        <span class="font-semibold">{{ 'staffRbac.requestDialog.reasonLabel' | transloco }}:</span>
+                        {{ req.reason }}
+                    </div>
+
+                    @if (req.reviewNote) {
+                        <div class="text-xs text-slate-500 italic">
+                            {{ req.reviewedByName }}: "{{ req.reviewNote }}"
+                        </div>
+                    }
+
+                    @if (req.status === 'pending' && permService.canApproveRequests()) {
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                [disabled]="actingId() === req._id"
+                                (click)="approveQuick(req)"
+                            >
+                                <mat-icon class="mr-1">check</mat-icon>
+                                {{ 'staffRbac.requestsTab.approveBtn' | transloco }}
+                            </button>
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                [disabled]="actingId() === req._id"
+                                (click)="openCustomizeApprove(req)"
+                            >
+                                {{ 'staffRbac.requestsTab.customizeBtn' | transloco }}
+                            </button>
+                            <button
+                                mat-stroked-button
+                                color="warn"
+                                type="button"
+                                [disabled]="actingId() === req._id"
+                                (click)="openRejectModal(req)"
+                            >
+                                {{ 'staffRbac.requestsTab.rejectBtn' | transloco }}
+                            </button>
+                        </div>
+                    } @else if (req.status === 'approved' && req.requestType === 'resource_access' && permService.canApproveRequests()) {
+                        <div class="flex justify-end">
+                            <button
+                                mat-stroked-button
+                                color="warn"
+                                type="button"
+                                [disabled]="actingId() === req._id"
+                                (click)="openRevokeModal(req)"
+                            >
+                                {{ 'staffRbac.requestsTab.revokeBtn' | transloco }}
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Customize & Approve Dialog -->
+<ng-template #customizeApproveDialog>
+    <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                {{ 'staffRbac.requestsTab.customizeModalTitle' | transloco }}
+            </h2>
+            <button mat-icon-button type="button" (click)="closeModal()"><mat-icon>close</mat-icon></button>
+        </div>
+
+        @if (reviewTarget?.requestType === 'resource_access') {
+            <div class="space-y-3">
+                @for (item of customApproveResources; track item.resource) {
+                    <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 space-y-2">
+                        <div class="text-xs font-semibold text-slate-800 dark:text-slate-100">
+                            {{ resourceLabel(item.resource) }}
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            @for (act of applicableActionsFor(item.resource); track act) {
+                                <button
+                                    type="button"
+                                    (click)="toggleApproveAction(item, act)"
+                                    class="px-2.5 py-1 rounded-md text-xs font-medium border"
+                                    [ngClass]="
+                                        item.actions.includes(act)
+                                            ? 'bg-indigo-600 text-white border-indigo-600'
+                                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                                    "
+                                >
+                                    {{ actionLabel(act) }}
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        {{ 'staffRbac.requestDialog.duration' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="customApproveDuration" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                        @for (d of durationOptions; track d) {
+                            <mat-option [value]="d">{{ 'staffRbac.durations.' + d | transloco }}</mat-option>
+                        }
+                    </mat-select>
+                </div>
+            </div>
+        } @else if (reviewTarget?.requestType === 'budget_increase') {
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'staffRbac.requestDialog.boostAmountUsd' | transloco }}
+                </label>
+                <input
+                    type="number"
+                    min="1"
+                    [(ngModel)]="customApproveAmount"
+                    class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+                />
+            </div>
+        }
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                {{ 'staffRbac.requestsTab.reviewNoteLabel' | transloco }}
+            </label>
+            <textarea
+                rows="2"
+                [(ngModel)]="reviewNote"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+            ></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="primary" type="button" (click)="submitCustomizeApprove()">
+                {{ 'staffRbac.requestsTab.approveBtn' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Reject Dialog -->
+<ng-template #rejectDialog>
+    <div class="p-6 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'staffRbac.requestsTab.rejectModalTitle' | transloco }}</h2>
+        <textarea
+            rows="3"
+            [(ngModel)]="reviewNote"
+            [placeholder]="'staffRbac.requestsTab.rejectNotePlaceholder' | transloco"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+        ></textarea>
+        <div class="flex justify-end gap-2">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="warn" type="button" (click)="submitReject()">
+                {{ 'staffRbac.requestsTab.rejectBtn' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Revoke Dialog -->
+<ng-template #revokeDialog>
+    <div class="p-6 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'staffRbac.requestsTab.revokeModalTitle' | transloco }}</h2>
+        <textarea
+            rows="3"
+            [(ngModel)]="revokeReason"
+            [placeholder]="'staffRbac.requestsTab.revokeReasonPlaceholder' | transloco"
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+        ></textarea>
+        <div class="flex justify-end gap-2">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="warn" type="button" (click)="submitRevoke()">
+                {{ 'staffRbac.requestsTab.revokeBtn' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>

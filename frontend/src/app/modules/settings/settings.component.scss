@@ -1326,11 +1326,132 @@ select:focus {
 // Team Management Styles
 // ============================================
 
+.staff-member-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0 !important;
+  border-radius: 1.25rem !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  box-shadow: 0 24px 56px rgba(2, 6, 23, 0.28) !important;
+}
+
+.dark .staff-member-dialog-panel .mat-mdc-dialog-surface {
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.65) !important;
+}
+
 .staff-dialog {
-  min-width: 400px;
-  max-width: 90vw;
-  border-radius: 20px;
+  width: 100%;
+  border-radius: 1.25rem;
   overflow: hidden;
+  color-scheme: light;
+  accent-color: #4f46e5;
+
+  .dark & {
+    color-scheme: dark;
+    accent-color: #818cf8;
+  }
+}
+
+.staff-dialog__body {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+
+  .dark & {
+    scrollbar-color: rgba(100, 116, 139, 0.55) transparent;
+  }
+}
+
+@supports not (scrollbar-color: auto) {
+  .staff-dialog__body {
+    scrollbar-width: auto;
+  }
+
+  .staff-dialog__body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .staff-dialog__body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .staff-dialog__body::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.45);
+    border-radius: 9999px;
+  }
+}
+
+.staff-field-control {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: #94a3b8;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: #4f46e5;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+  }
+
+  .dark & {
+    border-color: #334155;
+    background-color: #1e293b;
+    color: #f8fafc;
+
+    &::placeholder {
+      color: #64748b;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: #475569;
+    }
+
+    &:focus-visible {
+      border-color: #818cf8;
+      background-color: #0f172a;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+    }
+  }
+}
+
+.staff-select-control {
+  appearance: none;
+  padding-inline-end: 2.5rem;
+  cursor: pointer;
+
+  option {
+    background-color: #ffffff;
+    color: #0f172a;
+
+    .dark & {
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+  }
+}
+
+.staff-field-control:is(:user-invalid, .staff-input-invalid) {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12);
+
+  .dark & {
+    border-color: #fb7185;
+    box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.16);
+  }
 }
 
 .delete-dialog {
@@ -1341,10 +1462,6 @@ select:focus {
 
 // Staff list responsive styles
 @media (max-width: 768px) {
-  .staff-dialog {
-    min-width: 100%;
-  }
-
   .delete-dialog {
     min-width: 100%;
   }

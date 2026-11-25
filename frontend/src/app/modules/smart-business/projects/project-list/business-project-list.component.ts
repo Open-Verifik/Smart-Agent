@@ -9,6 +9,7 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
@@ -31,6 +32,7 @@ import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smar
         MatSlideToggleModule,
         MatSnackBarModule,
         TranslocoModule,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './business-project-list.component.html',
     styleUrls: ['./business-project-list.component.scss'],

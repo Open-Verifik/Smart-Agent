@@ -1,0 +1,227 @@
+<div class="w-full max-w-lg p-6">
+    <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <mat-icon>{{ mode === 'budget_increase' ? 'savings' : mode === 'role_upgrade' ? 'upgrade' : 'lock_open' }}</mat-icon>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white leading-snug">
+                    @if (mode === 'budget_increase') {
+                        {{ 'staffRbac.requestDialog.titleBudget' | transloco }}
+                    } @else if (mode === 'role_upgrade') {
+                        {{ 'staffRbac.requestDialog.titleRole' | transloco }}
+                    } @else {
+                        {{ 'staffRbac.requestDialog.titleAccess' | transloco }}
+                    }
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    @if (mode === 'budget_increase') {
+                        {{ data?.teamName || teamSummary?.name || ('staffRbac.requestDialog.yourSubTeam' | transloco) }}
+                    } @else if (mode === 'resource_access' && resourceMeta) {
+                        {{ resourceMeta.group }} · {{ resourceMeta.labelKey | transloco }}
+                    } @else {
+                        {{ 'staffRbac.requestDialog.subtitleRole' | transloco }}
+                    }
+                </p>
+            </div>
+        </div>
+        <button mat-icon-button type="button" (click)="close()" aria-label="Close">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="space-y-4">
+        @if (mode === 'resource_access') {
+            <div>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-xs font-medium text-slate-700 dark:text-slate-300">
+                        {{ 'staffRbac.requestDialog.accessLevel' | transloco }}
+                    </label>
+                    <button
+                        type="button"
+                        class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                        (click)="useCustomActions = !useCustomActions"
+                    >
+                        {{ (useCustomActions ? 'staffRbac.requestDialog.usePreset' : 'staffRbac.requestDialog.customizeActions') | transloco }}
+                    </button>
+                </div>
+
+                @if (!useCustomActions) {
+                    <div class="grid grid-cols-1 gap-2">
+                        @for (preset of presets; track preset.id) {
+                            <label
+                                class="flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition-colors"
+                                [class]="selectedPresetId === preset.id ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30' : 'border-slate-200 dark:border-slate-700'"
+                            >
+                                <input
+                                    type="radio"
+                                    name="presetLevel"
+                                    [value]="preset.id"
+                                    [(ngModel)]="selectedPresetId"
+                                    class="mt-0.5 text-indigo-600"
+                                />
+                                <span class="block min-w-0">
+                                    <span class="block text-sm font-medium text-slate-800 dark:text-slate-100">
+                                        {{ preset.labelKey | transloco }}
+                                    </span>
+                                    <span class="block text-xs text-slate-500 dark:text-slate-400">
+                                        @for (act of preset.actions; track act; let last = $last) {
+                                            <span>{{ actionLabel(act) }}{{ last ? '' : ', ' }}</span>
+                                        }
+                                    </span>
+                                </span>
+                            </label>
+                        }
+                    </div>
+                } @else {
+                    <div class="flex flex-wrap gap-2">
+                        @for (act of applicableActions; track act) {
+                            <button
+                                type="button"
+                                (click)="toggleCustomAction(act)"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                                [class.bg-indigo-600]="isCustomActionSelected(act)"
+                                [class.text-white]="isCustomActionSelected(act)"
+                                [class.border-indigo-600]="isCustomActionSelected(act)"
+                                [class.bg-white]="!isCustomActionSelected(act)"
+                                [class.dark:bg-slate-800]="!isCustomActionSelected(act)"
+                                [class.text-slate-700]="!isCustomActionSelected(act)"
+                                [class.dark:text-slate-200]="!isCustomActionSelected(act)"
+                                [class.border-slate-300]="!isCustomActionSelected(act)"
+                                [class.dark:border-slate-700]="!isCustomActionSelected(act)"
+                            >
+                                {{ actionLabel(act) }}
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    {{ 'staffRbac.requestDialog.duration' | transloco }}
+                </label>
+                <mat-select [(ngModel)]="duration" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-900">
+                    @for (opt of durationOptions; track opt.value) {
+                        <mat-option [value]="opt.value">{{ opt.labelKey | transloco }}</mat-option>
+                    }
+                </mat-select>
+            </div>
+        }
+
+        @if (mode === 'role_upgrade') {
+            @if (customRoles.length > 0) {
+                <div class="flex gap-2">
+                    <button
+                        type="button"
+                        (click)="targetRoleType = 'system'"
+                        class="flex-1 py-1.5 rounded-lg text-xs font-medium border"
+                        [class.bg-indigo-600]="targetRoleType === 'system'"
+                        [class.text-white]="targetRoleType === 'system'"
+                        [class.border-indigo-600]="targetRoleType === 'system'"
+                        [class.border-slate-300]="targetRoleType !== 'system'"
+                    >
+                        {{ 'staffRbac.requestDialog.systemRoles' | transloco }}
+                    </button>
+                    <button
+                        type="button"
+                        (click)="targetRoleType = 'custom'"
+                        class="flex-1 py-1.5 rounded-lg text-xs font-medium border"
+                        [class.bg-indigo-600]="targetRoleType === 'custom'"
+                        [class.text-white]="targetRoleType === 'custom'"
+                        [class.border-indigo-600]="targetRoleType === 'custom'"
+                        [class.border-slate-300]="targetRoleType !== 'custom'"
+                    >
+                        {{ 'staffRbac.requestDialog.customRoles' | transloco }}
+                    </button>
+                </div>
+            }
+
+            @if (targetRoleType === 'system') {
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        {{ 'staffRbac.requestDialog.selectRole' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="targetSystemRole" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-900">
+                        @for (r of systemRoles; track r.slug) {
+                            <mat-option [value]="r.slug">{{ r.nameKey | transloco }}</mat-option>
+                        }
+                    </mat-select>
+                </div>
+            } @else {
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        {{ 'staffRbac.requestDialog.selectCustomRole' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="targetCustomRoleId" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-900">
+                        @for (cr of customRoles; track cr._id) {
+                            <mat-option [value]="cr._id">{{ cr.name }}</mat-option>
+                        }
+                    </mat-select>
+                </div>
+            }
+        }
+
+        @if (mode === 'budget_increase') {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        {{ 'staffRbac.requestDialog.boostAmountUsd' | transloco }}
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        step="10"
+                        [(ngModel)]="requestedBoostAmount"
+                        class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white"
+                    />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        {{ 'staffRbac.requestDialog.boostMode' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="boostMode" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-900">
+                        <mat-option value="one_time">{{ 'staffRbac.budget.oneTimeThisMonth' | transloco }}</mat-option>
+                        <mat-option value="recurring">{{ 'staffRbac.budget.recurringMonthly' | transloco }}</mat-option>
+                    </mat-select>
+                </div>
+            </div>
+        }
+
+        <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                {{ 'staffRbac.requestDialog.reasonLabel' | transloco }} <span class="text-rose-500">*</span>
+            </label>
+            <textarea
+                rows="3"
+                [(ngModel)]="reason"
+                [placeholder]="'staffRbac.requestDialog.reasonPlaceholder' | transloco"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            ></textarea>
+        </div>
+
+        @if (errorMessage) {
+            <div class="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
+                {{ errorMessage }}
+            </div>
+        }
+    </div>
+
+    <div class="mt-6 flex items-center justify-end gap-2">
+        <button mat-button type="button" (click)="close()" [disabled]="submitting">
+            {{ 'staffRbac.common.cancel' | transloco }}
+        </button>
+        <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="submit()"
+            [disabled]="submitting"
+        >
+            @if (submitting) {
+                <mat-spinner diameter="16" class="inline-block mr-1.5"></mat-spinner>
+            }
+            {{ 'staffRbac.requestDialog.submitBtn' | transloco }}
+        </button>
+    </div>
+</div>

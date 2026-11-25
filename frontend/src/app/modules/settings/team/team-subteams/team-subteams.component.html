@@ -1,0 +1,531 @@
+<div class="space-y-6">
+    <!-- Header + Create CTA -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                {{ 'staffRbac.teams.title' | transloco }}
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                {{ 'staffRbac.teams.subtitle' | transloco }}
+            </p>
+        </div>
+        <button
+            *hasStaffPermission="'team.create'"
+            mat-flat-button
+            color="primary"
+            class="!rounded-lg"
+            (click)="openTeamModal()"
+        >
+            <mat-icon class="mr-1.5">add</mat-icon>
+            {{ 'staffRbac.teams.createBtn' | transloco }}
+        </button>
+    </div>
+
+    <!-- Summary Strip -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {{ 'staffRbac.teams.totalTeams' | transloco }}
+            </div>
+            <div class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                {{ teams().length }}
+            </div>
+        </div>
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {{ 'staffRbac.teams.allocatedCap' | transloco }}
+            </div>
+            <div class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                ${{ totalMonthlyCap() | number : '1.2-2' }}
+            </div>
+        </div>
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {{ 'staffRbac.teams.spendThisMonth' | transloco }}
+            </div>
+            <div class="mt-1 text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                ${{ totalCurrentSpend() | number : '1.2-2' }}
+            </div>
+        </div>
+    </div>
+
+    @if (loading()) {
+        <div class="flex justify-center py-12">
+            <mat-spinner diameter="32"></mat-spinner>
+        </div>
+    } @else if (teams().length === 0) {
+        <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-10 text-center">
+            <mat-icon class="!w-12 !h-12 !text-[48px] text-slate-300 dark:text-slate-600 mb-3">groups</mat-icon>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+                {{ 'staffRbac.teams.emptyTitle' | transloco }}
+            </h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+                {{ 'staffRbac.teams.emptyDesc' | transloco }}
+            </p>
+        </div>
+    } @else {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            @for (team of teams(); track team._id) {
+                <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 flex flex-col gap-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 min-w-0">
+                            <span class="w-3 h-3 rounded-full mt-1.5 shrink-0" [ngClass]="dotClass(team.color)"></span>
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h3 class="text-base font-semibold text-slate-900 dark:text-white truncate">
+                                        {{ team.name }}
+                                    </h3>
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                                        [ngClass]="
+                                            team.status === 'paused'
+                                                ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                        "
+                                    >
+                                        {{ (team.status === 'paused' ? 'staffRbac.teams.statusPaused' : 'staffRbac.teams.statusActive') | transloco }}
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                        {{ team.budgetEnforcement === 'soft' ? ('staffRbac.teams.softCap' | transloco) : ('staffRbac.teams.hardCap' | transloco) }}
+                                    </span>
+                                    @if (team.endpointPolicy && team.endpointPolicy.mode !== 'all') {
+                                        <span
+                                            class="px-2 py-0.5 rounded-full text-[11px] font-medium inline-flex items-center gap-1"
+                                            [ngClass]="
+                                                team.endpointPolicy.mode === 'blocklist'
+                                                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                            "
+                                        >
+                                            <mat-icon class="!w-3 !h-3 !text-[12px]">
+                                                {{ team.endpointPolicy.mode === 'blocklist' ? 'block' : 'verified' }}
+                                            </mat-icon>
+                                            {{
+                                                (team.endpointPolicy.mode === 'blocklist'
+                                                    ? 'staffRbac.endpoints.badgeBlocked'
+                                                    : 'staffRbac.endpoints.badgeAllowed')
+                                                    | transloco : { count: team.endpointPolicy.features?.length || 0 }
+                                            }}
+                                        </span>
+                                    }
+                                    @if ((team.budget?.featureBudgets?.length || team.featureBudgets?.length || 0) > 0) {
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 inline-flex items-center gap-1">
+                                            <mat-icon class="!w-3 !h-3 !text-[12px]">savings</mat-icon>
+                                            {{
+                                                'staffRbac.endpoints.badgeCaps'
+                                                    | transloco : { count: team.budget?.featureBudgets?.length || team.featureBudgets?.length || 0 }
+                                            }}
+                                        </span>
+                                    }
+                                </div>
+                                @if (team.description) {
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                                        {{ team.description }}
+                                    </p>
+                                }
+                            </div>
+                        </div>
+
+                        <button mat-icon-button [matMenuTriggerFor]="teamMenu">
+                            <mat-icon class="text-slate-400">more_vert</mat-icon>
+                        </button>
+                        <mat-menu #teamMenu="matMenu">
+                            <button *hasStaffPermission="'team.update'" mat-menu-item (click)="openTeamModal(team)">
+                                <mat-icon class="mr-2">edit</mat-icon>
+                                {{ 'staffRbac.common.edit' | transloco }}
+                            </button>
+                            <button *hasStaffPermission="'team.update'" mat-menu-item (click)="openBoostModal(team)">
+                                <mat-icon class="mr-2">trending_up</mat-icon>
+                                {{ 'staffRbac.teams.addBoost' | transloco }}
+                            </button>
+                            <button *hasStaffPermission="'apiKeys.manageKeys'" mat-menu-item (click)="openApiKeyModal(team)">
+                                <mat-icon class="mr-2">vpn_key</mat-icon>
+                                {{ 'staffRbac.teams.generateApiKey' | transloco }}
+                            </button>
+                            <button mat-menu-item (click)="openHistoryModal(team)">
+                                <mat-icon class="mr-2">history</mat-icon>
+                                {{ 'staffRbac.teams.spendHistory' | transloco }}
+                            </button>
+                            <button *hasStaffPermission="'team.update'" mat-menu-item (click)="toggleStatus(team)">
+                                <mat-icon class="mr-2">{{ team.status === 'paused' ? 'play_circle' : 'pause_circle' }}</mat-icon>
+                                {{ (team.status === 'paused' ? 'staffRbac.teams.resumeTeam' : 'staffRbac.teams.pauseTeam') | transloco }}
+                            </button>
+                            <button *hasStaffPermission="'team.delete'" mat-menu-item class="text-rose-600" (click)="confirmDelete(team)">
+                                <mat-icon class="mr-2 text-rose-500">delete</mat-icon>
+                                {{ 'staffRbac.common.delete' | transloco }}
+                            </button>
+                        </mat-menu>
+                    </div>
+
+                    <!-- Budget Progress -->
+                    <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-3.5 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-slate-600 dark:text-slate-300">
+                                {{ 'staffRbac.teams.monthlyUsage' | transloco }}
+                            </span>
+                            @if (team.budget?.effectiveCap != null) {
+                                <span class="font-semibold text-slate-900 dark:text-white">
+                                    ${{ (team.budget?.currentPeriodUsage ?? team.currentPeriodUsage) | number : '1.2-2' }}
+                                    /
+                                    ${{ team.budget?.effectiveCap | number : '1.2-2' }} USD
+                                </span>
+                            } @else {
+                                <span class="font-semibold text-slate-700 dark:text-slate-200">
+                                    ${{ (team.budget?.currentPeriodUsage ?? team.currentPeriodUsage) | number : '1.2-2' }}
+                                    · {{ 'staffRbac.teams.unlimited' | transloco }}
+                                </span>
+                            }
+                        </div>
+
+                        @if (team.budget?.effectiveCap != null) {
+                            <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                                <div
+                                    class="h-full rounded-full transition-all"
+                                    [ngClass]="progressBarClass(team)"
+                                    [style.width.%]="team.budget?.percentUsed || 0"
+                                ></div>
+                            </div>
+                        }
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <span>
+                                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px] align-middle mr-0.5">person</mat-icon>
+                                    {{ team.memberCount || 0 }} {{ 'staffRbac.teams.membersCount' | transloco }}
+                                </span>
+                                @if ((team.budget?.currentPeriodBonus || team.currentPeriodBonus || 0) > 0) {
+                                    <span class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-medium">
+                                        +${{ (team.budget?.currentPeriodBonus || team.currentPeriodBonus) | number : '1.0-2' }} {{ 'staffRbac.teams.bonusTag' | transloco }}
+                                    </span>
+                                }
+                            </div>
+                            @if (team.budget?.resetAt) {
+                                <span>
+                                    {{ 'staffRbac.teams.resetsOn' | transloco }} {{ team.budget?.resetAt | date : 'MMM d' : 'UTC' }} UTC
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Footer -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        @if (team.monthlyBudget != null) {
+                            <button
+                                *hasStaffPermission="'team.update'"
+                                mat-stroked-button
+                                type="button"
+                                class="!text-xs !h-8"
+                                (click)="openBoostModal(team)"
+                            >
+                                <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">add</mat-icon>
+                                {{ 'staffRbac.teams.addBoostShort' | transloco }}
+                            </button>
+                        }
+                        <button
+                            *hasStaffPermission="'apiKeys.manageKeys'"
+                            mat-stroked-button
+                            type="button"
+                            class="!text-xs !h-8"
+                            (click)="openApiKeyModal(team)"
+                        >
+                            <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">vpn_key</mat-icon>
+                            {{ 'staffRbac.teams.teamKeyShort' | transloco }}
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Create / Edit Team Dialog -->
+<ng-template #teamFormDialog>
+    <div class="p-6 max-h-[88vh] overflow-y-auto space-y-4 bg-white dark:bg-[#0f172a] border border-slate-200/90 dark:border-slate-700/80">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                {{ (editingTeam ? 'staffRbac.teams.editModalTitle' : 'staffRbac.teams.createModalTitle') | transloco }}
+            </h2>
+            <button mat-icon-button type="button" (click)="closeModal()"><mat-icon>close</mat-icon></button>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'staffRbac.teams.nameLabel' | transloco }} <span class="text-rose-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    [(ngModel)]="teamForm.name"
+                    [placeholder]="'staffRbac.teams.namePlaceholder' | transloco"
+                    class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
+                />
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'staffRbac.teams.descLabel' | transloco }}
+                </label>
+                <input
+                    type="text"
+                    [(ngModel)]="teamForm.description"
+                    class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
+                />
+            </div>
+
+            <!-- Color + Status -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        {{ 'staffRbac.teams.colorLabel' | transloco }}
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        @for (c of colors; track c) {
+                            <button
+                                type="button"
+                                (click)="teamForm.color = c"
+                                class="w-6 h-6 rounded-full border-2 transition-transform"
+                                [ngClass]="dotClass(c)"
+                                [class.border-slate-900]="teamForm.color === c"
+                                [class.dark:border-white]="teamForm.color === c"
+                                [class.scale-110]="teamForm.color === c"
+                                [class.border-transparent]="teamForm.color !== c"
+                            ></button>
+                        }
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        {{ 'staffRbac.teams.enforcementLabel' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="teamForm.budgetEnforcement" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                        <mat-option value="hard">{{ 'staffRbac.teams.hardCap' | transloco }}</mat-option>
+                        <mat-option value="soft">{{ 'staffRbac.teams.softCap' | transloco }}</mat-option>
+                    </mat-select>
+                </div>
+            </div>
+
+            <!-- Budget Cap -->
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3.5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        {{ 'staffRbac.teams.monthlyBudgetUsd' | transloco }}
+                    </label>
+                    <label class="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
+                        <input type="checkbox" [(ngModel)]="teamForm.unlimitedBudget" />
+                        {{ 'staffRbac.teams.unlimited' | transloco }}
+                    </label>
+                </div>
+                @if (!teamForm.unlimitedBudget) {
+                    <input
+                        type="number"
+                        min="0"
+                        step="10"
+                        [(ngModel)]="teamForm.monthlyBudget"
+                        class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
+                    />
+                }
+            </div>
+
+            <!-- Optional Default Cost Center + Assign Members -->
+            @if (costCenters().length > 0) {
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        {{ 'staffRbac.teams.defaultCostCenter' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="teamForm.defaultCostCenter" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                        <mat-option value="">{{ 'staffRbac.common.none' | transloco }}</mat-option>
+                        @for (cc of costCenters(); track cc._id) {
+                            <mat-option [value]="cc._id">{{ cc.name }} ({{ cc.code }})</mat-option>
+                        }
+                    </mat-select>
+                </div>
+            }
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'staffRbac.teams.assignMembers' | transloco }}
+                </label>
+                <mat-select [(ngModel)]="teamForm.memberIds" multiple class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                    @for (m of staffList(); track m._id) {
+                        <mat-option [value]="m._id">{{ m.name }} ({{ m.email }})</mat-option>
+                    }
+                </mat-select>
+            </div>
+
+            <!-- Endpoint Access Policy & Per-Endpoint Monthly Caps -->
+            <app-endpoint-policy-picker
+                [policy]="teamForm.endpointPolicy"
+                [showFeatureBudgets]="true"
+                [featureBudgets]="teamForm.featureBudgets"
+                (policyChange)="teamForm.endpointPolicy = $event"
+                (featureBudgetsChange)="teamForm.featureBudgets = $event"
+            ></app-endpoint-policy-picker>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="primary" type="button" [disabled]="saving() || !teamForm.name.trim()" (click)="saveTeam()">
+                {{ 'staffRbac.common.save' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Add Boost Dialog -->
+<ng-template #boostDialog>
+    <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                {{ 'staffRbac.teams.addBoost' | transloco }} — {{ boostTeam?.name }}
+            </h2>
+            <button mat-icon-button type="button" (click)="closeModal()"><mat-icon>close</mat-icon></button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'staffRbac.requestDialog.boostAmountUsd' | transloco }}
+                </label>
+                <input
+                    type="number"
+                    min="1"
+                    step="10"
+                    [(ngModel)]="boostAmount"
+                    class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+                />
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ 'staffRbac.requestDialog.boostMode' | transloco }}
+                </label>
+                <mat-select [(ngModel)]="boostMode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                    <mat-option value="one_time">{{ 'staffRbac.budget.oneTimeThisMonth' | transloco }}</mat-option>
+                    <mat-option value="recurring">{{ 'staffRbac.budget.recurringMonthly' | transloco }}</mat-option>
+                </mat-select>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="submitBoost()">
+                {{ 'staffRbac.teams.applyBoostBtn' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Team API Key Dialog -->
+<ng-template #apiKeyDialog>
+    <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                {{ 'staffRbac.teams.generateApiKey' | transloco }} — {{ apiKeyTeam?.name }}
+            </h2>
+            <button mat-icon-button type="button" (click)="closeModal()"><mat-icon>close</mat-icon></button>
+        </div>
+
+        @if (generatedToken(); as token) {
+            <div class="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-4 space-y-3">
+                <p class="text-xs font-medium text-emerald-800 dark:text-emerald-200">
+                    {{ 'staffRbac.teams.copyKeyOnceNotice' | transloco }}
+                </p>
+                <div class="flex items-center gap-2">
+                    <code class="flex-1 text-xs bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2.5 break-all select-all">
+                        {{ token }}
+                    </code>
+                    <button mat-flat-button color="primary" type="button" (click)="copyToken(token)">
+                        {{ 'staffRbac.common.copy' | transloco }}
+                    </button>
+                </div>
+            </div>
+        } @else {
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        {{ 'staffRbac.teams.keyNameLabel' | transloco }}
+                    </label>
+                    <input
+                        type="text"
+                        [(ngModel)]="apiKeyName"
+                        class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+                    />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        {{ 'staffRbac.teams.keyExpiryLabel' | transloco }}
+                    </label>
+                    <mat-select [(ngModel)]="apiKeyExpiresIn" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                        <mat-option value="1m">1 Month</mat-option>
+                        <mat-option value="6m">6 Months</mat-option>
+                        <mat-option value="12m">1 Year</mat-option>
+                        <mat-option value="36m">3 Years</mat-option>
+                    </mat-select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+                <button mat-flat-button color="primary" type="button" [disabled]="saving() || !apiKeyName.trim()" (click)="generateTeamKey()">
+                    {{ 'staffRbac.teams.generateApiKey' | transloco }}
+                </button>
+            </div>
+        }
+    </div>
+</ng-template>
+
+<!-- History Dialog -->
+<ng-template #historyDialog>
+    <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                {{ 'staffRbac.teams.spendHistory' | transloco }} — {{ detailTeam()?.name }}
+            </h2>
+            <button mat-icon-button type="button" (click)="closeModal()"><mat-icon>close</mat-icon></button>
+        </div>
+        @if (loadingDetail()) {
+            <div class="flex justify-center py-8"><mat-spinner diameter="28"></mat-spinner></div>
+        } @else if ((detailTeam()?.history || []).length === 0) {
+            <p class="text-sm text-slate-500 py-4 text-center">{{ 'staffRbac.teams.noHistory' | transloco }}</p>
+        } @else {
+            <div class="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                @for (h of detailTeam()?.history || []; track h.period) {
+                    <div class="flex items-center justify-between px-4 py-3 text-sm bg-white dark:bg-slate-900">
+                        <div>
+                            <div class="font-semibold text-slate-900 dark:text-white">{{ h.period }}</div>
+                            <div class="text-xs text-slate-500">
+                                {{ h.requestCount || 0 }} {{ 'staffRbac.teams.requestsCount' | transloco }}
+                                @if (h.bonusGranted > 0) {
+                                    · +${{ h.bonusGranted | number : '1.2-2' }} bonus
+                                }
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-slate-900 dark:text-white">
+                                ${{ h.totalUsed | number : '1.2-2' }} USD
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                {{ h.budgetCap != null ? ('Cap $' + (h.budgetCap | number : '1.2-2')) : ('staffRbac.teams.unlimited' | transloco) }}
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</ng-template>
+
+<!-- Confirm Delete Team Dialog -->
+<ng-template #confirmDeleteDialog>
+    <div class="p-6 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+            {{ 'staffRbac.teams.deleteConfirmTitle' | transloco : { name: deletingTeam?.name } }}
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400">
+            {{ 'staffRbac.teams.deleteConfirmDesc' | transloco }}
+        </p>
+        <div class="flex justify-end gap-2">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="warn" type="button" [disabled]="saving()" (click)="executeDelete()">
+                {{ 'staffRbac.common.delete' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>

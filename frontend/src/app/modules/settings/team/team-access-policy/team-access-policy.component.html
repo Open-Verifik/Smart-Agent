@@ -1,0 +1,124 @@
+<div class="space-y-6">
+    <div>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+            {{ 'staffRbac.policyTab.title' | transloco }}
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+            {{ 'staffRbac.policyTab.subtitle' | transloco }}
+        </p>
+    </div>
+
+    @if (loading()) {
+        <div class="flex justify-center py-8"><mat-spinner diameter="28"></mat-spinner></div>
+    } @else {
+        <!-- Sidebar Visibility Two-Card Picker -->
+        <div class="space-y-2.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                {{ 'staffRbac.policyTab.sidebarModeLabel' | transloco }}
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                    type="button"
+                    (click)="policy.hideRestrictedNavigation = false"
+                    class="text-left p-5 rounded-2xl border-2 transition-all space-y-2"
+                    [ngClass]="
+                        !policy.hideRestrictedNavigation
+                            ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300'
+                    "
+                >
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 font-semibold text-sm text-slate-900 dark:text-white">
+                            <mat-icon class="text-indigo-500">lock_open</mat-icon>
+                            <span>{{ 'staffRbac.policyTab.modeLockTitle' | transloco }}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200">
+                            {{ 'staffRbac.policyTab.recommendedBadge' | transloco }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                        {{ 'staffRbac.policyTab.modeLockDesc' | transloco }}
+                    </p>
+                </button>
+
+                <button
+                    type="button"
+                    (click)="policy.hideRestrictedNavigation = true"
+                    class="text-left p-5 rounded-2xl border-2 transition-all space-y-2"
+                    [ngClass]="
+                        policy.hideRestrictedNavigation
+                            ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300'
+                    "
+                >
+                    <div class="flex items-center gap-2 font-semibold text-sm text-slate-900 dark:text-white">
+                        <mat-icon class="text-slate-500">visibility_off</mat-icon>
+                        <span>{{ 'staffRbac.policyTab.modeHideTitle' | transloco }}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                        {{ 'staffRbac.policyTab.modeHideDesc' | transloco }}
+                    </p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Request & Notification Toggles -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+            <div class="p-4 flex items-center justify-between gap-4">
+                <div>
+                    <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ 'staffRbac.policyTab.allowRequestsTitle' | transloco }}
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                        {{ 'staffRbac.policyTab.allowRequestsDesc' | transloco }}
+                    </div>
+                </div>
+                <mat-slide-toggle [(ngModel)]="policy.allowAccessRequests" color="primary"></mat-slide-toggle>
+            </div>
+
+            <div class="p-4 flex items-center justify-between gap-4">
+                <div>
+                    <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ 'staffRbac.policyTab.notifyAdminsTitle' | transloco }}
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                        {{ 'staffRbac.policyTab.notifyAdminsDesc' | transloco }}
+                    </div>
+                </div>
+                <mat-slide-toggle [(ngModel)]="policy.notifyAdminsOnAccessRequest" color="primary"></mat-slide-toggle>
+            </div>
+
+            <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ 'staffRbac.policyTab.defaultDurationTitle' | transloco }}
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                        {{ 'staffRbac.policyTab.defaultDurationDesc' | transloco }}
+                    </div>
+                </div>
+                <mat-select
+                    [(ngModel)]="policy.defaultRequestDuration"
+                    class="w-44 h-9 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm"
+                >
+                    @for (d of durationOptions; track d) {
+                        <mat-option [value]="d">{{ 'staffRbac.durations.' + d | transloco }}</mat-option>
+                    }
+                </mat-select>
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <button
+                *hasStaffPermission="'team.update'"
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="saving() || !settingsId"
+                (click)="savePolicy()"
+            >
+                {{ 'staffRbac.common.save' | transloco }}
+            </button>
+        </div>
+    }
+</div>
