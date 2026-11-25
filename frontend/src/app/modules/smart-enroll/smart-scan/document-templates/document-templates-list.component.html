@@ -54,7 +54,7 @@
                         class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
                         [ngClass]="
                             viewMode() === 'cards'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                ? 'bg-stone-900 text-white dark:bg-gray-800 dark:text-white dark:ring-1 dark:ring-gray-700'
                                 : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'
                         "
                     >
@@ -68,7 +68,7 @@
                         class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
                         [ngClass]="
                             viewMode() === 'table'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                ? 'bg-stone-900 text-white dark:bg-gray-800 dark:text-white dark:ring-1 dark:ring-gray-700'
                                 : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white'
                         "
                     >
@@ -364,7 +364,7 @@
                                 [ngClass]="
                                     dt.client
                                         ? 'bg-amber-500/90 text-white'
-                                        : 'bg-stone-900/80 text-white dark:bg-white/90 dark:text-stone-900'
+                                        : 'bg-stone-900/80 text-white dark:bg-gray-900/85 dark:text-stone-100 dark:border dark:border-gray-700/80'
                                 "
                             >
                                 {{ dt.client ? t('smartScan.yourFields') : t('smartScan.verifikFields') }}
@@ -478,7 +478,7 @@
                             <button
                                 type="button"
                                 (click)="testScanWithTemplate(dt, $event)"
-                                class="inline-flex items-center gap-1 rounded-lg bg-stone-900 dark:bg-white px-2.5 py-1.5 text-xs font-semibold text-white dark:text-stone-900 hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors"
+                                class="inline-flex items-center gap-1 rounded-lg bg-stone-900 dark:bg-primary-600 px-2.5 py-1.5 text-xs font-semibold text-white dark:text-white hover:bg-stone-700 dark:hover:bg-primary-500 transition-colors"
                             >
                                 <mat-icon class="icon-size-3.5">document_scanner</mat-icon>
                                 <span>{{ t('smartScan.templatesCatalog.testScanBtn') }}</span>
@@ -594,7 +594,7 @@
                                         <button
                                             type="button"
                                             (click)="testScanWithTemplate(dt, $event)"
-                                            class="rounded-lg bg-stone-900 dark:bg-white px-2.5 py-1 text-xs font-semibold text-white dark:text-stone-900 hover:bg-stone-700 dark:hover:bg-stone-200"
+                                            class="rounded-lg bg-stone-900 dark:bg-primary-600 px-2.5 py-1 text-xs font-semibold text-white dark:text-white hover:bg-stone-700 dark:hover:bg-primary-500"
                                         >
                                             {{ t('smartScan.templatesCatalog.testScanBtn') }}
                                         </button>

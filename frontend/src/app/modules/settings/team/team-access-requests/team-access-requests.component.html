@@ -123,15 +123,17 @@
                                 mat-flat-button
                                 color="primary"
                                 type="button"
+                                class="shrink-0 whitespace-nowrap !px-4"
                                 [disabled]="actingId() === req._id"
                                 (click)="approveQuick(req)"
                             >
-                                <mat-icon class="mr-1">check</mat-icon>
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">check</mat-icon>
                                 {{ 'staffRbac.requestsTab.approveBtn' | transloco }}
                             </button>
                             <button
                                 mat-stroked-button
                                 type="button"
+                                class="shrink-0 whitespace-nowrap !px-4"
                                 [disabled]="actingId() === req._id"
                                 (click)="openCustomizeApprove(req)"
                             >
@@ -141,6 +143,7 @@
                                 mat-stroked-button
                                 color="warn"
                                 type="button"
+                                class="shrink-0 whitespace-nowrap !px-4"
                                 [disabled]="actingId() === req._id"
                                 (click)="openRejectModal(req)"
                             >

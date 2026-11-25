@@ -26,7 +26,9 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { DemoRelatedDocsSectionComponent } from '../smart-enroll/demos/shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../smart-enroll/demos/shared/demo-related-docs-section.types';
 import { batchStepFeatureId, batchStepLabel, orderedBatchSteps } from './batch-config-steps.util';
-import { getPresetStepCount } from './batch-required-fields.util';
+import { extractRequiredFieldsFromConfig, getPresetStepCount } from './batch-required-fields.util';
+import { SmartReportAgentKitComponent } from './agent-kit/smart-report-agent-kit.component';
+import { SmartReportKitContext, SmartReportKitInputField } from './agent-kit/smart-report-kit-builders.util';
 import {
     getSmartBatchRoutePrefix,
     PreviewRunTarget,
@@ -63,6 +65,7 @@ type WorkspaceConfigCard =
         ReportPreviewComponent,
         ReportTemplateThumbComponent,
         DemoRelatedDocsSectionComponent,
+        SmartReportAgentKitComponent,
         HasStaffPermissionDirective,
     ],
     templateUrl: './smart-batch.component.html',
@@ -117,6 +120,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     previewHtmlDoc = signal<SafeHtml | null>(null);
     previewRunMode = signal<'single' | 'batch' | null>(null);
     previewRunError = signal<string | null>(null);
+    previewShowAgentKit = signal(false);
     previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
     previewRunTarget = computed<PreviewRunTarget | null>(() => {
         const template = this.previewTemplate();
@@ -126,6 +130,22 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
             sourceConfig: this.previewSourceConfig(),
             configurations: this.configurations(),
         });
+    });
+    previewAgentKitContext = computed<SmartReportKitContext | null>(() => {
+        const template = this.previewTemplate();
+        if (!template) return null;
+        const target = this.previewRunTarget();
+
+        if (target?.kind === 'config') {
+            return this._buildConfigAgentKitContext(template, target.configId, target.configName);
+        }
+
+        return {
+            systemKey: target?.kind === 'systemPreset' ? target.systemKey : template.systemKey ?? undefined,
+            templateId: template.type === 'System' ? undefined : template._id,
+            templateName: this.templateTitle(template),
+            requiredInputs: this._extractPresetRequiredInputs(template),
+        };
     });
     previewCountry = computed<string | undefined>(
         () => this.previewSourceConfig()?.country ?? this.previewTemplate()?.country
@@ -437,6 +457,63 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         this.previewLoading.set(false);
         this.previewRunMode.set(null);
         this.previewRunError.set(null);
+        this.previewShowAgentKit.set(false);
+    }
+
+    togglePreviewAgentKit(event: Event): void {
+        event.stopPropagation();
+        this.previewShowAgentKit.update((isVisible) => !isVisible);
+    }
+
+    private _buildConfigAgentKitContext(
+        template: SmartReportTemplate,
+        configId: string,
+        configName?: string
+    ): SmartReportKitContext {
+        const matchedConfig =
+            this.previewSourceConfig() ??
+            this.configurations().find((configuration) => (configuration._id ?? configuration.id) === configId) ??
+            null;
+        const requiredFields = matchedConfig ? extractRequiredFieldsFromConfig(matchedConfig) : [];
+        return {
+            configId,
+            configName: configName || template.name,
+            templateId: template._id,
+            templateName: template.name,
+            webhookUrl: matchedConfig?.notification?.webhookUrl || undefined,
+            requiredInputs: requiredFields.map((requiredField) => ({
+                field: requiredField.field,
+                required: requiredField.required,
+                enumValues: requiredField.enumValues,
+            })),
+        };
+    }
+
+    private _extractPresetRequiredInputs(template: SmartReportTemplate): SmartReportKitInputField[] {
+        const availableFeatures = this.availableFeatures();
+        const presetInputs: SmartReportKitInputField[] = [];
+        const seenFieldNames = new Set<string>();
+
+        for (const presetStep of template.presetSteps ?? []) {
+            const matchedFeature = availableFeatures.find(
+                (availableFeature) => availableFeature.code === presetStep.appFeatureCode
+            );
+            const defaults = (presetStep.parameterDefaults ?? {}) as Record<string, unknown>;
+            for (const dependency of matchedFeature?.dependencies ?? []) {
+                if (!dependency?.field || seenFieldNames.has(dependency.field)) continue;
+                const defaultValue = defaults[dependency.field];
+                if (typeof defaultValue === 'string' && defaultValue.trim()) continue;
+                if (dependency.required) {
+                    seenFieldNames.add(dependency.field);
+                    presetInputs.push({
+                        field: dependency.field,
+                        required: true,
+                        enumValues: Array.isArray(dependency.enum) ? dependency.enum : undefined,
+                    });
+                }
+            }
+        }
+        return presetInputs;
     }
 
     private _supportsNativeClosedBy(): boolean {

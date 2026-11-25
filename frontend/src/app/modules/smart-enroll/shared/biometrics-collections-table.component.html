@@ -6,8 +6,9 @@
                 <td mat-cell *matCellDef="let element" class="max-w-12 !px-4">
                     <mat-icon
                         class="text-stone-400 transition-transform"
-                        [class.rotate-180]="element === expandedElement"
-                        [class.text-stone-700]="element === expandedElement"
+                        [ngClass]="{
+                            'rotate-180 text-stone-700 dark:text-stone-200': element === expandedElement
+                        }"
                     >
                         expand_more
                     </mat-icon>
@@ -121,8 +122,10 @@
             <tr
                 mat-row
                 *matRowDef="let element; columns: displayedColumns"
-                class="h-auto cursor-pointer border-b border-stone-100 transition hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
-                [class.bg-stone-50]="expandedElement === element"
+                class="h-auto cursor-pointer border-b border-stone-100 transition hover:!bg-stone-50/80 dark:border-gray-800 dark:hover:!bg-gray-800/50"
+                [ngClass]="{
+                    '!bg-stone-50 dark:!bg-gray-800/70': expandedElement === element
+                }"
                 (click)="toggleCollection(element)"
             ></tr>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row !h-0"></tr>

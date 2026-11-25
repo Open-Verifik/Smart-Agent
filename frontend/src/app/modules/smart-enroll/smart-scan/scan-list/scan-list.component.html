@@ -117,12 +117,13 @@
                             (click)="goToDetail(scan._id)"
                         >
                             <div class="aspect-[4/3] bg-slate-100 dark:bg-slate-900 relative overflow-hidden">
-                                @if (scan.url) {
+                                @if (scan.url && !hasImageFailed(scan._id)) {
                                     <img
                                         [src]="scan.url"
                                         [alt]="scan.documentType"
                                         class="w-full h-full object-cover"
                                         loading="lazy"
+                                        (error)="onImageError(scan._id)"
                                     />
                                 } @else {
                                     <div class="flex flex-col items-center justify-center h-full p-4 text-center">
@@ -138,11 +139,18 @@
                                             </div>
                                             <span class="text-xs font-semibold text-sky-800 dark:text-sky-300">{{ 'smartScan.retentionNoStorage' | transloco }}</span>
                                             <span class="text-[11px] text-stone-400 mt-0.5">{{ 'smartScan.retentionNoStorageNotice' | transloco }}</span>
+                                        } @else if (hasImageFailed(scan._id)) {
+                                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200/80 text-slate-600 dark:bg-slate-800 dark:text-slate-300 mb-2">
+                                                <mat-icon class="icon-size-6">broken_image</mat-icon>
+                                            </div>
+                                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ 'smartScan.imageLoadErrorTitle' | transloco }}</span>
+                                            <span class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">{{ 'smartScan.imageUnavailableDesc' | transloco }}</span>
                                         } @else {
                                             <mat-icon
                                                 class="icon-size-16 text-hint"
                                                 [svgIcon]="'heroicons_outline:document'"
                                             ></mat-icon>
+                                            <span class="text-[11px] text-stone-500 dark:text-stone-400 mt-2">{{ 'smartScan.imageUnavailableDesc' | transloco }}</span>
                                         }
                                     </div>
                                 }
@@ -213,12 +221,13 @@
                             <ng-container matColumnDef="image">
                                 <th mat-header-cell *matHeaderCellDef class="pl-6 w-20"></th>
                                 <td mat-cell *matCellDef="let scan" class="pl-6 py-3">
-                                    @if (scan.url) {
+                                    @if (scan.url && !hasImageFailed(scan._id)) {
                                         <img
                                             [src]="scan.url"
                                             [alt]="scan.documentType"
                                             class="w-14 h-10 object-cover rounded"
                                             loading="lazy"
+                                            (error)="onImageError(scan._id)"
                                         />
                                     } @else if (isPurged(scan)) {
                                         <div
@@ -236,8 +245,18 @@
                                             <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:shield-exclamation'"></mat-icon>
                                             <span class="text-[9px] font-semibold leading-none mt-0.5">NO-STORE</span>
                                         </div>
+                                    } @else if (hasImageFailed(scan._id)) {
+                                        <div
+                                            class="w-14 h-10 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-500 dark:text-slate-400"
+                                            [matTooltip]="'smartScan.imageUnavailableDesc' | transloco"
+                                        >
+                                            <mat-icon class="icon-size-5">broken_image</mat-icon>
+                                        </div>
                                     } @else {
-                                        <div class="w-14 h-10 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center">
+                                        <div
+                                            class="w-14 h-10 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center"
+                                            [matTooltip]="'smartScan.imageUnavailableDesc' | transloco"
+                                        >
                                             <mat-icon class="icon-size-5 text-hint" [svgIcon]="'heroicons_outline:document'"></mat-icon>
                                         </div>
                                     }

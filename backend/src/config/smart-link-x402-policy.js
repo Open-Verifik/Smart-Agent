@@ -40,19 +40,34 @@ const SESSION_FIELDS = [
 
 const PREFILL_FIELDS = ["email", "phone", "countryCode", "fullName"];
 
+const normalizeInboundProxyRoute = (ctxPath) =>
+	String(ctxPath || "")
+		.split("?")[0]
+		.toLowerCase()
+		.replace(/\/+$/, "");
+
+const decodeAsciiPercentEscapes = (value) =>
+	String(value).replace(/%([2-7][0-9a-fA-F])/g, (_escapeSeq, hexPair) =>
+		String.fromCharCode(parseInt(hexPair, 16))
+	);
+
 /**
+ * Resolve the effective upstream path for guards. Inspects `x-target-url` whenever
+ * present so non-`/api/proxy` routes or `/api/proxy/` case variants can never smuggle
+ * an uninspected `x-target-url` past auth or x402 guards.
  * @param {string | undefined} ctxPath
  * @param {string | undefined} targetUrlHeader
  * @returns {string}
  */
 const resolveProxyPath = (ctxPath, targetUrlHeader) => {
-	if (ctxPath === "/api/proxy" && targetUrlHeader) {
+	const trimmedTarget = typeof targetUrlHeader === "string" ? targetUrlHeader.trim() : "";
+	if (trimmedTarget) {
+		if (trimmedTarget.startsWith("//")) return "__INVALID_TARGET_URL__";
 		try {
-			return new URL(targetUrlHeader).pathname;
+			const parsedTarget = new URL(trimmedTarget, "https://api.verifik.co");
+			return parsedTarget.pathname;
 		} catch {
-			if (String(targetUrlHeader).startsWith("/")) {
-				return String(targetUrlHeader).split("?")[0];
-			}
+			return "__INVALID_TARGET_URL__";
 		}
 	}
 	return ctxPath || "";
@@ -60,22 +75,27 @@ const resolveProxyPath = (ctxPath, targetUrlHeader) => {
 
 /**
  * Public `/api/v3/...` and upstream `/v3/...` paths share one comparison form.
- * Normalizes dot-segments, duplicate slashes, and percent-encoded traversal.
+ * Normalizes dot-segments both before and after decoding to defeat malformed-UTF8
+ * + dot-segment collapse differentials.
  * @param {string} pathname
  * @returns {string}
  */
 const toVerifikPath = (pathname) => {
 	if (!pathname || typeof pathname !== "string") return "";
-	let raw = pathname.split("?")[0].split("#")[0];
+	let raw = pathname.split("?")[0].split("#")[0].replace(/\\/g, "/").replace(/\/+/g, "/");
+	raw = path.posix.normalize(raw.startsWith("/") ? raw : `/${raw}`);
+
 	for (let pass = 0; pass < 2; pass += 1) {
+		let decoded = raw;
 		try {
-			const decoded = decodeURIComponent(raw);
-			if (decoded === raw) break;
-			raw = decoded;
+			decoded = decodeURIComponent(raw);
 		} catch {
-			break;
+			decoded = decodeAsciiPercentEscapes(raw);
 		}
+		if (decoded === raw) break;
+		raw = decoded;
 	}
+
 	raw = raw.replace(/\\/g, "/").replace(/\/+/g, "/");
 	let normalized = path.posix.normalize(raw.startsWith("/") ? raw : `/${raw}`).toLowerCase();
 	if (normalized.length > 1 && normalized.endsWith("/")) normalized = normalized.slice(0, -1);
@@ -123,20 +143,25 @@ const isSmartLinkPublicStatusPoll = (method, pathname) => {
 	return /^\/v3\/smart-links\/public\/sessions\/[^/]+\/status$/i.test(cleanPath);
 };
 
+const extractClientBearerToken = (authorization, serviceToken) => {
+	if (!authorization || typeof authorization !== "string") return null;
+	const match = /^Bearer\s+([A-Za-z0-9._~+/=-]{4,})$/i.exec(authorization.trim());
+	if (!match) return null;
+	const token = match[1];
+	const lowerToken = token.toLowerCase();
+	if (lowerToken === "undefined" || lowerToken === "null") return null;
+	if (serviceToken && token === String(serviceToken).trim()) return null;
+	return token;
+};
+
 /**
  * A caller-owned API key or JWT. The shared service token does not qualify.
  * @param {string | undefined} authorization
  * @param {string | undefined} serviceToken
  * @returns {boolean}
  */
-const isPerClientCredential = (authorization, serviceToken) => {
-	if (!authorization || typeof authorization !== "string") return false;
-	const match = /^Bearer\s+(\S+)/i.exec(authorization.trim());
-	if (!match) return false;
-	const token = match[1];
-	if (serviceToken && token === String(serviceToken).trim()) return false;
-	return true;
-};
+const isPerClientCredential = (authorization, serviceToken) =>
+	Boolean(extractClientBearerToken(authorization, serviceToken));
 
 /**
  * @param {{ id?: string } | null | undefined} tool
@@ -288,11 +313,13 @@ const scopeCreatedSessionBody = (body, requestBody) => {
 module.exports = {
 	SMART_LINK_CREATE_TOOL_ID,
 	SMART_LINK_CREATE_PRICE_USD,
+	normalizeInboundProxyRoute,
 	resolveProxyPath,
 	toVerifikPath,
 	isSmartLinkSessionCreate,
 	isSmartLinkSessionManagement,
 	isSmartLinkPublicStatusPoll,
+	extractClientBearerToken,
 	isPerClientCredential,
 	isSmartLinkCreateTool,
 	sanitizeCreatedSession,

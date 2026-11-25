@@ -123,7 +123,7 @@
       "subTeamLabel": "Subequipe",
       "noSubTeamAssigned": "Você não está atribuído a uma subequipe.",
       "requestAccessBtn": "Solicitar Acesso",
-      "requestUpgradeBtn": "Solicitar Nova Função",
+      "requestUpgradeBtn": "Mudar Função",
       "requestBoostBtn": "Solicitar Orçamento",
       "activeJitGrants": "Concessões Temporárias Ativas",
       "submittedRequestsTitle": "Solicitações Enviadas",
@@ -131,7 +131,7 @@
       "requestCancelled": "Solicitação cancelada",
       "effectiveMatrixTitle": "Suas Permissões Efetivas",
       "needSpecificFeature": "Precisa de acesso a outro recurso?",
-      "requestSelectedBtn": "Solicitar Acesso"
+      "requestSelectedBtn": "Solicitar Recurso"
     },
     "policyTab": {
       "title": "Política de Acesso",
@@ -289,7 +289,7 @@
       "newCustomRole": "Nova Função",
       "noCustomRoles": "Nenhuma função personalizada ainda.",
       "duplicate": "Duplicar",
-      "duplicateAsCustom": "Duplicar como Personalizada",
+      "duplicateAsCustom": "Clonar",
       "createCustomTitle": "Criar Função",
       "editCustomTitle": "Editar Função",
       "roleNameLabel": "Nome",
@@ -301,7 +301,8 @@
       "deleteModalDesc": "Escolha para qual função os membros devem ser reatribuídos.",
       "reassignMembersLabel": "Reatribuir para",
       "confirmDeleteBtn": "Reatribuir e Excluir",
-      "deletedToast": "Função excluída"
+      "deletedToast": "Função excluída",
+      "duplicateAsCustomTooltip": "Duplicar esta predefinição do sistema como uma função personalizada editável"
     },
     "statuses": {
       "pending": "Pendente",

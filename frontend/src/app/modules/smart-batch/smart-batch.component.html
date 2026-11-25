@@ -902,6 +902,22 @@
                         </h1>
                     </div>
                     <div class="flex shrink-0 items-center gap-2">
+                        @if (previewAgentKitContext()) {
+                            <button
+                                type="button"
+                                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 dark:focus-visible:ring-white"
+                                [ngClass]="
+                                    previewShowAgentKit()
+                                        ? 'border-stone-950 bg-stone-950 text-white dark:border-white dark:bg-white dark:text-stone-950'
+                                        : 'border-stone-200 bg-white text-stone-700 hover:border-stone-400 hover:text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-gray-500 dark:hover:text-white'
+                                "
+                                [attr.aria-pressed]="previewShowAgentKit()"
+                                (click)="togglePreviewAgentKit($event)"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">{{ previewShowAgentKit() ? 'visibility' : 'code' }}</mat-icon>
+                                <span>{{ previewShowAgentKit() ? t('smartReportKit.backToPreview') : t('smartReportKit.previewButton') }}</span>
+                            </button>
+                        }
                         @if (preview.type === 'System' && isSystemPresetAvailable(preview)) {
                             <button
                                 type="button"
@@ -937,13 +953,16 @@
                 </div>
 
                 <div class="min-h-[46vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
-                    @if (previewLoading()) {
+                    @if (previewShowAgentKit() && previewAgentKitContext(); as kitContext) {
+                        <smart-report-agent-kit [context]="kitContext" [compact]="true"></smart-report-agent-kit>
+                    } @else if (previewLoading()) {
                         <div class="flex min-h-[46vh] flex-col items-center justify-center gap-3">
                             <mat-spinner diameter="36"></mat-spinner>
                             <p class="text-sm text-stone-500">{{ t('smartBatchLanding.templatePreviewLoading') }}</p>
                         </div>
                     } @else if (previewHtmlDoc()) {
                         <iframe
+                            sandbox=""
                             [attr.title]="templateTitle(preview)"
                             [srcdoc]="previewHtmlDoc()"
                             class="h-[68vh] w-full rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-800"

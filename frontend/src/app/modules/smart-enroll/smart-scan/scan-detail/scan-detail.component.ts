@@ -81,6 +81,8 @@ export class ScanDetailComponent implements OnInit {
     eraseErrorKey: string | null = null;
     showRawJson = false;
     showClassificationReason = false;
+    frontImageFailed = false;
+    backImageFailed = false;
     copyFeedback = false;
     private _copyFeedbackTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -94,6 +96,8 @@ export class ScanDetailComponent implements OnInit {
         this._scanService.getScan(id).subscribe({
             next: (res) => {
                 this.scan = res.data;
+                this.frontImageFailed = false;
+                this.backImageFailed = false;
                 const cls = this.getClassification();
                 this.showClassificationReason = cls ? !cls.isMatch : false;
                 this.loading = false;
@@ -207,6 +211,16 @@ export class ScanDetailComponent implements OnInit {
             maxHeight: '100vh',
             height: '100%',
         });
+    }
+
+    onFrontImageError(): void {
+        this.frontImageFailed = true;
+        this._cdr.markForCheck();
+    }
+
+    onBackImageError(): void {
+        this.backImageFailed = true;
+        this._cdr.markForCheck();
     }
 
     get singlePhoto(): boolean {
@@ -341,6 +355,8 @@ export class ScanDetailComponent implements OnInit {
         this._scanService.getScan(id).subscribe({
             next: (res) => {
                 this.scan = res.data;
+                this.frontImageFailed = false;
+                this.backImageFailed = false;
                 this._cdr.markForCheck();
             },
             error: () => {

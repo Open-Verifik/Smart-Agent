@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "Esta imagen de documento se mantiene temporalmente y está programada para eliminarse el {{date}}.",
     "imagePurgedPlaceholderTitle": "Imagen ya no almacenada",
     "imagePurgedPlaceholderDesc": "La imagen original del documento fue eliminada el {{date}} de acuerdo con la política de retención de datos de su organización.",
+    "imageLoadErrorTitle": "Imagen no disponible",
     "imageUnavailableDesc": "La imagen del documento no está disponible.",
     "categories": {
       "proof_of_address": "Comprobante de Domicilio"

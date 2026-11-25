@@ -122,8 +122,8 @@
       "currentRoleLabel": "Effective Role",
       "subTeamLabel": "Assigned Sub-Team",
       "noSubTeamAssigned": "You are not assigned to a capped sub-team.",
-      "requestAccessBtn": "Request Feature Access",
-      "requestUpgradeBtn": "Request Role Upgrade",
+      "requestAccessBtn": "Request Access",
+      "requestUpgradeBtn": "Request Upgrade",
       "requestBoostBtn": "Request Budget Boost",
       "activeJitGrants": "Active Temporary Grants",
       "submittedRequestsTitle": "Submitted Requests",
@@ -131,7 +131,7 @@
       "requestCancelled": "Access request cancelled",
       "effectiveMatrixTitle": "Your Effective Permissions",
       "needSpecificFeature": "Need access to another capability? Submit a Just-in-Time request.",
-      "requestSelectedBtn": "Request Feature Access"
+      "requestSelectedBtn": "Request Feature"
     },
     "policyTab": {
       "title": "Workspace Staff Access Policy",
@@ -249,7 +249,7 @@
       "requestFormTitle": "Request Temporary or Permanent Access",
       "requestsDisabledHint": "Self-service access requests are disabled for this workspace. Contact your Workspace Owner or Administrator.",
       "cancelRequest": "Cancel Request",
-      "refreshAccess": "Refresh My Access",
+      "refreshAccess": "Refresh Access",
       "accessGrantedToast": "Access granted! Redirecting…",
       "stillRestrictedToast": "Access is still restricted for this resource.",
       "goHome": "Go to Home",
@@ -286,10 +286,10 @@
       "immutablePreset": "Immutable system preset",
       "builtInBadge": "Built-in",
       "customRoles": "Workspace Custom Roles",
-      "newCustomRole": "New Custom Role",
+      "newCustomRole": "New Role",
       "noCustomRoles": "No custom roles yet. Duplicate a preset or build one from scratch.",
       "duplicate": "Duplicate",
-      "duplicateAsCustom": "Duplicate as Custom",
+      "duplicateAsCustom": "Clone Role",
       "createCustomTitle": "Create Custom Role",
       "editCustomTitle": "Edit Custom Role",
       "roleNameLabel": "Role Name",
@@ -301,7 +301,8 @@
       "deleteModalDesc": "Choose where any assigned staff members should be reassigned before deleting this custom role.",
       "reassignMembersLabel": "Reassign Members To",
       "confirmDeleteBtn": "Reassign & Delete Role",
-      "deletedToast": "Custom role deleted"
+      "deletedToast": "Custom role deleted",
+      "duplicateAsCustomTooltip": "Duplicate this built-in preset as an editable custom role"
     },
     "statuses": {
       "pending": "Pending",

@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "この書類画像は一時的に保持されており、{{date}} に完全削除される予定です。",
     "imagePurgedPlaceholderTitle": "画像は保存されていません",
     "imagePurgedPlaceholderDesc": "組織のデータ保持ポリシーに従い、オリジナルの書類画像は {{date}} に削除されました。",
+    "imageLoadErrorTitle": "画像を表示できません",
     "imageUnavailableDesc": "書類画像は利用できません。",
     "categories": {
       "proof_of_address": "住所証明書類"

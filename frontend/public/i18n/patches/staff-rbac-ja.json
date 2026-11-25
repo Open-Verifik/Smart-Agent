@@ -122,8 +122,8 @@
       "currentRoleLabel": "有効ロール",
       "subTeamLabel": "所属サブチーム",
       "noSubTeamAssigned": "予算制限付きサブチームに所属していません。",
-      "requestAccessBtn": "機能アクセスを申請",
-      "requestUpgradeBtn": "ロール変更を申請",
+      "requestAccessBtn": "アクセス申請",
+      "requestUpgradeBtn": "昇格を申請",
       "requestBoostBtn": "予算増額を申請",
       "activeJitGrants": "有効な一時権限",
       "submittedRequestsTitle": "送信済み申請",
@@ -131,7 +131,7 @@
       "requestCancelled": "申請をキャンセルしました",
       "effectiveMatrixTitle": "現在の有効権限",
       "needSpecificFeature": "他の機能へのアクセスが必要ですか？",
-      "requestSelectedBtn": "アクセスを申請"
+      "requestSelectedBtn": "機能を申請"
     },
     "policyTab": {
       "title": "スタッフアクセスポリシー",
@@ -286,10 +286,10 @@
       "immutablePreset": "編集不可システムプリセット",
       "builtInBadge": "組み込み",
       "customRoles": "カスタムロール",
-      "newCustomRole": "新規カスタムロール",
+      "newCustomRole": "新規ロール",
       "noCustomRoles": "カスタムロールはまだありません。",
       "duplicate": "複製",
-      "duplicateAsCustom": "複製してカスタム作成",
+      "duplicateAsCustom": "ロール複製",
       "createCustomTitle": "カスタムロール作成",
       "editCustomTitle": "カスタムロール編集",
       "roleNameLabel": "ロール名",
@@ -301,7 +301,8 @@
       "deleteModalDesc": "割り当て済みメンバーの移行先ロールを選択してください。",
       "reassignMembersLabel": "移行先ロール",
       "confirmDeleteBtn": "移行して削除",
-      "deletedToast": "カスタムロールを削除しました"
+      "deletedToast": "カスタムロールを削除しました",
+      "duplicateAsCustomTooltip": "このシステムプリセットを編集可能なカスタムロールとして複製します"
     },
     "statuses": {
       "pending": "保留中",

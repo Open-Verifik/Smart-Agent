@@ -123,7 +123,7 @@
       "subTeamLabel": "Sous-équipe assignée",
       "noSubTeamAssigned": "Aucune sous-équipe assignée.",
       "requestAccessBtn": "Demander l'accès",
-      "requestUpgradeBtn": "Demander un rôle supérieur",
+      "requestUpgradeBtn": "Évolution de rôle",
       "requestBoostBtn": "Demander un budget",
       "activeJitGrants": "Accès temporaires actifs",
       "submittedRequestsTitle": "Demandes envoyées",
@@ -131,7 +131,7 @@
       "requestCancelled": "Demande annulée",
       "effectiveMatrixTitle": "Permissions effectives",
       "needSpecificFeature": "Besoin d'accéder à une autre fonctionnalité ?",
-      "requestSelectedBtn": "Demander l'accès"
+      "requestSelectedBtn": "Demander"
     },
     "policyTab": {
       "title": "Politique d'accès",
@@ -289,7 +289,7 @@
       "newCustomRole": "Nouveau rôle",
       "noCustomRoles": "Aucun rôle personnalisé.",
       "duplicate": "Dupliquer",
-      "duplicateAsCustom": "Dupliquer",
+      "duplicateAsCustom": "Cloner",
       "createCustomTitle": "Créer un rôle",
       "editCustomTitle": "Modifier le rôle",
       "roleNameLabel": "Nom",
@@ -301,7 +301,8 @@
       "deleteModalDesc": "Réassignez les membres avant suppression.",
       "reassignMembersLabel": "Réassigner vers",
       "confirmDeleteBtn": "Réassigner & Supprimer",
-      "deletedToast": "Rôle supprimé"
+      "deletedToast": "Rôle supprimé",
+      "duplicateAsCustomTooltip": "Dupliquer ce préréglage système en tant que rôle personnalisé modifiable"
     },
     "statuses": {
       "pending": "En attente",

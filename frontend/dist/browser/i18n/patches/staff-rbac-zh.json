@@ -122,8 +122,8 @@
       "currentRoleLabel": "当前有效角色",
       "subTeamLabel": "所属子团队",
       "noSubTeamAssigned": "您尚未分配到有预算限制的子团队。",
-      "requestAccessBtn": "申请功能权限",
-      "requestUpgradeBtn": "申请角色升级",
+      "requestAccessBtn": "申请权限",
+      "requestUpgradeBtn": "申请升级",
       "requestBoostBtn": "申请增加预算",
       "activeJitGrants": "有效临时授权",
       "submittedRequestsTitle": "我的申请记录",
@@ -131,7 +131,7 @@
       "requestCancelled": "申请已取消",
       "effectiveMatrixTitle": "您的有效权限矩阵",
       "needSpecificFeature": "需要其他功能的访问权限？提交即时申请。",
-      "requestSelectedBtn": "申请功能权限"
+      "requestSelectedBtn": "申请功能"
     },
     "policyTab": {
       "title": "成员访问策略",
@@ -286,10 +286,10 @@
       "immutablePreset": "系统内置不可修改角色",
       "builtInBadge": "内置",
       "customRoles": "工作区自定义角色",
-      "newCustomRole": "新建自定义角色",
+      "newCustomRole": "新建角色",
       "noCustomRoles": "暂无自定义角色。可复制系统角色或从头创建。",
       "duplicate": "复制",
-      "duplicateAsCustom": "复制为自定义角色",
+      "duplicateAsCustom": "克隆角色",
       "createCustomTitle": "创建自定义角色",
       "editCustomTitle": "编辑自定义角色",
       "roleNameLabel": "角色名称",
@@ -301,7 +301,8 @@
       "deleteModalDesc": "删除前请选择将已分配成员重新分配到哪个角色。",
       "reassignMembersLabel": "重新分配成员至",
       "confirmDeleteBtn": "重新分配并删除",
-      "deletedToast": "自定义角色已删除"
+      "deletedToast": "自定义角色已删除",
+      "duplicateAsCustomTooltip": "将此系统预设复制为可编辑的自定义角色"
     },
     "statuses": {
       "pending": "待审批",

@@ -28,6 +28,9 @@ import { take } from 'rxjs';
     standalone: true,
     imports: [CommonModule, FormsModule, MatIconModule, MatProgressSpinnerModule, TranslocoModule],
     templateUrl: './endpoint-policy-picker.component.html',
+    host: {
+        class: 'block',
+    },
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EndpointPolicyPickerComponent implements OnInit {

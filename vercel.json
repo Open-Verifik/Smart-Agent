@@ -20,6 +20,8 @@
     }
   },
   "rewrites": [
+    { "source": "/mcp", "destination": { "service": "backend" } },
+    { "source": "/api/mcp", "destination": { "service": "backend" } },
     { "source": "/api/agent/:path*", "destination": { "service": "backend" } },
     { "source": "/api/proxy", "destination": { "service": "backend" } },
     { "source": "/api/uploads/:path*", "destination": { "service": "backend" } },
