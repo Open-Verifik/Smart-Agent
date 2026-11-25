@@ -8,10 +8,13 @@
     "document-ocr",
     "biometric-verification",
     "cedula-validation",
+    "smart-reports",
+    "mcp-tools",
     "x402-payment-processing"
   ],
   "endpoints": {
     "chat": "https://ai.verifik.co/api/agent/chat",
+    "mcp": "https://ai.verifik.co/mcp",
     "validate": "https://ai.verifik.co/api/x402/validate-id"
   },
   "pricing": {

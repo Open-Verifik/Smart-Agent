@@ -23,10 +23,16 @@
                     </div>
                 </div>
 
-                <button mat-stroked-button (click)="openReportBuilder(true)" class="!rounded-xl">
-                    <mat-icon class="mr-2">design_services</mat-icon>
-                    {{ 'smartReport.createTemplate' | transloco }}
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button mat-stroked-button type="button" (click)="openAgentKitDialog()" class="!rounded-xl">
+                        <mat-icon class="mr-1.5">code</mat-icon>
+                        {{ 'smartReportKit.openBtn' | transloco }}
+                    </button>
+                    <button mat-stroked-button (click)="openReportBuilder(true)" class="!rounded-xl">
+                        <mat-icon class="mr-2">design_services</mat-icon>
+                        {{ 'smartReport.createTemplate' | transloco }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -845,4 +851,32 @@
         </button>
     </div>
 }
+
+<dialog
+    #agentKitDialog
+    class="sr-viewer-kit-dialog rounded-2xl border border-stone-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-950"
+    closedby="any"
+    aria-labelledby="sr-viewer-kit-heading"
+    (pointerdown)="onAgentKitPointerDown($event)"
+    (pointerup)="onAgentKitPointerUp($event)"
+>
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div class="flex items-center justify-between gap-4 border-b border-stone-200 px-5 py-3.5 dark:border-gray-800">
+            <h1 id="sr-viewer-kit-heading" class="text-base font-semibold text-stone-950 dark:text-white">
+                {{ 'smartReportKit.title' | transloco }}
+            </h1>
+            <button
+                type="button"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                (click)="closeAgentKitDialog()"
+                [attr.aria-label]="'smartReport.close' | transloco"
+            >
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <div class="overflow-y-auto p-4 sm:p-5">
+            <smart-report-agent-kit [context]="agentKitContext()" [compact]="true"></smart-report-agent-kit>
+        </div>
+    </div>
+</dialog>
 

@@ -61,16 +61,28 @@
                         </div>
                     </div>
                 </div>
-                <button
-                    mat-flat-button
-                    color="primary"
-                    type="button"
-                    (click)="createBatch()"
-                    class="shrink-0 rounded-xl !px-6 !py-2"
-                >
-                    <mat-icon class="mr-2 icon-size-5">add</mat-icon>
-                    {{ 'batchDashboard.createBatch' | transloco }}
-                </button>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        (click)="toggleAgentKitPanel()"
+                        [attr.aria-expanded]="showAgentKitPanel()"
+                        class="shrink-0 rounded-xl !px-4 !py-2"
+                    >
+                        <mat-icon class="mr-1.5 icon-size-5">code</mat-icon>
+                        {{ 'smartReportKit.openBtn' | transloco }}
+                    </button>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        (click)="createBatch()"
+                        class="shrink-0 rounded-xl !px-6 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+                        {{ 'batchDashboard.createBatch' | transloco }}
+                    </button>
+                </div>
             </div>
             </div>
         </div>
@@ -360,6 +372,12 @@
                     >
                 </div>
             </div>
+
+            <!-- Developer & AI Agent Kit (expanded) -->
+            <smart-report-agent-kit
+                *ngIf="showAgentKitPanel() && configuration()"
+                [context]="agentKitContext()"
+            ></smart-report-agent-kit>
 
             <!-- Stats Row -->
             <div

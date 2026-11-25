@@ -1,0 +1,193 @@
+{
+	"tools": [
+		{
+			"name": "smart_report_list_presets",
+			"description": "List Verifik system SmartReport presets (citizen, company, vehicle bundles across countries) along with their systemKey, credit cost estimate, and required input schema.",
+			"method": "GET",
+			"verifikPath": "/v2/smart-batch-presets",
+			"openApiPath": "/v2/smart-batch-presets",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"country": { "type": "string", "description": "Optional ISO country filter (e.g. CO, MX, PE, US)." },
+					"category": { "type": "string", "enum": ["citizen", "company", "vehicle"], "description": "Optional report category filter." },
+					"tier": { "type": "string", "enum": ["essential", "comprehensive"], "description": "Optional preset tier filter." },
+					"search": { "type": "string", "description": "Optional text search across name, description, and systemKey." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_clone_preset",
+			"description": "Clone a system SmartReport preset into a reusable client-owned BatchConfiguration and preferred PDF SmartReportTemplate (idempotent: reuses existing clone if present).",
+			"method": "POST",
+			"verifikPath": "/v2/smart-batch-presets/{systemKey}/clone",
+			"openApiPath": "/v2/smart-batch-presets/{systemKey}/clone",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["systemKey"],
+				"properties": {
+					"systemKey": { "type": "string", "description": "System preset key (e.g. co.citizen.comprehensive)." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_get_input_schema",
+			"description": "Get the exact required/optional input fields, JSON Schema, example input object, preferred template ID, and estimated per-row credit cost for a BatchConfiguration.",
+			"method": "GET",
+			"verifikPath": "/v2/batch-configurations/{id}/input-schema",
+			"openApiPath": "/v2/batch-configurations/{id}/input-schema",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "BatchConfiguration ID." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_run",
+			"description": "Headless end-to-end SmartReport execution: resolves a saved BatchConfiguration or clones a systemKey preset, validates inputs, runs chained verification steps server-side (billing client credits), generates the PDF report + Verification Score, optionally emails recipients, and fires report webhooks.",
+			"method": "POST",
+			"verifikPath": "/v2/smart-reports/run",
+			"openApiPath": "/v2/smart-reports/run",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"systemKey": { "type": "string", "description": "System preset key to clone/reuse when batchConfigurationId is omitted (e.g. co.citizen.comprehensive)." },
+					"batchConfigurationId": { "type": "string", "description": "Existing client BatchConfiguration ID." },
+					"templateId": { "type": "string", "description": "Optional SmartReportTemplate ID override." },
+					"name": { "type": "string", "description": "Optional report/batch display name." },
+					"inputs": {
+						"description": "Single input object (e.g. {\"documentType\":\"CC\",\"documentNumber\":\"123\"}) or array of up to 500 input rows.",
+						"oneOf": [
+							{ "type": "object", "additionalProperties": true },
+							{ "type": "array", "maxItems": 500, "items": { "type": "object", "additionalProperties": true } }
+						]
+					},
+					"mode": { "type": "string", "enum": ["sync", "async"], "description": "Execution mode. sync waits (up to 5 rows) and returns the finished report; async returns 202 Accepted immediately and notifies webhooks." },
+					"generatePdf": { "type": "boolean", "description": "Set false to skip PDF generation and return structured batch + verification score only (default true)." },
+					"includePdfBase64": { "type": "boolean", "description": "Set true to inline base64 PDF bytes in the JSON response (default false; downloadUrl is always returned)." },
+					"pdfEngine": { "type": "string", "enum": ["puppeteer", "pdfkit"], "description": "PDF engine override." },
+					"score": { "type": "boolean", "description": "Whether to compute Verification Score." },
+					"scoreProfile": { "type": "string", "description": "Optional Verification Score profile identifier." },
+					"emailTo": { "type": "array", "maxItems": 20, "items": { "type": "string", "format": "email" }, "description": "Optional recipient email addresses to deliver the finished PDF (max 20)." },
+					"emailSubject": { "type": "string", "description": "Optional custom email subject." },
+					"emailLanguage": { "type": "string", "enum": ["en", "es"], "description": "Email body language (default es)." },
+					"webhookUrl": { "type": "string", "format": "uri", "pattern": "^https://", "description": "Optional per-run HTTPS webhook URL receiving smart_batch_report_generated / sent / batch_completed events." },
+					"externalRefId": { "type": "string", "description": "Caller correlation ID persisted on the SmartReport and included in webhook events." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_get",
+			"description": "Retrieve SmartReport status, metadata, Verification Score summary, email delivery history, and downloadUrl / htmlUrl.",
+			"method": "GET",
+			"verifikPath": "/v2/smart-reports/{id}",
+			"openApiPath": "/v2/smart-reports/{id}",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "SmartReport ID." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_get_html",
+			"description": "Fetch rendered HTML, structured row verification results, and Verification Score for an existing SmartReport without invoking PDF rendering.",
+			"method": "GET",
+			"verifikPath": "/v2/smart-reports/{id}/html",
+			"openApiPath": "/v2/smart-reports/{id}/html",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "SmartReport ID." },
+					"rowIndex": { "type": "number", "description": "Optional zero-based batch row index (default 0)." },
+					"preview": { "type": "boolean", "description": "Include interactive screen preview wrapper styling." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_generate_pdf",
+			"description": "Render (or regenerate) a PDF for an existing SmartReport record and emit smart_batch_report_generated webhooks.",
+			"method": "POST",
+			"verifikPath": "/v2/smart-reports/{id}/generate",
+			"openApiPath": "/v2/smart-reports/{id}/generate",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "SmartReport ID." },
+					"rowIndex": { "type": "number", "description": "Optional zero-based row index to render a single-subject PDF." },
+					"engine": { "type": "string", "enum": ["puppeteer", "pdfkit"] },
+					"score": { "type": "boolean" },
+					"scoreProfile": { "type": "string" }
+				}
+			}
+		},
+		{
+			"name": "smart_report_download_pdf",
+			"description": "Download the binary PDF of a SmartReport (MCP tool returns byte size, content-type, downloadUrl, and base64 only when includeBase64 is true).",
+			"method": "GET",
+			"verifikPath": "/v2/smart-reports/{id}/download",
+			"openApiPath": "/v2/smart-reports/{id}/download",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "SmartReport ID." },
+					"rowIndex": { "type": "number", "description": "Optional row index." },
+					"includeBase64": { "type": "boolean", "description": "Set true to include base64 PDF content in MCP output (default false)." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_send_email",
+			"description": "Send a generated SmartReport PDF via email to one or more recipients and trigger smart_batch_report_sent / delivery_failed webhooks.",
+			"method": "POST",
+			"verifikPath": "/v2/smart-reports/{id}/send-email",
+			"openApiPath": "/v2/smart-reports/{id}/send-email",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id", "recipients"],
+				"properties": {
+					"id": { "type": "string", "description": "SmartReport ID." },
+					"recipients": { "type": "array", "maxItems": 20, "items": { "type": "string", "format": "email" }, "description": "Recipient email addresses (max 20)." },
+					"subject": { "type": "string", "description": "Optional custom email subject." },
+					"language": { "type": "string", "enum": ["en", "es"], "description": "Email body language (default es)." },
+					"rowIndex": { "type": "number", "description": "Optional row index when sending a single record PDF." },
+					"sendAll": { "type": "boolean", "description": "Send all rows (up to 50) as separate PDF attachments." }
+				}
+			}
+		},
+		{
+			"name": "smart_report_list_templates",
+			"description": "List available SmartReport templates owned by the authenticated client or built-in system templates.",
+			"method": "GET",
+			"verifikPath": "/v2/smart-report-templates",
+			"openApiPath": "/v2/smart-report-templates",
+			"category": "SmartReports",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"type": { "type": "string", "enum": ["System", "client"], "description": "Filter by template ownership type." },
+					"country": { "type": "string" },
+					"category": { "type": "string" },
+					"search": { "type": "string" },
+					"limit": { "type": "number" },
+					"page": { "type": "number" }
+				}
+			}
+		}
+	]
+}

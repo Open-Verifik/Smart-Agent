@@ -29,6 +29,11 @@ Real-time identity and data verification via API. Validate people, companies, ve
 ### smartBATCH
 Bulk verification processing. Upload CSV or Excel files with millions of records. Our system processes them in parallel, enriching and validating each row against official government databases.
 
+### SmartReports (Headless API & MCP)
+Automated multi-source background reports with Verification Scores, custom PDF themes, email delivery, and webhooks. Run headlessly via REST (`POST https://api.verifik.co/v2/smart-reports/run`) or Model Context Protocol (`POST https://ai.verifik.co/mcp`) with your per-client Verifik Bearer JWT.
+- Docs: https://docs.verifik.co/smart-reports
+- Webhooks: https://docs.verifik.co/resources/smart-reports-webhooks
+
 ### smartENROLL
 KYC (Know Your Customer) and KYB (Know Your Business) onboarding. Combines document verification, biometric validation (face recognition + liveness detection), and data validation against government registries.
 
