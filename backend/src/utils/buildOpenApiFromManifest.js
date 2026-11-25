@@ -5,8 +5,12 @@
  * `PUBLIC_ORIGIN` or `AGENT_BASE_URL` (origin only), else `http://127.0.0.1:<PORT>`.
  */
 
-const path = require("path");
-const packageJson = require(path.resolve(__dirname, "../../package.json"));
+let packageJson = { version: "1.0.0" };
+try {
+	packageJson = require("../../package.json");
+} catch {
+	// fallback when bundled without package.json
+}
 
 const BASE_DISCOVERY_TAGS = ["KYC", "KYB", "Data"];
 
@@ -267,6 +271,52 @@ const buildOperationFromTool = (tool, pathname) => {
 		op.deprecated = true;
 	}
 
+	if (tool.id === "smart_link_create_session") {
+		op.responses["200"] = {
+			description: "Only the SmartLink session created by this call.",
+			content: {
+				"application/json": {
+					schema: {
+						type: "object",
+						required: ["data"],
+						properties: {
+							data: {
+								type: "object",
+								description: "The session minted by this request. Other sessions are not included.",
+								properties: {
+									sessionId: { type: "string" },
+									shortCode: { type: "string" },
+									url: { type: "string" },
+									qrDataUrl: { type: "string" },
+									expiresAt: { type: "string" },
+									state: { type: "string" },
+									requireDocument: { type: "boolean" },
+									maxUses: { type: "number" },
+									useCount: { type: "number" },
+									isMultiUseTemplate: { type: "boolean" },
+									statusToken: { type: "string" },
+									statusUrl: { type: "string" },
+									requestedMode: { type: "string" },
+									completionMode: { type: "string" },
+									externalRefId: { type: "string" },
+									prefill: {
+										type: "object",
+										properties: {
+											email: { type: "string" },
+											phone: { type: "string" },
+											countryCode: { type: "string" },
+											fullName: { type: "string" },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		};
+	}
+
 	if (method === "GET" || method === "DELETE") {
 		let queryParams = manifestParamsToQueryOpenApi(paramSchema);
 		if (!queryParams.length) {
@@ -296,40 +346,100 @@ const buildOperationFromTool = (tool, pathname) => {
 	return op;
 };
 
-/**
- * @param {{ endpoints: object[] }} manifest
- * @param {{ publicOrigin?: string }} [options]
- * @returns {object}
- */
-const buildOpenApiFromManifest = (manifest, options = {}) => {
-	const publicOrigin = (options.publicOrigin || "http://127.0.0.1:3060").replace(/\/$/, "");
+let smartReportsTools = { tools: [] };
+try {
+	smartReportsTools = require("../config/smart-reports-mcp-tools.json");
+} catch {
+	// optional in isolated bundles
+}
 
-	/** @type {Record<string, Record<string, object>>} */
-	const paths = {};
+const extractSmartReportPathParams = (openApiPath, schema) => {
+	const pathParams = [];
+	const remainingProperties = { ...(schema.properties || {}) };
+	const requiredSet = new Set(Array.isArray(schema.required) ? schema.required : []);
 
-	for (const tool of manifest.endpoints || []) {
-		let pathname;
-		try {
-			pathname = new URL(tool.url).pathname;
-		} catch {
-			continue;
-		}
-		const method = String(tool.method || "GET").toLowerCase();
-		if (!paths[pathname]) paths[pathname] = {};
-		paths[pathname][method] = buildOperationFromTool(tool, pathname);
+	for (const match of String(openApiPath).matchAll(/\{([^}]+)\}/g)) {
+		const paramName = match[1];
+		const propertySchema = remainingProperties[paramName] || { type: "string" };
+		pathParams.push({
+			name: paramName,
+			in: "path",
+			required: true,
+			description: propertySchema.description || `Path parameter ${paramName}`,
+			schema: { type: propertySchema.type || "string" },
+		});
+		delete remainingProperties[paramName];
+		requiredSet.delete(paramName);
 	}
 
+	return { pathParams, remainingProperties, requiredSet };
+};
+
+const buildSmartReportOperation = (tool) => {
+	const method = String(tool.method || "GET").toUpperCase();
+	const schema =
+		tool.inputSchema && typeof tool.inputSchema === "object"
+			? deepClone(tool.inputSchema)
+			: { type: "object", properties: {} };
+	const openApiPath = tool.openApiPath || tool.verifikPath;
+	const { pathParams, remainingProperties, requiredSet } = extractSmartReportPathParams(openApiPath, schema);
+
+	const operation = {
+		tags: ["SmartReports", "Data"],
+		operationId: tool.name,
+		summary: tool.name,
+		description: `${tool.description} Requires your own Verifik Bearer JWT.`,
+		security: [{ bearerAuth: [] }],
+		responses: {
+			200: { description: "Success" },
+			401: { description: "Unauthorized — Verifik Bearer JWT required" },
+			403: { description: "Forbidden — per-client Bearer JWT required" },
+		},
+	};
+
+	if (method === "GET" || method === "DELETE") {
+		const queryParams = manifestParamsToQueryOpenApi({
+			type: "object",
+			properties: remainingProperties,
+			required: Array.from(requiredSet),
+		});
+		const combinedParameters = [...pathParams, ...queryParams];
+		if (combinedParameters.length) operation.parameters = combinedParameters;
+		return operation;
+	}
+
+	if (pathParams.length) operation.parameters = pathParams;
+	if (Object.keys(remainingProperties).length > 0) {
+		operation.requestBody = {
+			required: requiredSet.size > 0,
+			content: {
+				"application/json": {
+					schema: {
+						type: "object",
+						properties: remainingProperties,
+						...(requiredSet.size ? { required: Array.from(requiredSet) } : {}),
+					},
+				},
+			},
+		};
+	}
+
+	return operation;
+};
+
+const buildProxyOperations = (manifest) => {
 	const proxyParameters = [
 		{
 			name: "x-target-url",
 			in: "header",
 			required: true,
 			schema: { type: "string" },
-			description: "Target Verifik path or full URL (e.g. https://example.com/v2/co/cedula or /v2/co/cedula). Price is derived from this path.",
+			description:
+				"Target Verifik path or full URL (e.g. https://api.verifik.co/v2/co/cedula or /v2/co/cedula). Price is derived from this path.",
 		},
 	];
 
-	const proxyOpGet = {
+	const proxyGetOperation = {
 		tags: deriveOperationTags("/api/proxy", "Proxy to Verifik (GET)"),
 		operationId: "api_proxy_get",
 		summary: "Proxy to Verifik (GET)",
@@ -343,7 +453,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 		},
 	};
 
-	const proxyOpPost = {
+	const proxyPostOperation = {
 		tags: deriveOperationTags("/api/proxy", "Proxy to Verifik (POST)"),
 		operationId: "api_proxy_post",
 		summary: "Proxy to Verifik (POST)",
@@ -365,9 +475,39 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 		},
 	};
 
-	if (!paths["/api/proxy"]) paths["/api/proxy"] = {};
-	paths["/api/proxy"].get = proxyOpGet;
-	paths["/api/proxy"].post = proxyOpPost;
+	return { get: proxyGetOperation, post: proxyPostOperation };
+};
+
+/**
+ * @param {{ endpoints: object[] }} manifest
+ * @param {{ publicOrigin?: string }} [options]
+ * @returns {object}
+ */
+const buildOpenApiFromManifest = (manifest, options = {}) => {
+	const publicOrigin = (options.publicOrigin || "http://127.0.0.1:3060").replace(/\/$/, "");
+	const paths = {};
+
+	for (const manifestEndpoint of manifest.endpoints || []) {
+		let pathname;
+		try {
+			pathname = new URL(manifestEndpoint.url).pathname;
+		} catch {
+			continue;
+		}
+		const method = String(manifestEndpoint.method || "GET").toLowerCase();
+		if (!paths[pathname]) paths[pathname] = {};
+		paths[pathname][method] = buildOperationFromTool(manifestEndpoint, pathname);
+	}
+
+	for (const smartReportTool of smartReportsTools.tools || []) {
+		const smartReportPath = smartReportTool.openApiPath || smartReportTool.verifikPath;
+		if (!smartReportPath) continue;
+		const method = String(smartReportTool.method || "GET").toLowerCase();
+		if (!paths[smartReportPath]) paths[smartReportPath] = {};
+		paths[smartReportPath][method] = buildSmartReportOperation(smartReportTool);
+	}
+
+	paths["/api/proxy"] = { ...(paths["/api/proxy"] || {}), ...buildProxyOperations(manifest) };
 
 	return {
 		openapi: "3.0.3",
@@ -375,11 +515,28 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 			title: "Verifik AI — x402 KYC & Verifik proxy",
 			version: packageJson.version || "1.0.0",
 			description:
-				"x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware.",
+				"x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware. SmartReports endpoints require your own Bearer JWT.",
 			"x-guidance": buildXGuidance(publicOrigin),
 		},
 		servers: [{ url: publicOrigin }],
-		tags: DISCOVERY_TAG_DEFINITIONS,
+		components: {
+			securitySchemes: {
+				bearerAuth: {
+					type: "http",
+					scheme: "bearer",
+					bearerFormat: "JWT",
+					description:
+						"Your Verifik client JWT (Authorization: Bearer <VERIFIK_JWT>). Required for all SmartReports endpoints.",
+				},
+			},
+		},
+		tags: [
+			...DISCOVERY_TAG_DEFINITIONS,
+			{
+				name: "SmartReports",
+				description: "Headless SmartReports, templates, batches, and PDF generation (Bearer JWT required)",
+			},
+		],
 		"x-discovery": {
 			tags: [...DISCOVERY_ROOT_TAGS],
 		},

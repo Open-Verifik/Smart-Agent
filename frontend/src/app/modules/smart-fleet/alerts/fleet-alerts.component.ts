@@ -17,6 +17,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { FleetNavComponent } from '../fleet-nav.component';
 import { FleetChannelIconComponent } from '../watch-rules/fleet-channel-icon.component';
@@ -49,6 +50,7 @@ const ALERT_TYPE_KEY_OVERRIDES: Record<string, string> = {
         MatSnackBarModule,
         FleetNavComponent,
         FleetChannelIconComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './fleet-alerts.component.html',
     encapsulation: ViewEncapsulation.None,

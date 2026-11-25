@@ -6,12 +6,14 @@ import {
     computed,
     DestroyRef,
     effect,
+    ElementRef,
     HostListener,
     inject,
     NgZone,
     OnDestroy,
     OnInit,
     signal,
+    viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -35,6 +37,9 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { AllCommunityModule, ColDef, ModuleRegistry } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
 import { hasColombiaVehicleReportSteps } from '../colombia-vehicle-report/colombia-vehicle-report.composer';
+import { SmartReportAgentKitComponent } from '../agent-kit/smart-report-agent-kit.component';
+import { SmartReportKitContext } from '../agent-kit/smart-report-kit-builders.util';
+import { extractRequiredFieldsFromConfig } from '../batch-required-fields.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { applyTextCase, isReportTextCase } from '../report-text-case.util';
@@ -127,8 +132,10 @@ const createReportViewerPaginatorIntl = (): MatPaginatorIntl => {
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        SmartReportAgentKitComponent,
     ],
     templateUrl: './report-viewer.component.html',
+    styleUrls: ['./report-viewer.component.scss'],
     animations: [fuseAnimations],
 })
 export class ReportViewerComponent implements OnInit, OnDestroy {
@@ -147,6 +154,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     // Route params
     configId = signal<string | null>(null);
     batchId = signal<string | null>(null);
+    agentKitDialogRef = viewChild<ElementRef<HTMLDialogElement>>('agentKitDialog');
+    private _kitPointerDownOutside = false;
 
     /** When set, show and generate report for this row only (from queryParam rowIndex). */
     selectedRowIndex = signal<number | null>(null);
@@ -456,11 +465,97 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        const dialog = this.agentKitDialogRef()?.nativeElement;
+        if (dialog?.open) {
+            dialog.returnValue = '';
+            dialog.close();
+        }
         this._composedReportsLoadSeq += 1;
         this._htmlPreviewLoadSeq += 1;
         this._clearJsonCopyTimer();
         this._clearGeneratedPdf();
         this._releaseHtmlPreviewUrl();
+    }
+
+    agentKitContext = computed<SmartReportKitContext>(() => {
+        const configuration = this.configuration();
+        const selectedTemplate = this.selectedTemplate();
+        const currentBatch = this.batch();
+        const currentReport = this.report();
+        const requiredFields = configuration ? extractRequiredFieldsFromConfig(configuration) : [];
+
+        return {
+            configId: this.configId() || configuration?._id || configuration?.id,
+            configName: configuration?.name || currentBatch?.name,
+            templateId: selectedTemplate?._id,
+            templateName: selectedTemplate?.name,
+            batchId: currentBatch?._id || this.batchId(),
+            reportId: currentReport?._id,
+            rowIndex: this.selectedRowIndex(),
+            webhookUrl: configuration?.notification?.webhookUrl || undefined,
+            requiredInputs: requiredFields.map((requiredField) => ({
+                field: requiredField.field,
+                required: requiredField.required,
+                enumValues: requiredField.enumValues,
+            })),
+        };
+    });
+
+    openAgentKitDialog(): void {
+        const dialog = this.agentKitDialogRef()?.nativeElement;
+        if (!dialog || dialog.open) return;
+        dialog.returnValue = '';
+        if (typeof dialog.showModal === 'function') {
+            dialog.showModal();
+        }
+    }
+
+    closeAgentKitDialog(): void {
+        const dialog = this.agentKitDialogRef()?.nativeElement;
+        if (dialog?.open) {
+            dialog.returnValue = '';
+            dialog.close();
+        }
+    }
+
+    onAgentKitPointerDown(event: PointerEvent): void {
+        if (typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype) {
+            this._kitPointerDownOutside = false;
+            return;
+        }
+        const dialog = this.agentKitDialogRef()?.nativeElement;
+        if (!dialog) {
+            this._kitPointerDownOutside = false;
+            return;
+        }
+        const boundingRect = dialog.getBoundingClientRect();
+        this._kitPointerDownOutside =
+            event.clientX < boundingRect.left ||
+            event.clientX > boundingRect.right ||
+            event.clientY < boundingRect.top ||
+            event.clientY > boundingRect.bottom;
+    }
+
+    onAgentKitPointerUp(event: PointerEvent): void {
+        if (typeof HTMLDialogElement !== 'undefined' && 'closedBy' in HTMLDialogElement.prototype) {
+            this._kitPointerDownOutside = false;
+            return;
+        }
+        const dialog = this.agentKitDialogRef()?.nativeElement;
+        if (!dialog || !this._kitPointerDownOutside) {
+            this._kitPointerDownOutside = false;
+            return;
+        }
+        const boundingRect = dialog.getBoundingClientRect();
+        const isOutsideDialog =
+            event.clientX < boundingRect.left ||
+            event.clientX > boundingRect.right ||
+            event.clientY < boundingRect.top ||
+            event.clientY > boundingRect.bottom;
+        this._kitPointerDownOutside = false;
+        if (isOutsideDialog && dialog.open) {
+            dialog.close();
+        }
     }
 
     refreshHtmlPreview(): void {
@@ -492,12 +587,13 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     private _setHtmlPreviewDocument(html: string): void {
         this._releaseHtmlPreviewUrl();
-        // Strip inline scripts before loading in the sandboxed preview iframe (prevents Chrome's
-        // "Blocked script execution in 'blob:...'" error; --text-case is applied in onHtmlPreviewIframeLoad).
-        const safeHtml = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-        const url = URL.createObjectURL(new Blob([safeHtml], { type: 'text/html' }));
-        this._htmlPreviewObjectUrl = url;
-        this.htmlPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
+        const safeHtml = html
+            .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<script\b[^>]*\/?>/gi, '')
+            .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+        const previewObjectUrl = URL.createObjectURL(new Blob([safeHtml], { type: 'text/html' }));
+        this._htmlPreviewObjectUrl = previewObjectUrl;
+        this.htmlPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(previewObjectUrl));
         this.htmlPreviewError.set(null);
         this.htmlPreviewIframeHeightPx.set(null);
     }
@@ -1190,9 +1286,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     private _keepGeneratedPdf(blob: Blob): void {
         this._clearGeneratedPdf();
-        const url = URL.createObjectURL(blob);
-        this.pdfDataUrl.set(url);
-        this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
+        const normalizedPdfBlob = new Blob([blob], { type: 'application/pdf' });
+        const pdfObjectUrl = URL.createObjectURL(normalizedPdfBlob);
+        this.pdfDataUrl.set(pdfObjectUrl);
+        this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(pdfObjectUrl));
     }
 
     private _pdfEngine(): 'pdfkit' | 'puppeteer' {

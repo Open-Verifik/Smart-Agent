@@ -22,6 +22,7 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { RetentionPolicyFormComponent } from 'app/core/data-retention/retention-policy-form.component';
 import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
 import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { defaultRetentionPolicy, policyFromStored, type StoredRetention } from 'app/core/data-retention/retention.util';
 import { SettingsService } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
@@ -42,6 +43,7 @@ import { getBusinessUserClientId } from '../utils/settings-business-user.util';
         MatSnackBarModule,
         TranslocoModule,
         SettingsBusinessAccountEmptyStateComponent,
+        HasStaffPermissionDirective,
         RetentionPolicyFormComponent,
     ],
     templateUrl: './data-retention-settings.component.html',

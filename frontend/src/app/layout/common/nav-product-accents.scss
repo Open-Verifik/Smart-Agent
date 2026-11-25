@@ -31,6 +31,10 @@
     --product: rgb(124 58 237);
     --product-soft: rgb(245 243 255);
 }
+.nav-product--link {
+    --product: rgb(37 99 235);
+    --product-soft: rgb(239 246 255);
+}
 .nav-product--monitor {
     --product: rgb(2 132 199);
     --product-soft: rgb(240 249 255);
@@ -68,6 +72,10 @@
     --product: rgb(196 181 253);
     --product-soft: rgb(124 58 237 / 20%);
 }
+.dark .nav-product--link {
+    --product: rgb(96 165 250);
+    --product-soft: rgb(37 99 235 / 20%);
+}
 .dark .nav-product--monitor {
     --product: rgb(56 189 248);
     --product-soft: rgb(2 132 199 / 20%);
@@ -89,4 +97,43 @@
             box-shadow: inset 3px 0 0 0 var(--product);
         }
     }
+}
+
+.fuse-vertical-navigation-item-wrapper.nav-item--locked {
+    > .fuse-vertical-navigation-item {
+        opacity: 0.58;
+
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+
+    .nav-lock-badge {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        padding: 0 !important;
+        border-radius: 9999px;
+        background-color: transparent !important;
+        color: rgb(148 163 184);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        &::before {
+            content: '';
+            width: 13px;
+            height: 13px;
+            display: block;
+            background-color: currentColor;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z' clip-rule='evenodd'/%3E%3C/svg%3E")
+                no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z' clip-rule='evenodd'/%3E%3C/svg%3E")
+                no-repeat center / contain;
+        }
+    }
+}
+
+.dark .fuse-vertical-navigation-item-wrapper.nav-item--locked .nav-lock-badge {
+    color: rgb(100 116 139);
 }

@@ -1,0 +1,159 @@
+:host {
+    display: block;
+    color-scheme: light;
+    --sr-accent: #4f46e5;
+    accent-color: var(--sr-accent);
+}
+
+:host-context(.dark) {
+    color-scheme: dark;
+    --sr-accent: #818cf8;
+    accent-color: var(--sr-accent);
+}
+
+.sr-logo-file-input {
+    color: inherit;
+
+    &::file-selector-button {
+        margin-inline-end: 0.625rem;
+        border-radius: 0.5rem;
+        border: 1px solid #d6d3d1;
+        background: #f5f5f4;
+        color: #1c1917;
+        padding: 0.3rem 0.65rem;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 140ms ease, border-color 140ms ease;
+
+        &:hover {
+            background: #e7e5e4;
+        }
+    }
+}
+
+:host-context(.dark) .sr-logo-file-input::file-selector-button {
+    border-color: #374151;
+    background: #1f2937;
+    color: #f3f4f6;
+
+    &:hover {
+        background: #374151;
+    }
+}
+
+.sr-theme-disclosure {
+    > summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.625rem;
+        cursor: pointer;
+        user-select: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &::before {
+            content: '';
+            inline-size: 1rem;
+            block-size: 1rem;
+            flex-shrink: 0;
+            background-color: currentColor;
+            opacity: 0.72;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+                no-repeat center / contain;
+            rotate: -90deg;
+        }
+    }
+
+    &:dir(rtl) > summary::before {
+        rotate: 90deg;
+    }
+
+    &[open] > summary::before {
+        rotate: 0deg;
+    }
+
+    &::details-content {
+        interpolate-size: allow-keywords;
+        overflow: clip;
+        contain: layout;
+    }
+
+    &:not([open])::details-content {
+        block-size: 0;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .sr-theme-disclosure > summary::before {
+        transition: rotate 0.2s ease;
+    }
+
+    .sr-theme-disclosure::details-content {
+        transition: block-size, content-visibility, display;
+        transition-duration: 0.24s;
+        transition-timing-function: ease-in-out;
+        transition-behavior: allow-discrete;
+    }
+}
+
+/* Fallback for older browsers without CSS accent-color */
+@supports not (accent-color: #4f46e5) {
+    .sr-toggle-card {
+        position: relative;
+    }
+
+    .sr-theme-checkbox {
+        position: absolute !important;
+        clip-path: inset(50%) !important;
+        overflow: hidden !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    .sr-toggle-copy {
+        position: relative;
+        padding-inline-start: 1.5rem;
+    }
+
+    .sr-toggle-copy::before {
+        content: '';
+        position: absolute;
+        inset-inline-start: 0;
+        inset-block-start: 0.15rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 0.25rem;
+        border: 1.5px solid #9ca3af;
+        background: transparent;
+        box-sizing: border-box;
+    }
+
+    .sr-theme-checkbox:focus-visible + .sr-toggle-copy::before {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    .sr-theme-checkbox:checked + .sr-toggle-copy::before {
+        background-color: var(--sr-accent);
+        border-color: var(--sr-accent);
+    }
+
+    .sr-theme-checkbox:checked + .sr-toggle-copy::after {
+        content: '✓';
+        position: absolute;
+        inset-inline-start: 0.22rem;
+        inset-block-start: 0.02rem;
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+}

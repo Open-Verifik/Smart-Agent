@@ -1,6 +1,8 @@
 const Koa = require("koa");
 const cors = require("@koa/cors");
 const { koaBody } = require("koa-body");
+const RouterMod = require("@koa/router");
+const Router = RouterMod.Router || RouterMod.default || RouterMod;
 const config = require("./config");
 
 const app = new Koa();
@@ -31,10 +33,12 @@ app.use(
 	}),
 );
 
-// Import Routes
-// Import Routes
-const unprotectedRoutes = require("./routes/unprotected");
-const proxyRoutes = require("./routes/proxy");
+// Import & register routes using local Router instances (preserves prototype across CJS bundles)
+const { registerUnprotectedRoutes } = require("./routes/unprotected");
+const { registerProxyRoutes } = require("./routes/proxy");
+
+const unprotectedRoutes = registerUnprotectedRoutes(new Router());
+const proxyRoutes = registerProxyRoutes(new Router());
 
 // Register Routes
 app.use(unprotectedRoutes.routes());

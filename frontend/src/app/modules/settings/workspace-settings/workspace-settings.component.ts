@@ -24,6 +24,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { SettingsService, Workspace } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId, getVerifikAccount } from '../utils/settings-business-user.util';
@@ -95,6 +96,7 @@ const _supportTimezoneOptions = (): SupportTimezoneOption[] => {
         MatDialogModule,
         TranslocoModule,
         SettingsBusinessAccountEmptyStateComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './workspace-settings.component.html',
     styleUrl: './workspace-settings.component.scss',

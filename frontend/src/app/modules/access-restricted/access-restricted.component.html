@@ -1,0 +1,230 @@
+<div class="min-h-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6">
+    <div class="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+            <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <mat-icon class="text-3xl !w-8 !h-8">lock_outline</mat-icon>
+            </div>
+            <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        {{ resourceMeta?.group || 'Feature' }}
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
+                        {{ 'staffRbac.restricted.yourRole' | transloco }}: {{ currentRoleLabel }}
+                    </span>
+                    @if (permService.team(); as team) {
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300">
+                            {{ team.name }}
+                        </span>
+                    }
+                </div>
+                <h1 class="text-xl font-bold text-slate-900 dark:text-white">
+                    {{ ownerOnly() ? ('staffRbac.restricted.ownerOnlyTitle' | transloco) : ('staffRbac.restricted.title' | transloco) }}
+                </h1>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    @if (ownerOnly()) {
+                        {{ 'staffRbac.restricted.ownerOnlyBody' | transloco }}
+                    } @else if (resourceMeta) {
+                        {{ 'staffRbac.restricted.subtitle' | transloco : { feature: (resourceMeta.labelKey | transloco), action: actionLabel(requiredAction()) } }}
+                    }
+                </p>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="pt-6">
+            @if (loadingPending()) {
+                <div class="flex items-center justify-center py-8 gap-3 text-sm text-slate-500">
+                    <mat-spinner diameter="20"></mat-spinner>
+                    <span>{{ 'staffRbac.common.loading' | transloco }}</span>
+                </div>
+            } @else if (ownerOnly()) {
+                <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-600 dark:text-slate-300">
+                    {{ 'staffRbac.restricted.contactOwnerHint' | transloco }}
+                </div>
+            } @else if (pendingRequest()) {
+                @if (pendingRequest(); as pending) {
+                <div class="rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-5 space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-semibold text-sm">
+                            <mat-icon class="!w-5 !h-5 text-[20px]">hourglass_top</mat-icon>
+                            <span>{{ 'staffRbac.restricted.pendingReviewTitle' | transloco }}</span>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">
+                            {{ 'staffRbac.durations.' + pending.requestedDuration | transloco }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-amber-900/80 dark:text-amber-200/80">
+                        {{ 'staffRbac.restricted.pendingReviewDesc' | transloco }}
+                    </p>
+                    <div class="text-xs text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-900/60 rounded-lg p-3 border border-amber-200/70 dark:border-amber-800/60">
+                        <span class="font-medium">{{ 'staffRbac.requestDialog.reasonLabel' | transloco }}:</span>
+                        {{ pending.reason }}
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="shrink-0 whitespace-nowrap !px-4"
+                            (click)="refreshAccess()"
+                            [disabled]="refreshing()"
+                        >
+                            <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">refresh</mat-icon>
+                            {{ 'staffRbac.restricted.refreshAccess' | transloco }}
+                        </button>
+                        <button
+                            mat-stroked-button
+                            color="warn"
+                            type="button"
+                            class="shrink-0 whitespace-nowrap !px-4"
+                            (click)="cancelPendingRequest()"
+                            [disabled]="cancelling()"
+                        >
+                            {{ 'staffRbac.restricted.cancelRequest' | transloco }}
+                        </button>
+                    </div>
+                </div>
+                }
+            } @else if (permService.allowAccessRequests()) {
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
+                            {{ 'staffRbac.restricted.requestFormTitle' | transloco }}
+                        </h2>
+                        <button
+                            type="button"
+                            class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                            (click)="useCustomActions = !useCustomActions"
+                        >
+                            {{ (useCustomActions ? 'staffRbac.requestDialog.usePreset' : 'staffRbac.requestDialog.customizeActions') | transloco }}
+                        </button>
+                    </div>
+
+                    @if (!useCustomActions) {
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            @for (preset of presets; track preset.id) {
+                                <label
+                                    class="flex flex-col gap-1 p-3 rounded-xl border cursor-pointer transition-colors"
+                                    [class]="selectedPresetId === preset.id ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30' : 'border-slate-200 dark:border-slate-700'"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <input
+                                            type="radio"
+                                            name="restrictedPreset"
+                                            [value]="preset.id"
+                                            [(ngModel)]="selectedPresetId"
+                                            class="text-indigo-600"
+                                        />
+                                        <span class="text-xs font-semibold text-slate-800 dark:text-slate-100">
+                                            {{ preset.labelKey | transloco }}
+                                        </span>
+                                    </span>
+                                    <span class="block text-[11px] text-slate-500 dark:text-slate-400 pl-5">
+                                        @for (act of preset.actions; track act; let last = $last) {
+                                            <span>{{ actionLabel(act) }}{{ last ? '' : ', ' }}</span>
+                                        }
+                                    </span>
+                                </label>
+                            }
+                        </div>
+                    } @else {
+                        <div class="flex flex-wrap gap-2">
+                            @for (act of applicableActions; track act) {
+                                <button
+                                    type="button"
+                                    (click)="toggleCustomAction(act)"
+                                    class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                                    [class.bg-indigo-600]="isCustomActionSelected(act)"
+                                    [class.text-white]="isCustomActionSelected(act)"
+                                    [class.border-indigo-600]="isCustomActionSelected(act)"
+                                    [class.bg-white]="!isCustomActionSelected(act)"
+                                    [class.dark:bg-slate-800]="!isCustomActionSelected(act)"
+                                    [class.text-slate-700]="!isCustomActionSelected(act)"
+                                    [class.dark:text-slate-200]="!isCustomActionSelected(act)"
+                                    [class.border-slate-300]="!isCustomActionSelected(act)"
+                                    [class.dark:border-slate-700]="!isCustomActionSelected(act)"
+                                >
+                                    {{ actionLabel(act) }}
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                {{ 'staffRbac.requestDialog.duration' | transloco }}
+                            </label>
+                            <mat-select [(ngModel)]="duration" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-900">
+                                @for (opt of durationOptions; track opt.value) {
+                                    <mat-option [value]="opt.value">{{ opt.labelKey | transloco }}</mat-option>
+                                }
+                            </mat-select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                {{ 'staffRbac.requestDialog.reasonLabel' | transloco }} <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                [(ngModel)]="reason"
+                                [placeholder]="'staffRbac.requestDialog.reasonPlaceholder' | transloco"
+                                class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                    </div>
+
+                    @if (errorMessage()) {
+                        <div class="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
+                            {{ errorMessage() }}
+                        </div>
+                    }
+
+                    <div class="flex justify-end">
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            (click)="submitRequest()"
+                            [disabled]="submitting()"
+                        >
+                            @if (submitting()) {
+                                <mat-spinner diameter="16" class="inline-block mr-1.5"></mat-spinner>
+                            }
+                            <mat-icon class="mr-1">send</mat-icon>
+                            {{ 'staffRbac.requestDialog.submitBtn' | transloco }}
+                        </button>
+                    </div>
+                </div>
+            } @else {
+                <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-600 dark:text-slate-300">
+                    {{ 'staffRbac.restricted.requestsDisabledHint' | transloco }}
+                </div>
+            }
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <a mat-stroked-button routerLink="/home" class="shrink-0 whitespace-nowrap !px-4">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">home</mat-icon>
+                    {{ 'staffRbac.restricted.goHome' | transloco }}
+                </a>
+                @if (permService.isStaff()) {
+                    <a mat-button routerLink="/settings/my-access" class="shrink-0 whitespace-nowrap !px-3.5">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">verified_user</mat-icon>
+                        {{ 'staffRbac.restricted.viewMyAccess' | transloco }}
+                    </a>
+                }
+            </div>
+            @if (!pendingRequest()) {
+                <button mat-button type="button" class="shrink-0 whitespace-nowrap !px-3.5" (click)="refreshAccess()" [disabled]="refreshing()">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">refresh</mat-icon>
+                    {{ 'staffRbac.restricted.refreshAccess' | transloco }}
+                </button>
+            }
+        </div>
+    </div>
+</div>

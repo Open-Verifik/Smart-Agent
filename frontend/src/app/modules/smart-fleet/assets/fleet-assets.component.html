@@ -50,6 +50,7 @@
                         </select>
                     </label>
                     <button
+                        *hasStaffPermission="'smartFleetAssets.create'"
                         mat-stroked-button
                         type="button"
                         [matMenuTriggerFor]="importMenu"
@@ -78,6 +79,7 @@
                     />
 
                     <button
+                        *hasStaffPermission="'smartFleetAssets.create'"
                         mat-stroked-button
                         type="button"
                         (click)="openCreateForm('driver')"
@@ -89,6 +91,7 @@
                     </button>
 
                     <button
+                        *hasStaffPermission="'smartFleetAssets.create'"
                         mat-flat-button
                         type="button"
                         (click)="openCreateForm('vehicle')"
@@ -1475,16 +1478,18 @@
                         (target.isActive ? 'smartFleet.assets.pause' : 'smartFleet.assets.resume') | transloco
                     }}</span>
                 </button>
-                <button
-                    mat-menu-item
-                    type="button"
-                    *ngIf="rowMenuTarget() as target"
-                    (click)="deleteAsset(target)"
-                    class="!text-red-600 dark:!text-red-400"
-                >
-                    <mat-icon class="!text-red-600 dark:!text-red-400">delete</mat-icon>
-                    <span>{{ 'smartFleet.assets.delete' | transloco }}</span>
-                </button>
+                <ng-container *hasStaffPermission="'smartFleetAssets.delete'">
+                    <button
+                        mat-menu-item
+                        type="button"
+                        *ngIf="rowMenuTarget() as target"
+                        (click)="deleteAsset(target)"
+                        class="!text-red-600 dark:!text-red-400"
+                    >
+                        <mat-icon class="!text-red-600 dark:!text-red-400">delete</mat-icon>
+                        <span>{{ 'smartFleet.assets.delete' | transloco }}</span>
+                    </button>
+                </ng-container>
             </mat-menu>
 
             <mat-menu #reportReadyMenu="matMenu" class="fleet-report-menu">

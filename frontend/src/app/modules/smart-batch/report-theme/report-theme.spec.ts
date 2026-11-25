@@ -10,7 +10,7 @@ import { buildScoreModelFromSampleData, ensureVerificationSample, syntheticVerif
 import { parseScoreProfiles, parseThemeStarters, resolveScoreProfileId, verificationRequestFields } from './report-score-api.adapter';
 import { starterFitsSheet, starterSections } from './report-theme.starters';
 import { ungroupThemeSections } from './report-theme-ungroup.util';
-import { themeBlockKindFromType } from './report-theme.model';
+import { themeBlockKindFromType, themeBlockToggleSupport } from './report-theme.model';
 
 describe('verification score API adapter', () => {
     it('sends nothing for an unthemed template with the score off', () => {
@@ -245,5 +245,25 @@ describe('backend theme object & Colombia vehicle sample model', () => {
         expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.checks')).toBe(true);
         expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.categories')).toBe(true);
         expect(ungrouped.some((s) => s.type === 'dataTable' && s.dataPath === 'verificationScore.sources')).toBe(true);
+    });
+
+    it('exposes only relevant per-block toggle overrides per theme block kind', () => {
+        expect(themeBlockToggleSupport('categoryBreakdown')).toEqual({
+            showWeights: true,
+            showFields: false,
+            showDeductions: false,
+        });
+        expect(themeBlockToggleSupport('checkTable')).toEqual({
+            showWeights: false,
+            showFields: true,
+            showDeductions: true,
+        });
+        for (const kind of ['coverPage', 'scoreGauge', 'findings', 'sources', null] as const) {
+            expect(themeBlockToggleSupport(kind)).toEqual({
+                showWeights: false,
+                showFields: false,
+                showDeductions: false,
+            });
+        }
     });
 });

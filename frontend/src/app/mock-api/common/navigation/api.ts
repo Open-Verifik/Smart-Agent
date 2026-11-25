@@ -100,6 +100,7 @@ export class NavigationMockApi {
                         type: 'aside',
                         icon: item.icon,
                         classes: item.classes ? cloneDeep(item.classes) : undefined,
+                        meta: item.meta ? cloneDeep(item.meta) : undefined,
                         children: cloneDeep(item.children ?? []),
                     };
 

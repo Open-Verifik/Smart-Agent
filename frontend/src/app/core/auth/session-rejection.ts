@@ -11,6 +11,15 @@ export interface SessionErrorBody {
     status?: number;
     code?: string;
     message?: string;
+    resource?: string;
+    action?: string;
+    teamId?: string;
+    teamName?: string;
+    featureCode?: string;
+    featureName?: string;
+    restrictedBy?: string;
+    canRequestAccess?: boolean;
+    canRequestBoost?: boolean;
 }
 
 /**
@@ -32,11 +41,20 @@ export function readSessionError(error: unknown): SessionErrorBody {
     const nested = record.error;
 
     if (nested && typeof nested === 'object') {
-        const body = nested as { code?: unknown; message?: unknown };
+        const body = nested as Record<string, unknown>;
         return {
             status,
-            code: typeof body.code === 'string' ? body.code : undefined,
-            message: typeof body.message === 'string' ? body.message : undefined,
+            code: typeof body['code'] === 'string' ? (body['code'] as string) : undefined,
+            message: typeof body['message'] === 'string' ? (body['message'] as string) : undefined,
+            resource: typeof body['resource'] === 'string' ? (body['resource'] as string) : undefined,
+            action: typeof body['action'] === 'string' ? (body['action'] as string) : undefined,
+            teamId: typeof body['teamId'] === 'string' ? (body['teamId'] as string) : undefined,
+            teamName: typeof body['teamName'] === 'string' ? (body['teamName'] as string) : undefined,
+            featureCode: typeof body['featureCode'] === 'string' ? (body['featureCode'] as string) : undefined,
+            featureName: typeof body['featureName'] === 'string' ? (body['featureName'] as string) : undefined,
+            restrictedBy: typeof body['restrictedBy'] === 'string' ? (body['restrictedBy'] as string) : undefined,
+            canRequestAccess: body['canRequestAccess'] === true,
+            canRequestBoost: body['canRequestBoost'] === true,
         };
     }
 
@@ -74,4 +92,24 @@ export function isExpiredTokenRejection(error: unknown): boolean {
 export function isRoleDeniedRejection(error: unknown): boolean {
     const body = readSessionError(error);
     return body.status === 403 && !isExpiredTokenRejection(error);
+}
+
+export function isStaffRbacDeniedRejection(error: unknown): boolean {
+    const body = readSessionError(error);
+    return body.status === 403 && body.message === 'insufficient_staff_permissions';
+}
+
+export function isTeamBudgetRejection(error: unknown): boolean {
+    const body = readSessionError(error);
+    return (
+        body.status === 403 &&
+        (body.message === 'team_budget_exceeded' ||
+            body.message === 'team_feature_budget_exceeded' ||
+            body.message === 'team_paused')
+    );
+}
+
+export function isEndpointRestrictedRejection(error: unknown): boolean {
+    const body = readSessionError(error);
+    return body.status === 403 && body.message === 'endpoint_restricted';
 }

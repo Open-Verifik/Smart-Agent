@@ -22,6 +22,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { SubscriptionLike } from 'rxjs';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { SmartBusinessService } from '../../smart-business.service';
 import type {
     BusinessMemberKYCRecord,
@@ -53,6 +54,7 @@ export type KybStepId = 'profile' | 'registries' | 'documents' | 'representative
         MatTabsModule,
         ClipboardModule,
         TranslocoModule,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './company-record-detail.component.html',
     styleUrls: ['./company-record-detail.component.scss'],

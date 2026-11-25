@@ -531,4 +531,20 @@ export const readThemeBlockConfig = (config: unknown): Required<Omit<ThemeBlockC
     };
 };
 
+export interface ThemeBlockToggleSupport {
+    showWeights: boolean;
+    showFields: boolean;
+    showDeductions: boolean;
+}
+
+/**
+ * Reports which per-block display overrides apply to a given themed block kind so
+ * unrelated blocks (such as cover pages or source lists) never show cryptic toggles.
+ */
+export const themeBlockToggleSupport = (kind: ThemeBlockKind | null | undefined): ThemeBlockToggleSupport => ({
+    showWeights: kind === 'categoryBreakdown',
+    showFields: kind === 'checkTable',
+    showDeductions: kind === 'checkTable',
+});
+
 export const fontStack = (family: string): string => `"${family}", Manrope, "Source Sans 3", system-ui, sans-serif`;

@@ -26,6 +26,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { endpointsNotInAccountCodes } from 'app/modules/smart-batch/account-endpoint-access.util';
 import { BatchBrowserRunnerService } from 'app/modules/smart-batch/batch-browser-runner.service';
 import {
@@ -131,6 +132,7 @@ const DEFAULT_DRAFT = (type: 'vehicle' | 'driver' = 'vehicle'): FleetAsset => ({
         FleetNavComponent,
         FleetGroupsBoardComponent,
         FleetVehicleIconComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './fleet-assets.component.html',
     encapsulation: ViewEncapsulation.None,

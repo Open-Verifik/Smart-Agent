@@ -30,6 +30,13 @@ import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
 import { environment } from 'environments/environment';
 import { Subject, takeUntil } from 'rxjs';
+import {
+    SYSTEM_ROLE_METADATA,
+    StaffAction,
+    StaffPermissionService,
+    StaffResource,
+    SystemRoleSlug,
+} from 'app/core/permissions';
 import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
@@ -42,6 +49,7 @@ interface AccountMenuShortcut {
     labelKey: string;
     link?: string;
     action?: 'support';
+    permission?: { resource: StaffResource; action?: StaffAction };
 }
 
 @Component({
@@ -100,6 +108,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
     readonly accountMenu = inject(AccountMenuService);
     readonly env = inject(AccountEnvironmentService);
+    readonly permissions = inject(StaffPermissionService);
     private readonly _quickChatService = inject(QuickChatService);
 
     readonly shortcuts: AccountMenuShortcut[] = [
@@ -108,24 +117,28 @@ export class UserComponent implements OnInit, OnDestroy {
             icon: 'heroicons_outline:key',
             labelKey: 'userMenu.shortcuts.apiKey',
             link: '/settings/api-key',
+            permission: { resource: 'apiKeys', action: 'read' },
         },
         {
             id: 'postman',
             icon: 'heroicons_outline:command-line',
             labelKey: 'userMenu.shortcuts.postman',
             link: '/postman',
+            permission: { resource: 'smartCheckPlayground', action: 'read' },
         },
         {
             id: 'payment-history',
             icon: 'heroicons_outline:document-text',
             labelKey: 'userMenu.shortcuts.paymentHistory',
             link: '/settings/payment-history',
+            permission: { resource: 'billingCredits', action: 'read' },
         },
         {
             id: 'usage-history',
             icon: 'heroicons_outline:chart-bar',
             labelKey: 'userMenu.shortcuts.usageHistory',
             link: '/settings/usage-history',
+            permission: { resource: 'billingUsage', action: 'read' },
         },
         {
             id: 'support',
@@ -134,6 +147,71 @@ export class UserComponent implements OnInit, OnDestroy {
             action: 'support',
         },
     ];
+
+    get visibleShortcuts(): AccountMenuShortcut[] {
+        return this.shortcuts.filter(
+            (shortcut) =>
+                !shortcut.permission ||
+                this.permissions.can(
+                    shortcut.permission.resource,
+                    shortcut.permission.action || 'read'
+                )
+        );
+    }
+
+    get canAddCredits(): boolean {
+        return this.permissions.can('billingCredits', 'create');
+    }
+
+    get canViewPlans(): boolean {
+        return this.permissions.can('billingSubscriptions', 'read');
+    }
+
+    get canViewTeam(): boolean {
+        return this.permissions.can('team', 'read');
+    }
+
+    get canViewBilling(): boolean {
+        return this.permissions.can('billingCredits', 'read');
+    }
+
+    get staffTeamBudget(): {
+        name: string;
+        used: number;
+        cap: number;
+        remaining: number;
+        percent: number;
+        paused: boolean;
+    } | null {
+        const team = this.permissions.team();
+        if (!team || team.budget?.effectiveCap == null) {
+            return null;
+        }
+        const used = team.budget.currentPeriodUsage ?? 0;
+        const cap = team.budget.effectiveCap;
+        const remaining = team.budget.remaining ?? Math.max(0, cap - used);
+        const percent = cap > 0 ? Math.min(100, Math.round((used / cap) * 100)) : 100;
+        return {
+            name: team.name,
+            used,
+            cap,
+            remaining,
+            percent,
+            paused: team.status === 'paused',
+        };
+    }
+
+    get displayRoleLabel(): string {
+        const customName = this.permissions.customRole()?.name;
+        if (customName) {
+            return customName;
+        }
+        const canonical = this.permissions.canonicalRole();
+        if (canonical && canonical in SYSTEM_ROLE_METADATA) {
+            return SYSTEM_ROLE_METADATA[canonical as SystemRoleSlug].name;
+        }
+        return this.permissions.role() || this.user?.role || '';
+    }
 
     /**
      * Initial rendered inside the avatar circle.

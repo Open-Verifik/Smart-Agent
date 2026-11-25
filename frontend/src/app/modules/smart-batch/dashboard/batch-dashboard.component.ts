@@ -10,7 +10,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
+import { SmartReportAgentKitComponent } from '../agent-kit/smart-report-agent-kit.component';
+import { SmartReportKitContext } from '../agent-kit/smart-report-kit-builders.util';
 import { BatchExecutorControlComponent } from '../batch-executor-control.component';
+import { extractRequiredFieldsFromConfig } from '../batch-required-fields.util';
 import {
     BatchConfiguration,
     DEFAULT_PER_PAGE,
@@ -37,6 +40,7 @@ import { inferBatchCategory, SmartBatchInputModeService } from '../smart-batch-i
         MatSnackBarModule,
         WebhookEventsComponent,
         BatchExecutorControlComponent,
+        SmartReportAgentKitComponent,
     ],
     templateUrl: './batch-dashboard.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -72,6 +76,7 @@ export class BatchDashboardComponent implements OnInit {
     // Panel visibility
     showStepsPanel = signal(false);
     showCostPanel = signal(false);
+    showAgentKitPanel = signal(false);
     webhookId = signal<string | null>(null);
     webhookName = signal('');
     webhookUrl = computed(() => this.configuration()?.notification?.webhookUrl || '');
@@ -112,6 +117,32 @@ export class BatchDashboardComponent implements OnInit {
     estimatedCostPerRow = computed(() => {
         return this.stepsDetails().reduce((sum, step) => sum + step.price, 0);
     });
+
+    agentKitContext = computed<SmartReportKitContext>(() => {
+        const configuration = this.configuration();
+        const preferredTemplate = configuration?.preferredReportTemplate;
+        const templateId =
+            typeof preferredTemplate === 'string'
+                ? preferredTemplate
+                : (preferredTemplate as { _id?: string } | undefined)?._id;
+        const requiredFields = configuration ? extractRequiredFieldsFromConfig(configuration) : [];
+
+        return {
+            configId: this.configId() || configuration?._id || configuration?.id,
+            configName: configuration?.name,
+            templateId,
+            webhookUrl: this.webhookUrl() || undefined,
+            requiredInputs: requiredFields.map((requiredField) => ({
+                field: requiredField.field,
+                required: requiredField.required,
+                enumValues: requiredField.enumValues,
+            })),
+        };
+    });
+
+    toggleAgentKitPanel() {
+        this.showAgentKitPanel.update((isVisible) => !isVisible);
+    }
 
     toggleStepsPanel() {
         this.showStepsPanel.update((v) => !v);

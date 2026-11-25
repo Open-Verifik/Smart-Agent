@@ -1,13 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { getStorageDir, ensureStorageDir } = require("../utils/storageDir");
 
-const DATA_DIR = path.resolve(__dirname, "../../data/conversations");
-
-// Ensure directory exists
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-}
+const DATA_DIR = getStorageDir("conversations");
 
 class ConversationRepository {
     /**
@@ -63,7 +59,8 @@ class ConversationRepository {
      * @param {Object} conversation
      */
     static save(conversation) {
-        const filePath = path.join(DATA_DIR, `${conversation.id}.json`);
+        const dir = ensureStorageDir("conversations") || DATA_DIR;
+        const filePath = path.join(dir, `${conversation.id}.json`);
         fs.writeFileSync(filePath, JSON.stringify(conversation, null, 2));
     }
 
@@ -73,6 +70,7 @@ class ConversationRepository {
      * @returns {Array} List of summaries {id, title, updated_at}
      */
     static list(ownerAddress = null) {
+        if (!fs.existsSync(DATA_DIR)) return [];
         const files = fs.readdirSync(DATA_DIR);
         const conversations = [];
 
@@ -158,6 +156,7 @@ class ConversationRepository {
      * @param {number} daysOld
      */
     static cleanup(daysOld = 30) {
+        if (!fs.existsSync(DATA_DIR)) return;
         const files = fs.readdirSync(DATA_DIR);
         const threshold = new Date();
         threshold.setDate(threshold.getDate() - daysOld);

@@ -1,5 +1,15 @@
 /* Precision Document Studio - Visita Guide Styles */
 
+:host {
+    color-scheme: light;
+    accent-color: #4f46e5;
+}
+
+:host-context(.dark) {
+    color-scheme: dark;
+    accent-color: #818cf8;
+}
+
 .layout-format-more {
     display: grid;
     grid-template-rows: 0fr;
@@ -120,4 +130,235 @@
     .cdk-drag-animating {
         transition: transform 180ms cubic-bezier(0, 0, 0.2, 1);
     }
+}
+
+:host-context(.dark) .visita-layout-layers {
+    .cdk-drag-preview {
+        background-color: #0f172a;
+        color: #f8fafc;
+        border-color: #818cf8;
+    }
+
+    .cdk-drag-placeholder {
+        background: #1e293b;
+        border-color: #818cf8;
+    }
+}
+
+/* Native popover overflow menu (CSS Anchor Positioning + viewport fallback) */
+.sr-action-menu-popover {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    color: inherit;
+}
+
+@supports (position-area: block-end) {
+    .sr-action-menu-popover[popover]:has(> [focusgroup~='menu']) {
+        position-area: block-end span-inline-start;
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        inset: auto;
+        margin-block-start: 0.375rem;
+    }
+}
+
+@supports not (position-area: block-end) {
+    .sr-action-menu-popover[popover] {
+        position: fixed;
+        inset: auto;
+        margin: 0;
+    }
+}
+
+@supports not selector(:popover-open) {
+    .sr-action-menu-popover[popover]:not(.\:popover-open) {
+        display: none;
+    }
+}
+
+.sr-action-menu-popover[popover]:is(:popover-open, .\:popover-open) {
+    display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .sr-action-menu-popover[popover]:has(> [focusgroup~='menu']) {
+        opacity: 0;
+        transition: opacity, translate, display, overlay;
+        transition-duration: 0.14s;
+        transition-behavior: allow-discrete;
+
+        @supports selector(:popover-open) {
+            translate: 0 -0.25rem;
+        }
+    }
+
+    .sr-action-menu-popover[popover]:has(> [focusgroup~='menu']):popover-open {
+        opacity: 1;
+        transition-duration: 0.1s;
+
+        @supports selector(:popover-open) {
+            translate: 0 0;
+        }
+
+        @starting-style {
+            opacity: 0;
+
+            @supports selector(:popover-open) {
+                translate: 0 -0.25rem;
+            }
+        }
+    }
+}
+
+.sr-action-menu {
+    min-width: 13.5rem;
+    border-radius: 0.875rem;
+    border: 1px solid #e7e5e4;
+    background: #ffffff;
+    padding: 0.375rem;
+    box-shadow:
+        0 16px 36px -12px rgba(15, 23, 42, 0.22),
+        0 4px 12px -4px rgba(15, 23, 42, 0.1);
+}
+
+.sr-action-menu-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.625rem;
+    border: 0;
+    border-radius: 0.625rem;
+    background: transparent;
+    padding: 0.5rem 0.625rem;
+    text-align: left;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #292524;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+
+    &:hover:not(:disabled) {
+        background: #f5f5f4;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #4f46e5;
+        outline-offset: -2px;
+        background: #eef2ff;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    &.is-danger {
+        color: #dc2626;
+
+        &:hover:not(:disabled) {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        &:focus-visible {
+            outline-color: #dc2626;
+            background: #fef2f2;
+        }
+    }
+}
+
+.sr-action-menu-sep {
+    margin: 0.375rem 0.25rem;
+    border: 0;
+    border-top: 1px solid #e7e5e4;
+}
+
+.sr-action-menu-trigger[aria-expanded='true'] {
+    border-color: #6366f1;
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+:host-context(.dark) {
+    .sr-action-menu {
+        border-color: #1f2937;
+        background: #0f172a;
+        box-shadow:
+            0 20px 44px -12px rgba(0, 0, 0, 0.65),
+            0 0 0 1px rgba(148, 163, 184, 0.12);
+    }
+
+    .sr-action-menu-item {
+        color: #e2e8f0;
+
+        &:hover:not(:disabled) {
+            background: #1e293b;
+        }
+
+        &:focus-visible {
+            outline-color: #818cf8;
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        &.is-danger {
+            color: #f87171;
+
+            &:hover:not(:disabled) {
+                background: rgba(239, 68, 68, 0.14);
+                color: #fca5a5;
+            }
+
+            &:focus-visible {
+                outline-color: #f87171;
+                background: rgba(239, 68, 68, 0.18);
+            }
+        }
+    }
+
+    .sr-action-menu-sep {
+        border-top-color: #1f2937;
+    }
+
+    .sr-action-menu-trigger[aria-expanded='true'] {
+        border-color: rgba(129, 140, 248, 0.55);
+        background: rgba(99, 102, 241, 0.22);
+        color: #e0e7ff;
+    }
+}
+
+/* Native <dialog> destructive confirmation modal */
+.sr-confirm-dialog {
+    margin: auto;
+    width: min(26rem, calc(100vw - 2rem));
+    max-width: 26rem;
+    border-radius: 1rem;
+    border: 1px solid #e7e5e4;
+    background: #ffffff;
+    padding: 0;
+    color: #1c1917;
+    box-shadow: 0 24px 56px -12px rgba(15, 23, 42, 0.35);
+}
+
+.sr-confirm-dialog:modal {
+    overscroll-behavior: contain;
+}
+
+.sr-confirm-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.56);
+    backdrop-filter: blur(3px);
+    overflow: hidden;
+    overscroll-behavior: contain;
+}
+
+:host-context(.dark) .sr-confirm-dialog {
+    border-color: #1f2937;
+    background: #0f172a;
+    color: #f8fafc;
+    box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.78);
+}
+
+:host-context(.dark) .sr-confirm-dialog::backdrop {
+    background: rgba(2, 6, 23, 0.72);
 }

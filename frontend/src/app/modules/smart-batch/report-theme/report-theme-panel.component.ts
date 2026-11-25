@@ -12,6 +12,7 @@ import {
     REPORT_THEME_IDS,
     THEME_BLOCK_KINDS,
     THEME_FONT_OPTIONS,
+    themeBlockToggleSupport,
     type ReportDensity,
     type ReportThemeId,
     type ReportThemeTokens,
@@ -21,30 +22,22 @@ import {
 } from './report-theme.model';
 
 const MAX_LOGO_BYTES = 400_000;
+const ALLOWED_LOGO_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif']);
 
 @Component({
     selector: 'report-theme-panel',
     standalone: true,
     imports: [CommonModule, FormsModule, TranslocoModule, ColorHexFieldComponent],
     templateUrl: './report-theme-panel.component.html',
-    styles: [
-        `
-            :host {
-                display: block;
-                color-scheme: light;
-            }
-            :host-context(.dark) {
-                color-scheme: dark;
-            }
-        `,
-    ],
+    styleUrls: ['./report-theme-panel.component.scss'],
 })
 export class ReportThemePanelComponent {
     private _transloco = inject(TranslocoService);
 
-    readonly selectedFormatClass = 'border-stone-950 bg-stone-950 text-white';
+    readonly selectedFormatClass =
+        'border-indigo-600 bg-indigo-600 text-white shadow-xs dark:border-indigo-400 dark:bg-indigo-500/25 dark:text-indigo-100';
     readonly idleFormatClass =
-        'border-stone-200 bg-white text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100';
+        'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-300 dark:hover:bg-gray-800';
     readonly themes = REPORT_THEME_IDS;
     readonly fonts = THEME_FONT_OPTIONS;
     readonly blocks = THEME_BLOCK_KINDS;
@@ -54,6 +47,7 @@ export class ReportThemePanelComponent {
     tokens = input.required<ReportThemeTokens>();
     score = input.required<ScoreSettings>();
     blockConfig = input<ThemeBlockConfig | null>(null);
+    blockKind = input<ThemeBlockKind | null>(null);
     canUngroup = input(false);
     /** API profiles, or the adapter fallback (`cabify_driver`) when that route is down. */
     profiles = input<ScoreProfileOption[]>(FALLBACK_SCORE_PROFILES);
@@ -64,6 +58,31 @@ export class ReportThemePanelComponent {
     });
 
     readonly profileId = computed(() => resolveScoreProfileId(this.score().profile, this.profileChoices()));
+
+    readonly selectedProfileLabel = computed(() => {
+        const selectedProfileId = this.profileId();
+        const match = this.profileChoices().find((item) => item.id === selectedProfileId);
+        return match ? this.profileLabel(match) : selectedProfileId;
+    });
+
+    readonly visibilitySummaryCount = computed(() => {
+        const current = this.tokens();
+        return [
+            current.showVerifiedBadge !== false,
+            current.showWeights !== false,
+            current.showDeductions !== false,
+            current.showFields !== false,
+            current.showHowItWorks !== false,
+        ].filter(Boolean).length;
+    });
+
+    readonly blockToggleSupport = computed(() => themeBlockToggleSupport(this.blockKind()));
+    readonly showBlockWeights = computed(() => this.blockToggleSupport().showWeights);
+    readonly showBlockFields = computed(() => this.blockToggleSupport().showFields);
+    readonly showBlockDeductions = computed(() => this.blockToggleSupport().showDeductions);
+    readonly hasBlockToggleOverrides = computed(
+        () => this.showBlockWeights() || this.showBlockFields() || this.showBlockDeductions()
+    );
 
     themeSelected = output<ReportThemeId>();
     starterRequested = output<ReportThemeId>();
@@ -96,11 +115,11 @@ export class ReportThemePanelComponent {
     }
 
     onLogo(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        input.value = '';
-        if (!file) return;
-        if (file.size > MAX_LOGO_BYTES) {
+        const fileInput = event.target as HTMLInputElement;
+        const selectedFile = fileInput.files?.[0];
+        fileInput.value = '';
+        if (!selectedFile) return;
+        if (selectedFile.size > MAX_LOGO_BYTES || !ALLOWED_LOGO_MIME_TYPES.has(selectedFile.type)) {
             this.logoRejected.emit();
             return;
         }
@@ -109,6 +128,6 @@ export class ReportThemePanelComponent {
             const logo = typeof reader.result === 'string' ? reader.result : '';
             if (logo) this.patchTokens({ logo });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(selectedFile);
     }
 }

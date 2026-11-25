@@ -1,0 +1,43 @@
+<ng-container *transloco="let t">
+    <div class="flex items-start justify-between gap-4">
+        <h2
+            mat-dialog-title
+            class="!m-0 !font-semibold !text-lg !leading-snug !tracking-tight text-stone-900 dark:text-white md:!text-xl"
+        >
+            {{ t('smartLinks.dialogs.deleteHubTitle') }}
+        </h2>
+        <button mat-icon-button type="button" class="!text-stone-500 dark:!text-stone-400" (click)="close()" [attr.aria-label]="t('close')">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="!pt-3">
+        <div class="space-y-3">
+            <p class="m-0 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
+                {{ t('smartLinks.dialogs.deleteHubBody', { name: data.project.name || data.project._id || '' }) }}
+            </p>
+
+            <div class="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-600 dark:border-gray-800 dark:bg-gray-900/60 dark:text-stone-300">
+                {{ t('smartLinks.dialogs.deletePreserveNote') }}
+            </div>
+
+            @if (errorMessage()) {
+                <div class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                    {{ errorMessage() }}
+                </div>
+            }
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="!gap-2 !pt-3">
+        <button mat-stroked-button type="button" class="rounded-xl whitespace-nowrap" [disabled]="deleting()" (click)="close()">
+            {{ t('smartLinks.actions.cancel') }}
+        </button>
+        <button mat-flat-button color="warn" type="button" class="rounded-xl whitespace-nowrap" [disabled]="deleting()" (click)="confirmDelete()">
+            @if (deleting()) {
+                <mat-spinner diameter="16" class="mr-2 inline-block"></mat-spinner>
+            }
+            {{ t('smartLinks.actions.deleteHub') }}
+        </button>
+    </mat-dialog-actions>
+</ng-container>

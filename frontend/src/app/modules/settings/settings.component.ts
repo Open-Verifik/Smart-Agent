@@ -3,6 +3,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    inject,
     OnDestroy,
     OnInit,
     ViewEncapsulation,
@@ -16,19 +17,22 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslocoModule } from '@jsverse/transloco';
+import { StaffPermissionService } from 'app/core/permissions/staff-permission.service';
+import { StaffAction, StaffResource } from 'app/core/permissions/staff-permission.types';
 import { Subject, takeUntil } from 'rxjs';
 import { ApiKeySettingsComponent } from './api-key-settings/api-key-settings.component';
 import { BillingDetailsComponent } from './billing-details/billing-details.component';
+import { CostCentersComponent } from './cost-centers/cost-centers.component';
+import { DataRetentionSettingsComponent } from './data-retention-settings/data-retention-settings.component';
+import { MyAccessComponent } from './my-access/my-access.component';
+import { NotificationSettingsComponent } from './notification-settings/notification-settings.component';
 import { PaymentHistoryComponent } from './payment-history/payment-history.component';
 import { ProfileSettingsComponent } from './profile-settings/profile-settings.component';
-import { StaffListComponent } from './staff-list';
-import { NotificationSettingsComponent } from './notification-settings/notification-settings.component';
+import { TeamHubComponent } from './team/team-hub.component';
 import { UsageHistoryComponent } from './usage-history/usage-history.component';
 import { UsageReportComponent } from './usage-report/usage-report.component';
-import { CostCentersComponent } from './cost-centers/cost-centers.component';
-import { WorkspaceSettingsComponent } from './workspace-settings/workspace-settings.component';
-import { DataRetentionSettingsComponent } from './data-retention-settings/data-retention-settings.component';
 import { getSettingsUser } from './utils/settings-business-user.util';
+import { WorkspaceSettingsComponent } from './workspace-settings/workspace-settings.component';
 
 interface SettingsPanel {
     id: string;
@@ -37,6 +41,9 @@ interface SettingsPanel {
     description?: string;
     disabled?: boolean;
     badge?: string;
+    staffOnly?: boolean;
+    locked?: boolean;
+    permission?: { resource: StaffResource; action?: StaffAction };
 }
 
 interface SettingsSection {
@@ -58,7 +65,8 @@ interface SettingsSection {
         MatMenuModule,
         TranslocoModule,
         RouterModule,
-        StaffListComponent,
+        TeamHubComponent,
+        MyAccessComponent,
         BillingDetailsComponent,
         PaymentHistoryComponent,
         ApiKeySettingsComponent,
@@ -77,6 +85,7 @@ interface SettingsSection {
 })
 export class SettingsComponent implements OnInit, OnDestroy {
     private _unsubscribeAll = new Subject<void>();
+    readonly permService = inject(StaffPermissionService);
 
     drawerMode: 'over' | 'side' = 'side';
     drawerOpened = true;
@@ -97,6 +106,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     description: 'settings.panels.profile_desc',
                 },
                 {
+                    id: 'my_access',
+                    icon: 'heroicons_outline:identification',
+                    title: 'settings.panels.my_access',
+                    description: 'settings.panels.my_access_desc',
+                    staffOnly: true,
+                },
+                {
                     id: 'security',
                     icon: 'heroicons_outline:lock-closed',
                     title: 'settings.panels.security',
@@ -109,6 +125,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     icon: 'heroicons_outline:bell',
                     title: 'settings.panels.notifications',
                     description: 'settings.panels.notifications_desc',
+                    permission: { resource: 'workspaceSettings', action: 'read' },
                 },
             ],
         },
@@ -121,18 +138,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     icon: 'heroicons_outline:building-office',
                     title: 'settings.panels.general',
                     description: 'settings.panels.general_desc',
+                    permission: { resource: 'workspaceSettings', action: 'read' },
                 },
                 {
                     id: 'team',
                     icon: 'heroicons_outline:user-group',
                     title: 'settings.panels.team',
                     description: 'settings.panels.team_desc',
+                    permission: { resource: 'team', action: 'read' },
                 },
                 {
                     id: 'data_retention',
                     icon: 'heroicons_outline:shield-check',
                     title: 'settings.panels.data_retention',
                     description: 'settings.panels.data_retention_desc',
+                    permission: { resource: 'workspaceSettings', action: 'read' },
                 },
             ],
         },
@@ -145,24 +165,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     icon: 'heroicons_outline:credit-card',
                     title: 'settings.panels.billing_details',
                     description: 'settings.panels.billing_details_desc',
+                    permission: { resource: 'billingCredits', action: 'read' },
                 },
                 {
                     id: 'payment_history',
                     icon: 'heroicons_outline:document-text',
                     title: 'settings.panels.payment_history',
                     description: 'settings.panels.payment_history_desc',
+                    permission: { resource: 'billingCredits', action: 'read' },
                 },
                 {
                     id: 'usage_history',
                     icon: 'heroicons_outline:chart-bar',
                     title: 'settings.panels.usage_history',
                     description: 'settings.panels.usage_history_desc',
+                    permission: { resource: 'billingUsage', action: 'read' },
                 },
                 {
                     id: 'usage_report',
                     icon: 'heroicons_outline:globe-americas',
                     title: 'settings.panels.usage_report',
                     description: 'settings.panels.usage_report_desc',
+                    permission: { resource: 'billingUsage', action: 'read' },
                 },
             ],
         },
@@ -175,12 +199,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     icon: 'heroicons_outline:key',
                     title: 'settings.panels.api_key',
                     description: 'settings.panels.api_key_desc',
+                    permission: { resource: 'apiKeys', action: 'read' },
                 },
                 {
                     id: 'cost_centers',
                     icon: 'heroicons_outline:rectangle-group',
                     title: 'settings.panels.cost_centers',
                     description: 'settings.panels.cost_centers_desc',
+                    permission: { resource: 'billingUsage', action: 'read' },
                 },
             ],
         },
@@ -188,6 +214,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     private _panelToSlug: { [key: string]: string } = {
         profile: 'profile',
+        my_access: 'my-access',
         security: 'security',
         notifications: 'notifications',
         general: 'general',
@@ -203,6 +230,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     private _slugToPanel: { [key: string]: string } = {
         profile: 'profile',
+        'my-access': 'my_access',
         security: 'security',
         notifications: 'notifications',
         general: 'general',
@@ -228,6 +256,39 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._observeMediaChanges();
         this._observeRouteChanges();
+        this.permService.state$.pipe(takeUntil(this._unsubscribeAll)).subscribe(() => {
+            this._cdr.markForCheck();
+        });
+    }
+
+    get visibleSections(): SettingsSection[] {
+        const isStaff = this.permService.isStaff();
+        const hideRestricted = this.permService.hideRestrictedNavigation();
+
+        return this.sections
+            .map((section) => {
+                const panels: SettingsPanel[] = [];
+                for (const panel of section.panels) {
+                    if (panel.staffOnly && !isStaff) {
+                        continue;
+                    }
+
+                    const allowed =
+                        !panel.permission ||
+                        this.permService.can(panel.permission.resource, panel.permission.action ?? 'read');
+
+                    if (!allowed && hideRestricted) {
+                        continue;
+                    }
+
+                    panels.push({
+                        ...panel,
+                        locked: !allowed,
+                    });
+                }
+                return { ...section, panels };
+            })
+            .filter((section) => section.panels.length > 0);
     }
 
     ngOnDestroy(): void {
@@ -251,6 +312,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (panel?.disabled) return;
 
         const slug = this._panelToSlug[panelId] || panelId;
+        if (
+            panel?.permission &&
+            this.permService.isStaff() &&
+            !this.permService.can(panel.permission.resource, panel.permission.action ?? 'read')
+        ) {
+            void this._router.navigate(['/access-restricted'], {
+                queryParams: {
+                    resource: panel.permission.resource,
+                    action: panel.permission.action ?? 'read',
+                    from: `/settings/${slug}`,
+                },
+            });
+            return;
+        }
+
         this._router.navigate(['/settings', slug]);
     }
 
@@ -306,6 +382,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
             const panelId = this._slugToPanel[slug] || slug;
             const panel = this._findPanel(panelId);
             if (panel && !panel.disabled) {
+                if (
+                    panel.permission &&
+                    this.permService.isStaff() &&
+                    !this.permService.can(panel.permission.resource, panel.permission.action ?? 'read')
+                ) {
+                    void this._router.navigate(['/access-restricted'], {
+                        queryParams: {
+                            resource: panel.permission.resource,
+                            action: panel.permission.action ?? 'read',
+                            from: `/settings/${slug}`,
+                        },
+                        replaceUrl: true,
+                    });
+                    return;
+                }
                 this._onPanelChanged(panelId);
             } else {
                 this._router.navigate(['/settings', 'profile'], { replaceUrl: true });
