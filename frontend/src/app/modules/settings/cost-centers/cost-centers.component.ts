@@ -12,6 +12,7 @@ import { countryName } from 'app/core/usage/country-geo';
 import { CostCenter, UsageApiService } from 'app/core/usage/usage-api.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { CostCenterDialogComponent, CostCenterDialogData, CostCenterDialogResult } from './cost-center-dialog.component';
 
 /**
@@ -31,6 +32,7 @@ import { CostCenterDialogComponent, CostCenterDialogData, CostCenterDialogResult
         MatTooltipModule,
         TranslocoModule,
         SettingsBusinessAccountEmptyStateComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './cost-centers.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,

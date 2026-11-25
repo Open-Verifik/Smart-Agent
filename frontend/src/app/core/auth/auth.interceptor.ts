@@ -1,14 +1,27 @@
 import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
-import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
+import {
+    isEndpointRestrictedRejection,
+    isStaffRbacDeniedRejection,
+    isStaffSessionRevoked,
+    isTeamBudgetRejection,
+    readSessionError,
+} from 'app/core/auth/session-rejection';
+import { RequestAccessDialogComponent } from 'app/core/permissions/request-access-dialog/request-access-dialog.component';
+import { StaffPermissionService } from 'app/core/permissions/staff-permission.service';
+import { StaffAction, StaffResource } from 'app/core/permissions/staff-permission.types';
 import { SessionService } from 'app/core/services/session.service';
 import { Observable, catchError, throwError } from 'rxjs';
 
 // Flag to prevent multiple session expiration handlers from running
 let isHandlingSessionExpiration = false;
+let lastRbacToastAt = 0;
 
 /**
  * Intercept
@@ -23,6 +36,7 @@ export const authInterceptor = (
     const authService = inject(AuthService);
     const router = inject(Router);
     const sessionService = inject(SessionService);
+    const injector = inject(Injector);
 
     // Clone the request object
     let newReq = req.clone();
@@ -59,6 +73,16 @@ export const authInterceptor = (
                     error.error?.message === 'expired_token'
                 ) {
                     handleSessionExpiration(authService, sessionService, router);
+                    return throwError(() => error);
+                }
+
+                // Non-destructive 403 handling for Staff RBAC, endpoint restrictions, and Sub-Team monthly budget ceilings
+                if (
+                    isStaffRbacDeniedRejection(error) ||
+                    isTeamBudgetRejection(error) ||
+                    isEndpointRestrictedRejection(error)
+                ) {
+                    handleStaffForbiddenNotice(error, injector);
                     return throwError(() => error);
                 }
 
@@ -160,4 +184,101 @@ function handleSessionExpiration(
     setTimeout(() => {
         isHandlingSessionExpiration = false;
     }, 2000);
+}
+
+/**
+ * Surfaces non-destructive 403 notices for missing Staff permissions or exhausted
+ * Sub-Team monthly credit ceilings, offering a one-click self-service Request CTA.
+ */
+function handleStaffForbiddenNotice(error: HttpErrorResponse, injector: Injector): void {
+    const now = Date.now();
+    if (now - lastRbacToastAt < 4000) {
+        return;
+    }
+    lastRbacToastAt = now;
+
+    const snackBar = injector.get(MatSnackBar, null, { optional: true });
+    if (!snackBar) return;
+
+    const dialog = injector.get(MatDialog, null, { optional: true });
+    const transloco = injector.get(TranslocoService, null, { optional: true });
+    const permService = injector.get(StaffPermissionService, null, { optional: true });
+    const body = readSessionError(error);
+
+    if (body.message === 'endpoint_restricted') {
+        const endpointLabel = body.featureName || body.featureCode || 'this endpoint';
+        const msg =
+            transloco?.translate('staffRbac.errors.endpointRestricted', {
+                endpoint: endpointLabel,
+            }) || `Access to ${endpointLabel} is restricted by your workspace endpoint policy.`;
+        snackBar.open(msg, undefined, { duration: 6000 });
+        return;
+    }
+
+    if (
+        body.message === 'team_budget_exceeded' ||
+        body.message === 'team_feature_budget_exceeded' ||
+        body.message === 'team_paused'
+    ) {
+        const endpointLabel = body.featureName || body.featureCode || 'this endpoint';
+        const msg =
+            body.message === 'team_paused'
+                ? transloco?.translate('staffRbac.errors.teamPaused', {
+                      team: body.teamName || 'Sub-Team',
+                  }) || `Sub-team ${body.teamName || ''} is currently paused.`
+                : body.message === 'team_feature_budget_exceeded'
+                  ? transloco?.translate('staffRbac.errors.teamFeatureBudgetExceeded', {
+                        team: body.teamName || 'Sub-Team',
+                        endpoint: endpointLabel,
+                    }) ||
+                    `Monthly endpoint limit reached for ${endpointLabel} on ${body.teamName || 'your sub-team'}.`
+                  : transloco?.translate('staffRbac.errors.teamBudgetExceeded', {
+                        team: body.teamName || 'Sub-Team',
+                    }) || `Monthly credit limit reached for ${body.teamName || 'your sub-team'}.`;
+
+        const canBoost = Boolean(body.canRequestBoost && dialog && permService?.allowAccessRequests());
+        const actionLabel = canBoost
+            ? transloco?.translate('staffRbac.errors.requestBoostAction') || 'Request Boost'
+            : undefined;
+        const ref = snackBar.open(msg, actionLabel, { duration: 6000 });
+        if (canBoost && dialog) {
+            ref.onAction().subscribe(() => {
+                dialog.open(RequestAccessDialogComponent, {
+                    width: '520px',
+                    maxWidth: '95vw',
+                    data: {
+                        mode: 'budget_increase',
+                        teamId: body.teamId,
+                        teamName: body.teamName,
+                    },
+                });
+            });
+        }
+        return;
+    }
+
+    const canRequest = Boolean(
+        body.canRequestAccess && body.resource && dialog && permService?.allowAccessRequests()
+    );
+    const msg =
+        transloco?.translate('staffRbac.errors.insufficientPermissions') ||
+        'You do not have permission for this action.';
+    const actionLabel = canRequest
+        ? transloco?.translate('staffRbac.errors.requestAccessAction') || 'Request Access'
+        : undefined;
+
+    const ref = snackBar.open(msg, actionLabel, { duration: 5500 });
+    if (canRequest && dialog && body.resource) {
+        ref.onAction().subscribe(() => {
+            dialog.open(RequestAccessDialogComponent, {
+                width: '520px',
+                maxWidth: '95vw',
+                data: {
+                    mode: 'resource_access',
+                    resource: body.resource as StaffResource,
+                    action: (body.action as StaffAction) || 'read',
+                },
+            });
+        });
+    }
 }

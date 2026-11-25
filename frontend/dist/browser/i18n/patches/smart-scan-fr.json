@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "Cette image de document est conservée temporairement et programmée pour une purge définitive le {{date}}.",
     "imagePurgedPlaceholderTitle": "Image non conservée",
     "imagePurgedPlaceholderDesc": "L'image originale du document a été supprimée le {{date}} conformément à la politique de conservation des données de votre organisation.",
+    "imageLoadErrorTitle": "Image indisponible",
     "imageUnavailableDesc": "L'image du document n'est pas disponible.",
     "categories": {
       "proof_of_address": "Justificatif de domicile"

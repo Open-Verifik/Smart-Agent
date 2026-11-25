@@ -3,7 +3,7 @@
   "info": {
     "title": "Verifik AI — x402 KYC & Verifik proxy",
     "version": "1.0.0",
-    "description": "x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware.",
+    "description": "x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware. SmartReports endpoints require your own Bearer JWT.",
     "x-guidance": "Verifik Smart Agent proxy API — base URL: https://ai.verifik.co\n\nPAYMENT (x402): Most clients call concrete paths under /v2 or /v3. Without a valid Verifik **user** Bearer JWT, the API responds **402 Payment Required** until you pay.\n- Submit on-chain payment, then retry with header **x-payment-tx** set to the transaction hash (or **Authorization: L402 <txHash>**).\n- Optional **x-payment-chain-id** (decimal or 0x hex) selects the settlement chain; default is Avalanche C-Chain. Assets: native gas token, USDC, or VKA where configured — see runtime 402 JSON for chain-specific fields.\n\nCREDITS BYPASS: **Authorization: Bearer <user JWT>** (a normal Verifik client token, not the server service token) skips on-chain payment for the same routes.\n\nALTERNATE ENTRY: **GET/POST /api/proxy** with required header **x-target-url** pointing at the same /v2 or /v3 path (absolute or relative). Price is resolved from that target path. Prefer documented /v2 and /v3 operations when possible.\n\nOpenAPI is canonical for listing; **/.well-known/x402** lists payable resource strings (METHOD + path)."
   },
   "servers": [
@@ -11,6 +11,16 @@
       "url": "https://ai.verifik.co"
     }
   ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Your Verifik client JWT (Authorization: Bearer <VERIFIK_JWT>). Required for all SmartReports endpoints."
+      }
+    }
+  },
   "tags": [
     {
       "name": "KYC",
@@ -35,6 +45,10 @@
     {
       "name": "USA",
       "description": "United States identity, company, and vehicle lookups"
+    },
+    {
+      "name": "SmartReports",
+      "description": "Headless SmartReports, templates, batches, and PDF generation (Bearer JWT required)"
     }
   ],
   "x-discovery": {
@@ -12699,6 +12713,855 @@
         ]
       }
     },
+    "/api/v3/smart-links/sessions": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "smart_link_create_session",
+        "summary": "SmartLink: Create Signed Verification Link",
+        "description": "Generate one signed SmartLink verification URL and QR code. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on this link to also require an ID document scan. This call is priced. The response contains only the session created by this request plus a single-session read-only statusToken and statusUrl for polling GET /v3/smart-links/public/sessions/{shortCode}/status without an account JWT or x402 payment. Listing, reading, updating, or deleting tenant sessions requires the caller's own API key or JWT.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.05"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Only the SmartLink session created by this call.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "description": "The session minted by this request. Other sessions are not included.",
+                      "properties": {
+                        "sessionId": {
+                          "type": "string"
+                        },
+                        "shortCode": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "qrDataUrl": {
+                          "type": "string"
+                        },
+                        "expiresAt": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "requireDocument": {
+                          "type": "boolean"
+                        },
+                        "maxUses": {
+                          "type": "number"
+                        },
+                        "useCount": {
+                          "type": "number"
+                        },
+                        "isMultiUseTemplate": {
+                          "type": "boolean"
+                        },
+                        "statusToken": {
+                          "type": "string"
+                        },
+                        "statusUrl": {
+                          "type": "string"
+                        },
+                        "requestedMode": {
+                          "type": "string"
+                        },
+                        "completionMode": {
+                          "type": "string"
+                        },
+                        "externalRefId": {
+                          "type": "string"
+                        },
+                        "prefill": {
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string"
+                            },
+                            "phone": {
+                              "type": "string"
+                            },
+                            "countryCode": {
+                              "type": "string"
+                            },
+                            "fullName": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string",
+                    "description": "SmartLink project ID to generate the verification link from."
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Optional user email address. When set, the user skips the identifier screen and routes directly to Face Liveness (if registered) or Document + Face."
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Optional user phone number. When set, the user skips the identifier screen."
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "description": "Optional phone country calling code (e.g. +1, +57)."
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "description": "Optional expected user full name hint."
+                  },
+                  "requireDocument": {
+                    "type": "boolean",
+                    "description": "Per-link override (default false). When true, requires an ID document scan in addition to Face Liveness even if the user already has a registered account."
+                  },
+                  "maxUses": {
+                    "type": "number",
+                    "description": "Maximum allowed completions for this link: 1 for single-use (default), 0 for unlimited template spawning per-use child sessions, or >1 for multi-use quota template."
+                  },
+                  "completionMode": {
+                    "type": "string",
+                    "description": "Handoff mode upon completion: receipt, redirect, or postMessage."
+                  },
+                  "externalRefId": {
+                    "type": "string",
+                    "description": "Caller correlation ID returned on status polls, webhooks, and sessionCode exchange."
+                  },
+                  "callbackWebhookUrl": {
+                    "type": "string",
+                    "description": "Optional HTTPS webhook URL invoked when the session completes."
+                  },
+                  "expiresInMinutes": {
+                    "type": "number",
+                    "description": "Link TTL in minutes (5 to 43200). Defaults to project setting (60)."
+                  },
+                  "createdByChannel": {
+                    "type": "string",
+                    "description": "Caller channel tag: mcp, x402, api, portal, or csv_campaign."
+                  }
+                },
+                "required": [
+                  "projectId"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/smart-batch-presets": {
+      "get": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_list_presets",
+        "summary": "smart_report_list_presets",
+        "description": "List Verifik system SmartReport presets (citizen, company, vehicle bundles across countries) along with their systemKey, credit cost estimate, and required input schema. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional ISO country filter (e.g. CO, MX, PE, US)."
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "citizen",
+                "company",
+                "vehicle"
+              ]
+            },
+            "description": "Optional report category filter."
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "essential",
+                "comprehensive"
+              ]
+            },
+            "description": "Optional preset tier filter."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional text search across name, description, and systemKey."
+          }
+        ]
+      }
+    },
+    "/v2/smart-batch-presets/{systemKey}/clone": {
+      "post": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_clone_preset",
+        "summary": "smart_report_clone_preset",
+        "description": "Clone a system SmartReport preset into a reusable client-owned BatchConfiguration and preferred PDF SmartReportTemplate (idempotent: reuses existing clone if present). Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "systemKey",
+            "in": "path",
+            "required": true,
+            "description": "System preset key (e.g. co.citizen.comprehensive).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v2/batch-configurations/{id}/input-schema": {
+      "get": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_get_input_schema",
+        "summary": "smart_report_get_input_schema",
+        "description": "Get the exact required/optional input fields, JSON Schema, example input object, preferred template ID, and estimated per-row credit cost for a BatchConfiguration. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "BatchConfiguration ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v2/smart-reports/run": {
+      "post": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_run",
+        "summary": "smart_report_run",
+        "description": "Headless end-to-end SmartReport execution: resolves a saved BatchConfiguration or clones a systemKey preset, validates inputs, runs chained verification steps server-side (billing client credits), generates the PDF report + Verification Score, optionally emails recipients, and fires report webhooks. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "systemKey": {
+                    "type": "string",
+                    "description": "System preset key to clone/reuse when batchConfigurationId is omitted (e.g. co.citizen.comprehensive)."
+                  },
+                  "batchConfigurationId": {
+                    "type": "string",
+                    "description": "Existing client BatchConfiguration ID."
+                  },
+                  "templateId": {
+                    "type": "string",
+                    "description": "Optional SmartReportTemplate ID override."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Optional report/batch display name."
+                  },
+                  "inputs": {
+                    "description": "Single input object (e.g. {\"documentType\":\"CC\",\"documentNumber\":\"123\"}) or array of up to 500 input rows.",
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "array",
+                        "maxItems": 500,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      }
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "sync",
+                      "async"
+                    ],
+                    "description": "Execution mode. sync waits (up to 5 rows) and returns the finished report; async returns 202 Accepted immediately and notifies webhooks."
+                  },
+                  "generatePdf": {
+                    "type": "boolean",
+                    "description": "Set false to skip PDF generation and return structured batch + verification score only (default true)."
+                  },
+                  "includePdfBase64": {
+                    "type": "boolean",
+                    "description": "Set true to inline base64 PDF bytes in the JSON response (default false; downloadUrl is always returned)."
+                  },
+                  "pdfEngine": {
+                    "type": "string",
+                    "enum": [
+                      "puppeteer",
+                      "pdfkit"
+                    ],
+                    "description": "PDF engine override."
+                  },
+                  "score": {
+                    "type": "boolean",
+                    "description": "Whether to compute Verification Score."
+                  },
+                  "scoreProfile": {
+                    "type": "string",
+                    "description": "Optional Verification Score profile identifier."
+                  },
+                  "emailTo": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "description": "Optional recipient email addresses to deliver the finished PDF (max 20)."
+                  },
+                  "emailSubject": {
+                    "type": "string",
+                    "description": "Optional custom email subject."
+                  },
+                  "emailLanguage": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "es"
+                    ],
+                    "description": "Email body language (default es)."
+                  },
+                  "webhookUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://",
+                    "description": "Optional per-run HTTPS webhook URL receiving smart_batch_report_generated / sent / batch_completed events."
+                  },
+                  "externalRefId": {
+                    "type": "string",
+                    "description": "Caller correlation ID persisted on the SmartReport and included in webhook events."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/smart-reports/{id}": {
+      "get": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_get",
+        "summary": "smart_report_get",
+        "description": "Retrieve SmartReport status, metadata, Verification Score summary, email delivery history, and downloadUrl / htmlUrl. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "SmartReport ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v2/smart-reports/{id}/html": {
+      "get": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_get_html",
+        "summary": "smart_report_get_html",
+        "description": "Fetch rendered HTML, structured row verification results, and Verification Score for an existing SmartReport without invoking PDF rendering. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "SmartReport ID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rowIndex",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Optional zero-based batch row index (default 0)."
+          },
+          {
+            "name": "preview",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Include interactive screen preview wrapper styling."
+          }
+        ]
+      }
+    },
+    "/v2/smart-reports/{id}/generate": {
+      "post": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_generate_pdf",
+        "summary": "smart_report_generate_pdf",
+        "description": "Render (or regenerate) a PDF for an existing SmartReport record and emit smart_batch_report_generated webhooks. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "SmartReport ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rowIndex": {
+                    "type": "number",
+                    "description": "Optional zero-based row index to render a single-subject PDF."
+                  },
+                  "engine": {
+                    "type": "string",
+                    "enum": [
+                      "puppeteer",
+                      "pdfkit"
+                    ]
+                  },
+                  "score": {
+                    "type": "boolean"
+                  },
+                  "scoreProfile": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/smart-reports/{id}/download": {
+      "get": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_download_pdf",
+        "summary": "smart_report_download_pdf",
+        "description": "Download the binary PDF of a SmartReport (MCP tool returns byte size, content-type, downloadUrl, and base64 only when includeBase64 is true). Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "SmartReport ID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rowIndex",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Optional row index."
+          },
+          {
+            "name": "includeBase64",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Set true to include base64 PDF content in MCP output (default false)."
+          }
+        ]
+      }
+    },
+    "/v2/smart-reports/{id}/send-email": {
+      "post": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_send_email",
+        "summary": "smart_report_send_email",
+        "description": "Send a generated SmartReport PDF via email to one or more recipients and trigger smart_batch_report_sent / delivery_failed webhooks. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "SmartReport ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recipients": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "description": "Recipient email addresses (max 20)."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Optional custom email subject."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "es"
+                    ],
+                    "description": "Email body language (default es)."
+                  },
+                  "rowIndex": {
+                    "type": "number",
+                    "description": "Optional row index when sending a single record PDF."
+                  },
+                  "sendAll": {
+                    "type": "boolean",
+                    "description": "Send all rows (up to 50) as separate PDF attachments."
+                  }
+                },
+                "required": [
+                  "recipients"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/smart-report-templates": {
+      "get": {
+        "tags": [
+          "SmartReports",
+          "Data"
+        ],
+        "operationId": "smart_report_list_templates",
+        "summary": "smart_report_list_templates",
+        "description": "List available SmartReport templates owned by the authenticated client or built-in system templates. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "System",
+                "client"
+              ]
+            },
+            "description": "Filter by template ownership type."
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
     "/api/proxy": {
       "get": {
         "tags": [
@@ -12718,7 +13581,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Target Verifik path or full URL (e.g. https://example.com/v2/co/cedula or /v2/co/cedula). Price is derived from this path."
+            "description": "Target Verifik path or full URL (e.g. https://api.verifik.co/v2/co/cedula or /v2/co/cedula). Price is derived from this path."
           }
         ],
         "x-payment-info": {
@@ -12768,7 +13631,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Target Verifik path or full URL (e.g. https://example.com/v2/co/cedula or /v2/co/cedula). Price is derived from this path."
+            "description": "Target Verifik path or full URL (e.g. https://api.verifik.co/v2/co/cedula or /v2/co/cedula). Price is derived from this path."
           }
         ],
         "requestBody": {

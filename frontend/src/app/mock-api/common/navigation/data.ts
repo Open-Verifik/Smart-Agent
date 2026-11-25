@@ -15,6 +15,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:home',
                 link: '/home',
                 classes: { wrapper: 'nav-product nav-product--home' },
+                meta: { resource: 'home' },
             },
         ],
     },
@@ -37,6 +38,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:chat-bubble-left-right',
                         link: '/chat',
+                        meta: { resource: 'smartCheckPlayground' },
                     },
                     {
                         id: 'postman',
@@ -45,6 +47,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:command-line',
                         link: '/postman',
+                        meta: { resource: 'smartCheckPlayground' },
                     },
                     {
                         id: 'check-list',
@@ -53,6 +56,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:clipboard-document-check',
                         link: '/check-list',
+                        meta: { resource: 'smartCheckLists' },
                     },
                     {
                         id: 'history',
@@ -61,6 +65,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:clock',
                         link: '/history',
+                        meta: { resource: 'smartCheckHistory' },
                     },
                     {
                         type: 'divider',
@@ -72,6 +77,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:credit-card',
                         link: '/subscription-plans',
+                        meta: { resource: 'billingSubscriptions' },
                     },
                     {
                         id: 'add-credits',
@@ -80,6 +86,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:plus-circle',
                         link: '/add-credits',
+                        meta: { resource: 'billingCredits' },
                     },
                 ],
             },
@@ -97,6 +104,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:sparkles',
                         link: '/smart-reports/builder',
+                        meta: { resource: 'smartReportsTemplates' },
                     },
                     {
                         id: 'smart-reports-templates',
@@ -105,6 +113,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:document-duplicate',
                         link: '/smart-reports/templates',
+                        meta: { resource: 'smartReportsTemplates' },
                     },
                     {
                         id: 'smart-reports-batch',
@@ -113,6 +122,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:queue-list',
                         link: '/smart-reports/batch',
+                        meta: { resource: 'smartReportsBatch' },
                     },
                 ],
             },
@@ -131,6 +141,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         icon: 'heroicons_outline:chart-bar',
                         link: '/smart-fleet',
                         exactMatch: true,
+                        meta: { resource: 'smartFleetAssets' },
                     },
                     {
                         id: 'smart-fleet-assets',
@@ -139,6 +150,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:truck',
                         link: '/smart-fleet/assets',
+                        meta: { resource: 'smartFleetAssets' },
                     },
                     {
                         id: 'smart-fleet-drivers',
@@ -149,6 +161,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         link: '/smart-fleet/assets',
                         queryParams: { type: 'driver' },
                         exactMatch: true,
+                        meta: { resource: 'smartFleetAssets' },
                     },
                     {
                         id: 'smart-fleet-watch-rules',
@@ -157,6 +170,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:adjustments-horizontal',
                         link: '/smart-fleet/watch-rules',
+                        meta: { resource: 'smartFleetRules' },
                     },
                     {
                         id: 'smart-fleet-alerts',
@@ -165,6 +179,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:bell-alert',
                         link: '/smart-fleet/alerts',
+                        meta: { resource: 'smartFleetRules' },
                     },
                     {
                         type: 'divider',
@@ -176,6 +191,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:credit-card',
                         link: '/smart-fleet/plans',
+                        meta: { resource: 'billingSubscriptions' },
                     },
                 ],
             },
@@ -193,6 +209,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:rectangle-stack',
                         link: '/smart-enroll/projects',
+                        meta: { resource: 'smartEnrollProjects' },
                     },
                     {
                         id: 'smart-scan',
@@ -201,6 +218,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:document-text',
                         link: '/smart-enroll/smart-scan',
+                        meta: { resource: 'smartEnrollScan' },
                     },
                     {
                         id: 'smart-enroll-document-templates',
@@ -209,6 +227,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:squares-2x2',
                         link: '/smart-enroll/document-templates',
+                        meta: { resource: 'smartEnrollScan' },
                     },
                     // Legacy OpenCV 1:N views replaced cleanly below — restored on local InsightFace/ArcFace engine
                     {
@@ -218,6 +237,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:folder',
                         link: '/smart-enroll/collections',
+                        meta: { resource: 'smartEnrollBiometrics' },
                     },
                     {
                         id: 'smart-enroll-people',
@@ -226,6 +246,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:user-group',
                         link: '/smart-enroll/people',
+                        meta: { resource: 'smartEnrollBiometrics' },
                     },
                     {
                         id: 'smart-enroll-api',
@@ -234,6 +255,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:command-line',
                         link: '/smart-enroll/api',
+                        meta: { resource: 'smartEnrollBiometrics' },
                     },
                     {
                         id: 'smart-enroll-demos',
@@ -242,6 +264,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:play-circle',
                         link: '/smart-enroll/demos',
+                        meta: { resource: 'smartEnrollBiometrics' },
                     },
                     {
                         id: 'smart-enroll-usage-history',
@@ -250,6 +273,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:clock',
                         link: '/smart-enroll/usage-history',
+                        meta: { resource: 'smartEnrollBiometrics' },
                     },
                     {
                         type: 'divider',
@@ -261,6 +285,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:credit-card',
                         link: '/smart-enroll/plans',
+                        meta: { resource: 'billingSubscriptions' },
                     },
                 ],
             },
@@ -278,6 +303,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:rectangle-stack',
                         link: '/smart-business/projects',
+                        meta: { resource: 'smartBusinessProjects' },
                     },
                     {
                         id: 'smart-business-scan',
@@ -286,6 +312,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:document-text',
                         link: '/smart-business/smart-scan',
+                        meta: { resource: 'smartBusinessProjects' },
                     },
                     {
                         id: 'smart-business-document-templates',
@@ -294,6 +321,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:squares-2x2',
                         link: '/smart-business/document-templates',
+                        meta: { resource: 'smartBusinessProjects' },
                     },
                     {
                         type: 'divider',
@@ -305,6 +333,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:credit-card',
                         link: '/smart-business/plans',
+                        meta: { resource: 'billingSubscriptions' },
                     },
                 ],
             },
@@ -322,6 +351,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:rectangle-stack',
                         link: '/human-authn/projects',
+                        meta: { resource: 'humanAuthn' },
                     },
                     {
                         id: 'human-authn-demos',
@@ -330,6 +360,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:play-circle',
                         link: '/human-authn/demos',
+                        meta: { resource: 'humanAuthn' },
                     },
                     {
                         id: 'human-authn-history',
@@ -338,6 +369,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:clock',
                         link: '/human-authn/history',
+                        meta: { resource: 'humanAuthn' },
                     },
                     {
                         type: 'divider',
@@ -349,6 +381,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:credit-card',
                         link: '/human-authn/plans',
+                        meta: { resource: 'billingSubscriptions' },
                     },
                 ],
             },
@@ -366,6 +399,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:rectangle-stack',
                         link: '/smart-access/projects',
+                        meta: { resource: 'smartAccess' },
                     },
                     {
                         type: 'divider',
@@ -377,6 +411,25 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:credit-card',
                         link: '/smart-access/plans',
+                        meta: { resource: 'billingSubscriptions' },
+                    },
+                ],
+            },
+            {
+                id: 'smart-links',
+                title: 'nav.smart_links',
+                type: 'collapsable',
+                icon: 'heroicons_outline:link',
+                classes: { wrapper: 'nav-product nav-product--link' },
+                children: [
+                    {
+                        id: 'smart-links-projects',
+                        title: 'nav.smart_links_projects',
+                        subtitle: 'nav.smart_links_projects_subtitle',
+                        type: 'basic',
+                        icon: 'heroicons_outline:sparkles',
+                        link: '/smart-links/projects',
+                        meta: { resource: 'smartLinks' },
                     },
                 ],
             },
@@ -394,6 +447,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:check-circle',
                         link: '/smart-monitor/status-check',
+                        meta: { resource: 'smartMonitorStatus' },
                     },
                     {
                         id: 'incidents',
@@ -402,6 +456,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:exclamation-triangle',
                         link: '/smart-monitor/incidents',
+                        meta: { resource: 'smartMonitorStatus' },
                     },
                     {
                         id: 'webhooks',
@@ -410,6 +465,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:link',
                         link: '/smart-monitor/webhooks',
+                        meta: { resource: 'smartMonitorWebhooks' },
                     },
                 ],
             },
@@ -427,6 +483,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:photo',
                         link: '/smart-tools/smart-reduce',
+                        meta: { resource: 'smartTools' },
                     },
                     {
                         id: 'whatsapp-messages',
@@ -435,6 +492,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:chat-bubble-left-ellipsis',
                         link: '/smart-tools/whatsapp-messages',
+                        meta: { resource: 'smartTools' },
                     },
                     {
                         id: 'sms-messages',
@@ -443,6 +501,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         type: 'basic',
                         icon: 'heroicons_outline:device-phone-mobile',
                         link: '/smart-tools/sms-messages',
+                        meta: { resource: 'smartTools' },
                     },
                 ],
             },
@@ -467,6 +526,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         type: 'basic',
         icon: 'heroicons_outline:home',
         link: '/home',
+        meta: { resource: 'home' },
     },
     {
         id: 'smart-check',
@@ -804,6 +864,23 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:credit-card',
                 link: '/smart-access/plans',
+            },
+        ],
+    },
+    {
+        id: 'smart-links',
+        title: 'nav.smart_links',
+        type: 'collapsable',
+        icon: 'heroicons_outline:link',
+        classes: { wrapper: 'nav-product nav-product--link' },
+        children: [
+            {
+                id: 'smart-links-projects',
+                title: 'nav.smart_links_projects',
+                subtitle: 'nav.smart_links_projects_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:sparkles',
+                link: '/smart-links/projects',
             },
         ],
     },

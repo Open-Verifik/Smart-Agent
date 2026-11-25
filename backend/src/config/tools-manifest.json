@@ -6400,6 +6400,73 @@
 					"backImage"
 				]
 			}
+		},
+		{
+			"id": "smart_link_create_session",
+			"name": "SmartLink: Create Signed Verification Link",
+			"category": "SmartLink Identity Verification",
+			"url": "https://ai.verifik.co/api/v3/smart-links/sessions",
+			"verifikPath": "/v3/smart-links/sessions",
+			"method": "POST",
+			"description": "Generate one signed SmartLink verification URL and QR code. Optionally pass email or phone to skip the identifier prompt. Existing accounts verify with Face Liveness only; set requireDocument: true on this link to also require an ID document scan. This call is priced. The response contains only the session created by this request plus a single-session read-only statusToken and statusUrl for polling GET /v3/smart-links/public/sessions/{shortCode}/status without an account JWT or x402 payment. Listing, reading, updating, or deleting tenant sessions requires the caller's own API key or JWT.",
+			"country": "Global",
+			"priceUsd": 0.05,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"projectId": {
+						"type": "string",
+						"description": "SmartLink project ID to generate the verification link from."
+					},
+					"email": {
+						"type": "string",
+						"description": "Optional user email address. When set, the user skips the identifier screen and routes directly to Face Liveness (if registered) or Document + Face."
+					},
+					"phone": {
+						"type": "string",
+						"description": "Optional user phone number. When set, the user skips the identifier screen."
+					},
+					"countryCode": {
+						"type": "string",
+						"description": "Optional phone country calling code (e.g. +1, +57)."
+					},
+					"fullName": {
+						"type": "string",
+						"description": "Optional expected user full name hint."
+					},
+					"requireDocument": {
+						"type": "boolean",
+						"description": "Per-link override (default false). When true, requires an ID document scan in addition to Face Liveness even if the user already has a registered account."
+					},
+					"maxUses": {
+						"type": "number",
+						"description": "Maximum allowed completions for this link: 1 for single-use (default), 0 for unlimited template spawning per-use child sessions, or >1 for multi-use quota template."
+					},
+					"completionMode": {
+						"type": "string",
+						"description": "Handoff mode upon completion: receipt, redirect, or postMessage."
+					},
+					"externalRefId": {
+						"type": "string",
+						"description": "Caller correlation ID returned on status polls, webhooks, and sessionCode exchange."
+					},
+					"callbackWebhookUrl": {
+						"type": "string",
+						"description": "Optional HTTPS webhook URL invoked when the session completes."
+					},
+					"expiresInMinutes": {
+						"type": "number",
+						"description": "Link TTL in minutes (5 to 43200). Defaults to project setting (60)."
+					},
+					"createdByChannel": {
+						"type": "string",
+						"description": "Caller channel tag: mcp, x402, api, portal, or csv_campaign."
+					}
+				},
+				"required": [
+					"projectId"
+				]
+			}
 		}
 	]
 }

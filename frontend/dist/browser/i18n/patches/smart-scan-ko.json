@@ -86,6 +86,7 @@
     "retentionEphemeralBannerDesc": "이 신분증 이미지는 임시로 보관 중이며, {{date}}에 영구 삭제될 예정입니다.",
     "imagePurgedPlaceholderTitle": "이미지가 더 이상 저장되지 않음",
     "imagePurgedPlaceholderDesc": "조직의 데이터 보존 정책에 따라 원본 신분증 이미지가 {{date}}에 삭제되었습니다.",
+    "imageLoadErrorTitle": "이미지를 불러올 수 없습니다",
     "imageUnavailableDesc": "신분증 이미지를 사용할 수 없습니다.",
     "categories": {
       "proof_of_address": "주소 증명 서류"

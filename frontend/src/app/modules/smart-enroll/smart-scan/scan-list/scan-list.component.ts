@@ -95,6 +95,7 @@ export class ScanListComponent implements OnInit {
     pageSize = this._scanService.pageSize;
     pageIndex = this._scanService.pageIndex;
     readonly pageSizeOptions = [6, 12, 24, 48];
+    failedImageIds = signal<Set<string>>(new Set());
 
     quickSearch = '';
     showFilters = false;
@@ -180,6 +181,7 @@ export class ScanListComponent implements OnInit {
     }
 
     loadData() {
+        this.failedImageIds.set(new Set());
         this._scanService.pageIndex.set(this.pageIndex());
         this._scanService.pageSize.set(this.pageSize());
 
@@ -226,6 +228,17 @@ export class ScanListComponent implements OnInit {
 
     goToDetail(id: string) {
         this._router.navigate([this.basePath, id]);
+    }
+
+    onImageError(scanId: string): void {
+        if (!scanId || this.failedImageIds().has(scanId)) return;
+        const next = new Set(this.failedImageIds());
+        next.add(scanId);
+        this.failedImageIds.set(next);
+    }
+
+    hasImageFailed(scanId: string): boolean {
+        return Boolean(scanId && this.failedImageIds().has(scanId));
     }
 
     getScanName(scan: DocumentValidation): string {

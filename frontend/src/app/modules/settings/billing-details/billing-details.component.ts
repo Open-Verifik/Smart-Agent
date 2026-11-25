@@ -33,6 +33,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { HasStaffPermissionDirective } from 'app/core/permissions';
 import { CountryService } from 'app/core/services/country.service';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -72,6 +73,7 @@ const nitFormatValidator = (control: AbstractControl): ValidationErrors | null =
         MatButtonModule,
         MatIconModule,
         SettingsBusinessAccountEmptyStateComponent,
+        HasStaffPermissionDirective,
         MatInputModule,
         MatAutocompleteModule,
         MatProgressSpinnerModule,

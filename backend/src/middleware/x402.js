@@ -9,6 +9,11 @@ const {
     resolveChainFromHeaders,
     listAcceptedChains,
 } = require("../config/chains");
+const {
+    isSmartLinkCreateTool,
+    isSmartLinkPublicStatusPoll,
+    SMART_LINK_CREATE_PRICE_USD,
+} = require("../config/smart-link-x402-policy");
 
 /**
  * x402 native payment middleware.
@@ -216,6 +221,10 @@ module.exports = async (ctx, next) => {
         }
     }
 
+    if (isSmartLinkPublicStatusPoll(ctx.method, pathToMatch)) {
+        return next();
+    }
+
     /**
      * Match a manifest tool against pathToMatch.
      * Priority:
@@ -230,9 +239,18 @@ module.exports = async (ctx, next) => {
         if (t.verifikPath && t.verifikPath === pathToMatch) return true;
         return t.url.endsWith(pathToMatch);
     };
-    const matchedTool = toolsManifest.endpoints.find(matchTool);
+    const httpMethod = String(ctx.method || "GET").toUpperCase();
+    const pathMatches = toolsManifest.endpoints.filter(matchTool);
+    const matchedTool =
+        pathMatches.find((tool) => String(tool.method || "GET").toUpperCase() === httpMethod) ||
+        pathMatches[0];
     if (matchedTool && typeof matchedTool.priceUsd === "number") {
         requiredPriceUsd = matchedTool.priceUsd;
+    }
+    // Session creation stays on x402 only when it has a real price. A $0
+    // listing would let every shared-account caller mint links for free.
+    if (matchedTool && isSmartLinkCreateTool(matchedTool) && !(requiredPriceUsd > 0)) {
+        requiredPriceUsd = SMART_LINK_CREATE_PRICE_USD;
     }
 
     // 2. Resolve which chain the caller wants to pay on

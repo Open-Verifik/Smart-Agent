@@ -24,15 +24,30 @@
             border-color 150ms ease,
             color 150ms ease;
 
-        &:hover {
+        &:hover:not(:disabled) {
             border-color: rgb(168 162 158);
             color: rgb(28 25 23);
+        }
+
+        &:focus-visible {
+            outline: 2px solid rgb(59 130 246 / 0.65);
+            outline-offset: 2px;
+        }
+
+        &:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
         }
 
         &--active {
             border-color: rgb(28 25 23);
             background: rgb(28 25 23);
             color: rgb(255 255 255);
+
+            &:hover:not(:disabled) {
+                border-color: rgb(28 25 23);
+                color: rgb(255 255 255);
+            }
 
             .catalog-filter-pill__count {
                 background: rgb(255 255 255 / 0.18);
@@ -58,8 +73,13 @@
         position: relative;
         color: rgb(120 113 108);
 
-        &:hover {
+        &:hover:not(:disabled) {
             color: rgb(28 25 23);
+        }
+
+        &:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
         }
 
         &--active {
@@ -127,22 +147,45 @@
             background: inherit;
         }
     }
+
+    @media (forced-colors: active) {
+        .catalog-filter-pill--active {
+            border-color: Highlight;
+            outline: 1px solid Highlight;
+        }
+
+        .source-filter-tab--active::after {
+            border-block-end-color: Highlight;
+        }
+    }
 }
 
-:host-context(.dark) .doc-templates-root {
+.dark .doc-templates-root {
     .catalog-filter-pill {
         border-color: rgb(55 65 81);
-        background: rgb(17 24 39);
+        background: rgb(17 24 39 / 0.85);
         color: rgb(209 213 219);
 
+        &:hover:not(:disabled) {
+            border-color: rgb(100 116 139);
+            background: rgb(30 41 59);
+            color: rgb(248 250 252);
+        }
+
         &--active {
-            border-color: rgb(243 244 246);
-            background: rgb(243 244 246);
-            color: rgb(17 24 39);
+            border-color: rgb(96 165 250 / 0.7);
+            background: rgb(37 99 235 / 0.22);
+            color: rgb(239 246 255);
+
+            &:hover:not(:disabled) {
+                border-color: rgb(147 197 253 / 0.8);
+                background: rgb(37 99 235 / 0.3);
+                color: rgb(255 255 255);
+            }
 
             .catalog-filter-pill__count {
-                background: rgb(17 24 39 / 0.15);
-                color: rgb(17 24 39);
+                background: rgb(59 130 246 / 0.32);
+                color: rgb(219 234 254);
             }
         }
 
@@ -152,12 +195,21 @@
         }
     }
 
+    .source-filter-tab {
+        color: rgb(156 163 175);
+
+        &:hover:not(:disabled) {
+            color: rgb(243 244 246);
+        }
+    }
+
     .source-filter-tab--active {
-        background: rgb(17 24 39);
-        color: rgb(255 255 255);
+        background: rgb(31 41 55);
+        color: rgb(249 250 251);
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
 
         &::after {
-            border-block-end-color: rgb(255 255 255);
+            border-block-end-color: rgb(96 165 250);
         }
     }
 }

@@ -2,6 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
+import {
+    CustomRoleSummary,
+    EndpointPolicy,
+    PermissionMap,
+    StaffAccessPolicy,
+    StaffTeamSummary,
+    StaffTemporaryGrant,
+} from 'app/core/permissions/staff-permission.types';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { SessionService } from 'app/core/services/session.service';
 import { environment } from 'environments/environment';
@@ -96,6 +104,7 @@ export interface ClientSettings {
     testAccount: boolean;
     invoiceSettings: InvoiceSettings;
     sendEmailNotifications: boolean;
+    staffAccessPolicy?: StaffAccessPolicy;
     client: string;
 }
 
@@ -114,15 +123,37 @@ export interface WorkspaceResponse {
     data: Workspace;
 }
 
+export type StaffRoleSlug =
+    | 'admin'
+    | 'compliance_officer'
+    | 'developer'
+    | 'finance'
+    | 'operator'
+    | 'viewer'
+    | 'empleado'
+    | 'contabilidad'
+    | 'desarrollador'
+    | 'administrador';
+
 export interface StaffMember {
     _id?: string;
     name: string;
     email: string;
     phone: string;
     countryCode: string;
-    role: 'empleado' | 'contabilidad' | 'desarrollador' | 'administrador';
+    role: StaffRoleSlug;
+    canonicalRole?: string;
+    customRole?: CustomRoleSummary | string | null;
+    team?: StaffTeamSummary | string | null;
+    useCustomPermissions?: boolean;
+    customPermissions?: PermissionMap | null;
+    endpointPolicy?: EndpointPolicy;
+    temporaryGrants?: StaffTemporaryGrant[];
+    activeTemporaryGrants?: StaffTemporaryGrant[];
+    activeTemporaryGrantsCount?: number;
+    lastActiveAt?: string | null;
     client: string;
-    status?: 'active' | 'pending' | 'inactive';
+    status?: 'active' | 'pending' | 'inactive' | 'invited' | 'joined' | 'banned';
     avatar?: string;
 }
 
@@ -440,6 +471,22 @@ export class SettingsService {
         return this._httpWrapper.sendRequest('post', url, billingData).pipe(
             catchError((error) => {
                 console.error('[SettingsService] Save billing config failed:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    updateClientSettings(
+        settingsId: string,
+        payload: Partial<ClientSettings>
+    ): Observable<BillingConfigResponse> {
+        if (!this.accessToken) return throwError(() => new Error('No access token available'));
+
+        const url = `${this.apiUrl}/v2/client-settings/${settingsId}`;
+
+        return this._httpWrapper.sendRequest('put', url, payload).pipe(
+            catchError((error) => {
+                console.error('[SettingsService] Update client settings failed:', error);
                 return throwError(() => error);
             })
         );

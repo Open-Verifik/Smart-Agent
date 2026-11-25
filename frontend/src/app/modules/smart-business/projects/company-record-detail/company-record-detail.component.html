@@ -182,7 +182,7 @@
                         </div>
 
                         <!-- Compliance Actions Bar -->
-                        <div class="flex items-center gap-2">
+                        <div *hasStaffPermission="'smartBusinessRecords.approve'" class="flex items-center gap-2">
                             <button
                                 mat-stroked-button
                                 type="button"

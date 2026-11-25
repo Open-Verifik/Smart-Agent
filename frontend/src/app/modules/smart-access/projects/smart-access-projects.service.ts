@@ -41,11 +41,21 @@ export class SmartAccessProjectsService {
         return token ? { Authorization: `Bearer ${token}` } : {};
     }
 
-    parseStoredUser(): { staff?: string } | null {
-        const raw = localStorage.getItem('user');
+    parseStoredUser(): { staff?: string; canonicalRole?: string } | null {
+        const raw = localStorage.getItem('verifik_account') || localStorage.getItem('user');
         if (!raw) return null;
         try {
-            return JSON.parse(raw) as { staff?: string };
+            const parsed = JSON.parse(raw) as {
+                _id?: string;
+                staff?: string;
+                isStaff?: boolean;
+                canonicalRole?: string;
+                role?: string;
+            };
+            const staffId = parsed.staff || (parsed.isStaff ? parsed._id : undefined);
+            const canonicalRole =
+                parsed.canonicalRole || (parsed.role === 'administrador' ? 'admin' : parsed.role);
+            return { staff: staffId, canonicalRole };
         } catch {
             return null;
         }
@@ -81,7 +91,7 @@ export class SmartAccessProjectsService {
 
     listProjects(): Observable<AccessProject[]> {
         const user = this.parseStoredUser();
-        if (user?.staff) {
+        if (user?.staff && user.canonicalRole !== 'admin') {
             return this._fetchStaffProjectIds(user.staff).pipe(
                 switchMap((ids) => {
                     if (!ids.length) return of([]);

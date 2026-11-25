@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { staffPermissionGuard } from 'app/core/permissions';
 
 export default [
     { path: '', redirectTo: 'projects', pathMatch: 'full' },
@@ -10,16 +11,23 @@ export default [
     },
     {
         path: 'smart-scan',
-        data: { scanTarget: 'business', scanBasePath: '/smart-business/smart-scan' },
+        canActivate: [staffPermissionGuard],
+        data: {
+            scanTarget: 'business',
+            scanBasePath: '/smart-business/smart-scan',
+            permission: { resource: 'smartBusinessProjects' },
+        },
         loadChildren: () =>
             import('../smart-enroll/smart-scan/smart-scan.routes').then((m) => m.default),
     },
     {
         path: 'document-templates',
+        canActivate: [staffPermissionGuard],
         data: {
             scanTarget: 'business',
             basePath: '/smart-business/document-templates',
             scanBasePath: '/smart-business/smart-scan',
+            permission: { resource: 'smartBusinessProjects' },
         },
         loadChildren: () =>
             import('../smart-enroll/smart-scan/document-templates/document-templates.routes').then(
@@ -28,6 +36,8 @@ export default [
     },
     {
         path: 'plans',
+        canActivate: [staffPermissionGuard],
+        data: { permission: { resource: 'billingSubscriptions' } },
         loadComponent: () =>
             import('../smart-enroll/plans/smart-enroll-plans.component').then(
                 (m) => m.SmartEnrollPlansComponent

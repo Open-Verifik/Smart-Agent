@@ -1,0 +1,33 @@
+@use '../smart-links.shared';
+
+:host {
+    display: block;
+}
+
+.icon-size-4 {
+    font-size: 1rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+.icon-size-5 {
+    font-size: 1.25rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+.sl-detail-code {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.9rem;
+    border: 1px solid #1e293b;
+    background: #0f172a;
+    color: #e2e8f0;
+    color-scheme: dark;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

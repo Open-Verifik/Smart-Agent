@@ -59,6 +59,7 @@ export class SetupUserInterfaceComponent implements OnInit, OnChanges, OnDestroy
     @Input() form!: FormGroup;
     @Input() loading = false;
     @Input() saving = false;
+    @Input() showFlowOrder?: boolean;
 
     readonly customOverrides = new Set<string>();
 
@@ -210,6 +211,13 @@ export class SetupUserInterfaceComponent implements OnInit, OnChanges, OnDestroy
 
     get flowOrderControl(): FormControl | null {
         return (this.form?.get('projectFlow.onboardingSettings.flowOrder') as FormControl) || null;
+    }
+
+    /** Only SmartEnroll onboarding flows consume flowOrder (contact_first vs consent_first). */
+    get isFlowOrderVisible(): boolean {
+        if (this.showFlowOrder !== undefined) return this.showFlowOrder;
+        const flowType = `${this.form?.get('projectFlow.type')?.value ?? ''}`.trim();
+        return flowType !== 'smartlink' && flowType !== 'login' && flowType !== 'humanAuthn';
     }
 
     /** A is the default (contact first), stored as an empty value so existing projects stay untouched. */

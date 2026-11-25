@@ -35,6 +35,7 @@
                             <h2 class="empty-hero-title">{{ t('smartBusiness.list.emptyTitle') }}</h2>
                             <p class="empty-hero-text">{{ t('smartBusiness.list.emptySubtitle') }}</p>
                             <button
+                                *hasStaffPermission="'smartBusinessProjects.create'"
                                 mat-flat-button
                                 color="primary"
                                 type="button"
@@ -48,6 +49,7 @@
                     } @else {
                         <div class="grid">
                             <button
+                                *hasStaffPermission="'smartBusinessProjects.create'"
                                 type="button"
                                 class="card card-create"
                                 (click)="createProject()"

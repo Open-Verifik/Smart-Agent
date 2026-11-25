@@ -1,0 +1,228 @@
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Left Role Picker Column -->
+    <div class="lg:col-span-4 space-y-5">
+        <div class="flex items-center justify-between gap-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                {{ 'staffRbac.rolesTab.systemPresets' | transloco }}
+            </h3>
+        </div>
+
+        <div class="space-y-1.5">
+            @for (role of systemRoles; track role.slug) {
+                <button
+                    type="button"
+                    (click)="selectSystemRole(role.slug)"
+                    class="w-full text-left px-3.5 py-2.5 rounded-xl border transition-colors flex items-center justify-between gap-2"
+                    [ngClass]="
+                        selectedKind() === 'system' && !isCreatingNew && selectedSystemSlug() === role.slug
+                            ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-400 text-indigo-900 dark:text-indigo-100'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    "
+                >
+                    <div class="min-w-0">
+                        <div class="text-sm font-semibold truncate">{{ role.nameKey | transloco }}</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            {{ 'staffRbac.rolesTab.builtInBadge' | transloco }}
+                        </div>
+                    </div>
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-slate-400 shrink-0">lock</mat-icon>
+                </button>
+            }
+        </div>
+
+        <!-- Workspace Custom Roles -->
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    {{ 'staffRbac.rolesTab.customRoles' | transloco }}
+                </h3>
+                <button
+                    *hasStaffPermission="'team.create'"
+                    mat-stroked-button
+                    type="button"
+                    class="shrink-0 whitespace-nowrap !min-h-8 !h-8 !text-xs !px-3"
+                    (click)="startNewCustomRole('viewer')"
+                >
+                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px] !mr-1">add</mat-icon>
+                    {{ 'staffRbac.rolesTab.newCustomRole' | transloco }}
+                </button>
+            </div>
+
+            @if (loading()) {
+                <div class="flex justify-center py-4"><mat-spinner diameter="22"></mat-spinner></div>
+            } @else if (customRoles().length === 0) {
+                <p class="text-xs text-slate-500 dark:text-slate-400 py-2">
+                    {{ 'staffRbac.rolesTab.noCustomRoles' | transloco }}
+                </p>
+            } @else {
+                <div class="space-y-1.5">
+                    @for (cr of customRoles(); track cr._id) {
+                        <button
+                            type="button"
+                            (click)="selectCustomRole(cr)"
+                            class="w-full text-left px-3.5 py-2.5 rounded-xl border transition-colors flex items-center justify-between gap-2"
+                            [ngClass]="
+                                selectedKind() === 'custom' && !isCreatingNew && selectedCustomRole()?._id === cr._id
+                                    ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-400 text-indigo-900 dark:text-indigo-100'
+                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            "
+                        >
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm font-semibold truncate">{{ cr.name }}</span>
+                                    @if (cr.endpointPolicy && cr.endpointPolicy.mode !== 'all') {
+                                        <span
+                                            class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0"
+                                            [ngClass]="
+                                                cr.endpointPolicy.mode === 'blocklist'
+                                                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                            "
+                                        >
+                                            {{ cr.endpointPolicy.features?.length || 0 }}
+                                        </span>
+                                    }
+                                </div>
+                                @if (cr.description) {
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ cr.description }}</div>
+                                }
+                            </div>
+                            <mat-icon class="!w-4 !h-4 !text-[16px] text-indigo-500 shrink-0">tune</mat-icon>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Right Matrix / Detail Editor -->
+    <div class="lg:col-span-8 min-w-0 space-y-5">
+        @if (selectedKind() === 'system' && !isCreatingNew) {
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                            {{ currentSystemMeta.nameKey | transloco }}
+                        </h2>
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                            {{ 'staffRbac.rolesTab.immutablePreset' | transloco }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        {{ currentSystemMeta.descriptionKey | transloco }}
+                    </p>
+                </div>
+                <button
+                    *hasStaffPermission="'team.create'"
+                    mat-stroked-button
+                    type="button"
+                    class="shrink-0 whitespace-nowrap !px-4"
+                    [matTooltip]="'staffRbac.rolesTab.duplicateAsCustomTooltip' | transloco"
+                    (click)="duplicateSelected()"
+                >
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">content_copy</mat-icon>
+                    {{ 'staffRbac.rolesTab.duplicateAsCustom' | transloco }}
+                </button>
+            </div>
+        } @else {
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h2 class="min-w-0 flex-1 text-lg font-bold text-slate-900 dark:text-white truncate">
+                        {{ (isCreatingNew ? 'staffRbac.rolesTab.createCustomTitle' : 'staffRbac.rolesTab.editCustomTitle') | transloco }}
+                    </h2>
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        @if (!isCreatingNew && selectedCustomRole()) {
+                            <button *hasStaffPermission="'team.create'" mat-stroked-button type="button" class="shrink-0 whitespace-nowrap !px-3.5" (click)="duplicateSelected()">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">content_copy</mat-icon>
+                                {{ 'staffRbac.rolesTab.duplicate' | transloco }}
+                            </button>
+                            <button *hasStaffPermission="'team.delete'" mat-stroked-button color="warn" type="button" class="shrink-0 whitespace-nowrap !px-3.5" (click)="openDeleteCustomRole()">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">delete</mat-icon>
+                                {{ 'staffRbac.common.delete' | transloco }}
+                            </button>
+                        }
+                        <button
+                            *hasStaffPermission="isCreatingNew ? 'team.create' : 'team.update'"
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="shrink-0 whitespace-nowrap !px-4"
+                            [disabled]="saving() || !editName.trim()"
+                            (click)="saveCustomRole()"
+                        >
+                            {{ 'staffRbac.common.save' | transloco }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {{ 'staffRbac.rolesTab.roleNameLabel' | transloco }} <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            [(ngModel)]="editName"
+                            class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {{ 'staffRbac.rolesTab.roleDescLabel' | transloco }}
+                        </label>
+                        <input
+                            type="text"
+                            [(ngModel)]="editDescription"
+                            class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
+                        />
+                    </div>
+                </div>
+            </div>
+        }
+
+        <app-staff-permission-matrix
+            [permissions]="currentMatrix"
+            [readonly]="isMatrixReadonly"
+            [ceilingPermissions]="callerCeiling"
+            (permissionsChange)="editPermissions = $event"
+        ></app-staff-permission-matrix>
+
+        @if (selectedKind() === 'custom' || isCreatingNew) {
+            <app-endpoint-policy-picker
+                [policy]="editEndpointPolicy"
+                [readonly]="isMatrixReadonly"
+                (policyChange)="editEndpointPolicy = $event"
+            ></app-endpoint-policy-picker>
+        }
+    </div>
+</div>
+
+<!-- Delete Custom Role + Reassign Dialog -->
+<ng-template #deleteRoleDialog>
+    <div class="p-6 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+            {{ 'staffRbac.rolesTab.deleteModalTitle' | transloco : { name: selectedCustomRole()?.name } }}
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400">
+            {{ 'staffRbac.rolesTab.deleteModalDesc' | transloco }}
+        </p>
+
+        <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                {{ 'staffRbac.rolesTab.reassignMembersLabel' | transloco }}
+            </label>
+            <mat-select [(ngModel)]="reassignSystemRole" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm">
+                @for (r of systemRoles; track r.slug) {
+                    <mat-option [value]="r.slug">{{ r.nameKey | transloco }}</mat-option>
+                }
+            </mat-select>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+            <button mat-button type="button" (click)="closeModal()">{{ 'staffRbac.common.cancel' | transloco }}</button>
+            <button mat-flat-button color="warn" type="button" [disabled]="saving()" (click)="confirmDeleteCustomRole()">
+                {{ 'staffRbac.rolesTab.confirmDeleteBtn' | transloco }}
+            </button>
+        </div>
+    </div>
+</ng-template>

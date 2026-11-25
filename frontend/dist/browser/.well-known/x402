@@ -193,6 +193,7 @@
     "GET /api/mx/cedula-profesional",
     "POST /api/mx/health-worker",
     "GET /api/co/cedula/barcode",
+    "POST /api/v3/smart-links/sessions",
     "GET /api/proxy",
     "POST /api/proxy"
   ]
