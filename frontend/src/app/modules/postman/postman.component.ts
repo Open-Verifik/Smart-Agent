@@ -82,8 +82,7 @@ const _readPinnedCountries = (): string[] => {
     template: `
         <div
             data-postman-root
-            class="flex h-full min-h-0 w-full min-w-0 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
-            [class.h-dvh]="isMobile()"
+            class="flex h-full min-h-0 flex-1 w-full min-w-0 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
         >
             @if (isDragging) {
                 <div
@@ -152,11 +151,15 @@ const _readPinnedCountries = (): string[] => {
                     aria-modal="true"
                     [attr.aria-label]="'postman.sidebar.title' | transloco"
                     [attr.inert]="!mobileSidebarOpen() ? '' : null"
-                    class="fixed inset-y-0 left-0 z-[60] w-[85%] max-w-[320px] h-dvh min-h-0 overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-300 ease-in-out"
+                    class="fixed inset-y-0 left-0 z-[60] flex flex-col w-[85%] max-w-[320px] h-dvh min-h-0 overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-300 ease-in-out"
                     [class.-translate-x-full]="!mobileSidebarOpen()"
                     [class.translate-x-0]="mobileSidebarOpen()"
                 >
-                    <postman-sidebar [collapsed]="false"> </postman-sidebar>
+                    <postman-sidebar
+                        class="min-h-0 flex-1"
+                        [collapsed]="false"
+                        (toggleCollapsed)="mobileSidebarOpen.set(false)"
+                    ></postman-sidebar>
                 </div>
             }
 
@@ -166,11 +169,11 @@ const _readPinnedCountries = (): string[] => {
             >
                 <!-- Toolbar / Header -->
                 <div
-                    class="flex flex-shrink-0 items-center justify-between bg-transparent z-10 min-h-14 py-2"
+                    class="flex min-w-0 flex-shrink-0 items-center justify-between bg-transparent z-10 min-h-14 py-2"
                     [class.pl-3]="!isMobile()"
                     [class.pr-1]="!isMobile()"
-                    [class.px-3]="isMobile()"
-                    [class.gap-2]="isMobile()"
+                    [class.px-2]="isMobile()"
+                    [class.gap-1.5]="isMobile()"
                 >
                     <!-- Hamburger (mobile only) -->
                     @if (isMobile()) {
@@ -548,7 +551,7 @@ const _readPinnedCountries = (): string[] => {
                         </div>
                     </ng-template>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-shrink-0 items-center gap-2 sm:gap-3">
                         <!-- Payment Method Toggle (Privy-style: JWT | x402) -->
                         <div
                             class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm"
@@ -557,7 +560,7 @@ const _readPinnedCountries = (): string[] => {
                         >
                             <button
                                 type="button"
-                                class="px-3 py-1.5 rounded-md transition-all text-xs font-medium active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+                                class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md transition-all text-[11px] sm:text-xs font-medium active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                                 [class.bg-slate-100]="paymentMethod() === 'credits'"
                                 [class.text-slate-900]="paymentMethod() === 'credits'"
                                 [class.dark:bg-slate-700]="paymentMethod() === 'credits'"
@@ -576,7 +579,7 @@ const _readPinnedCountries = (): string[] => {
                             ></div>
                             <button
                                 type="button"
-                                class="px-3 py-1.5 rounded-md transition-all text-xs font-medium active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+                                class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md transition-all text-[11px] sm:text-xs font-medium active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                                 [class.bg-slate-100]="paymentMethod() === 'x402'"
                                 [class.text-slate-900]="paymentMethod() === 'x402'"
                                 [class.dark:bg-slate-700]="paymentMethod() === 'x402'"
@@ -701,7 +704,7 @@ const _readPinnedCountries = (): string[] => {
 
                 <!-- Mobile Content Area (one panel at a time + segmented switch) -->
                 @if (isMobile()) {
-                    <div class="flex-1 flex flex-col min-w-0 min-h-0 px-3 pb-3 gap-3">
+                    <div class="flex-1 flex flex-col min-w-0 min-h-0 px-2.5 pb-2.5 sm:px-3 sm:pb-3 gap-2 sm:gap-3">
                         <!-- Request | Response Switch -->
                         <div
                             class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm flex-shrink-0"
@@ -1674,6 +1677,45 @@ const _readPinnedCountries = (): string[] => {
                 background: rgb(15 23 42);
                 color: rgb(203 213 225);
             }
+
+            @media (max-width: 599.98px) {
+                .postman-flag-strip {
+                    gap: 0.25rem;
+                }
+
+                .postman-country-picker-trigger {
+                    padding: 0;
+                    gap: 0;
+                }
+
+                .postman-country-picker-trigger__count {
+                    display: none;
+                }
+
+                .postman-flag-arrow {
+                    display: none;
+                }
+
+                .postman-flag-scroller {
+                    scroll-padding-inline: 0.25rem;
+                    scroll-snap-type: none;
+                }
+
+                .postman-flag-scroller.more-start,
+                .postman-flag-scroller.more-end {
+                    --fade-size: 0.5rem;
+                }
+
+                .postman-flag-btn--selected {
+                    min-inline-size: 0;
+                    max-inline-size: 9.25rem;
+                }
+
+                .postman-flag-label {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
         `,
     ],
 })
@@ -2189,21 +2231,19 @@ export class PostmanComponent {
             (el) => el.dataset.country === name
         );
         if (!flag) return;
-        if (typeof flag.scrollIntoView === 'function') {
-            flag.scrollIntoView({
-                block: 'nearest',
-                inline: 'nearest',
-                container: 'nearest',
-                behavior: 'smooth',
-            } as ScrollIntoViewOptions);
-            return;
-        }
         const flagBox = flag.getBoundingClientRect();
         const rowBox = scroller.getBoundingClientRect();
-        const left = flagBox.left - rowBox.left;
-        const right = flagBox.right - rowBox.right;
-        if (left < 0) scroller.scrollBy({ left: left - 8, behavior: 'smooth' });
-        else if (right > 0) scroller.scrollBy({ left: right + 8, behavior: 'smooth' });
+        if (rowBox.width <= 0) return;
+        const hasFlagArrows =
+            typeof window !== 'undefined' ? window.innerWidth >= 600 : !this.isMobile();
+        const edgePad = hasFlagArrows ? 40 : 8;
+        const leftDelta = flagBox.left - (rowBox.left + edgePad);
+        const rightDelta = flagBox.right - (rowBox.right - edgePad);
+        if (leftDelta < 0) {
+            scroller.scrollBy({ left: leftDelta, behavior: 'smooth' });
+        } else if (rightDelta > 0) {
+            scroller.scrollBy({ left: rightDelta, behavior: 'smooth' });
+        }
     };
 
     private _queryParamMap = toSignal(this._route.queryParamMap, {

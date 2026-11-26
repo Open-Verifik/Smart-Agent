@@ -1,3 +1,7 @@
+:host {
+    container: postman-editor / inline-size;
+}
+
 .postman-guidance-note {
     background: linear-gradient(
         105deg,
@@ -38,4 +42,139 @@
     bottom: -40px;
     left: -24px;
     background: radial-gradient(circle, #c4b5fd 0%, #7c3aed 55%, transparent 100%);
+}
+
+.postman-param-grid-header,
+.postman-header-grid-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.postman-param-row,
+.postman-header-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+@container postman-editor (inline-size < 540px) {
+    .postman-param-grid-header,
+    .postman-header-grid-header {
+        display: none;
+    }
+
+    .postman-param-row,
+    .postman-header-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.625rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgb(226 232 240 / 0.9);
+        background: rgb(248 250 252 / 0.65);
+    }
+
+    :host-context(.dark) .postman-param-row,
+    :host-context(.dark) .postman-header-row {
+        border-color: rgb(51 65 85 / 0.85);
+        background: rgb(15 23 42 / 0.45);
+    }
+
+    .postman-param-row > :nth-child(1),
+    .postman-header-row > :nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+        min-width: 0;
+    }
+
+    .postman-param-row > :nth-child(4),
+    .postman-header-row > :nth-child(3) {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .postman-param-row > :nth-child(2),
+    .postman-header-row > :nth-child(2) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        min-width: 0;
+    }
+
+    .postman-param-row > :nth-child(3) {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        min-width: 0;
+    }
+}
+
+select.postman-param-value-select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+    line-height: 1.125rem !important;
+}
+
+select.postman-param-value-select::picker-icon {
+    display: none !important;
+}
+
+select.postman-param-value-select::-ms-expand {
+    display: none;
+}
+
+::ng-deep .postman-request-tabs.mat-mdc-tab-group {
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+}
+
+::ng-deep .postman-request-tabs .mat-mdc-tab-header {
+    flex-shrink: 0;
+}
+
+::ng-deep .postman-request-tabs .mat-mdc-tab-body-wrapper {
+    flex: 1 1 0%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+::ng-deep .postman-request-tabs .mat-mdc-tab-body-wrapper::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.postman-pane-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.postman-pane-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+::ng-deep .postman-request-tabs .mat-mdc-tab-body {
+    display: block;
+}
+
+::ng-deep .postman-request-tabs .mat-mdc-tab-body-content {
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
 }

@@ -91,7 +91,7 @@
     <sandbox-notice-strip></sandbox-notice-strip>
 
     <!-- Content -->
-    <div class="flex w-full flex-auto flex-col">
+    <div class="relative flex w-full min-w-0 flex-auto flex-col">
         <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
              Otherwise, layout changes won't be registered and the view won't be updated! -->
         @if (true) {
