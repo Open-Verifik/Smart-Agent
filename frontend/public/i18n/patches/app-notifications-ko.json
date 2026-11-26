@@ -1,0 +1,15 @@
+{
+    "appNotifications": {
+        "bell": {
+            "closePanel": "알림 닫기",
+            "closeDetail": "닫기",
+            "filterAll": "전체",
+            "filterUnread": "읽지 않음",
+            "unreadLabel": "읽지 않음",
+            "readLabel": "읽음",
+            "emptyUnread": "읽지 않은 알림이 없습니다",
+            "priorityHigh": "높은 우선순위",
+            "priorityCritical": "긴급"
+        }
+    }
+}

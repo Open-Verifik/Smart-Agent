@@ -1,0 +1,15 @@
+{
+    "appNotifications": {
+        "bell": {
+            "closePanel": "通知を閉じる",
+            "closeDetail": "閉じる",
+            "filterAll": "すべて",
+            "filterUnread": "未読",
+            "unreadLabel": "未読",
+            "readLabel": "既読",
+            "emptyUnread": "未読の通知はありません",
+            "priorityHigh": "高優先度",
+            "priorityCritical": "重要"
+        }
+    }
+}

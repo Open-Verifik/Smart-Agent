@@ -1,5 +1,6 @@
 <button
     class="notification-bell__trigger"
+    [class.notification-bell__trigger--active]="opened()"
     mat-icon-button
     type="button"
     aria-haspopup="dialog"
@@ -19,40 +20,127 @@
 
 @if (opened()) {
     <div
+        class="notification-bell__backdrop"
+        aria-hidden="true"
+        (pointerdown)="$event.stopPropagation()"
+        (click)="closePanel(true)"
+    ></div>
+
+    <div
         id="notification-bell-panel"
         class="notification-bell__panel"
+        [class.notification-bell__panel--detail]="selectedItem()"
         [class.notification-bell__panel--image]="expandedImageSrc()"
         role="dialog"
         aria-modal="false"
         tabindex="-1"
-        [attr.aria-label]="'appNotifications.bell.title' | transloco"
+        [attr.aria-labelledby]="'notification-bell-heading'"
         [attr.aria-busy]="loading()"
     >
-        <div class="notification-bell__header">
+        <header class="notification-bell__header">
             @if (selectedItem(); as item) {
                 <button
-                    class="notification-bell__back"
+                    class="notification-bell__icon-btn"
                     type="button"
+                    [matTooltip]="'appNotifications.inbox.backAria' | transloco"
                     [attr.aria-label]="'appNotifications.inbox.backAria' | transloco"
                     (click)="onDetailBack($event)"
                 >
                     <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
                 </button>
-                <h2 class="notification-bell__title">{{ item.content.title }}</h2>
+                <div class="notification-bell__header-meta">
+                    <span class="notification-bell__pill" [class]="categoryToneClass(item.category)">
+                        {{ categoryLabelKey(item.category) | transloco }}
+                    </span>
+                    @if (item.priority === 'critical' || item.priority === 'high') {
+                        <span
+                            class="notification-bell__priority"
+                            [class.is-critical]="item.priority === 'critical'"
+                        >
+                            {{
+                                (item.priority === 'critical'
+                                    ? 'appNotifications.bell.priorityCritical'
+                                    : 'appNotifications.bell.priorityHigh') | transloco
+                            }}
+                        </span>
+                    }
+                    <span
+                        class="notification-bell__status-pill"
+                        [class.is-unread]="item.receipt?.isUnread"
+                    >
+                        <span class="notification-bell__status-dot" aria-hidden="true"></span>
+                        {{
+                            (item.receipt?.isUnread
+                                ? 'appNotifications.bell.unreadLabel'
+                                : 'appNotifications.bell.readLabel') | transloco
+                        }}
+                    </span>
+                </div>
+                <span id="notification-bell-heading" class="notification-bell__sr">{{
+                    item.content.title
+                }}</span>
             } @else {
-                <h2 class="notification-bell__title">{{ 'appNotifications.bell.title' | transloco }}</h2>
-                @if (canUseApi() && unreadCount() > 0) {
+                <div class="notification-bell__heading-group">
+                    <h2 id="notification-bell-heading" class="notification-bell__title">
+                        {{ 'appNotifications.bell.title' | transloco }}
+                    </h2>
+                    @if (canUseApi() && unreadCount() > 0) {
+                        <span class="notification-bell__count-pill">{{ badgeLabel() }}</span>
+                    }
+                </div>
+            }
+
+            <button
+                class="notification-bell__close"
+                type="button"
+                [matTooltip]="'appNotifications.bell.closePanel' | transloco"
+                [attr.aria-label]="'appNotifications.bell.closePanel' | transloco"
+                (click)="closePanel(true)"
+            >
+                <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+            </button>
+        </header>
+
+        @if (!selectedItem() && canUseApi() && items().length > 0) {
+            <div class="notification-bell__toolbar">
+                <div class="notification-bell__tabs" role="group" [attr.aria-label]="'appNotifications.bell.title' | transloco">
+                    <button
+                        type="button"
+                        class="notification-bell__tab"
+                        [class.is-active]="filter() === 'all'"
+                        [attr.aria-pressed]="filter() === 'all'"
+                        (click)="setFilter('all')"
+                    >
+                        {{ 'appNotifications.bell.filterAll' | transloco }}
+                    </button>
+                    <button
+                        type="button"
+                        class="notification-bell__tab"
+                        [class.is-active]="filter() === 'unread'"
+                        [attr.aria-pressed]="filter() === 'unread'"
+                        (click)="setFilter('unread')"
+                    >
+                        {{ 'appNotifications.bell.filterUnread' | transloco }}
+                        @if (unreadCount() > 0) {
+                            <span class="notification-bell__tab-count">{{ badgeLabel() }}</span>
+                        }
+                    </button>
+                </div>
+
+                @if (hasMarkableUnread()) {
                     <button
                         class="notification-bell__mark-all"
                         type="button"
                         [disabled]="markingAll()"
                         (click)="markAll()"
                     >
-                        {{ 'appNotifications.bell.markAll' | transloco }}
+                        <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:check'"></mat-icon>
+                        <span>{{ 'appNotifications.bell.markAll' | transloco }}</span>
                     </button>
                 }
-            }
-        </div>
+            </div>
+        }
+
         @if (markAllError() && !selectedItem()) {
             <p class="notification-bell__error notification-bell__error--header" role="alert">
                 {{ 'appNotifications.inbox.errors.action' | transloco }}
@@ -61,7 +149,21 @@
 
         @if (selectedItem(); as item) {
             <div class="notification-bell__detail">
-                <div class="notification-bell__detail-body">
+                <div class="notification-bell__detail-body notification-bell__scroll">
+                    <div class="notification-bell__detail-hero">
+                        <h3 class="notification-bell__detail-title">{{ item.content.title }}</h3>
+                        @if (item.publishedAt) {
+                            <div class="notification-bell__detail-time">
+                                <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:clock'"></mat-icon>
+                                <span>{{ relativeTime(item.publishedAt) }}</span>
+                                <span aria-hidden="true">·</span>
+                                <time [attr.datetime]="item.publishedAt">{{
+                                    item.publishedAt | date: 'mediumDate'
+                                }}</time>
+                            </div>
+                        }
+                    </div>
+
                     @if (item.content.summary) {
                         <p class="notification-bell__detail-summary">{{ item.content.summary }}</p>
                     }
@@ -83,49 +185,65 @@
                         ></div>
                     }
                     @if (item.interactionMode === 'accept' && item.legal?.url) {
-                        <a
-                            class="notification-bell__legal"
-                            [href]="item.legal.url"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            >{{ 'appNotifications.inbox.legalLink' | transloco }}</a
-                        >
-                        <mat-checkbox
-                            [checked]="legalAccepted()"
-                            (change)="legalAccepted.set($event.checked)"
-                        >
-                            {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}
-                        </mat-checkbox>
+                        <div class="notification-bell__legal-card">
+                            <a
+                                class="notification-bell__legal"
+                                [href]="item.legal.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                >{{ 'appNotifications.inbox.legalLink' | transloco }}</a
+                            >
+                            @if (item.receipt?.isUnread) {
+                                <mat-checkbox
+                                    [checked]="legalAccepted()"
+                                    (change)="legalAccepted.set($event.checked)"
+                                >
+                                    {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}
+                                </mat-checkbox>
+                            }
+                        </div>
                     }
                 </div>
-                @if (showDetailFooter(item)) {
-                    <div class="notification-bell__detail-footer">
-                        @if (rowErrorId() === item.notificationId) {
-                            <p class="notification-bell__error" role="alert">
-                                {{ 'appNotifications.inbox.errors.action' | transloco }}
-                            </p>
+
+                <footer class="notification-bell__detail-footer">
+                    @if (rowErrorId() === item.notificationId) {
+                        <p class="notification-bell__error" role="alert">
+                            {{ 'appNotifications.inbox.errors.action' | transloco }}
+                        </p>
+                    }
+                    <div class="notification-bell__actions">
+                        @if (canDismiss(item)) {
+                            <button
+                                class="notification-bell__footer-ghost"
+                                type="button"
+                                [disabled]="actionId() === item.notificationId"
+                                (click)="dismiss($event, item)"
+                            >
+                                {{ 'appNotifications.inbox.actions.dismiss' | transloco }}
+                            </button>
                         }
-                        <div class="notification-bell__actions">
+                        <div class="notification-bell__actions-end">
                             @if (showCta(item)) {
-                                <button mat-stroked-button type="button" (click)="openCta(item)">
+                                <button
+                                    class="notification-bell__footer-secondary"
+                                    type="button"
+                                    (click)="openCta(item)"
+                                >
                                     {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
                                 </button>
                             }
                             @if (item.interactionMode === 'acknowledge' && item.receipt?.isUnread) {
                                 <button
-                                    mat-flat-button
-                                    color="primary"
+                                    class="notification-bell__footer-primary"
                                     type="button"
                                     [disabled]="actionId() === item.notificationId"
                                     (click)="acknowledge(item)"
                                 >
                                     {{ 'appNotifications.inbox.actions.acknowledge' | transloco }}
                                 </button>
-                            }
-                            @if (item.interactionMode === 'accept' && item.receipt?.isUnread) {
+                            } @else if (item.interactionMode === 'accept' && item.receipt?.isUnread) {
                                 <button
-                                    mat-flat-button
-                                    color="primary"
+                                    class="notification-bell__footer-primary"
                                     type="button"
                                     [disabled]="
                                         actionId() === item.notificationId ||
@@ -136,15 +254,26 @@
                                 >
                                     {{ 'appNotifications.inbox.actions.accept' | transloco }}
                                 </button>
+                            } @else {
+                                <button
+                                    class="notification-bell__footer-secondary"
+                                    type="button"
+                                    (click)="closePanel(true)"
+                                >
+                                    {{ 'appNotifications.bell.closeDetail' | transloco }}
+                                </button>
                             }
                         </div>
                     </div>
-                }
+                </footer>
             </div>
         } @else if (!canUseApi()) {
             <div class="notification-bell__empty">
+                <span class="notification-bell__empty-icon" aria-hidden="true">
+                    <mat-icon [svgIcon]="'heroicons_outline:bell'"></mat-icon>
+                </span>
                 <p>{{ 'appNotifications.inbox.guest.body' | transloco }}</p>
-                <button mat-flat-button color="primary" type="button" (click)="openSignIn()">
+                <button class="notification-bell__footer-primary" type="button" (click)="openSignIn()">
                     {{ 'appNotifications.inbox.guest.signIn' | transloco }}
                 </button>
             </div>
@@ -155,39 +284,62 @@
             </div>
         } @else if (listError()) {
             <p class="notification-bell__empty" role="alert">{{ listError()! | transloco }}</p>
-        } @else if (!items().length) {
+        } @else if (!filteredItems().length) {
             <div class="notification-bell__empty">
-                <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:bell'"></mat-icon>
-                <p>{{ 'appNotifications.bell.empty' | transloco }}</p>
+                <span class="notification-bell__empty-icon" aria-hidden="true">
+                    <mat-icon [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                </span>
+                <p>
+                    {{
+                        (filter() === 'unread'
+                            ? 'appNotifications.bell.emptyUnread'
+                            : 'appNotifications.bell.empty') | transloco
+                    }}
+                </p>
             </div>
         } @else {
-            <ul class="notification-bell__list">
-                @for (item of items(); track trackById($index, item)) {
+            <ul class="notification-bell__list notification-bell__scroll">
+                @for (item of filteredItems(); track trackById($index, item)) {
                     <li
                         class="notification-bell__row"
                         [class.notification-bell__row--unread]="item.receipt?.isUnread"
+                        [class.notification-bell__row--read]="!item.receipt?.isUnread"
                         [class.notification-bell__row--busy]="actionId() === item.notificationId"
                     >
                         <button class="notification-bell__row-main" type="button" (click)="openDetail(item)">
-                            <span class="notification-bell__icon" aria-hidden="true">
+                            <span
+                                class="notification-bell__icon"
+                                [class]="categoryToneClass(item.category)"
+                                aria-hidden="true"
+                            >
                                 <mat-icon aria-hidden="true" [svgIcon]="categoryIcon(item.category)"></mat-icon>
                             </span>
                             <span class="notification-bell__copy">
+                                <span class="notification-bell__row-meta">
+                                    <span class="notification-bell__pill notification-bell__pill--sm" [class]="categoryToneClass(item.category)">
+                                        {{ categoryLabelKey(item.category) | transloco }}
+                                    </span>
+                                    <span class="notification-bell__time">{{ relativeTime(item.publishedAt) }}</span>
+                                    @if (item.receipt?.isUnread) {
+                                        <span class="notification-bell__dot" aria-hidden="true"></span>
+                                    } @else {
+                                        <span class="notification-bell__read-tag">
+                                            {{ 'appNotifications.bell.readLabel' | transloco }}
+                                        </span>
+                                    }
+                                </span>
                                 <span class="notification-bell__row-title">{{ item.content.title }}</span>
                                 @if (item.content.summary) {
                                     <span class="notification-bell__summary">{{ item.content.summary }}</span>
                                 }
-                                <span class="notification-bell__time">{{ relativeTime(item.publishedAt) }}</span>
                             </span>
-                            @if (item.receipt?.isUnread) {
-                                <span class="notification-bell__dot" aria-hidden="true"></span>
-                            }
                         </button>
                         @if (canDismiss(item)) {
                             <button
                                 class="notification-bell__dismiss"
                                 type="button"
                                 [disabled]="actionId() === item.notificationId"
+                                [matTooltip]="'appNotifications.bell.dismissAria' | transloco"
                                 [attr.aria-label]="'appNotifications.bell.dismissAria' | transloco"
                                 (click)="dismiss($event, item)"
                             >
@@ -198,11 +350,13 @@
                 }
             </ul>
         }
+
         @if (expandedImageSrc(); as src) {
             <div class="notification-bell__zoom" (click)="closeImage()">
                 <button
                     class="notification-bell__zoom-close"
                     type="button"
+                    [matTooltip]="'appNotifications.bell.closeImage' | transloco"
                     [attr.aria-label]="'appNotifications.bell.closeImage' | transloco"
                     (click)="closeImage(); $event.stopPropagation()"
                 >
