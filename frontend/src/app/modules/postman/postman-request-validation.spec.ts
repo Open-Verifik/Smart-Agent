@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { getPostmanRequestValidationIssues, getPostmanXorParamLayout } from './postman-request-validation';
+import {
+    getPostmanRequestValidationIssues,
+    getPostmanXorParamLayout,
+    getRequiredFieldKeysForXorOption,
+    isParamRequiredInPostmanUi,
+} from './postman-request-validation';
 import { ApiEndpoint } from './postman.types';
 
 const endpoint = (overrides: Partial<ApiEndpoint> = {}): ApiEndpoint =>
@@ -191,5 +196,103 @@ describe('getPostmanRequestValidationIssues colombia cedula barcode', () => {
     it('accepts a body with backImage', () => {
         const body = JSON.stringify({ backImage: 'data:image/jpeg;base64,abc' });
         expect(getPostmanRequestValidationIssues(barcodeEndpoint(), body)).toEqual([]);
+    });
+});
+
+describe('colombia_api_registraduria_matrimonio required indicators and validation', () => {
+    const matrimonioEndpoint = (): ApiEndpoint =>
+        ({
+            id: 'matrimonio',
+            label: 'Marriage civil registry (SCCRC)',
+            code: 'colombia_api_registraduria_matrimonio',
+            method: 'GET',
+            url: '/v2/co/registraduria/matrimonio',
+            dependencies: [
+                { field: 'documentNumber', dependencyGroup: '1', required: false },
+                { field: 'primerNombre', dependencyGroup: '2', required: false },
+                { field: 'primerApellido', dependencyGroup: '2', required: false },
+                { field: 'segundoNombre', dependencyGroup: '2', required: false },
+                { field: 'segundoApellido', dependencyGroup: '2', required: false },
+                { field: 'fecha', dependencyGroup: '2', dateFormat: 'dd/MM/yyyy', required: false },
+                { field: 'serial', dependencyGroup: '3', required: false },
+                { field: 'sexo', enum: ['MASCULINO', 'FEMENINO', 'M', 'F'], required: false },
+            ],
+            params: [
+                { key: 'documentNumber', value: '', type: 'string', required: false, dependencyGroup: '1' },
+                { key: 'primerNombre', value: '', type: 'string', required: false, dependencyGroup: '2' },
+                { key: 'primerApellido', value: '', type: 'string', required: false, dependencyGroup: '2' },
+                { key: 'segundoNombre', value: '', type: 'string', required: false, dependencyGroup: '2' },
+                { key: 'segundoApellido', value: '', type: 'string', required: false, dependencyGroup: '2' },
+                {
+                    key: 'fecha',
+                    value: '',
+                    type: 'string',
+                    required: false,
+                    dependencyGroup: '2',
+                    dateFormat: 'dd/MM/yyyy',
+                },
+                { key: 'serial', value: '', type: 'string', required: false, dependencyGroup: '3' },
+                {
+                    key: 'sexo',
+                    value: '',
+                    type: 'string',
+                    required: false,
+                    enum: ['MASCULINO', 'FEMENINO', 'M', 'F'],
+                },
+            ],
+        }) as ApiEndpoint;
+
+    it('marks primerNombre, primerApellido, sexo, and fecha required in Option A while leaving second names optional', () => {
+        const ep = matrimonioEndpoint();
+        const layout = getPostmanXorParamLayout(ep);
+        expect(layout.kind).toBe('xor');
+        if (layout.kind !== 'xor') return;
+
+        expect(getRequiredFieldKeysForXorOption(ep, layout.nameRows, 'name')).toEqual([
+            'primerNombre',
+            'primerApellido',
+            'sexo',
+            'fecha',
+        ]);
+        expect(isParamRequiredInPostmanUi(ep, { key: 'segundoNombre', required: false }, 'name')).toBe(
+            false
+        );
+        expect(
+            isParamRequiredInPostmanUi(ep, { key: 'segundoApellido', required: false }, 'name')
+        ).toBe(false);
+        expect(getRequiredFieldKeysForXorOption(ep, layout.documentRows, 'document')).toEqual([
+            'documentNumber',
+            'sexo',
+        ]);
+        expect(getRequiredFieldKeysForXorOption(ep, layout.serialRows, 'serial')).toEqual([
+            'serial',
+        ]);
+    });
+
+    it('blocks Option A when sexo or fecha is missing', () => {
+        const ep = matrimonioEndpoint();
+        ep.params = ep.params!.map((p) => {
+            if (p.key === 'primerNombre') return { ...p, value: 'MARIA' };
+            if (p.key === 'primerApellido') return { ...p, value: 'LOPEZ' };
+            return p;
+        });
+
+        const fields = getPostmanRequestValidationIssues(ep, null).map((issue) => issue.field);
+        expect(fields).toContain('sexo');
+        expect(fields).toContain('fecha');
+    });
+
+    it('blocks Option B when sexo is missing and allows Option C serial without sexo', () => {
+        const docEp = matrimonioEndpoint();
+        docEp.params = docEp.params!.map((p) =>
+            p.key === 'documentNumber' ? { ...p, value: '10000001' } : p
+        );
+        expect(getPostmanRequestValidationIssues(docEp, null).map((i) => i.field)).toContain('sexo');
+
+        const serialEp = matrimonioEndpoint();
+        serialEp.params = serialEp.params!.map((p) =>
+            p.key === 'serial' ? { ...p, value: '0042012345' } : p
+        );
+        expect(getPostmanRequestValidationIssues(serialEp, null)).toEqual([]);
     });
 });
