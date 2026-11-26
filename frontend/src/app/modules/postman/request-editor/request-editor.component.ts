@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { TranslocoService } from '@jsverse/transloco';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { UserService } from 'app/core/user/user.service';
@@ -37,9 +37,12 @@ import {
     filterVisibleXorDocumentRows,
     getPostmanRequestValidationIssues,
     getPostmanXorParamLayout,
+    getRequiredFieldKeysForXorOption,
+    isParamRequiredInPostmanUi,
     isPostmanRequestValid,
     PostmanParamRowRef,
     PostmanValidationIssue,
+    PostmanXorOptionMode,
 } from '../postman-request-validation';
 import { buildPostmanEffectiveUrl } from '../postman-url.util';
 import {
@@ -122,9 +125,9 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             *ngIf="endpoint(); else noSelection"
         >
             <!-- Top Bar: Method & URL & Send -->
-            <div *ngIf="endpoint() as ep" class="flex-shrink-0 px-4 pt-4 pb-2 select-text">
+            <div *ngIf="endpoint() as ep" class="flex-shrink-0 px-3 pt-3 pb-2 sm:px-4 sm:pt-4 select-text">
                 <ng-container *ngIf="ep.code; else defaultHeader">
-                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
                         <postman-endpoint-label
                             [country]="ep.country"
                             [title]="endpointHeaderCopy(ep).title"
@@ -165,7 +168,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                     }
                 </ng-container>
                 <ng-template #defaultHeader>
-                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
                         {{ ep.label }}
                     </h2>
                     <p class="text-sm text-slate-500 dark:text-slate-400" *ngIf="ep.description">
@@ -210,7 +213,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 }
                             </div>
                             @if (pd.type === 'creditsRange') {
-                                <div class="mt-1 flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                <div class="mt-1 flex flex-wrap items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                                     <mat-icon class="icon-size-3 mt-0.5 shrink-0">info</mat-icon>
                                     <span>{{ 'postman.dynamicQuery.preRequestHint' | transloco }}</span>
                                     <a
@@ -229,7 +232,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             </div>
 
             <!-- Request Bar -->
-            <div class="flex-shrink-0 p-4 pt-2">
+            <div class="flex-shrink-0 px-3 pt-1.5 pb-2.5 sm:p-4 sm:pt-2">
                 <div class="flex flex-col md:flex-row md:items-center gap-2">
                     <div
                         class="flex min-w-0 items-center overflow-x-auto rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800 md:flex-1"
@@ -250,7 +253,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         color="primary"
                         class="!w-full shrink-0 md:!w-auto"
                         (click)="sendRequest()"
-                        [disabled]="isLoading() || !canSendRequest()"
+                        [disabled]="isLoading()"
                     >
                         <span *ngIf="!isLoading()">{{
                             'postman.requestEditor.send' | transloco
@@ -300,7 +303,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                     <!-- Params -->
                     <mat-tab [label]="'postman.requestEditor.tabs.params' | transloco">
-                        <div class="postman-pane-scroll p-4 overflow-y-auto h-full space-y-4 select-text">
+                        <div class="postman-pane-scroll p-3 sm:p-4 overflow-y-auto h-full space-y-4 select-text">
                             @if (showPostmanSandboxProfilePicker()) {
                                 <div
                                     class="select-text rounded-2xl border border-slate-200/90 bg-white px-4 py-4 shadow-sm dark:border-slate-700/80 dark:bg-slate-900/40"
@@ -342,26 +345,41 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                         postmanSandboxI18nKey('selectLabel') | transloco
                                                     }}
                                                 </label>
-                                                <select
-                                                    id="postman-sandbox-profile"
-                                                    class="postman-param-value-select w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20"
-                                                    [ngModel]="sandboxProfilePickerValue()"
-                                                    (ngModelChange)="onSandboxProfileSelect($event)"
-                                                >
-                                                    <option value="" disabled hidden>
-                                                        {{
-                                                            postmanSandboxI18nKey('selectLabel') | transloco
-                                                        }}
-                                                    </option>
-                                                    @for (
-                                                        profile of postmanSandboxProfiles();
-                                                        track trackSandboxProfileKey(profile)
-                                                    ) {
-                                                        <option [value]="trackSandboxProfileKey(profile)">
-                                                            {{ formatSandboxProfileLabel(profile) }}
+                                                <div class="relative flex h-10 w-full items-center">
+                                                    <select
+                                                        id="postman-sandbox-profile"
+                                                        class="postman-param-value-select w-full h-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 pr-8 text-sm text-slate-700 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20 cursor-pointer"
+                                                        style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
+                                                        [ngModel]="sandboxProfilePickerValue()"
+                                                        (ngModelChange)="onSandboxProfileSelect($event)"
+                                                    >
+                                                        <option value="" disabled hidden>
+                                                            {{
+                                                                postmanSandboxI18nKey('selectLabel') | transloco
+                                                            }}
                                                         </option>
-                                                    }
-                                                </select>
+                                                        @for (
+                                                            profile of postmanSandboxProfiles();
+                                                            track trackSandboxProfileKey(profile)
+                                                        ) {
+                                                            <option [value]="trackSandboxProfileKey(profile)">
+                                                                {{ formatSandboxProfileLabel(profile) }}
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                    <span
+                                                        class="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-slate-400 dark:text-slate-500"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path
+                                                                fill-rule="evenodd"
+                                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                                                clip-rule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </span>
+                                                </div>
                                             </div>
                                             @if (selectedSandboxProfile(); as profile) {
                                                 <div
@@ -487,17 +505,25 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 </div>
                             }
 
-                            @if (validationUiAfterSendAttempt() && requestValidationIssues().length) {
+                            @if (validationUiAfterSendAttempt() && displayedValidationIssues().length) {
                                 <div
-                                    class="select-text rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-950 shadow-sm dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-50"
+                                    #validationSummaryBanner
+                                    role="region"
+                                    aria-labelledby="postman-validation-summary-heading"
+                                    tabindex="-1"
+                                    class="select-text rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-950 shadow-sm outline-none dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-50"
                                 >
                                     <div class="flex items-start gap-2">
                                         <mat-icon
                                             class="icon-size-5 flex-shrink-0 text-rose-600 dark:text-rose-300"
+                                            aria-hidden="true"
                                             >error_outline</mat-icon
                                         >
                                         <div class="min-w-0 flex-1">
-                                            <div class="font-semibold mb-1.5">
+                                            <div
+                                                id="postman-validation-summary-heading"
+                                                class="font-semibold mb-1.5"
+                                            >
                                                 {{
                                                     'postman.requestEditor.validation.fixIssuesBeforeSend'
                                                         | transloco
@@ -505,7 +531,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                             </div>
                                             <ul class="list-disc space-y-1 pl-4">
                                                 @for (
-                                                    issue of requestValidationIssues();
+                                                    issue of displayedValidationIssues();
                                                     track issue.translationKey + (issue.field || '')
                                                 ) {
                                                     <li>
@@ -522,6 +548,12 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             }
 
                             @if (postmanXorParamLayout(); as L) {
+                                <p
+                                    class="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-400"
+                                >
+                                    <span class="font-bold text-rose-500 dark:text-rose-400" aria-hidden="true">*</span>
+                                    {{ requiredFieldLegendText() }}
+                                </p>
                                 @switch (L.kind) {
                                     @case ('mexicoLicenseTriple') {
                                         <p
@@ -537,13 +569,24 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                 class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                                             >
                                                 <h5
-                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                    class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                                                 >
                                                     {{
                                                         'createBatch.searchModeOptionCurp'
                                                             | transloco
                                                     }}
                                                 </h5>
+                                                <p
+                                                    class="mb-3 text-xs font-medium text-rose-700 dark:text-rose-300"
+                                                >
+                                                    {{
+                                                        'postman.requestEditor.params.xorOptionRequiredSummary'
+                                                            | transloco
+                                                                : {
+                                                                      fields: 'documentType, documentNumber',
+                                                                  }
+                                                    }}
+                                                </p>
                                                 <ng-container
                                                     *ngTemplateOutlet="
                                                         mexicoLicenseParamGroupHeader
@@ -585,13 +628,24 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                 class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                                             >
                                                 <h5
-                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                    class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                                                 >
                                                     {{
                                                         'createBatch.searchModeOptionLicenseNumber'
                                                             | transloco
                                                     }}
                                                 </h5>
+                                                <p
+                                                    class="mb-3 text-xs font-medium text-rose-700 dark:text-rose-300"
+                                                >
+                                                    {{
+                                                        'postman.requestEditor.params.xorOptionRequiredSummary'
+                                                            | transloco
+                                                                : {
+                                                                      fields: 'documentType, documentNumber',
+                                                                  }
+                                                    }}
+                                                </p>
                                                 <ng-container
                                                     *ngTemplateOutlet="
                                                         mexicoLicenseParamGroupHeader
@@ -633,13 +687,24 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                 class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                                             >
                                                 <h5
-                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                    class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                                                 >
                                                     {{
                                                         'createBatch.searchModeOptionNameMexico'
                                                             | transloco
                                                     }}
                                                 </h5>
+                                                @if (xorOptionRequiredSummary(L.nameRows, 'name'); as requiredFields) {
+                                                    <p
+                                                        class="mb-3 text-xs font-medium text-rose-700 dark:text-rose-300"
+                                                    >
+                                                        {{
+                                                            'postman.requestEditor.params.xorOptionRequiredSummary'
+                                                                | transloco
+                                                                    : { fields: requiredFields }
+                                                        }}
+                                                    </p>
+                                                }
                                                 <ng-container
                                                     *ngTemplateOutlet="
                                                         mexicoLicenseParamGroupHeader
@@ -661,6 +726,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                                 context: {
                                                                     $implicit: item,
                                                                     xOrOptionRow: true,
+                                                                    xOrOptionMode: 'name',
                                                                     mexicoLicenseMode: 'name',
                                                                 }
                                                             "
@@ -713,15 +779,26 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                 class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                                             >
                                                 <h5
-                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                    class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                                                 >
                                                     {{
                                                         'createBatch.searchModeOptionFullName'
                                                             | transloco
                                                     }}
                                                 </h5>
+                                                @if (xorOptionRequiredSummary(L.nameRows, 'name'); as requiredFields) {
+                                                    <p
+                                                        class="mb-3 text-xs font-medium text-rose-700 dark:text-rose-300"
+                                                    >
+                                                        {{
+                                                            'postman.requestEditor.params.xorOptionRequiredSummary'
+                                                                | transloco
+                                                                    : { fields: requiredFields }
+                                                        }}
+                                                    </p>
+                                                }
                                                 <div
-                                                    class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                    class="postman-param-grid-header mb-2 font-semibold text-xs uppercase text-slate-500"
                                                 >
                                                     <div class="flex-1">
                                                         {{
@@ -751,6 +828,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                                 context: {
                                                                     $implicit: item,
                                                                     xOrOptionRow: true,
+                                                                    xOrOptionMode: 'name',
                                                                 }
                                                             "
                                                         ></ng-container>
@@ -761,13 +839,30 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                 class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                                             >
                                                 <h5
-                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                    class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                                                 >
                                                     {{
                                                         'createBatch.searchModeOptionDocument'
                                                             | transloco
                                                     }}
                                                 </h5>
+                                                @if (
+                                                    xorOptionRequiredSummary(
+                                                        visibleXorDocumentRows(),
+                                                        'document'
+                                                    );
+                                                    as requiredFields
+                                                ) {
+                                                    <p
+                                                        class="mb-3 text-xs font-medium text-rose-700 dark:text-rose-300"
+                                                    >
+                                                        {{
+                                                            'postman.requestEditor.params.xorOptionRequiredSummary'
+                                                                | transloco
+                                                                    : { fields: requiredFields }
+                                                        }}
+                                                    </p>
+                                                }
                                                 @if (documentTypeConditionalDobValues(); as dobVals) {
                                                     <p
                                                         class="mb-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
@@ -779,7 +874,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                     </p>
                                                 }
                                                 <div
-                                                    class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                    class="postman-param-grid-header mb-2 font-semibold text-xs uppercase text-slate-500"
                                                 >
                                                     <div class="flex-1">
                                                         {{
@@ -812,6 +907,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                                 context: {
                                                                     $implicit: item,
                                                                     xOrOptionRow: true,
+                                                                    xOrOptionMode: 'document',
                                                                     showXorDocumentTypePlaceholder: true,
                                                                 }
                                                             "
@@ -824,15 +920,32 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                     class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                                                 >
                                                     <h5
-                                                        class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                        class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                                                     >
                                                         {{
                                                             'createBatch.searchModeOptionSerial'
                                                                 | transloco
                                                         }}
                                                     </h5>
+                                                    @if (
+                                                        xorOptionRequiredSummary(
+                                                            L.serialRows,
+                                                            'serial'
+                                                        );
+                                                        as requiredFields
+                                                    ) {
+                                                        <p
+                                                            class="mb-3 text-xs font-medium text-rose-700 dark:text-rose-300"
+                                                        >
+                                                            {{
+                                                                'postman.requestEditor.params.xorOptionRequiredSummary'
+                                                                    | transloco
+                                                                        : { fields: requiredFields }
+                                                            }}
+                                                        </p>
+                                                    }
                                                     <div
-                                                        class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                        class="postman-param-grid-header mb-2 font-semibold text-xs uppercase text-slate-500"
                                                     >
                                                         <div class="flex-1">
                                                             {{
@@ -865,6 +978,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                                     context: {
                                                                         $implicit: item,
                                                                         xOrOptionRow: true,
+                                                                        xOrOptionMode: 'serial',
                                                                     }
                                                                 "
                                                             ></ng-container>
@@ -884,7 +998,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                     }}
                                                 </h4>
                                                 <div
-                                                    class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                    class="postman-param-grid-header mb-2 font-semibold text-xs uppercase text-slate-500"
                                                 >
                                                     <div class="flex-1">
                                                         {{
@@ -921,7 +1035,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                     }
                                     @default {
                                         <div
-                                            class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                            class="postman-param-grid-header mb-2 font-semibold text-xs uppercase text-slate-500"
                                         >
                                             <div class="flex-1">
                                                 {{ 'postman.requestEditor.params.key' | transloco }}
@@ -953,7 +1067,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 }
                             }
 
-                            <div class="pt-4 space-y-2">
+                            <div class="pt-4">
                                 <button
                                     mat-stroked-button
                                     (click)="addParam()"
@@ -962,20 +1076,15 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                     <mat-icon class="icon-size-4 mr-1">add</mat-icon>
                                     {{ 'postman.requestEditor.params.addParam' | transloco }}
                                 </button>
-                                <p
-                                    class="text-xs leading-relaxed text-slate-500 dark:text-slate-400"
-                                >
-                                    {{ 'postman.requestEditor.params.requiredFieldLegend' | transloco }}
-                                </p>
                             </div>
                         </div>
                     </mat-tab>
 
                     <!-- Headers -->
                     <mat-tab [label]="'postman.requestEditor.tabs.headers' | transloco">
-                        <div class="postman-pane-scroll p-4 overflow-y-auto h-full space-y-4">
+                        <div class="postman-pane-scroll p-3 sm:p-4 overflow-y-auto h-full space-y-4">
                             <div
-                                class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500 tracking-wider"
+                                class="postman-header-grid-header mb-2 font-semibold text-xs uppercase text-slate-500 tracking-wider"
                             >
                                 <div class="flex-1 pl-1">
                                     {{ 'postman.requestEditor.headers.key' | transloco }}
@@ -988,17 +1097,17 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             </div>
                             <div
                                 *ngFor="let header of endpoint()?.headers; let i = index"
-                                class="flex gap-2 items-center"
+                                class="postman-header-row"
                             >
                                 <input
-                                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                    class="flex-1 h-10 min-w-0 px-3 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                     [(ngModel)]="header.key"
                                     [placeholder]="
                                         'postman.requestEditor.headers.keyPlaceholder' | transloco
                                     "
                                 />
                                 <input
-                                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                    class="flex-1 h-10 min-w-0 px-3 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                     [(ngModel)]="header.value"
                                     [placeholder]="
                                         'postman.requestEditor.headers.valuePlaceholder' | transloco
@@ -1007,7 +1116,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 <button
                                     mat-icon-button
                                     (click)="removeHeader(i)"
-                                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500"
+                                    class="flex-shrink-0 !w-8 !h-10 !p-0 flex items-center justify-center text-slate-400 hover:text-red-500"
                                 >
                                     <mat-icon class="icon-size-4">delete</mat-icon>
                                 </button>
@@ -1074,29 +1183,39 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             let-typeValue="typeValue"
             let-descriptionKey="descriptionKey"
         >
-            <div class="flex gap-2 items-center">
+            <div class="postman-param-row">
                 <div
-                    class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-100/80 dark:border-slate-600 dark:bg-slate-800/80 opacity-90"
+                    class="flex h-10 min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-100/80 dark:border-slate-600 dark:bg-slate-800/80 opacity-90"
                 >
                     <input
-                        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-600 outline-none dark:text-slate-300"
+                        class="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-slate-600 outline-none dark:text-slate-300"
                         [value]="'documentType'"
                         readonly
                     />
+                    <span
+                        class="shrink-0 pr-2.5 text-base font-bold leading-none text-rose-500 dark:text-rose-400"
+                        aria-hidden="true"
+                        >*</span
+                    >
                 </div>
                 <div class="flex flex-1 min-w-0 flex-col gap-1">
                     <input
-                        class="w-full min-w-0 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-200"
+                        class="w-full h-10 min-w-0 px-3 bg-slate-100 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-200"
                         [value]="typeValue"
                         readonly
                     />
                 </div>
-                <p
-                    class="flex-1 min-w-0 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
-                >
-                    {{ descriptionKey | transloco }}
-                </p>
-                <div class="w-8"></div>
+                <div class="flex flex-1 min-w-0 flex-col items-start gap-1 pt-0.5">
+                    <span
+                        class="inline-flex shrink-0 items-center rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/15 dark:text-rose-300"
+                    >
+                        {{ 'postman.requestEditor.validation.badgeRequired' | transloco }}
+                    </span>
+                    <p class="min-w-0 text-xs text-slate-500 dark:text-slate-400 leading-snug">
+                        {{ descriptionKey | transloco }}
+                    </p>
+                </div>
+                <div class="w-8 shrink-0"></div>
             </div>
         </ng-template>
 
@@ -1106,19 +1225,24 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             let-value="value"
             let-descriptionKey="descriptionKey"
         >
-            <div class="flex gap-2 items-center">
+            <div class="postman-param-row">
                 <div
-                    class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+                    class="flex h-10 min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
                 >
                     <input
-                        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:text-slate-100"
+                        class="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-slate-900 outline-none dark:text-slate-100"
                         [value]="'documentNumber'"
                         readonly
                     />
+                    <span
+                        class="shrink-0 pr-2.5 text-base font-bold leading-none text-rose-500 dark:text-rose-400"
+                        aria-hidden="true"
+                        >*</span
+                    >
                 </div>
                 <div class="flex flex-1 min-w-0 flex-col gap-1">
                     <input
-                        class="w-full min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                        class="w-full h-10 min-w-0 px-3 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                         [ngModel]="value"
                         (ngModelChange)="onMexicoLicenseDocumentNumberChange(mode, $event)"
                         [placeholder]="
@@ -1126,16 +1250,21 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         "
                     />
                 </div>
-                <p
-                    class="flex-1 min-w-0 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
-                >
-                    {{ descriptionKey | transloco }}
-                </p>
+                <div class="flex flex-1 min-w-0 flex-col items-start gap-1 pt-0.5">
+                    <span
+                        class="inline-flex shrink-0 items-center rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/15 dark:text-rose-300"
+                    >
+                        {{ 'postman.requestEditor.validation.badgeRequired' | transloco }}
+                    </span>
+                    <p class="min-w-0 text-xs text-slate-500 dark:text-slate-400 leading-snug">
+                        {{ descriptionKey | transloco }}
+                    </p>
+                </div>
                 <button
                     mat-icon-button
                     type="button"
                     (click)="clearMexicoLicenseGroup(mode)"
-                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500"
+                    class="flex-shrink-0 !w-8 !h-10 !p-0 flex items-center justify-center text-slate-400 hover:text-red-500"
                 >
                     <mat-icon class="icon-size-4">delete</mat-icon>
                 </button>
@@ -1144,7 +1273,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
         <ng-template #mexicoLicenseParamGroupHeader>
             <div
-                class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                class="postman-param-grid-header mb-2 font-semibold text-xs uppercase text-slate-500"
             >
                 <div class="flex-1">
                     {{ 'postman.requestEditor.params.key' | transloco }}
@@ -1163,83 +1292,118 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             #postmanParamRow
             let-item
             let-xOrOptionRow="xOrOptionRow"
+            let-xOrOptionMode="xOrOptionMode"
             let-showXorDocumentTypePlaceholder="showXorDocumentTypePlaceholder"
             let-mexicoLicenseMode="mexicoLicenseMode"
         >
-            <div class="flex gap-2 items-center">
+            @let isReq = paramShowsRequiredKeyAsterisk(item.param, xOrOptionMode);
+            @let fieldErr = firstIssueVisibleForField(item.param.key);
+            <div class="postman-param-row">
                 <div
-                    class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800"
+                    class="flex h-10 min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800"
                     [class.opacity-70]="item.param.readonlyKey"
                 >
                     <input
-                        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:text-slate-100"
+                        class="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-slate-900 outline-none dark:text-slate-100"
                         [ngModel]="item.param.key"
                         (ngModelChange)="item.param.key = $event; onRequestInputsChanged()"
                         [placeholder]="'postman.requestEditor.params.keyPlaceholder' | transloco"
                         [attr.readonly]="item.param.readonlyKey ? '' : null"
                     />
-                    @if (paramShowsRequiredKeyAsterisk(item.param)) {
+                    @if (isReq) {
                         <span
-                            class="shrink-0 pr-2.5 text-base font-semibold leading-none text-slate-500 dark:text-slate-400"
-                            [attr.aria-label]="
+                            class="shrink-0 pr-2.5 text-base font-bold leading-none text-rose-500 dark:text-rose-400"
+                            aria-hidden="true"
+                            [matTooltip]="
                                 'postman.requestEditor.validation.badgeRequired' | transloco
                             "
-                            >*</span>
+                            >*</span
+                        >
                     }
                 </div>
-                <div class="flex flex-1 min-w-0 flex-col gap-1">
+                <div class="flex flex-1 min-w-0 flex-col gap-1.5">
                     @if (item.param.enum?.length) {
-                        <select
-                            class="postman-param-value-select w-full min-w-0 px-3 py-2 pr-8 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
-                            [ngClass]="
-                                firstIssueVisibleForField(item.param.key)
-                                    ? 'border-rose-400 ring-2 ring-rose-500/30'
-                                    : 'border-slate-200'
-                            "
-                            [ngModel]="item.param.value"
-                            (ngModelChange)="
-                                onParamValueChange(
-                                    item,
-                                    coerceParamValue(item.param.key, $event),
-                                    mexicoLicenseMode
-                                )
-                            "
-                        >
-                            @if (
-                                showXorDocumentTypePlaceholder &&
-                                item.param.key === 'documentType'
-                            ) {
-                                <option value="">
-                                    {{
-                                        'postman.requestEditor.params.documentTypePlaceholder'
-                                            | transloco
-                                    }}
-                                </option>
-                            }
-                            @for (opt of paramValueOptions(item.param); track opt) {
-                                <option [value]="opt">{{ paramOptionDisplayLabel(item.param, opt) }}</option>
-                            }
-                        </select>
+                        <div class="relative flex h-10 w-full items-center">
+                            <select
+                                class="postman-param-value-select w-full h-full min-w-0 px-3 pr-8 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all cursor-pointer"
+                                style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
+                                [ngClass]="
+                                    fieldErr
+                                        ? 'border-rose-400 ring-2 ring-rose-500/30'
+                                        : 'border-slate-200'
+                                "
+                                [attr.aria-label]="item.param.key || ('postman.requestEditor.params.value' | transloco)"
+                                [attr.aria-required]="isReq && !xOrOptionRow ? 'true' : null"
+                                [attr.aria-invalid]="fieldErr ? 'true' : 'false'"
+                                [attr.aria-describedby]="paramDescribedById(item, xOrOptionMode)"
+                                [ngModel]="item.param.value"
+                                (ngModelChange)="
+                                    onParamValueChange(
+                                        item,
+                                        coerceParamValue(item.param.key, $event),
+                                        mexicoLicenseMode
+                                    )
+                                "
+                            >
+                                @if (
+                                    (showXorDocumentTypePlaceholder &&
+                                        item.param.key === 'documentType') ||
+                                    (xOrOptionRow && item.param.key === 'sexo')
+                                ) {
+                                    <option value="">
+                                        {{
+                                            (item.param.key === 'sexo'
+                                                ? 'postman.requestEditor.params.sexoPlaceholder'
+                                                : 'postman.requestEditor.params.documentTypePlaceholder'
+                                            ) | transloco
+                                        }}
+                                    </option>
+                                }
+                                @for (opt of paramValueOptions(item.param); track opt) {
+                                    <option [value]="opt">{{ paramOptionDisplayLabel(item.param, opt) }}</option>
+                                }
+                            </select>
+                            <span
+                                class="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-slate-400 dark:text-slate-500"
+                                aria-hidden="true"
+                            >
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                            </span>
+                        </div>
                     } @else if (isDateParam(item.param)) {
                         <input
                             type="date"
-                            class="postman-param-date-input w-full min-w-0 px-3 py-2 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                            class="postman-param-date-input w-full h-10 min-w-0 px-3 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                             [ngClass]="
-                                firstIssueVisibleForField(item.param.key)
+                                fieldErr
                                     ? 'border-rose-400 ring-2 ring-rose-500/30'
                                     : 'border-slate-200'
                             "
+                            [attr.aria-label]="item.param.key || ('postman.requestEditor.params.value' | transloco)"
+                            [attr.aria-required]="isReq && !xOrOptionRow ? 'true' : null"
+                            [attr.aria-invalid]="fieldErr ? 'true' : 'false'"
+                            [attr.aria-describedby]="paramDescribedById(item, xOrOptionMode)"
                             [ngModel]="paramDatePickerValue(item.param)"
                             (ngModelChange)="onDateParamPickerChange(item.param, $event)"
                         />
                     } @else {
                         <input
-                            class="w-full min-w-0 px-3 py-2 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                            class="w-full h-10 min-w-0 px-3 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                             [ngClass]="
-                                firstIssueVisibleForField(item.param.key)
+                                fieldErr
                                     ? 'border-rose-400 ring-2 ring-rose-500/30'
                                     : 'border-slate-200'
                             "
+                            [attr.aria-label]="item.param.key || ('postman.requestEditor.params.value' | transloco)"
+                            [attr.aria-required]="isReq && !xOrOptionRow ? 'true' : null"
+                            [attr.aria-invalid]="fieldErr ? 'true' : 'false'"
+                            [attr.aria-describedby]="paramDescribedById(item, xOrOptionMode)"
                             [ngModel]="item.param.value"
                             (ngModelChange)="
                                 onParamValueChange(
@@ -1255,7 +1419,8 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                     }
                     @if (item.param.dateFormat) {
                         <p
-                            class="text-[10px] font-medium leading-snug text-slate-500 dark:text-slate-400"
+                            [id]="paramHintId(item, xOrOptionMode)"
+                            class="text-[11px] font-medium leading-snug text-slate-500 dark:text-slate-400"
                         >
                             {{
                                 'postman.requestEditor.validation.dateFormatHint'
@@ -1263,23 +1428,86 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             }}
                         </p>
                     }
-                    @if (firstIssueVisibleForField(item.param.key); as iss) {
-                        <p class="text-xs text-rose-600 dark:text-rose-400 leading-snug">
-                            {{
-                                iss.translationKey | transloco: (iss.translationParams || {})
-                            }}
+                    @if (fieldErr) {
+                        <p
+                            [id]="paramErrorId(item, xOrOptionMode)"
+                            class="flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 leading-snug"
+                        >
+                            <span
+                                class="inline-flex shrink-0 items-center text-rose-600 dark:text-rose-400"
+                                role="img"
+                                [attr.aria-label]="
+                                    'postman.requestEditor.validation.errorLabel' | transloco
+                                "
+                            >
+                                <svg
+                                    class="h-3.5 w-3.5"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                            </span>
+                            <span>
+                                @if (
+                                    fieldErr.translationKey ===
+                                    'postman.requestEditor.validation.fieldRequired'
+                                ) {
+                                    {{
+                                        'postman.requestEditor.validation.inlineFieldRequired'
+                                            | transloco
+                                    }}
+                                } @else {
+                                    {{
+                                        fieldErr.translationKey
+                                            | transloco: (fieldErr.translationParams || {})
+                                    }}
+                                }
+                            </span>
                         </p>
                     }
                 </div>
                 @if (item.param.system === 'includeCost') {
                     <p
-                        class="flex-1 min-w-0 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
+                        class="flex-1 min-w-0 pt-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
                     >
                         {{ 'postman.requestEditor.params.includeCostDescription' | transloco }}
                     </p>
+                } @else if (xOrOptionRow || item.param.readonlyKey) {
+                    <div class="flex flex-1 min-w-0 flex-col items-start gap-1 pt-0.5">
+                        @if (item.param.requiredWhen?.in?.length) {
+                            <span
+                                class="inline-flex shrink-0 items-center rounded-md border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-violet-200"
+                            >
+                                {{
+                                    'postman.requestEditor.validation.badgeConditional' | transloco
+                                }}
+                            </span>
+                        } @else if (isReq) {
+                            <span
+                                class="inline-flex shrink-0 items-center rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/15 dark:text-rose-300"
+                            >
+                                {{ 'postman.requestEditor.validation.badgeRequired' | transloco }}
+                            </span>
+                        } @else {
+                            <span
+                                class="inline-flex shrink-0 items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                            >
+                                {{ 'postman.requestEditor.validation.badgeOptional' | transloco }}
+                            </span>
+                        }
+                        <p class="min-w-0 text-xs text-slate-500 dark:text-slate-400 leading-snug">
+                            {{ paramDescriptionText(item.param, xOrOptionMode) }}
+                        </p>
+                    </div>
                 } @else {
                     <input
-                        class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                        class="flex-1 h-10 min-w-0 px-3 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                         [(ngModel)]="item.param.description"
                         [placeholder]="
                             'postman.requestEditor.params.descriptionPlaceholder' | transloco
@@ -1289,7 +1517,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                 <button
                     mat-icon-button
                     (click)="onDeleteParamRow(item, xOrOptionRow, mexicoLicenseMode)"
-                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500"
+                    class="flex-shrink-0 !w-8 !h-10 !p-0 flex items-center justify-center text-slate-400 hover:text-red-500"
                 >
                     <mat-icon class="icon-size-4">delete</mat-icon>
                 </button>
@@ -1424,63 +1652,6 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             </div>
         }
     `,
-    styles: [
-        `
-            ::ng-deep .postman-request-tabs.mat-mdc-tab-group {
-                display: flex;
-                flex: 1 1 0%;
-                flex-direction: column;
-                min-height: 0;
-                height: 100%;
-            }
-            ::ng-deep .postman-request-tabs .mat-mdc-tab-header {
-                flex-shrink: 0;
-            }
-            ::ng-deep .postman-request-tabs .mat-mdc-tab-body-wrapper {
-                flex: 1 1 0%;
-                min-height: 0;
-                overflow-y: auto;
-                overscroll-behavior: contain;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-            }
-            ::ng-deep .postman-request-tabs .mat-mdc-tab-body-wrapper::-webkit-scrollbar {
-                display: none;
-                width: 0;
-                height: 0;
-            }
-            .postman-pane-scroll {
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-            }
-            .postman-pane-scroll::-webkit-scrollbar {
-                display: none;
-                width: 0;
-                height: 0;
-            }
-            ::ng-deep .postman-request-tabs .mat-mdc-tab-body {
-                display: block;
-            }
-            ::ng-deep .postman-request-tabs .mat-mdc-tab-body-content {
-                overflow: visible;
-            }
-            select.postman-param-value-select {
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-                background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 0.625rem center;
-                background-size: 1rem 1rem;
-            }
-            :host-context(.dark) select.postman-param-value-select {
-                background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
-            }
-            select.postman-param-value-select::-ms-expand {
-                display: none;
-            }
-        `,
-    ],
 })
 export class RequestEditorComponent {
     private _postmanService = inject(PostmanService);
@@ -1527,6 +1698,9 @@ export class RequestEditorComponent {
     readonly bodyDraft = signal<string>('');
 
     private readonly _validationInputsTick = signal(0);
+    private readonly _tabGroup = viewChild(MatTabGroup);
+    private readonly _validationSummaryBanner =
+        viewChild<ElementRef<HTMLElement>>('validationSummaryBanner');
 
     /**
      * When true, show the red "Fix issues" banner and per-field validation lines (after an invalid Send attempt).
@@ -1704,6 +1878,18 @@ export class RequestEditorComponent {
         return getPostmanRequestValidationIssues(ep, draft, { lenientEmptyXor: true });
     });
 
+    /** Issues shown in the top summary banner after a failed Send (covers completely blank XOR endpoints). */
+    readonly displayedValidationIssues = computed<PostmanValidationIssue[]>(() => {
+        const issues = this.requestValidationIssues();
+        if (issues.length > 0 || !this.validationUiAfterSendAttempt() || this.canSendRequest()) {
+            return issues;
+        }
+        const fallbackKey = this.xorGuidanceHasSerial()
+            ? 'postman.requestEditor.validation.groupedModesBodyWithSerial'
+            : 'postman.requestEditor.validation.groupedModesBody';
+        return [{ field: '', translationKey: fallbackKey, translationParams: {} }];
+    });
+
     readonly visibleXorDocumentRows = computed(() => {
         this._validationInputsTick();
         const ep = this.endpoint();
@@ -1766,17 +1952,78 @@ export class RequestEditorComponent {
     });
 
     /**
-     * Key column shows a trailing * for required or conditionally required params (replaces inline badges).
+     * Key column shows a trailing * for unconditionally required, conditionally required,
+     * or Option-mode-required params in XOR cards.
      */
-    paramShowsRequiredKeyAsterisk(param: {
-        required?: boolean;
-        requiredWhen?: { in?: string[] };
-    }): boolean {
-        if (param.requiredWhen?.in?.length) {
-            return true;
-        }
+    paramShowsRequiredKeyAsterisk(
+        param: {
+            key?: string;
+            required?: boolean;
+            requiredWhen?: { in?: string[] };
+        },
+        optionMode?: PostmanXorOptionMode | null
+    ): boolean {
+        return isParamRequiredInPostmanUi(this.endpoint(), param, optionMode);
+    }
 
-        return !!param.required;
+    requiredFieldLegendText(): string {
+        return this.translocoService
+            .translate('postman.requestEditor.params.requiredFieldLegend')
+            .replace(/^\*\s*/, '');
+    }
+
+    xorOptionRequiredSummary(
+        rows: readonly PostmanParamRowRef[],
+        optionMode: PostmanXorOptionMode
+    ): string {
+        return getRequiredFieldKeysForXorOption(this.endpoint(), rows, optionMode).join(', ');
+    }
+
+    paramDescriptionText(
+        param: NonNullable<ApiEndpoint['params']>[number],
+        optionMode?: PostmanXorOptionMode | null
+    ): string {
+        if (param.key === 'sexo') {
+            if (optionMode === 'name') {
+                return this.translocoService.translate(
+                    'postman.requestEditor.params.xorSexoNameDescription'
+                );
+            }
+            if (optionMode === 'document') {
+                return this.translocoService.translate(
+                    'postman.requestEditor.params.xorSexoDocumentDescription'
+                );
+            }
+        }
+        return param.description ?? '';
+    }
+
+    paramHintId(
+        item: PostmanParamRowRef,
+        optionMode?: PostmanXorOptionMode | null
+    ): string {
+        return `postman-param-hint-${optionMode || 'flat'}-${item.index}`;
+    }
+
+    paramErrorId(
+        item: PostmanParamRowRef,
+        optionMode?: PostmanXorOptionMode | null
+    ): string {
+        return `postman-param-err-${optionMode || 'flat'}-${item.index}`;
+    }
+
+    paramDescribedById(
+        item: PostmanParamRowRef,
+        optionMode?: PostmanXorOptionMode | null
+    ): string | null {
+        const ids: string[] = [];
+        if (item.param.dateFormat) {
+            ids.push(this.paramHintId(item, optionMode));
+        }
+        if (this.firstIssueVisibleForField(item.param.key)) {
+            ids.push(this.paramErrorId(item, optionMode));
+        }
+        return ids.length ? ids.join(' ') : null;
     }
 
     firstIssueForField(field: string | null | undefined): PostmanValidationIssue | null {
@@ -2239,6 +2486,17 @@ export class RequestEditorComponent {
         // the backend will return 402, which we catch in the effect above.
         if (!this.canSendRequest()) {
             this.validationUiAfterSendAttempt.set(true);
+            const tg = this._tabGroup();
+            if (tg && tg.selectedIndex === 0 && this.showAboutTab()) {
+                tg.selectedIndex = 1;
+            }
+            requestAnimationFrame(() => {
+                const banner = this._validationSummaryBanner()?.nativeElement;
+                if (banner) {
+                    banner.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    banner.focus({ preventScroll: true });
+                }
+            });
             return;
         }
         this._postmanService.sendRequest(this.endpoint()!);
