@@ -4,8 +4,10 @@ import {
 	countriesMatch,
 	filterFeaturesForCountry,
 	countryFlagImageUrl,
+	countryIso2,
 	getCountryFlag,
 	isFeatureForCountry,
+	isWorldCountry,
 	normalizeCountryName,
 	resolveDropdownCountry,
 } from './smart-batch-country.util';
@@ -94,5 +96,26 @@ describe('getCountryFlag', () => {
 	it('builds a flag image url from ISO or name', () => {
 		expect(countryFlagImageUrl('co')).toBe('https://flagcdn.com/w40/co.png');
 		expect(countryFlagImageUrl('Colombia')).toBe('https://flagcdn.com/w40/co.png');
+	});
+
+	it('resolves flags and ISO codes for all catalog countries including Australia, Belarus, Belgium, UK, and EU (#1190)', () => {
+		const samples = [
+			['Australia', 'au', '🇦🇺'],
+			['Belarus', 'by', '🇧🇾'],
+			['Belgium', 'be', '🇧🇪'],
+			['United Kingdom', 'gb', '🇬🇧'],
+			['New Zealand', 'nz', '🇳🇿'],
+			['European Union', 'eu', '🇪🇺'],
+			['Trinidad and Tobago', 'tt', '🇹🇹'],
+		] as const;
+
+		for (const [country, iso, emoji] of samples) {
+			expect(countryIso2(country)).toBe(iso);
+			expect(countryFlagImageUrl(country)).toBe(`https://flagcdn.com/w40/${iso}.png`);
+			expect(getCountryFlag(country)).toBe(emoji);
+		}
+		expect(isWorldCountry('Global')).toBe(true);
+		expect(countryFlagImageUrl('Global')).toBeNull();
+		expect(getCountryFlag('Global')).toBe('🌐');
 	});
 });
