@@ -1,0 +1,35 @@
+<footer class="srf">
+    <div class="srf__logo" aria-hidden="true">
+        <img [src]="images + 'logo-verifik.svg'" alt="" />
+    </div>
+
+    <div class="srf__links">
+        <nav class="srf__column" *ngFor="let column of columns" [attr.aria-label]="column.title">
+            <h4>{{ column.title }}</h4>
+            <a *ngFor="let link of column.links" [href]="link.url">{{ link.label }}</a>
+        </nav>
+    </div>
+
+    <div class="srf__contact">
+        <div class="srf__office">
+            <span class="srf__flag"><img [src]="images + 'flag-co.svg'" alt="Colombia" /></span>
+            <p><strong>COL &gt;</strong> Ak 7 #33-42 PISO 8, Bogotá</p>
+        </div>
+        <div class="srf__socials">
+            <a
+                *ngFor="let social of socials"
+                [href]="social.url"
+                target="_blank"
+                rel="noopener"
+                [attr.aria-label]="social.name"
+            >
+                <img [src]="images + 'icons/social-' + social.icon + '.svg'" alt="" />
+            </a>
+        </div>
+    </div>
+
+    <div class="srf__bottom">
+        <p>© {{ year }} Verifik. Todos los derechos reservados.</p>
+        <img [src]="images + 'signature-team-verifik.svg'" alt="Team Verifik" />
+    </div>
+</footer>
