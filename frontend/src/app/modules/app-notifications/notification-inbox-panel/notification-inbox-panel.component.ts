@@ -233,7 +233,10 @@ export class NotificationInboxPanelComponent implements OnDestroy {
                     const item = res.data;
                     this.selectedItem.set(item);
 
-                    if (item.interactionMode === 'seen_required' && item.receipt.isUnread) {
+                    if (
+                        (item.interactionMode === 'informational' || item.interactionMode === 'seen_required') &&
+                        item.receipt?.isUnread
+                    ) {
                         this._markSeen(notificationId, false);
                     }
                 },

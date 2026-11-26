@@ -243,7 +243,7 @@ export class AppNotificationsService {
     }
 
     markSeen(notificationId: string, productScope = APP_NOTIFICATION_PRODUCT_SCOPE) {
-        return this._http.put<{ data: unknown }>(
+        return this._http.put<{ data: unknown; meta?: { unreadCount?: number } }>(
             `${this._baseUrl}/inbox/${notificationId}/seen`,
             null,
             { params: { productScope } }
@@ -251,7 +251,7 @@ export class AppNotificationsService {
     }
 
     markSeenBulk(notificationIds: string[], productScope = APP_NOTIFICATION_PRODUCT_SCOPE) {
-        return this._http.put<{ data: unknown }>(
+        return this._http.put<{ data?: { count?: number; unreadCount?: number }; meta?: { unreadCount?: number } }>(
             `${this._baseUrl}/inbox/seen`,
             { notificationIds },
             { params: { productScope } }
@@ -259,7 +259,7 @@ export class AppNotificationsService {
     }
 
     acknowledge(notificationId: string, productScope = APP_NOTIFICATION_PRODUCT_SCOPE) {
-        return this._http.put<{ data: InboxItem }>(
+        return this._http.put<{ data: InboxItem; meta?: { unreadCount?: number } }>(
             `${this._baseUrl}/inbox/${notificationId}/acknowledge`,
             null,
             { params: { productScope } }
@@ -271,7 +271,7 @@ export class AppNotificationsService {
         body: AcceptNotificationPayload,
         productScope = APP_NOTIFICATION_PRODUCT_SCOPE
     ) {
-        return this._http.put<{ data: InboxItem }>(
+        return this._http.put<{ data: InboxItem; meta?: { unreadCount?: number } }>(
             `${this._baseUrl}/inbox/${notificationId}/accept`,
             body,
             { params: { productScope } }
@@ -279,7 +279,7 @@ export class AppNotificationsService {
     }
 
     dismiss(notificationId: string, productScope = APP_NOTIFICATION_PRODUCT_SCOPE) {
-        return this._http.put<{ data: InboxItem }>(
+        return this._http.put<{ data: InboxItem; meta?: { unreadCount?: number } }>(
             `${this._baseUrl}/inbox/${notificationId}/dismiss`,
             null,
             { params: { productScope } }
@@ -304,10 +304,35 @@ export class AppNotificationsService {
     }
 
     /**
-     * Mark an informational or seen-required row read locally without removing it.
+     * Optimistically mark an informational or seen_required notification as read
+     * and persist via PUT /inbox/:id/seen. Rolls back local state if the request fails.
      */
-    noteSeenLocally(notificationId: string): void {
+    markAsSeen(notificationId: string, productScope = APP_NOTIFICATION_PRODUCT_SCOPE): Observable<void> {
+        const wasUnread = this.noteSeenLocally(notificationId);
+
+        return this.markSeen(notificationId, productScope).pipe(
+            tap((response) => {
+                if (response?.meta?.unreadCount != null) {
+                    this._unreadCount.set(Math.max(0, response.meta.unreadCount));
+                }
+            }),
+            catchError((err) => {
+                if (wasUnread) {
+                    this._revertSeenLocally(notificationId);
+                }
+                return throwError(() => err);
+            }),
+            map(() => undefined)
+        );
+    }
+
+    /**
+     * Mark an informational or seen-required row read locally without removing it.
+     * Returns true when an unread item transitioned to read.
+     */
+    noteSeenLocally(notificationId: string): boolean {
         let clearedUnread = false;
+        const seenAt = new Date().toISOString();
         this._hubInboxItems.update((items) =>
             items.map((item) => {
                 if (item.notificationId !== notificationId || !item.receipt?.isUnread) return item;
@@ -317,35 +342,80 @@ export class AppNotificationsService {
                     ...item,
                     receipt: {
                         ...item.receipt,
+                        status:
+                            item.receipt.status === 'dismissed' ||
+                            item.receipt.status === 'acknowledged' ||
+                            item.receipt.status === 'accepted'
+                                ? item.receipt.status
+                                : 'seen',
                         isUnread: false,
-                        firstSeenAt: item.receipt.firstSeenAt || new Date().toISOString(),
+                        firstSeenAt: item.receipt.firstSeenAt || seenAt,
                     },
                 };
             })
         );
         if (clearedUnread) {
             this._unreadCount.update((count) => Math.max(0, count - 1));
-            this._markCachedSeen(notificationId);
+        }
+        this._markCachedSeen(notificationId, seenAt);
+        return clearedUnread;
+    }
+
+    private _revertSeenLocally(notificationId: string): void {
+        let restored = false;
+        this._hubInboxItems.update((items) =>
+            items.map((item) => {
+                if (item.notificationId !== notificationId || item.receipt?.isUnread) return item;
+                if (item.interactionMode === 'acknowledge' || item.interactionMode === 'accept') return item;
+                restored = true;
+                return {
+                    ...item,
+                    receipt: {
+                        ...item.receipt,
+                        isUnread: true,
+                        firstSeenAt: null,
+                    },
+                };
+            })
+        );
+        if (restored) {
+            this._unreadCount.update((count) => count + 1);
+            this._detailCache.delete(notificationId);
         }
     }
 
     dismissAndForget(notificationId: string): Observable<void> {
         return this.dismiss(notificationId).pipe(
-            tap(() => this.forgetHubItem(notificationId)),
+            tap((response) => {
+                this.forgetHubItem(notificationId);
+                if (response?.meta?.unreadCount != null) {
+                    this._unreadCount.set(Math.max(0, response.meta.unreadCount));
+                }
+            }),
             map(() => undefined)
         );
     }
 
     acknowledgeAndForget(notificationId: string): Observable<void> {
         return this.acknowledge(notificationId).pipe(
-            tap(() => this.forgetHubItem(notificationId)),
+            tap((response) => {
+                this.forgetHubItem(notificationId);
+                if (response?.meta?.unreadCount != null) {
+                    this._unreadCount.set(Math.max(0, response.meta.unreadCount));
+                }
+            }),
             map(() => undefined)
         );
     }
 
     acceptAndForget(notificationId: string, body: AcceptNotificationPayload): Observable<void> {
         return this.accept(notificationId, body).pipe(
-            tap(() => this.forgetHubItem(notificationId)),
+            tap((response) => {
+                this.forgetHubItem(notificationId);
+                if (response?.meta?.unreadCount != null) {
+                    this._unreadCount.set(Math.max(0, response.meta.unreadCount));
+                }
+            }),
             map(() => undefined)
         );
     }
@@ -363,8 +433,12 @@ export class AppNotificationsService {
         if (!ids.length) return of(undefined);
 
         return this.markSeenBulk(ids).pipe(
-            tap(() => {
+            tap((response) => {
                 for (const id of ids) this.noteSeenLocally(id);
+                const serverCount = response?.meta?.unreadCount ?? response?.data?.unreadCount;
+                if (serverCount != null) {
+                    this._unreadCount.set(Math.max(0, serverCount));
+                }
             }),
             map(() => undefined)
         );
@@ -582,8 +656,32 @@ export class AppNotificationsService {
         };
     }
 
-    private _markCachedSeen(notificationId: string): void {
-        const seenAt = new Date().toISOString();
+    private _markCachedSeen(notificationId: string, seenAt = new Date().toISOString()): void {
+        const cachedDetail = this._detailCache.get(notificationId);
+        if (
+            cachedDetail &&
+            cachedDetail.item.interactionMode !== 'acknowledge' &&
+            cachedDetail.item.interactionMode !== 'accept'
+        ) {
+            this._detailCache.set(notificationId, {
+                ...cachedDetail,
+                item: {
+                    ...cachedDetail.item,
+                    receipt: {
+                        ...cachedDetail.item.receipt,
+                        status:
+                            cachedDetail.item.receipt?.status === 'dismissed' ||
+                            cachedDetail.item.receipt?.status === 'acknowledged' ||
+                            cachedDetail.item.receipt?.status === 'accepted'
+                                ? cachedDetail.item.receipt.status
+                                : 'seen',
+                        isUnread: false,
+                        firstSeenAt: cachedDetail.item.receipt?.firstSeenAt || seenAt,
+                    },
+                },
+            });
+        }
+
         for (const cache of [this._inboxCache, this._bannerCache, this._modalCache]) {
             if (!cache?.payload.data) continue;
             const matched = cache.payload.data.some(
@@ -595,11 +693,19 @@ export class AppNotificationsService {
             cache.payload = {
                 ...cache.payload,
                 data: cache.payload.data.map((item) =>
-                    item.notificationId === notificationId
+                    item.notificationId === notificationId &&
+                    item.interactionMode !== 'acknowledge' &&
+                    item.interactionMode !== 'accept'
                         ? {
                               ...item,
                               receipt: {
                                   ...item.receipt,
+                                  status:
+                                      item.receipt?.status === 'dismissed' ||
+                                      item.receipt?.status === 'acknowledged' ||
+                                      item.receipt?.status === 'accepted'
+                                          ? item.receipt.status
+                                          : 'seen',
                                   isUnread: false,
                                   firstSeenAt: item.receipt?.firstSeenAt || seenAt,
                               },
@@ -614,6 +720,10 @@ export class AppNotificationsService {
                           }
                         : cache.payload.meta,
             };
+        }
+
+        if (this._bannerCache) {
+            this._activeBanners.set(this._bannerCache.payload.data || []);
         }
     }
 

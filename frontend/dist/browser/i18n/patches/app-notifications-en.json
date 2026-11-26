@@ -12,7 +12,16 @@
             "hours": "{{count}}h",
             "days": "{{count}}d",
             "dismissAria": "Dismiss notification",
-            "closeImage": "Close image"
+            "closeImage": "Close image",
+            "closePanel": "Close notifications",
+            "closeDetail": "Close",
+            "filterAll": "All",
+            "filterUnread": "Unread",
+            "unreadLabel": "Unread",
+            "readLabel": "Read",
+            "emptyUnread": "No unread notifications",
+            "priorityHigh": "High priority",
+            "priorityCritical": "Critical"
         }
     }
 }
