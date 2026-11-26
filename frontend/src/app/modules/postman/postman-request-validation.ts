@@ -76,6 +76,9 @@ const NAME_MODE_REQUIRED_FIELDS = [
 ] as const;
 const SEXO_FIELD = 'sexo';
 const SERIAL_FIELD = 'serial';
+const NAME_MODE_REQUIRED_FIELD_SET = new Set<string>(NAME_MODE_REQUIRED_FIELDS);
+
+export type PostmanXorOptionMode = 'name' | 'document' | 'serial';
 
 export type PostmanXorGroupMetadata = {
     docGroupIds: Set<string>;
@@ -746,6 +749,80 @@ export const isPostmanRequestValid = (
     endpoint: ApiEndpoint | null | undefined,
     postBodyJsonDraft: string | null | undefined
 ): boolean => getPostmanRequestValidationIssues(endpoint, postBodyJsonDraft).length === 0;
+
+/**
+ * Returns whether a request param is required unconditionally, conditionally (`requiredWhen`),
+ * or within a specific XOR Option card (`'name' | 'document' | 'serial'`).
+ */
+export const isParamRequiredInPostmanUi = (
+    endpoint: ApiEndpoint | null | undefined,
+    param: {
+        key?: string;
+        field?: string;
+        required?: boolean;
+        requiredWhen?: { in?: string[] };
+    },
+    optionMode?: PostmanXorOptionMode | null
+): boolean => {
+    if (param.requiredWhen?.in?.length || param.required) {
+        return true;
+    }
+    if (!optionMode || !endpoint) {
+        return false;
+    }
+
+    const key = String(param.key ?? param.field ?? '').trim();
+    if (!key) {
+        return false;
+    }
+
+    const deps = (endpoint.dependencies ?? []).filter(
+        (d) => d && typeof d.field === 'string' && isClientVisibleBatchDependencyField(d.field)
+    );
+    const dep = deps.find((d) => d.field === key);
+    if (dep?.required || dep?.requiredWhen?.in?.length) {
+        return true;
+    }
+
+    const hasSexoDep = deps.some((d) => d.field === SEXO_FIELD);
+    if (optionMode === 'name') {
+        return NAME_MODE_REQUIRED_FIELD_SET.has(key) || (key === SEXO_FIELD && hasSexoDep);
+    }
+
+    if (optionMode === 'document') {
+        if (key === DOCUMENT_NUMBER_FIELD) return true;
+        if (key === SEXO_FIELD && hasSexoDep) return true;
+        if (key === DOCUMENT_TYPE_FIELD) {
+            const xorMeta = getPostmanXorGroupMetadata(deps);
+            return deps.some((d) => {
+                if (d.field !== DOCUMENT_TYPE_FIELD) return false;
+                if (!xorMeta) return true;
+                const gid = normalizeDependencyGroup(d);
+                return gid !== null && xorMeta.docGroupIds.has(gid);
+            });
+        }
+        return false;
+    }
+
+    if (optionMode === 'serial') {
+        return key === SERIAL_FIELD;
+    }
+
+    return false;
+};
+
+/**
+ * Lists parameter keys required when filling the specified XOR Option card.
+ */
+export const getRequiredFieldKeysForXorOption = (
+    endpoint: ApiEndpoint | null | undefined,
+    rows: readonly PostmanParamRowRef[],
+    optionMode: PostmanXorOptionMode
+): string[] =>
+    rows
+        .filter((row) => isParamRequiredInPostmanUi(endpoint, row.param, optionMode))
+        .map((row) => row.param.key.trim())
+        .filter(Boolean);
 
 export type { PostmanParamRowRef, PostmanXorParamLayout } from './postman.types';
 

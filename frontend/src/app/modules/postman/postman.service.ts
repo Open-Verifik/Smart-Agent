@@ -772,12 +772,13 @@ export class PostmanService {
             .map((dependency) => {
             const groupId =
                 dependency.dependencyGroup != null ? String(dependency.dependencyGroup).trim() : '';
-            const isXorDocumentType =
-                dependency.field === 'documentType' &&
-                xorMeta &&
-                groupId.length > 0 &&
-                xorMeta.docGroupIds.has(groupId);
-            const defaultVal = isXorDocumentType
+            const isXorSelectableWithPlaceholder =
+                !!xorMeta &&
+                ((dependency.field === 'documentType' &&
+                    groupId.length > 0 &&
+                    xorMeta.docGroupIds.has(groupId)) ||
+                    dependency.field === 'sexo');
+            const defaultVal = isXorSelectableWithPlaceholder
                 ? (dependency.default ?? '')
                 : paramValueForDependency(dependency);
             let desc = dependency.description;

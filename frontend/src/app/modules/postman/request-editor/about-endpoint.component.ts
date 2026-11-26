@@ -27,6 +27,10 @@ import {
     resolveAboutParamsColumnVisibility,
     resolveAboutOverview,
 } from '../postman-endpoint-copy.util';
+import {
+    getPostmanXorParamLayout,
+    isParamRequiredInPostmanUi,
+} from '../postman-request-validation';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
 
@@ -44,7 +48,7 @@ import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-bat
     imports: [CommonModule, MatIconModule, MatTooltipModule, TranslocoPipe, MarkdownPipe],
     host: { class: 'block w-full' },
     template: `
-        <div class="mx-auto w-full max-w-4xl space-y-6 p-6 select-text">
+        <div class="mx-auto w-full max-w-4xl space-y-6 p-4 sm:p-6 select-text">
                     @if (showFallbackBadge()) {
                         <div
                             class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
@@ -72,7 +76,10 @@ import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-bat
                                 {{ 'postman.requestEditor.about.headers' | transloco }}
                             </h3>
                             <div
-                                class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700"
+                                tabindex="0"
+                                role="region"
+                                [attr.aria-label]="'postman.requestEditor.about.headers' | transloco"
+                                class="overflow-x-auto max-w-full rounded-xl border border-slate-200 dark:border-slate-700"
                             >
                                 <table class="w-full text-left text-sm">
                                     <thead
@@ -110,7 +117,10 @@ import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-bat
                                 {{ 'postman.requestEditor.about.parameters' | transloco }}
                             </h3>
                             <div
-                                class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700"
+                                tabindex="0"
+                                role="region"
+                                [attr.aria-label]="'postman.requestEditor.about.parameters' | transloco"
+                                class="overflow-x-auto max-w-full rounded-xl border border-slate-200 dark:border-slate-700"
                             >
                                 <table class="w-full text-left text-sm">
                                     <thead
@@ -430,9 +440,51 @@ export class AboutEndpointComponent {
                 description: p.description,
             });
         }
-        const conditionalHint = (rw?: { field: string; in?: string[] }): string | undefined => {
-            if (!rw?.field || !rw.in?.length) return undefined;
-            return `${rw.field}: ${rw.in.join(', ')}`;
+        const endpoint = this._endpoint();
+        const layout = getPostmanXorParamLayout(endpoint);
+        const xorHintForField = (field: string): string | undefined => {
+            if (layout.kind === 'xor') {
+                const modes: string[] = [];
+                if (
+                    layout.nameRows.some((r) => r.param.key === field) &&
+                    isParamRequiredInPostmanUi(endpoint, { key: field }, 'name')
+                ) {
+                    modes.push(this._transloco.translate('createBatch.searchModeOptionFullName'));
+                }
+                if (
+                    layout.documentRows.some((r) => r.param.key === field) &&
+                    isParamRequiredInPostmanUi(endpoint, { key: field }, 'document')
+                ) {
+                    modes.push(this._transloco.translate('createBatch.searchModeOptionDocument'));
+                }
+                if (
+                    layout.serialRows.some((r) => r.param.key === field) &&
+                    isParamRequiredInPostmanUi(endpoint, { key: field }, 'serial')
+                ) {
+                    modes.push(this._transloco.translate('createBatch.searchModeOptionSerial'));
+                }
+                if (modes.length) {
+                    return modes.join(' / ');
+                }
+            }
+            if (layout.kind === 'mexicoLicenseTriple') {
+                if (field === 'documentType' || field === 'documentNumber') {
+                    return `${this._transloco.translate('createBatch.searchModeOptionCurp')} / ${this._transloco.translate('createBatch.searchModeOptionLicenseNumber')}`;
+                }
+                if (field === 'firstName' || field === 'lastName') {
+                    return this._transloco.translate('createBatch.searchModeOptionNameMexico');
+                }
+            }
+            return undefined;
+        };
+        const conditionalHint = (
+            field: string,
+            rw?: { field: string; in?: string[] }
+        ): string | undefined => {
+            if (rw?.field && rw.in?.length) {
+                return `${rw.field}: ${rw.in.join(', ')}`;
+            }
+            return xorHintForField(field);
         };
         if (doc?.params?.length) {
             return doc.params
@@ -450,7 +502,7 @@ export class AboutEndpointComponent {
                             row.description,
                             extra.description,
                         ),
-                        conditionalHint: conditionalHint(extra.requiredWhen),
+                        conditionalHint: conditionalHint(row.field, extra.requiredWhen),
                         dateFormat: extra.dateFormat,
                     };
                 });
@@ -461,7 +513,7 @@ export class AboutEndpointComponent {
             required: !!p.required,
             allowed: p.enum,
             description: resolveDescription(p.key, undefined, p.description),
-            conditionalHint: conditionalHint(p.requiredWhen),
+            conditionalHint: conditionalHint(p.key, p.requiredWhen),
             dateFormat: p.dateFormat,
         }));
     });
