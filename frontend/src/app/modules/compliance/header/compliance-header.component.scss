@@ -1,0 +1,351 @@
+// Header from the Figma "Centro de Cumplimiento" frames (Open-Verifik/app.verifik.co#1129): dark bar and grey country bar
+$ink: #2c2c2c;
+$blue: #2642ff;
+$navy: #13162c;
+
+:host {
+    display: block;
+    font-family:
+        'Poppins',
+        system-ui,
+        -apple-system,
+        sans-serif;
+}
+
+.chd {
+    display: flex;
+    flex-direction: column;
+}
+
+.chd__bar {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 16px;
+    border-radius: 10px;
+    background: $navy;
+    color: #fff;
+}
+
+.chd__brand img {
+    display: block;
+    width: 100px;
+    height: auto;
+}
+
+.chd__burger {
+    display: none;
+    padding: 6px;
+    border: 0;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.chd__panel {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-width: 0;
+}
+
+.chd__nav {
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.chd__group {
+    position: relative;
+}
+
+.chd__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: #fff;
+    font: inherit;
+    font-size: 12px;
+    line-height: 18px;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    mat-icon {
+        width: 16px;
+        min-width: 16px;
+        height: 16px;
+        min-height: 16px;
+        transition: transform 0.2s ease;
+    }
+}
+
+.chd__dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    display: none;
+    flex-direction: column;
+    min-width: 240px;
+    padding: 8px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 16px 40px rgba(19, 22, 44, 0.18);
+
+    a {
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: $ink;
+        font-size: 14px;
+        line-height: 21px;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            background: #e9ecff;
+            color: $blue;
+        }
+    }
+}
+
+.chd__group--open {
+    .chd__dropdown {
+        display: flex;
+    }
+
+    .chd__link mat-icon {
+        transform: rotate(180deg);
+    }
+}
+
+.chd__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chd__ghost,
+.chd__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    text-decoration: none;
+    white-space: nowrap;
+
+    mat-icon {
+        width: 18px;
+        min-width: 18px;
+        height: 18px;
+        min-height: 18px;
+        color: currentColor;
+    }
+}
+
+.chd__ghost {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(255, 255, 255, 0.08);
+    }
+}
+
+.chd__lang {
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+}
+
+.chd__cta {
+    background: $blue;
+
+    &:hover,
+    &:focus-visible {
+        background: #1733e6;
+    }
+}
+
+.chd__countries {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f5f5f5;
+}
+
+.chd__hub {
+    flex: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #fff;
+    color: $ink;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 21px;
+    text-decoration: none;
+}
+
+.chd__tabs {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.chd__tab {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    color: $ink;
+    font-size: 14px;
+    line-height: 21px;
+    text-decoration: none;
+
+    img {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(38, 66, 255, 0.06);
+    }
+
+    &--active {
+        background: #fff;
+        font-weight: 500;
+    }
+}
+
+.chd__search {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    width: 291px;
+    padding: 8px;
+    border: 1px solid #f1f1f1;
+    border-radius: 8px;
+    background: #fff;
+
+    mat-icon {
+        width: 20px;
+        min-width: 20px;
+        height: 20px;
+        min-height: 20px;
+        padding: 2px;
+        border-radius: 50%;
+        background: #e9ecff;
+        color: $blue;
+    }
+
+    input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        background: none;
+        color: $ink;
+        font: inherit;
+        font-size: 14px;
+        line-height: 21px;
+        outline: none;
+
+        &::placeholder {
+            color: $ink;
+        }
+    }
+
+    &:focus-within {
+        border-color: $blue;
+    }
+}
+
+@media (max-width: 1100px) {
+    .chd__burger {
+        display: inline-flex;
+    }
+
+    .chd__panel {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        left: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        border-radius: 10px;
+        background: $navy;
+    }
+
+    .chd__bar--open .chd__panel {
+        display: flex;
+    }
+
+    .chd__nav {
+        flex-direction: column;
+        align-items: stretch;
+        margin: 0;
+    }
+
+    .chd__link {
+        justify-content: space-between;
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .chd__dropdown {
+        position: static;
+        box-shadow: none;
+    }
+
+    .chd__actions {
+        flex-wrap: wrap;
+    }
+
+    .chd__countries {
+        flex-wrap: wrap;
+    }
+
+    .chd__tabs {
+        order: 3;
+        flex-basis: 100%;
+    }
+
+    .chd__search {
+        flex: 1;
+        width: auto;
+        min-width: 180px;
+    }
+}

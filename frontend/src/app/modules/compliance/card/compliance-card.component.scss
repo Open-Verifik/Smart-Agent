@@ -1,0 +1,283 @@
+// Sizes and colors from the Figma "Centro de Cumplimiento" frames (Open-Verifik/app.verifik.co#1129)
+$ink: #2c2c2c;
+$muted: #636363;
+$line: #f1f1f1;
+
+:host {
+    display: block;
+    min-width: 0;
+}
+
+.cc {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid $line;
+    border-radius: 16px;
+    background: #fff;
+    color: $ink;
+    font-family:
+        'Poppins',
+        system-ui,
+        -apple-system,
+        sans-serif;
+    text-decoration: none;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+        box-shadow: 0 12px 32px rgba(19, 22, 44, 0.08);
+        transform: translateY(-2px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid #2642ff;
+        outline-offset: 2px;
+    }
+}
+
+.cc__media {
+    position: relative;
+    flex: none;
+    aspect-ratio: 395 / 203;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e9ecff, #f5f5f5);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.cc__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 75% 40%, rgba(38, 66, 255, 0.18), transparent 55%),
+        linear-gradient(135deg, #e9ecff, #f5f5f5);
+}
+
+.cc__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 24px 0;
+    min-width: 0;
+}
+
+.cc__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.cc__info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    min-width: 0;
+}
+
+.cc__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    line-height: 15px;
+
+    &--blue {
+        background: #e9ecff;
+        color: #2642ff;
+    }
+
+    &--orange {
+        background: #fff1e9;
+        color: #fe7d38;
+    }
+
+    &--green {
+        background: #e5f7f3;
+        color: #14b89a;
+    }
+}
+
+.cc__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: $muted;
+    font-size: 10px;
+    line-height: 15px;
+    text-transform: uppercase;
+}
+
+.cc__country {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px 4px 4px;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 10px;
+    line-height: 15px;
+    white-space: nowrap;
+
+    img {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+}
+
+.cc__title {
+    margin: 0;
+    color: $ink;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 34px;
+}
+
+.cc__author {
+    margin: 0;
+    color: $muted;
+    font-size: 16px;
+    line-height: 24px;
+    text-transform: uppercase;
+}
+
+.cc__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin: auto 0 0;
+    padding: 24px 0;
+    border-top: 1px solid $line;
+    font-size: 12px;
+    line-height: 18px;
+    word-break: break-word;
+}
+
+// Side and list cards: the text sets the height and the image fills it
+.cc--side,
+.cc--list {
+    .cc__media img,
+    .cc__placeholder {
+        position: absolute;
+        inset: 0;
+    }
+}
+
+// Big featured card: 32px title and the large category badge
+.cc--hero {
+    .cc__media {
+        aspect-ratio: 641 / 290;
+    }
+
+    .cc__badge {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 21px;
+    }
+
+    .cc__date {
+        font-size: 12px;
+        line-height: 18px;
+    }
+
+    .cc__country {
+        padding: 8px 16px 8px 8px;
+        font-size: 14px;
+        line-height: 21px;
+
+        img {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    .cc__title {
+        font-size: 32px;
+        line-height: 45px;
+    }
+}
+
+// Small featured cards: text on the left, image on the right
+.cc--side {
+    flex-direction: row-reverse;
+
+    .cc__media {
+        width: 48%;
+        aspect-ratio: auto;
+    }
+
+    .cc__body {
+        gap: 16px;
+        padding: 16px 16px 0;
+    }
+
+    .cc__meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cc__author {
+        font-size: 14px;
+        line-height: 21px;
+    }
+
+    .cc__tags {
+        padding: 16px 0;
+        font-size: 10px;
+        line-height: 15px;
+    }
+}
+
+// List view: image on the left
+.cc--list {
+    flex-direction: row;
+
+    .cc__media {
+        width: 47%;
+        aspect-ratio: auto;
+        min-height: 280px;
+    }
+
+    .cc__meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 767px) {
+    .cc--side,
+    .cc--list {
+        flex-direction: column;
+
+        .cc__media {
+            width: 100%;
+            min-height: 0;
+            aspect-ratio: 395 / 203;
+        }
+    }
+
+    .cc--hero .cc__title {
+        font-size: 26px;
+        line-height: 36px;
+    }
+
+    .cc__title {
+        font-size: 20px;
+        line-height: 30px;
+    }
+}
