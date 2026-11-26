@@ -789,7 +789,7 @@ const collectArrayPaths = (
                         role="dialog"
                         aria-labelledby="flow-library-dialog-title"
                         tabindex="-1"
-                        class="flow-drawer flow-drawer-left absolute z-[45] flex w-[min(48rem,calc(100%-1.5rem))] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.22)] outline-none dark:border-gray-700 dark:bg-gray-900 dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)]"
+                        class="flow-drawer flow-drawer-left absolute z-[45] flex w-[min(48rem,calc(100%-0.75rem))] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.22)] outline-none dark:border-gray-700 dark:bg-gray-900 dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)] sm:w-[min(48rem,calc(100%-1.5rem))]"
                         [class.is-open]="libraryOpen()"
                         [class.is-home]="libraryAtHome() && !libraryCentered()"
                         [class.is-centered]="libraryCentered()"
@@ -806,8 +806,8 @@ const collectArrayPaths = (
                                 (pointerup)="onLibraryDragEnd()"
                                 (pointercancel)="onLibraryDragEnd()"
                             >
-                                <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-slate-400" aria-hidden="true">drag_indicator</mat-icon>
-                                <h2 id="flow-library-dialog-title" class="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowAddEndpoint' | transloco }}</h2>
+                                <mat-icon class="flow-library-header-drag !h-4 !w-4 shrink-0 !text-base text-slate-400" aria-hidden="true">drag_indicator</mat-icon>
+                                <h2 id="flow-library-dialog-title" class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowAddEndpoint' | transloco }}</h2>
                                 <button
                                     type="button"
                                     class="flow-library-close inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] shrink-0 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:border-gray-700 dark:bg-gray-800 dark:text-slate-200 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -874,7 +874,7 @@ const collectArrayPaths = (
                                     </mat-menu>
                                 }
                             </div>
-                            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+                            <div class="flow-library-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-2.5 sm:p-3">
                                 @if (loading() && !tray().length) {
                                     <div class="flex flex-col items-center gap-3 py-10">
                                         <mat-spinner diameter="36"></mat-spinner>
@@ -911,13 +911,13 @@ const collectArrayPaths = (
                                         }
                                     </div>
                                 }
-                                <div cdkDropList [cdkDropListData]="trayItems()" [cdkDropListSortingDisabled]="true" class="flex flex-col gap-3">
+                                <div cdkDropList [cdkDropListData]="trayItems()" [cdkDropListSortingDisabled]="true" class="flex flex-col gap-2.5 sm:gap-3">
                                     @for (feature of trayItems(); track feature._id) {
-                                            <div
+                                            <article
                                                 cdkDrag
                                                 [cdkDragDisabled]="isAdded(feature)"
                                                 [cdkDragData]="trayDrag(feature)"
-                                                class="rounded-2xl border px-3.5 py-3 shadow-sm"
+                                                class="flow-library-card rounded-2xl border p-3 shadow-sm sm:px-3.5"
                                                 [ngClass]="
                                                     isAdded(feature)
                                                         ? 'cursor-default border-dashed border-slate-300 bg-slate-50 dark:border-gray-600 dark:bg-gray-950'
@@ -928,10 +928,10 @@ const collectArrayPaths = (
                                                 (cdkDragEnded)="onTrayDragEnd()"
                                             >
                                                 <div *cdkDragPlaceholder class="h-2"></div>
-                                                <div class="flex items-start gap-3">
-                                                    <mat-icon class="mt-2 !h-4 !w-4 !text-base text-slate-300">drag_indicator</mat-icon>
-                                                    <span class="relative mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" [ngClass]="iconTone(feature)">
-                                                        <mat-icon class="!h-5 !w-5 !text-[22px]">{{ icon(feature) }}</mat-icon>
+                                                <div class="flow-library-card-grid">
+                                                    <mat-icon class="flow-library-card-drag mt-2 !h-4 !w-4 !text-base text-slate-300" aria-hidden="true">drag_indicator</mat-icon>
+                                                    <span class="flow-library-card-icon relative mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" [ngClass]="iconTone(feature)">
+                                                        <mat-icon class="!h-5 !w-5 !text-[22px]" aria-hidden="true">{{ icon(feature) }}</mat-icon>
                                                         @if (flag(feature); as flagSrc) {
                                                             <img
                                                                 [src]="flagSrc"
@@ -952,38 +952,49 @@ const collectArrayPaths = (
                                                             >
                                                         }
                                                     </span>
-                                                    <div class="min-w-0 flex-1">
-                                                        <p class="text-[15px] font-medium leading-snug text-slate-900 dark:text-white">{{ name(feature) }}</p>
-                                                        @if (isAdded(feature)) {
-                                                            <p class="mt-1 inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-gray-800 dark:text-slate-300">
-                                                                {{ 'visitaGuide.flowEndpointAdded' | transloco }}
-                                                            </p>
-                                                        }
-                                                        <p class="mt-0.5 break-all font-mono text-[11px] leading-4 text-slate-400">{{ requestLabel(feature) }}</p>
+                                                    <div class="flow-library-card-head min-w-0">
+                                                        <h3 class="flow-library-card-title text-[15px] font-medium leading-snug text-slate-900 dark:text-white">{{ name(feature) }}</h3>
+                                                        <code class="flow-library-card-path mt-0.5 block font-mono text-[11px] leading-4 text-slate-400">{{ requestLabel(feature) }}</code>
                                                         @if (countryChoices().length > 1) {
                                                             <p class="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ feature.country }}</p>
                                                         }
-                                                        <div class="mt-2 flex flex-wrap gap-1.5">
-                                                            @for (chip of paramChips(feature); track chip.field) {
-                                                                <span class="rounded-full border px-2 py-0.5 text-xs font-medium" [ngClass]="chipClass(chip.required)">{{ fieldLabel(chip.field) }}</span>
-                                                            }
-                                                        </div>
                                                     </div>
-                                                    <button type="button" class="text-slate-400 hover:text-sky-600" [matTooltip]="'visitaGuide.endpointInfoOpen' | transloco" (mousedown)="$event.stopPropagation()" (click)="openFeatureInfo(feature); $event.stopPropagation()">
-                                                        <mat-icon>info</mat-icon>
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        class="text-slate-400 disabled:cursor-not-allowed disabled:text-emerald-600"
-                                                        [disabled]="isAdded(feature)"
-                                                        [attr.aria-label]="isAdded(feature) ? ('visitaGuide.flowEndpointAdded' | transloco) : ('visitaGuide.flowAddEndpoint' | transloco)"
-                                                        (mousedown)="$event.stopPropagation()"
-                                                        (click)="addFromLibrary(feature); $event.stopPropagation()"
-                                                    >
-                                                        <mat-icon>{{ isAdded(feature) ? 'check' : 'add' }}</mat-icon>
-                                                    </button>
+                                                    <div class="flow-library-card-meta min-w-0">
+                                                        @if (isAdded(feature)) {
+                                                            <span class="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-gray-800 dark:text-slate-300">
+                                                                {{ 'visitaGuide.flowEndpointAdded' | transloco }}
+                                                            </span>
+                                                        }
+                                                        @for (chip of paramChips(feature); track chip.field) {
+                                                            <span class="rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap" [ngClass]="chipClass(chip.required)">{{ fieldLabel(chip.field) }}</span>
+                                                        }
+                                                    </div>
+                                                    <footer class="flow-library-card-actions flex shrink-0 items-center gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            class="flow-library-card-btn inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] items-center justify-center rounded-xl border border-transparent text-slate-400 transition hover:border-slate-200 hover:bg-slate-100 hover:text-sky-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:hover:border-gray-700 dark:hover:bg-gray-800 dark:hover:text-sky-400"
+                                                            [matTooltip]="'visitaGuide.endpointInfoOpen' | transloco"
+                                                            [attr.aria-label]="'visitaGuide.endpointInfoOpen' | transloco"
+                                                            (pointerdown)="$event.stopPropagation()"
+                                                            (mousedown)="$event.stopPropagation()"
+                                                            (click)="openFeatureInfo(feature); $event.stopPropagation()"
+                                                        >
+                                                            <mat-icon class="!h-5 !w-5 !text-[20px]" aria-hidden="true">info</mat-icon>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            class="flow-library-card-btn inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:border-emerald-200 disabled:bg-emerald-50 disabled:text-emerald-600 dark:border-gray-700 dark:bg-gray-800 dark:text-slate-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-950/60 dark:hover:text-sky-300 dark:disabled:border-emerald-800/70 dark:disabled:bg-emerald-950/40 dark:disabled:text-emerald-400"
+                                                            [disabled]="isAdded(feature)"
+                                                            [attr.aria-label]="isAdded(feature) ? ('visitaGuide.flowEndpointAdded' | transloco) : ('visitaGuide.flowAddEndpoint' | transloco)"
+                                                            (pointerdown)="$event.stopPropagation()"
+                                                            (mousedown)="$event.stopPropagation()"
+                                                            (click)="addFromLibrary(feature); $event.stopPropagation()"
+                                                        >
+                                                            <mat-icon class="!h-5 !w-5 !text-[20px]" aria-hidden="true">{{ isAdded(feature) ? 'check' : 'add' }}</mat-icon>
+                                                        </button>
+                                                    </footer>
                                                 </div>
-                                            </div>
+                                            </article>
                                         }
                                 </div>
                             </div>
@@ -1357,12 +1368,118 @@ const collectArrayPaths = (
                 transition: none;
             }
             .flow-drawer-left {
-                height: min(42rem, calc(100% - 1.5rem));
-                max-height: calc(100% - 1.5rem);
+                container: library-panel / inline-size;
+                height: min(42rem, calc(100% - 0.75rem));
+                max-height: calc(100% - 0.75rem);
                 overscroll-behavior: contain;
             }
+            @media (min-width: 640px) {
+                .flow-drawer-left {
+                    height: min(42rem, calc(100% - 1.5rem));
+                    max-height: calc(100% - 1.5rem);
+                }
+            }
+            @container library-panel (inline-size < 30rem) {
+                mat-icon.flow-library-header-drag {
+                    display: none !important;
+                }
+            }
+            .flow-library-scroll {
+                --scrollbar-thumb: #64748b;
+                --scrollbar-track: transparent;
+                scrollbar-width: thin;
+                scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+                padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+                scroll-padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+            }
+            @supports not (scrollbar-color: auto) {
+                .flow-library-scroll {
+                    scrollbar-width: auto;
+                }
+                .flow-library-scroll::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                }
+                .flow-library-scroll::-webkit-scrollbar-thumb {
+                    background: var(--scrollbar-thumb);
+                    border-radius: 9999px;
+                }
+                .flow-library-scroll::-webkit-scrollbar-track {
+                    background: var(--scrollbar-track);
+                }
+            }
+            .flow-library-card {
+                container: library-card / inline-size;
+            }
+            .flow-library-card-grid {
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr);
+                grid-template-areas:
+                    'icon head'
+                    'meta meta'
+                    'actions actions';
+                align-items: start;
+                gap: 0.625rem 0.75rem;
+            }
+            mat-icon.flow-library-card-drag {
+                display: none !important;
+            }
+            .flow-library-card-icon {
+                grid-area: icon;
+            }
+            .flow-library-card-head {
+                grid-area: head;
+            }
+            .flow-library-card-title {
+                text-wrap: balance;
+                overflow-wrap: break-word;
+            }
+            .flow-library-card-path {
+                overflow-wrap: anywhere;
+            }
+            .flow-library-card-meta {
+                grid-area: meta;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.375rem;
+            }
+            .flow-library-card-meta:empty {
+                display: none;
+            }
+            .flow-library-card-actions {
+                grid-area: actions;
+                justify-content: flex-end;
+                border-top: 1px solid rgb(226 232 240 / 0.7);
+                padding-top: 0.5rem;
+            }
+            :host-context(.dark) .flow-library-card-actions {
+                border-top-color: rgb(51 65 85 / 0.55);
+            }
+            @container library-card (inline-size >= 28rem) {
+                .flow-library-card-grid {
+                    grid-template-columns: auto auto minmax(0, 1fr) auto;
+                    grid-template-areas:
+                        'drag icon head actions'
+                        'drag icon meta actions';
+                    gap: 0.375rem 0.75rem;
+                }
+                mat-icon.flow-library-card-drag {
+                    display: inline-flex !important;
+                    grid-area: drag;
+                }
+                .flow-library-card-actions {
+                    border-top: 0;
+                    padding-top: 0;
+                    align-self: start;
+                }
+            }
             @media (pointer: coarse) {
-                .flow-library-close {
+                mat-icon.flow-library-header-drag,
+                mat-icon.flow-library-card-drag {
+                    display: none !important;
+                }
+                .flow-library-close,
+                .flow-library-card-btn {
                     min-block-size: 2.75rem;
                     min-inline-size: 2.75rem;
                 }

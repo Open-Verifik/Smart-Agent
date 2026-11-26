@@ -32,9 +32,19 @@ describe('EndpointChainBoardComponent endpoint library close UX (#1193)', () => 
         expect(headerBlock).toContain('>close</mat-icon>');
 
         const headerIdx = boardSource.indexOf('id="flow-library-dialog-title"');
-        const scrollListIdx = boardSource.indexOf('min-h-0 flex-1 overflow-y-auto overscroll-contain p-3');
+        const scrollListIdx = boardSource.indexOf('flow-library-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain');
         expect(headerIdx).toBeGreaterThan(-1);
         expect(scrollListIdx).toBeGreaterThan(headerIdx);
+    });
+
+    it('adapts endpoint cards with named CSS container queries, semantic <article> roots, accessible buttons, and thin scrollbars', () => {
+        expect(boardSource).toContain('container: library-panel / inline-size;');
+        expect(boardSource).toContain('container: library-card / inline-size;');
+        expect(boardSource).toContain('@container library-card (inline-size >= 28rem)');
+        expect(boardSource).toContain('<article');
+        expect(boardSource).toContain(`[attr.aria-label]="'visitaGuide.endpointInfoOpen' | transloco"`);
+        expect(boardSource).toContain('scrollbar-width: thin;');
+        expect(boardSource).toContain('@supports not (scrollbar-color: auto)');
     });
 
     it('closes on backdrop click and Escape without mutating selected endpoints', () => {
