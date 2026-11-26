@@ -312,6 +312,7 @@ const collectArrayPaths = (
                         <div class="pointer-events-auto relative flex h-12 shrink-0 items-center gap-0.5 rounded-2xl border border-white/80 bg-white px-1.5 shadow-[0_10px_28px_rgba(37,99,175,0.12)] dark:border-gray-700 dark:bg-gray-900">
                             <ng-content select="[flow-executor]"></ng-content>
                             <button
+                                #libraryTrigger
                                 type="button"
                                 class="mr-1 inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-3.5 text-[13px] font-semibold text-slate-800 shadow-sm hover:border-sky-300 hover:bg-sky-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800"
                                 [class.border-sky-400]="libraryOpen()"
@@ -774,28 +775,48 @@ const collectArrayPaths = (
                     </div>
                 </div>
 
+                    @if (libraryOpen() && libraryCentered()) {
+                        <div
+                            class="flow-library-backdrop absolute inset-0 z-40 bg-slate-950/35 backdrop-blur-[1px] dark:bg-black/50"
+                            aria-hidden="true"
+                            (pointerdown)="$event.stopPropagation()"
+                            (click)="closeLibrary()"
+                        ></div>
+                    }
+
                     <aside
                         #libraryPanel
-                        class="flow-drawer flow-drawer-left absolute z-20 flex w-[min(48rem,calc(100%-1.5rem))] flex-col overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_16px_40px_rgba(37,99,175,0.16)] dark:border-gray-700 dark:bg-gray-900"
+                        role="dialog"
+                        aria-labelledby="flow-library-dialog-title"
+                        tabindex="-1"
+                        class="flow-drawer flow-drawer-left absolute z-[45] flex w-[min(48rem,calc(100%-1.5rem))] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_20px_50px_rgba(15,23,42,0.22)] outline-none dark:border-gray-700 dark:bg-gray-900 dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)]"
                         [class.is-open]="libraryOpen()"
                         [class.is-home]="libraryAtHome() && !libraryCentered()"
                         [class.is-centered]="libraryCentered()"
                         [class.is-dragging]="libraryDragging()"
                         [attr.aria-hidden]="!libraryOpen()"
+                        [attr.inert]="!libraryOpen() ? '' : null"
                         [style.left]="libraryCentered() ? '50%' : libraryPos().x + 'px'"
                         [style.top]="libraryCentered() ? '50%' : libraryPos().y + 'px'"
                     >
                             <div
-                                class="flex shrink-0 cursor-grab items-center gap-2 border-b border-slate-100 px-3 py-2 select-none active:cursor-grabbing dark:border-gray-800"
+                                class="flex shrink-0 cursor-grab items-center gap-2 border-b border-slate-100 bg-white px-3 py-2.5 select-none active:cursor-grabbing dark:border-gray-800 dark:bg-gray-900"
                                 (pointerdown)="onLibraryDragStart($event)"
                                 (pointermove)="onLibraryDragMove($event)"
                                 (pointerup)="onLibraryDragEnd()"
                                 (pointercancel)="onLibraryDragEnd()"
                             >
-                                <mat-icon class="!h-4 !w-4 !text-base text-slate-400">drag_indicator</mat-icon>
-                                <p class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowAddEndpoint' | transloco }}</p>
-                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideLibrary' | transloco" (click)="libraryOpen.set(false); $event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
-                                    <mat-icon>close</mat-icon>
+                                <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-slate-400" aria-hidden="true">drag_indicator</mat-icon>
+                                <h2 id="flow-library-dialog-title" class="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowAddEndpoint' | transloco }}</h2>
+                                <button
+                                    type="button"
+                                    class="flow-library-close inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] shrink-0 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:border-gray-700 dark:bg-gray-800 dark:text-slate-200 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white"
+                                    [matTooltip]="'visitaGuide.flowHideLibrary' | transloco"
+                                    [attr.aria-label]="'visitaGuide.flowHideLibrary' | transloco"
+                                    (pointerdown)="$event.stopPropagation()"
+                                    (click)="closeLibrary(); $event.stopPropagation()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">close</mat-icon>
                                 </button>
                             </div>
                             <div class="shrink-0 space-y-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
@@ -853,7 +874,7 @@ const collectArrayPaths = (
                                     </mat-menu>
                                 }
                             </div>
-                            <div class="min-h-0 flex-1 overflow-y-auto p-3">
+                            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
                                 @if (loading() && !tray().length) {
                                     <div class="flex flex-col items-center gap-3 py-10">
                                         <mat-spinner diameter="36"></mat-spinner>
@@ -972,6 +993,7 @@ const collectArrayPaths = (
                         class="flow-drawer flow-drawer-right absolute bottom-16 right-3 top-16 z-20 flex w-[min(22rem,40vw)] min-w-[16rem] flex-col overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_16px_40px_rgba(37,99,175,0.16)] dark:border-gray-700 dark:bg-gray-900"
                         [class.is-open]="configOpen()"
                         [attr.aria-hidden]="!configOpen()"
+                        [attr.inert]="!configOpen() ? '' : null"
                     >
                             <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
                                 <p class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowConfig' | transloco }}</p>
@@ -980,11 +1002,11 @@ const collectArrayPaths = (
                                         {{ 'visitaGuide.endpointInfoOpen' | transloco }}
                                     </button>
                                 }
-                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideConfig' | transloco" (click)="configOpen.set(false)">
+                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideConfig' | transloco" [attr.aria-label]="'visitaGuide.flowHideConfig' | transloco" (click)="configOpen.set(false)">
                                     <mat-icon>close</mat-icon>
                                 </button>
                             </div>
-                            <div class="min-h-0 flex-1 overflow-y-auto p-3">
+                            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
                                 @if (selectedNode(); as node) {
                                     <p class="text-sm font-medium text-slate-900 dark:text-white">{{ node.kind === 'start' ? ('visitaGuide.flowStartCardTitle' | transloco) : nodeTitle(node) }}</p>
                                     @if (node.feature) {
@@ -1336,6 +1358,14 @@ const collectArrayPaths = (
             }
             .flow-drawer-left {
                 height: min(42rem, calc(100% - 1.5rem));
+                max-height: calc(100% - 1.5rem);
+                overscroll-behavior: contain;
+            }
+            @media (pointer: coarse) {
+                .flow-library-close {
+                    min-block-size: 2.75rem;
+                    min-inline-size: 2.75rem;
+                }
             }
             .flow-drawer-left.is-centered {
                 transform: translate3d(-50%, -50%, 0) scale(0.96);
@@ -1408,6 +1438,7 @@ export class EndpointChainBoardComponent {
     private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
     private readonly _flowStage = viewChild<ElementRef<HTMLElement>>('flowStage');
     private readonly _libraryPanel = viewChild<ElementRef<HTMLElement>>('libraryPanel');
+    private readonly _libraryTrigger = viewChild<ElementRef<HTMLButtonElement>>('libraryTrigger');
 
     features = input<AppFeature[]>([]);
     chain = input<AppFeature[]>([]);
@@ -1716,7 +1747,14 @@ export class EndpointChainBoardComponent {
 
     @HostListener('document:keydown.escape')
     closeCanvasContextMenu(): void {
-        this.canvasContextMenu.set(null);
+        if (this.canvasContextMenu()) {
+            this.canvasContextMenu.set(null);
+            return;
+        }
+        if (!this.libraryOpen()) return;
+        if (this._dialog.openDialogs.length > 0) return;
+        if (typeof document !== 'undefined' && document.querySelector('.cdk-overlay-pane .mat-mdc-menu-panel')) return;
+        this.closeLibrary();
     }
 
     @HostListener('document:keydown', ['$event'])
@@ -1798,6 +1836,7 @@ export class EndpointChainBoardComponent {
         if (event.target !== event.currentTarget && !(event.target as HTMLElement).classList.contains('flow-world')) {
             return;
         }
+        if (this.libraryOpen()) this.closeLibrary();
         this.configOpen.set(false);
         this.selectedWireId.set(null);
         this._panning = { x: event.clientX, y: event.clientY, panX: this.panX(), panY: this.panY() };
@@ -1898,7 +1937,7 @@ export class EndpointChainBoardComponent {
 
     toggleLibrary(): void {
         if (this.libraryOpen()) {
-            this.libraryOpen.set(false);
+            this.closeLibrary();
             return;
         }
         this._revealLibrary();
@@ -1906,10 +1945,23 @@ export class EndpointChainBoardComponent {
 
     openLibrary(): void {
         if (this.libraryOpen() && this.libraryCentered()) {
-            this.libraryOpen.set(false);
+            this.closeLibrary();
             return;
         }
         this._revealLibrary();
+    }
+
+    closeLibrary(): void {
+        if (!this.libraryOpen()) return;
+        const panel = this._libraryPanel()?.nativeElement;
+        const shouldRestoreFocus = Boolean(
+            panel && typeof document !== 'undefined' && document.activeElement && panel.contains(document.activeElement)
+        );
+        this.libraryOpen.set(false);
+        this.onLibraryDragEnd();
+        if (shouldRestoreFocus) {
+            queueMicrotask(() => this._libraryTrigger()?.nativeElement?.focus({ preventScroll: true }));
+        }
     }
 
     /** Opening the catalog starts from a clean search. */
@@ -1918,7 +1970,9 @@ export class EndpointChainBoardComponent {
         this.libraryCentered.set(true);
         this.libraryOpen.set(true);
         this.configOpen.set(false);
+        this.coachDemoOpen.set(false);
         if (opening) this.queryChange.emit('');
+        queueMicrotask(() => this._libraryPanel()?.nativeElement?.focus({ preventScroll: true }));
     }
 
     private _libraryOrigin(event: PointerEvent): { x: number; y: number } {
