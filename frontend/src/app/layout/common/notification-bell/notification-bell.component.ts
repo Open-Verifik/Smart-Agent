@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -12,6 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -31,16 +33,20 @@ import {
 import { SessionService } from 'app/core/services/session.service';
 import { AuthModalComponent } from 'app/layout/common/auth-modal/auth-modal.component';
 import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, finalize, takeUntil } from 'rxjs';
+
+export type BellFilter = 'all' | 'unread';
 
 @Component({
     selector: 'notification-bell',
     standalone: true,
     imports: [
+        DatePipe,
         MatButtonModule,
         MatCheckboxModule,
         MatIconModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
     templateUrl: './notification-bell.component.html',
@@ -56,6 +62,7 @@ export class NotificationBellComponent implements OnDestroy {
     private readonly _sanitizer = inject(DomSanitizer);
     private readonly _host = inject(ElementRef<HTMLElement>);
     private readonly _unsubscribeAll = new Subject<void>();
+    private readonly _seenInFlight = new Set<string>();
 
     readonly unreadCount = this._notifications.unreadCount;
     readonly items = this._notifications.hubInboxItems;
@@ -64,6 +71,7 @@ export class NotificationBellComponent implements OnDestroy {
 
     readonly opened = signal(false);
     readonly canUseApi = signal(false);
+    readonly filter = signal<BellFilter>('all');
     readonly expandedId = signal<string | null>(null);
     readonly detailItem = signal<InboxItem | null>(null);
     readonly detailLoading = signal(false);
@@ -82,6 +90,22 @@ export class NotificationBellComponent implements OnDestroy {
 
     readonly selectedItem = computed(() => this.detailItem());
 
+    readonly filteredItems = computed(() => {
+        const list = this.items();
+        if (this.filter() === 'unread') {
+            return list.filter((item) => item.receipt?.isUnread);
+        }
+        return list;
+    });
+
+    readonly hasMarkableUnread = computed(() =>
+        this.items().some(
+            (item) =>
+                item.receipt?.isUnread &&
+                (item.interactionMode === 'informational' || item.interactionMode === 'seen_required')
+        )
+    );
+
     constructor() {
         this._notifications.openBell$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -95,6 +119,7 @@ export class NotificationBellComponent implements OnDestroy {
 
     @HostListener('document:keydown.escape')
     onEscape(): void {
+        if (!this.opened()) return;
         if (this.expandedImageSrc()) {
             this.closeImage();
             return;
@@ -103,16 +128,16 @@ export class NotificationBellComponent implements OnDestroy {
             this.closeDetail();
             return;
         }
-        this._closePanel(true);
+        this.closePanel(true);
     }
 
-    @HostListener('document:click', ['$event'])
-    onDocumentClick(event: MouseEvent): void {
+    @HostListener('document:pointerdown', ['$event'])
+    onDocumentPointerDown(event: PointerEvent): void {
         if (!this.opened()) return;
         const target = event.target as Node | null;
         if (!target?.isConnected) return;
         if (this._host.nativeElement.contains(target)) return;
-        this._closePanel(true);
+        this.closePanel(false);
     }
 
     openFromRequest(): void {
@@ -120,7 +145,7 @@ export class NotificationBellComponent implements OnDestroy {
         const alreadyOpen = this.opened();
         this.opened.set(true);
         if (!alreadyOpen) {
-            setTimeout(() => this._panelElement()?.focus());
+            queueMicrotask(() => this._panelElement()?.focus({ preventScroll: true }));
         }
         if (!this.canUseApi()) return;
         this._notifications.refreshHubInbox().pipe(takeUntil(this._unsubscribeAll)).subscribe();
@@ -130,11 +155,26 @@ export class NotificationBellComponent implements OnDestroy {
         event.stopPropagation();
         this._refreshAuth();
         const next = !this.opened();
-        this.opened.set(next);
-        if (!next) return;
-        setTimeout(() => this._panelElement()?.focus());
+        if (!next) {
+            this.closePanel(false);
+            return;
+        }
+        this.opened.set(true);
+        queueMicrotask(() => this._panelElement()?.focus({ preventScroll: true }));
         if (!this.canUseApi()) return;
         this._notifications.refreshHubInbox().pipe(takeUntil(this._unsubscribeAll)).subscribe();
+    }
+
+    closePanel(restoreFocus = true): void {
+        if (!this.opened()) return;
+        this.opened.set(false);
+        this.closeDetail();
+        if (!restoreFocus) return;
+        queueMicrotask(() => this._triggerElement()?.focus({ preventScroll: true }));
+    }
+
+    setFilter(next: BellFilter): void {
+        this.filter.set(next);
     }
 
     openSignIn(): void {
@@ -145,7 +185,7 @@ export class NotificationBellComponent implements OnDestroy {
     }
 
     markAll(): void {
-        if (this.markingAll()) return;
+        if (this.markingAll() || !this.hasMarkableUnread()) return;
         this.markingAll.set(true);
         this.markAllError.set(false);
         this._notifications
@@ -163,11 +203,15 @@ export class NotificationBellComponent implements OnDestroy {
     openDetail(item: InboxItem): void {
         this.expandedId.set(item.notificationId);
         this.detailItem.set(item);
-        this.detailLoading.set(true);
+        this.detailLoading.set(!item.content?.body);
         this.detailError.set(null);
         this.expandedImageSrc.set(null);
         this.rowErrorId.set(null);
         this.legalAccepted.set(false);
+
+        // Immediately mark informational and seen_required notifications as read on open.
+        this._markSeenOnOpen(item);
+
         this._notifications
             .show(item.notificationId)
             .pipe(takeUntil(this._unsubscribeAll))
@@ -175,9 +219,23 @@ export class NotificationBellComponent implements OnDestroy {
                 next: (response) => {
                     if (this.expandedId() !== item.notificationId) return;
                     const loaded = response.data ?? item;
-                    this.detailItem.set(loaded);
+                    const currentHub = this.items().find(
+                        (entry) => entry.notificationId === item.notificationId
+                    );
+                    const merged: InboxItem =
+                        currentHub && !currentHub.receipt?.isUnread && loaded.receipt?.isUnread
+                            ? {
+                                  ...loaded,
+                                  receipt: {
+                                      ...loaded.receipt,
+                                      ...currentHub.receipt,
+                                      isUnread: false,
+                                  },
+                              }
+                            : loaded;
+                    this.detailItem.set(merged);
                     this.detailLoading.set(false);
-                    this._markSeenIfRequired(loaded);
+                    this._markSeenOnOpen(merged);
                 },
                 error: () => {
                     if (this.expandedId() !== item.notificationId) return;
@@ -224,13 +282,6 @@ export class NotificationBellComponent implements OnDestroy {
         return trustNotificationBodyHtml(this._sanitizer, body);
     }
 
-    showDetailFooter(item: InboxItem): boolean {
-        if (this.rowErrorId() === item.notificationId) return true;
-        if (this.showCta(item)) return true;
-        if (item.interactionMode === 'acknowledge' && item.receipt?.isUnread) return true;
-        return item.interactionMode === 'accept' && Boolean(item.receipt?.isUnread);
-    }
-
     canDismiss(item: InboxItem): boolean {
         return item.interactionMode === 'informational' || item.interactionMode === 'seen_required';
     }
@@ -272,25 +323,23 @@ export class NotificationBellComponent implements OnDestroy {
             openBell: () => this._notifications.requestOpenBell(),
         });
         if (opensBell) return;
-        this._closePanel(false);
+        this.closePanel(false);
     }
 
-    private _closePanel(restoreFocus: boolean): void {
-        if (!this.opened()) return;
-        this.opened.set(false);
-        this.closeDetail();
-        if (!restoreFocus) return;
-        setTimeout(() => this._triggerElement()?.focus());
+    categoryLabelKey(category: NotificationCategory): string {
+        return `appNotifications.inbox.categories.${category}`;
     }
 
-    private _panelElement(): HTMLElement | null {
-        const root = this._host.nativeElement as HTMLElement;
-        return root.querySelector('.notification-bell__panel');
-    }
-
-    private _triggerElement(): HTMLButtonElement | null {
-        const root = this._host.nativeElement as HTMLElement;
-        return root.querySelector('.notification-bell__trigger');
+    categoryToneClass(category: NotificationCategory): string {
+        const map: Record<NotificationCategory, string> = {
+            billing: 'is-billing',
+            security: 'is-security',
+            legal: 'is-legal',
+            maintenance: 'is-maintenance',
+            product: 'is-product',
+            system: 'is-system',
+        };
+        return map[category] ?? map.system;
     }
 
     relativeTime(publishedAt?: string): string {
@@ -325,6 +374,16 @@ export class NotificationBellComponent implements OnDestroy {
         return item.notificationId;
     }
 
+    private _panelElement(): HTMLElement | null {
+        const root = this._host.nativeElement as HTMLElement;
+        return root.querySelector('.notification-bell__panel');
+    }
+
+    private _triggerElement(): HTMLButtonElement | null {
+        const root = this._host.nativeElement as HTMLElement;
+        return root.querySelector('.notification-bell__trigger');
+    }
+
     private _run(notificationId: string, request: Observable<void>): void {
         this.actionId.set(notificationId);
         this.rowErrorId.set(null);
@@ -340,22 +399,43 @@ export class NotificationBellComponent implements OnDestroy {
         });
     }
 
-    private _markSeenIfRequired(item: InboxItem): void {
-        if (item.interactionMode !== 'seen_required' || !item.receipt?.isUnread) return;
+    private _markSeenOnOpen(item: InboxItem): void {
+        const isAutoReadable =
+            item.interactionMode === 'informational' || item.interactionMode === 'seen_required';
+        if (!isAutoReadable || !item.receipt?.isUnread) return;
+        if (this._seenInFlight.has(item.notificationId)) return;
+
+        const seenAt = new Date().toISOString();
+        this._seenInFlight.add(item.notificationId);
+
+        this.detailItem.update((current) => {
+            if (!current || current.notificationId !== item.notificationId) return current;
+            return {
+                ...current,
+                receipt: {
+                    ...current.receipt,
+                    status: current.receipt.status === 'dismissed' ? 'dismissed' : 'seen',
+                    isUnread: false,
+                    firstSeenAt: current.receipt.firstSeenAt || seenAt,
+                },
+            };
+        });
+
         this._notifications
-            .markSeen(item.notificationId)
-            .pipe(takeUntil(this._unsubscribeAll))
+            .markAsSeen(item.notificationId)
+            .pipe(
+                finalize(() => this._seenInFlight.delete(item.notificationId)),
+                takeUntil(this._unsubscribeAll)
+            )
             .subscribe({
-                next: () => {
-                    this._notifications.noteSeenLocally(item.notificationId);
+                error: () => {
                     this.detailItem.update((current) => {
                         if (!current || current.notificationId !== item.notificationId) return current;
                         return {
                             ...current,
                             receipt: {
                                 ...current.receipt,
-                                isUnread: false,
-                                firstSeenAt: current.receipt.firstSeenAt || new Date().toISOString(),
+                                isUnread: true,
                             },
                         };
                     });

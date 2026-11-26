@@ -1,0 +1,15 @@
+{
+    "appNotifications": {
+        "bell": {
+            "closePanel": "Fermer les notifications",
+            "closeDetail": "Fermer",
+            "filterAll": "Toutes",
+            "filterUnread": "Non lues",
+            "unreadLabel": "Non lue",
+            "readLabel": "Lue",
+            "emptyUnread": "Aucune notification non lue",
+            "priorityHigh": "Haute priorité",
+            "priorityCritical": "Critique"
+        }
+    }
+}
