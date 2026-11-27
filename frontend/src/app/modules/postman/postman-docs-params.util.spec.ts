@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatCatalogPrice, mergeParamsFromDocs, sanitizeDisplayPayload } from './postman-docs-params.util';
+import {
+    formatCatalogPrice,
+    mergeParamsFromDocs,
+    normalizeDocParamList,
+    sanitizeDisplayPayload,
+} from './postman-docs-params.util';
 import { ApiEndpoint } from './postman.types';
 
 const endpoint = (overrides: Partial<ApiEndpoint> = {}): ApiEndpoint =>
@@ -25,6 +30,31 @@ const endpoint = (overrides: Partial<ApiEndpoint> = {}): ApiEndpoint =>
         ...overrides,
     }) as ApiEndpoint;
 
+describe('normalizeDocParamList', () => {
+    it('coerces plain-string production params into About table rows', () => {
+        expect(
+            normalizeDocParamList(['documentNumber', ' fullName ', '', 'includeFormer'])
+        ).toEqual([
+            { field: 'documentNumber', description: '' },
+            { field: 'fullName', description: '' },
+            { field: 'includeFormer', description: '' },
+        ]);
+    });
+
+    it('keeps object params and drops rows without a field', () => {
+        expect(
+            normalizeDocParamList([
+                { field: 'documentNumber', description: 'National id' },
+                { description: 'missing field' },
+                'documentType',
+            ])
+        ).toEqual([
+            { field: 'documentNumber', description: 'National id' },
+            { field: 'documentType', description: '' },
+        ]);
+    });
+});
+
 describe('mergeParamsFromDocs', () => {
     it('adds documented optional params missing from dependencies', () => {
         const merged = mergeParamsFromDocs(endpoint());
@@ -49,6 +79,24 @@ describe('mergeParamsFromDocs', () => {
             })
         );
         expect(merged.params?.some((param) => param.key === 'primerApellido')).toBe(true);
+    });
+
+    it('adds fields that production docs list as plain strings', () => {
+        const merged = mergeParamsFromDocs(
+            endpoint({
+                code: 'be_api_pep',
+                params: [{ key: 'documentNumber', value: '', type: 'String', required: false }],
+                docs: {
+                    en: {
+                        params: ['documentNumber', 'fullName', 'force'] as unknown as {
+                            field: string;
+                            description: string;
+                        }[],
+                    },
+                },
+            })
+        );
+        expect(merged.params?.map((param) => param.key)).toEqual(['documentNumber', 'fullName']);
     });
 
     it('does not duplicate existing params', () => {

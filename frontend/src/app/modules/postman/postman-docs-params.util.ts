@@ -6,10 +6,35 @@ const FALLBACK_DOC_PARAMS: Record<string, EndpointDocParamRow[]> = {
     colombia_api_driver: [{ field: 'primerApellido', description: 'First last name' }],
 };
 
+/**
+ * Production `AppFeature.docs.<locale>.params` is sometimes a list of field-name strings
+ * instead of `{ field, description }` rows. Coerce both shapes so the About table can render.
+ */
+export const normalizeDocParamList = (params: unknown): EndpointDocParamRow[] => {
+    if (!Array.isArray(params)) return [];
+    const rows: EndpointDocParamRow[] = [];
+    for (const item of params) {
+        if (typeof item === 'string') {
+            const field = item.trim();
+            if (field) rows.push({ field, description: '' });
+            continue;
+        }
+        if (!item || typeof item !== 'object') continue;
+        const record = item as Partial<EndpointDocParamRow>;
+        const field = typeof record.field === 'string' ? record.field.trim() : '';
+        if (!field) continue;
+        rows.push({
+            field,
+            description: typeof record.description === 'string' ? record.description : '',
+        });
+    }
+    return rows;
+};
+
 const collectDocParamRows = (endpoint: ApiEndpoint): EndpointDocParamRow[] => {
     const byField = new Map<string, EndpointDocParamRow>();
     for (const locale of Object.values(endpoint.docs || {})) {
-        for (const row of locale?.params ?? []) {
+        for (const row of normalizeDocParamList(locale?.params)) {
             const field = row.field?.trim();
             if (!field || byField.has(field) || SYSTEM_PARAM_KEYS.has(field)) continue;
             byField.set(field, row);

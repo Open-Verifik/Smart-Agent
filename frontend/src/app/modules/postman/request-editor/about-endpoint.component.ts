@@ -33,6 +33,7 @@ import {
 } from '../postman-request-validation';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
+import { normalizeDocParamList } from '../postman-docs-params.util';
 
 /**
  * "About" tab for the Postman-style request editor.
@@ -406,7 +407,7 @@ export class AboutEndpointComponent {
             (p) => p.system !== 'includeCost' && isClientVisibleBatchDependencyField(p.key)
         );
         const englishParamDescriptions = new Map(
-            (this._docs()?.en?.params ?? [])
+            normalizeDocParamList(this._docs()?.en?.params)
                 .filter((row) => row.field?.trim() && row.description?.trim())
                 .map((row) => [row.field, row.description.trim()] as const),
         );
@@ -486,9 +487,11 @@ export class AboutEndpointComponent {
             }
             return xorHintForField(field);
         };
-        if (doc?.params?.length) {
-            return doc.params
-                .filter((row) => row.field?.trim() && isClientVisibleBatchDependencyField(row.field))
+        const docParams = normalizeDocParamList(doc?.params).filter(
+            (row) => row.field?.trim() && isClientVisibleBatchDependencyField(row.field)
+        );
+        if (docParams.length) {
+            return docParams
                 .map((row) => {
                     const extra = byField.get(row.field) || {};
                     byField.delete(row.field);

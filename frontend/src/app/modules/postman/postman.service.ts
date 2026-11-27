@@ -76,8 +76,12 @@ import {
     throwError,
 } from 'rxjs';
 import { mergeParamsFromDocs } from './postman-docs-params.util';
-import postmanEndpointsIo from './postman-endpoints-io.json';
 import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
+import {
+    prepareLiveCatalogFeature,
+    staticCatalogDependencies,
+    staticCatalogEntry,
+} from './postman-live-catalog.util';
 import { isClientVisibleBatchDependencyField } from '../smart-batch/smart-batch-dependency.constants';
 
 @Injectable({
@@ -642,23 +646,9 @@ export class PostmanService {
 
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
         const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
-        const rawCatalogDeps = feature.dependencies ?? feature.input?.dependencies ?? [];
-        const normalizedDeps = Array.isArray(rawCatalogDeps)
-            ? rawCatalogDeps
-            : typeof rawCatalogDeps === 'object' && rawCatalogDeps !== null
-                ? Object.entries(rawCatalogDeps).map(([field, meta]: [string, any]) => ({
-                      field,
-                      type: meta?.type || 'String',
-                      required: meta?.required ?? false,
-                      description: meta?.description || '',
-                      enum: meta?.enum,
-                      default: meta?.default,
-                      dependencyGroup: meta?.dependencyGroup,
-                      requiredWhen: meta?.requiredWhen,
-                      dateFormat: meta?.dateFormat,
-                  }))
-                : [];
-        const rawDeps = resolveHumanAuthnDependencies(feature.code, normalizedDeps);
+        const staticEntry = staticCatalogEntry(feature?.code);
+        const prepared = prepareLiveCatalogFeature(feature, staticEntry);
+        const rawDeps = resolveHumanAuthnDependencies(feature.code, prepared.dependencies);
         const dependencies = this._toPostmanDependencyMeta(rawDeps);
         const xorMeta = dependencies.length ? getPostmanXorGroupMetadata(dependencies) : null;
         const listParams = method === 'GET' || shouldListHumanAuthnParams(feature.code);
@@ -672,11 +662,9 @@ export class PostmanService {
         const created: ApiEndpoint = {
             id: feature._id || feature.code,
             label: feature.name,
-            ...(typeof feature.nameES === 'string' && feature.nameES.trim()
-                ? { nameES: feature.nameES.trim() }
-                : {}),
+            ...(prepared.nameES ? { nameES: prepared.nameES } : {}),
             code: feature.code,
-            category: this._mapCategory(feature.baseCategory || feature.group),
+            category: this._mapCategory(prepared.category),
             country: resolvedCountry,
             ...(Array.isArray(feature.checkListDomains) && feature.checkListDomains.length
                 ? { checkListDomains: feature.checkListDomains }
@@ -699,7 +687,7 @@ export class PostmanService {
             ...(dependencies.length ? { dependencies } : {}),
             params: listParams ? this._paramsFromDependencies(rawDeps, xorMeta) : [],
             body: method !== 'GET' && rawDeps.length ? this._bodyFromDependencies(rawDeps) : null,
-            ...(feature.docs && typeof feature.docs === 'object' ? { docs: feature.docs } : {}),
+            ...(prepared.docs ? { docs: prepared.docs } : {}),
         };
         if (!created.docs && created.code) {
             const cached = postmanEndpointDetailCache.get(created.code);
@@ -709,23 +697,14 @@ export class PostmanService {
                     : undefined;
             if (cachedDocs && typeof cachedDocs === 'object') {
                 created.docs = cachedDocs;
-            } else {
-                const staticEndpoints =
-                    (postmanEndpointsIo as any)?.endpoints ??
-                    (Array.isArray(postmanEndpointsIo) ? postmanEndpointsIo : []);
-                const staticEntry = staticEndpoints.find((e: any) => e.code === created.code);
-                if (staticEntry?.docs && typeof staticEntry.docs === 'object') {
-                    created.docs = staticEntry.docs;
-                }
             }
         }
         if (created.code && (!created.dependencies?.length || !created.params?.length)) {
-            const staticEndpoints =
-                (postmanEndpointsIo as any)?.endpoints ??
-                (Array.isArray(postmanEndpointsIo) ? postmanEndpointsIo : []);
-            const staticEntry = staticEndpoints.find((e: any) => e.code === created.code);
-            if (staticEntry?.input?.dependencies?.length) {
-                const staticRawDeps = staticEntry.input.dependencies;
+            const staticRawDeps =
+                staticEntry?.input?.dependencies?.length
+                    ? staticEntry.input.dependencies
+                    : staticCatalogDependencies(staticEntry);
+            if (staticRawDeps.length) {
                 const staticDeps = this._toPostmanDependencyMeta(staticRawDeps);
                 const staticXor = getPostmanXorGroupMetadata(staticDeps);
                 created.dependencies = staticDeps;
