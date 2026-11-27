@@ -15,7 +15,8 @@
       "approve": "承認",
       "export": "出力",
       "manageKeys": "キー",
-      "readAll": "全チーム"
+      "readAll": "全チーム",
+      "manageOwnTeam": "Manage Own Team"
     },
     "actionTooltips": {
       "read": "画面、レコード、一覧、分析データを閲覧",
@@ -26,7 +27,8 @@
       "approve": "審査を手動で承認、却下、または解決",
       "export": "PDF、CSV、XLSX、JSONL でデータを出力",
       "manageKeys": "API キーの作成・ローテーション・失効、本番/サンドボックス切替",
-      "readAll": "自分のサブチームだけでなくワークスペース全サブチームの記録を表示"
+      "readAll": "自分のサブチームだけでなくワークスペース全サブチームの記録を表示",
+      "manageOwnTeam": "Manage members, budgets, and child sub-teams within your own assigned team hierarchy"
     },
     "budget": {
       "oneTimeThisMonth": "今月(UTC)のみの一時増額",
@@ -80,7 +82,8 @@
       "tabTeams": "サブチームと予算",
       "tabRoles": "ロールと権限",
       "tabRequests": "アクセス申請",
-      "tabPolicy": "アクセスポリシー"
+      "tabPolicy": "アクセスポリシー",
+      "tabAudit": "Audit Log"
     },
     "insufficientPermissionsToast": "この操作を行う権限がありません。",
     "lockedActionTooltip": "上位権限が必要です — クリックして申請",
@@ -116,7 +119,9 @@
       "cannotDeleteSelf": "自身のアカウントは削除できません。",
       "removeConfirmTitle": "{{name}} を削除しますか？",
       "removeConfirmDesc": "トークンを即時失効し、ワークスペースから削除します。",
-      "statusSuspended": "停止中"
+      "statusSuspended": "停止中",
+      "additionalTeamsLabel": "Additional Sub-Teams (Optional)",
+      "additionalTeamsHint": "Grant read or manager visibility across extra sub-teams in addition to the primary team."
     },
     "myAccess": {
       "title": "マイアクセスと権限",
@@ -294,6 +299,10 @@
       "report_builder": {
         "name": "ドキュメントビルダー",
         "desc": "実行済みレポート結果やPII、APIキーを閲覧せずにレポートテンプレートやバッチ設定を作成・編集します。"
+      },
+      "team_manager": {
+        "name": "Team Manager",
+        "desc": "Manages members, sub-teams, budgets, access requests, and CECO usage exports within their assigned team and child sub-teams."
       }
     },
     "rolesTab": {
@@ -397,7 +406,9 @@
       "assignedTeamToast": "サブチーム割り当てを更新しました",
       "visibilityLabel": "公開範囲",
       "visibilityTeam": "サブチームのみ",
-      "visibilityWorkspace": "ワークスペース全体"
+      "visibilityWorkspace": "ワークスペース全体",
+      "parentTeamLabel": "Parent Sub-Team (Optional)",
+      "noParentTeam": "None (Top-level team)"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "本番/サンドボックス切替には API キー管理権限が必要です。"
@@ -430,6 +441,42 @@
       "badgeCaps": "{{count}} 件の上限",
       "memberToggleTitle": "特定の API エンドポイントを制限",
       "memberToggleAllSummary": "サブチームとロールのルールを継承（すべて許可）"
+    },
+    "auditLog": {
+      "title": "Access & Team Audit Log",
+      "subtitle": "Immutable trail of role updates, sub-team changes, access approvals, and signed downloads.",
+      "exportCsv": "Export CSV",
+      "actionColumn": "Action",
+      "actionPlaceholder": "e.g. staff.update",
+      "resourceColumn": "Resource",
+      "timeColumn": "Timestamp",
+      "actorColumn": "Actor",
+      "summaryColumn": "Summary",
+      "startDateLabel": "From Date",
+      "applyFilters": "Filter",
+      "resetFilters": "Reset",
+      "emptyTitle": "No audit events found",
+      "emptyDesc": "Administrative and team actions will appear here as they happen.",
+      "loadError": "Could not load audit log entries.",
+      "entriesLabel": "entries",
+      "prevPage": "Previous",
+      "nextPage": "Next"
+    },
+    "cecoStatement": {
+      "title": "Monthly CECO Statement",
+      "subtitle": "Reconcile API calls and metered SmartReport credits grouped by Cost Center and Sub-Team.",
+      "costCentersCount": "Cost Centers",
+      "apiSpend": "API Spend",
+      "meteredSpend": "SmartReport Credits",
+      "totalSpend": "Total Spend",
+      "topEndpoints": "Top Endpoints",
+      "empty": "No billed activity recorded for the selected billing month."
+    },
+    "signedLink": {
+      "ttlLabel": "Signed link expiration",
+      "copyBtn": "Copy Signed Link",
+      "copiedToast": "Signed PDF link copied to clipboard",
+      "errorToast": "Could not generate signed PDF link"
     }
   }
 }

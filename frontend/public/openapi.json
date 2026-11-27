@@ -4,11 +4,11 @@
     "title": "Verifik AI — x402 KYC & Verifik proxy",
     "version": "1.0.0",
     "description": "x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware. SmartReports endpoints require your own Bearer JWT.",
-    "x-guidance": "Verifik Smart Agent proxy API — base URL: https://staging.verifik.co\n\nPAYMENT (x402): Most clients call concrete paths under /v2 or /v3. Without a valid Verifik **user** Bearer JWT, the API responds **402 Payment Required** until you pay.\n- Submit on-chain payment, then retry with header **x-payment-tx** set to the transaction hash (or **Authorization: L402 <txHash>**).\n- Optional **x-payment-chain-id** (decimal or 0x hex) selects the settlement chain; default is Avalanche C-Chain. Assets: native gas token, USDC, or VKA where configured — see runtime 402 JSON for chain-specific fields.\n\nCREDITS BYPASS: **Authorization: Bearer <user JWT>** (a normal Verifik client token, not the server service token) skips on-chain payment for the same routes.\n\nALTERNATE ENTRY: **GET/POST /api/proxy** with required header **x-target-url** pointing at the same /v2 or /v3 path (absolute or relative). Price is resolved from that target path. Prefer documented /v2 and /v3 operations when possible.\n\nOpenAPI is canonical for listing; **/.well-known/x402** lists payable resource strings (METHOD + path)."
+    "x-guidance": "Verifik Smart Agent proxy API — base URL: https://ai.verifik.co\n\nPAYMENT (x402): Most clients call concrete paths under /v2 or /v3. Without a valid Verifik **user** Bearer JWT, the API responds **402 Payment Required** until you pay.\n- Submit on-chain payment, then retry with header **x-payment-tx** set to the transaction hash (or **Authorization: L402 <txHash>**).\n- Optional **x-payment-chain-id** (decimal or 0x hex) selects the settlement chain; default is Avalanche C-Chain. Assets: native gas token, USDC, or VKA where configured — see runtime 402 JSON for chain-specific fields.\n\nCREDITS BYPASS: **Authorization: Bearer <user JWT>** (a normal Verifik client token, not the server service token) skips on-chain payment for the same routes.\n\nALTERNATE ENTRY: **GET/POST /api/proxy** with required header **x-target-url** pointing at the same /v2 or /v3 path (absolute or relative). Price is resolved from that target path. Prefer documented /v2 and /v3 operations when possible.\n\nOpenAPI is canonical for listing; **/.well-known/x402** lists payable resource strings (METHOD + path)."
   },
   "servers": [
     {
-      "url": "https://staging.verifik.co"
+      "url": "https://ai.verifik.co"
     }
   ],
   "components": {
@@ -13673,6 +13673,10 @@
                     "type": "string",
                     "description": "Optional ClientRole ID."
                   },
+                  "parentTeam": {
+                    "type": "string",
+                    "description": "Optional parent Sub-Team ID to form a regional/department hierarchy."
+                  },
                   "defaultCostCenter": {
                     "type": "string",
                     "description": "Optional CostCenter ID used as default when caller omits x-cost-center."
@@ -13803,6 +13807,10 @@
                       "active",
                       "paused"
                     ]
+                  },
+                  "parentTeam": {
+                    "type": "string",
+                    "description": "Optional parent Sub-Team ID (or empty/null to make root team)."
                   },
                   "defaultCostCenter": {
                     "type": "string"
@@ -14398,7 +14406,7 @@
                   },
                   "role": {
                     "type": "string",
-                    "description": "System role slug (e.g. operator, report_builder, admin, viewer)."
+                    "description": "System role slug (e.g. admin, team_manager, compliance_officer, developer, finance, operator, report_builder, viewer)."
                   },
                   "customRole": {
                     "type": "string",
@@ -14406,7 +14414,14 @@
                   },
                   "team": {
                     "type": "string",
-                    "description": "Optional Sub-Team ID."
+                    "description": "Optional primary Sub-Team ID."
+                  },
+                  "additionalTeams": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Optional additional Sub-Team IDs for cross-team access or management."
                   }
                 },
                 "required": [
@@ -14427,7 +14442,7 @@
         ],
         "operationId": "staff_update",
         "summary": "staff_update",
-        "description": "Update an existing staff member's role, custom role, sub-team assignment, or custom permission overrides. Requires your own Verifik Bearer JWT.",
+        "description": "Update an existing staff member's role, custom role, primary/additional sub-team assignments, or custom permission overrides. Requires your own Verifik Bearer JWT.",
         "security": [
           {
             "bearerAuth": []
@@ -14466,13 +14481,21 @@
                     "type": "string"
                   },
                   "role": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "System role slug (including team_manager and report_builder)."
                   },
                   "customRole": {
                     "type": "string"
                   },
                   "team": {
                     "type": "string"
+                  },
+                  "additionalTeams": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Optional additional Sub-Team IDs."
                   },
                   "useCustomPermissions": {
                     "type": "boolean"
@@ -14843,6 +14866,236 @@
                   "name",
                   "country"
                 ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/usage/cost-center-statement": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "usage_cost_center_statement",
+        "summary": "usage_cost_center_statement",
+        "description": "Generate the monthly Cost Center (CECO) & Sub-Team usage statement (API requests + SmartReport credits + top 5 endpoints). Does not consume credits. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Billing month YYYY-MM (defaults to current UTC month)."
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "csv",
+                "xlsx"
+              ]
+            },
+            "description": "Response format (json, csv, xlsx)."
+          },
+          {
+            "name": "team",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional Sub-Team ID or 'unassigned'."
+          },
+          {
+            "name": "costCenter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional CostCenter ID or 'none'."
+          }
+        ]
+      }
+    },
+    "/v2/staff-audit-logs": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "staff_audit_logs_list",
+        "summary": "staff_audit_logs_list",
+        "description": "Query the immutable team-scoped RBAC & Staff audit trail (role updates, access approvals, team assignments, signed downloads). Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "team",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional Sub-Team ID filter."
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional action filter (e.g. staff.update, team.create, access_request.approve)."
+          },
+          {
+            "name": "resourceType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional resourceType filter."
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ISO start timestamp."
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ISO end timestamp."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "csv"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/v2/smart-reports/{id}/signed-link": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "smart_report_create_signed_link",
+        "summary": "smart_report_create_signed_link",
+        "description": "Mint a short-lived HMAC-signed PDF download URL (max 24h TTL) for sharing a SmartReport without bearer auth headers. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "SmartReport ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ttlSeconds": {
+                    "type": "number",
+                    "description": "Lifetime in seconds (60 to 86400; defaults to 3600)."
+                  },
+                  "rowIndex": {
+                    "type": "number",
+                    "description": "Optional batch row index."
+                  }
+                }
               }
             }
           }

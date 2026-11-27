@@ -196,6 +196,111 @@
                     </table>
                 </div>
             }
+            @if (permService.can('billingUsage', 'export')) {
+                <section class="content-card p-5 mt-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-900 dark:text-white">
+                                {{ t('staffRbac.cecoStatement.title') }}
+                            </h2>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                {{ t('staffRbac.cecoStatement.subtitle') }}
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <input
+                                type="month"
+                                [value]="statementPeriod()"
+                                (change)="setStatementPeriod($any($event.target).value)"
+                                class="h-9 px-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white"
+                            />
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                class="h-9 !rounded-lg"
+                                [disabled]="statementExporting() || statementLoading()"
+                                (click)="downloadStatement('csv')"
+                            >
+                                <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">download</mat-icon>
+                                CSV
+                            </button>
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="h-9 !rounded-lg"
+                                [disabled]="statementExporting() || statementLoading()"
+                                (click)="downloadStatement('xlsx')"
+                            >
+                                <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">table_view</mat-icon>
+                                XLSX
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (statementLoading()) {
+                        <div class="flex justify-center py-6"><mat-spinner diameter="26"></mat-spinner></div>
+                    } @else if (statement()) {
+                        @let stmt = statement()!;
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                                <span class="text-gray-500 dark:text-gray-400">{{ t('staffRbac.cecoStatement.costCentersCount') }}</span>
+                                <div class="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{{ stmt.totals.costCentersCount }}</div>
+                            </div>
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                                <span class="text-gray-500 dark:text-gray-400">{{ t('staffRbac.cecoStatement.apiSpend') }}</span>
+                                <div class="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{{ stmt.totals.apiCostUSD | currency: 'USD' : 'symbol' : '1.2-4' }}</div>
+                            </div>
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                                <span class="text-gray-500 dark:text-gray-400">{{ t('staffRbac.cecoStatement.meteredSpend') }}</span>
+                                <div class="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{{ stmt.totals.meteredCostUSD | currency: 'USD' : 'symbol' : '1.2-4' }}</div>
+                            </div>
+                            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                                <span class="text-gray-500 dark:text-gray-400">{{ t('staffRbac.cecoStatement.totalSpend') }}</span>
+                                <div class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">{{ stmt.totals.costUSD | currency: 'USD' : 'symbol' : '1.2-4' }}</div>
+                            </div>
+                        </div>
+
+                        @if (stmt.rows.length === 0) {
+                            <div class="text-xs text-gray-500 dark:text-gray-400 py-4 text-center">
+                                {{ t('staffRbac.cecoStatement.empty') }}
+                            </div>
+                        } @else {
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs">
+                                    <thead class="bg-gray-50/70 dark:bg-gray-800/50 text-gray-500 uppercase tracking-wider">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">{{ t('settings.usageReport.costCenter') }}</th>
+                                            <th class="px-3 py-2 text-left">{{ t('staffRbac.members.subTeamColumn') }}</th>
+                                            <th class="px-3 py-2 text-right">{{ t('settings.usageReport.total') }}</th>
+                                            <th class="px-3 py-2 text-right">{{ t('settings.usageReport.cost') }}</th>
+                                            <th class="px-3 py-2 text-left">{{ t('staffRbac.cecoStatement.topEndpoints') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800 tabular-nums">
+                                        @for (row of stmt.rows; track row.costCenterCode + '::' + (row.teamId || 'none')) {
+                                            <tr>
+                                                <td class="px-3 py-2 font-medium text-gray-900 dark:text-white">
+                                                    {{ row.costCenterName }} <span class="text-gray-400">({{ row.costCenterCode }})</span>
+                                                </td>
+                                                <td class="px-3 py-2 text-gray-600 dark:text-gray-300">{{ row.teamName }}</td>
+                                                <td class="px-3 py-2 text-right">{{ row.totalRequests | number }}</td>
+                                                <td class="px-3 py-2 text-right font-semibold">{{ row.costUSD | currency: 'USD' : 'symbol' : '1.2-4' }}</td>
+                                                <td class="px-3 py-2 text-gray-500 dark:text-gray-400">
+                                                    @for (ep of row.topEndpoints.slice(0, 3); track ep.endpoint) {
+                                                        <span class="inline-block mr-2">{{ ep.endpoint }} ({{ ep.requests }})</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    }
+                </section>
+            }
+
             <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
                 {{ t('settings.usageReport.footnote') }}
                 <a class="font-medium text-blue-600 dark:text-blue-400 hover:underline" [href]="docsUrl" target="_blank" rel="noopener">{{ t('settings.usageReport.docs') }}</a>

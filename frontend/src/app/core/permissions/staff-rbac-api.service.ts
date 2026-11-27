@@ -11,6 +11,7 @@ import {
     RequestDurationOption,
     StaffAccessRequestDto,
     StaffAccessRequestResourceItem,
+    StaffAuditLogPageDto,
     StaffPermissionsSnapshot,
     StaffResource,
     SystemRoleSlug,
@@ -187,6 +188,7 @@ export class StaffRbacApiService {
         featureBudgets?: TeamFeatureBudgetDto[];
         defaultRole?: SystemRoleSlug | null;
         defaultCustomRole?: string | null;
+        parentTeam?: string | null;
         defaultCostCenter?: string | null;
         allowedCostCenters?: string[];
         enforceCostCenter?: boolean;
@@ -211,6 +213,7 @@ export class StaffRbacApiService {
             featureBudgets: TeamFeatureBudgetDto[];
             defaultRole: SystemRoleSlug | null;
             defaultCustomRole: string | null;
+            parentTeam: string | null;
             defaultCostCenter: string | null;
             allowedCostCenters: string[];
             enforceCostCenter: boolean;
@@ -340,5 +343,21 @@ export class StaffRbacApiService {
         return this._http
             .sendRequest('post', apiUrl(`v2/staff-access-requests/${id}/revoke`), payload ?? {})
             .pipe(map((res) => (res?.data ?? res) as StaffAccessRequestDto));
+    }
+
+    // ---- Audit Logs ----
+
+    listAuditLogs(params?: {
+        team?: string;
+        action?: string;
+        resourceType?: string;
+        startDate?: string;
+        endDate?: string;
+        page?: number;
+        limit?: number;
+    }): Observable<StaffAuditLogPageDto> {
+        return this._http
+            .sendRequest('get', apiUrl('v2/staff-audit-logs'), params ?? {})
+            .pipe(map((res) => (res?.data ?? res) as StaffAuditLogPageDto));
     }
 }

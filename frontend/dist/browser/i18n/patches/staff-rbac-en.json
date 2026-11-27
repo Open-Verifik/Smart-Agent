@@ -15,7 +15,8 @@
       "approve": "Approve",
       "export": "Export",
       "manageKeys": "Keys",
-      "readAll": "All Teams"
+      "readAll": "All Teams",
+      "manageOwnTeam": "Manage Own Team"
     },
     "actionTooltips": {
       "read": "View screens, records, lists, and analytics",
@@ -26,7 +27,8 @@
       "approve": "Manually approve, reject, or resolve verifications",
       "export": "Download PDF, CSV, XLSX, or JSONL reports and data",
       "manageKeys": "Create, rotate, or revoke API keys and toggle live mode",
-      "readAll": "View records across all workspace sub-teams instead of only your own sub-team"
+      "readAll": "View records across all workspace sub-teams instead of only your own sub-team",
+      "manageOwnTeam": "Manage members, budgets, and child sub-teams within your own assigned team hierarchy"
     },
     "budget": {
       "oneTimeThisMonth": "One-time boost for this UTC month",
@@ -80,7 +82,8 @@
       "tabTeams": "Sub-Teams & Budgets",
       "tabRoles": "Roles & Permissions",
       "tabRequests": "Access Requests",
-      "tabPolicy": "Access Policy"
+      "tabPolicy": "Access Policy",
+      "tabAudit": "Audit Log"
     },
     "insufficientPermissionsToast": "You do not have permission for this action.",
     "lockedActionTooltip": "Requires elevated permission — click to request access",
@@ -116,7 +119,9 @@
       "cannotDeleteSelf": "You cannot remove your own active account.",
       "removeConfirmTitle": "Remove {{name}}?",
       "removeConfirmDesc": "This immediately revokes their tokens and removes them from the workspace.",
-      "statusSuspended": "Suspended"
+      "statusSuspended": "Suspended",
+      "additionalTeamsLabel": "Additional Sub-Teams (Optional)",
+      "additionalTeamsHint": "Grant read or manager visibility across extra sub-teams in addition to the primary team."
     },
     "myAccess": {
       "title": "My Access & Permissions",
@@ -294,6 +299,10 @@
       "viewer": {
         "name": "Viewer",
         "desc": "Read-only observer across dashboards, enrollment records, history logs, and monitoring."
+      },
+      "team_manager": {
+        "name": "Team Manager",
+        "desc": "Manages members, sub-teams, budgets, access requests, and CECO usage exports within their assigned team and child sub-teams."
       }
     },
     "rolesTab": {
@@ -397,7 +406,9 @@
       "saveError": "Could not save sub-team",
       "visibilityLabel": "Visibility",
       "visibilityTeam": "Sub-Team only",
-      "visibilityWorkspace": "Entire workspace"
+      "visibilityWorkspace": "Entire workspace",
+      "parentTeamLabel": "Parent Sub-Team (Optional)",
+      "noParentTeam": "None (Top-level team)"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Requires API Key Management permission to switch Live/Sandbox mode."
@@ -430,6 +441,42 @@
       "badgeCaps": "{{count}} endpoint caps",
       "memberToggleTitle": "Restrict Specific API Endpoints",
       "memberToggleAllSummary": "Inherits Sub-Team & Role rules (all endpoints)"
+    },
+    "auditLog": {
+      "title": "Access & Team Audit Log",
+      "subtitle": "Immutable trail of role updates, sub-team changes, access approvals, and signed downloads.",
+      "exportCsv": "Export CSV",
+      "actionColumn": "Action",
+      "actionPlaceholder": "e.g. staff.update",
+      "resourceColumn": "Resource",
+      "timeColumn": "Timestamp",
+      "actorColumn": "Actor",
+      "summaryColumn": "Summary",
+      "startDateLabel": "From Date",
+      "applyFilters": "Filter",
+      "resetFilters": "Reset",
+      "emptyTitle": "No audit events found",
+      "emptyDesc": "Administrative and team actions will appear here as they happen.",
+      "loadError": "Could not load audit log entries.",
+      "entriesLabel": "entries",
+      "prevPage": "Previous",
+      "nextPage": "Next"
+    },
+    "cecoStatement": {
+      "title": "Monthly CECO Statement",
+      "subtitle": "Reconcile API calls and metered SmartReport credits grouped by Cost Center and Sub-Team.",
+      "costCentersCount": "Cost Centers",
+      "apiSpend": "API Spend",
+      "meteredSpend": "SmartReport Credits",
+      "totalSpend": "Total Spend",
+      "topEndpoints": "Top Endpoints",
+      "empty": "No billed activity recorded for the selected billing month."
+    },
+    "signedLink": {
+      "ttlLabel": "Signed link expiration",
+      "copyBtn": "Copy Signed Link",
+      "copiedToast": "Signed PDF link copied to clipboard",
+      "errorToast": "Could not generate signed PDF link"
     }
   }
 }

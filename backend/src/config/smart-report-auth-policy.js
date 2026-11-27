@@ -24,7 +24,9 @@ const PROTECTED_V2_SEGMENTS = [
 	"client-roles",
 	"staff",
 	"staff-access-requests",
+	"staff-audit-logs",
 	"cost-centers",
+	"usage",
 	"internal",
 ];
 

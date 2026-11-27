@@ -18,6 +18,7 @@ export const STAFF_ACTIONS: readonly StaffAction[] = [
     'export',
     'manageKeys',
     'readAll',
+    'manageOwnTeam',
 ] as const;
 
 export const ACTION_LABELS: Record<StaffAction, { label: string; labelKey: string; tooltipKey: string }> = {
@@ -38,6 +39,11 @@ export const ACTION_LABELS: Record<StaffAction, { label: string; labelKey: strin
         labelKey: 'staffRbac.actions.readAll',
         tooltipKey: 'staffRbac.actionTooltips.readAll',
     },
+    manageOwnTeam: {
+        label: 'Manage Own Team',
+        labelKey: 'staffRbac.actions.manageOwnTeam',
+        tooltipKey: 'staffRbac.actionTooltips.manageOwnTeam',
+    },
 };
 
 const ACTION_BY_CODE: Record<string, StaffAction> = {
@@ -50,10 +56,12 @@ const ACTION_BY_CODE: Record<string, StaffAction> = {
     X: 'export',
     K: 'manageKeys',
     L: 'readAll',
+    M: 'manageOwnTeam',
 };
 
 export const SYSTEM_ROLES: readonly SystemRoleSlug[] = [
     'admin',
+    'team_manager',
     'compliance_officer',
     'developer',
     'finance',
@@ -78,6 +86,17 @@ export const SYSTEM_ROLE_METADATA: Record<SystemRoleSlug, SystemRoleMeta> = {
             'Full operational, team, billing, and developer control (cannot delete workspace or override Owner-only guardrails).',
         descriptionKey: 'staffRbac.roles.admin.desc',
         color: 'indigo',
+        allowAccessRequests: true,
+        requestableResources: null,
+    },
+    team_manager: {
+        slug: 'team_manager',
+        name: 'Team Manager',
+        nameKey: 'staffRbac.roles.team_manager.name',
+        description:
+            'Manage members, sub-teams, budgets, access requests, and CECO usage exports within assigned team and child sub-teams.',
+        descriptionKey: 'staffRbac.roles.team_manager.desc',
+        color: 'cyan',
         allowAccessRequests: true,
         requestableResources: null,
     },
@@ -381,7 +400,7 @@ export const STAFF_RESOURCES: readonly ResourceDefinition[] = [
         group: 'Workspace & Team',
         groupKey: 'staffRbac.groups.workspace',
         navGroup: 'workspace',
-        applicableActions: ['read', 'create', 'update', 'delete', 'approve', 'readAll'],
+        applicableActions: ['read', 'create', 'update', 'delete', 'approve', 'readAll', 'manageOwnTeam'],
     },
     {
         key: 'workspaceSettings',
@@ -399,33 +418,33 @@ export const RESOURCE_MAP: Record<string, ResourceDefinition> = Object.fromEntri
 );
 
 const DEFAULT_MATRIX_CODES: Record<StaffResource, Record<SystemRoleSlug, string>> = {
-    home: { admin: 'RU', compliance_officer: 'R', developer: 'R', finance: 'R', operator: 'R', report_builder: 'R', viewer: 'R' },
-    smartCheckPlayground: { admin: 'RCUDE', compliance_officer: 'RE', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: '' },
-    smartCheckLists: { admin: 'RCUDE', compliance_officer: 'RCE', developer: 'RCUDE', finance: '', operator: 'RCUE', report_builder: '', viewer: 'R' },
-    smartCheckHistory: { admin: 'RX', compliance_officer: 'RX', developer: 'R', finance: 'RX', operator: 'R', report_builder: '', viewer: 'R' },
-    smartReportsTemplates: { admin: 'RCUDX', compliance_officer: 'RX', developer: 'RCUDX', finance: '', operator: 'R', report_builder: 'RCUDX', viewer: 'R' },
-    smartReportsBatch: { admin: 'RCUDEX', compliance_officer: 'RCEX', developer: 'RCUDE', finance: '', operator: 'RCEX', report_builder: 'RCUD', viewer: 'R' },
-    smartReportsResults: { admin: 'RX', compliance_officer: 'RX', developer: 'R', finance: '', operator: 'RX', report_builder: '', viewer: 'R' },
-    smartFleetAssets: { admin: 'RCUDEX', compliance_officer: 'RX', developer: 'RCUDE', finance: '', operator: 'RCUE', report_builder: '', viewer: 'R' },
-    smartFleetRules: { admin: 'RCUDAX', compliance_officer: 'RAX', developer: 'RCUD', finance: '', operator: 'RA', report_builder: '', viewer: 'R' },
-    smartEnrollProjects: { admin: 'RCUD', compliance_officer: 'R', developer: 'RCUD', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    smartEnrollRecords: { admin: 'RUDAX', compliance_officer: 'RUAX', developer: 'RU', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    smartEnrollScan: { admin: 'RCUDE', compliance_officer: 'RE', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: 'R' },
-    smartEnrollBiometrics: { admin: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: 'R' },
-    smartBusinessProjects: { admin: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    smartBusinessRecords: { admin: 'RUDAX', compliance_officer: 'RUAX', developer: 'R', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    humanAuthn: { admin: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    smartAccess: { admin: 'RCUD', compliance_officer: 'R', developer: 'RCUD', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    smartLinks: { admin: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: 'R' },
-    smartMonitorStatus: { admin: 'RCUD', compliance_officer: 'R', developer: 'RCUD', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
-    smartMonitorWebhooks: { admin: 'RCUDK', compliance_officer: '', developer: 'RCUDK', finance: '', operator: '', report_builder: '', viewer: '' },
-    smartTools: { admin: 'RCE', compliance_officer: '', developer: 'RCE', finance: '', operator: 'RCE', report_builder: '', viewer: '' },
-    billingCredits: { admin: 'RCUDX', compliance_officer: '', developer: '', finance: 'RCUDX', operator: '', report_builder: '', viewer: '' },
-    billingSubscriptions: { admin: 'RCUD', compliance_officer: '', developer: '', finance: 'RCUD', operator: '', report_builder: '', viewer: '' },
-    billingUsage: { admin: 'RCUDX', compliance_officer: 'R', developer: 'R', finance: 'RCUDX', operator: '', report_builder: '', viewer: 'R' },
-    apiKeys: { admin: 'RCDK', compliance_officer: '', developer: 'RCK', finance: '', operator: '', report_builder: '', viewer: '' },
-    team: { admin: 'RCUDAL', compliance_officer: '', developer: '', finance: '', operator: '', report_builder: '', viewer: '' },
-    workspaceSettings: { admin: 'RUK', compliance_officer: 'R', developer: 'R', finance: 'R', operator: 'R', report_builder: 'R', viewer: 'R' },
+    home: { admin: 'RU', team_manager: 'R', compliance_officer: 'R', developer: 'R', finance: 'R', operator: 'R', report_builder: 'R', viewer: 'R' },
+    smartCheckPlayground: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'RE', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: '' },
+    smartCheckLists: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'RCE', developer: 'RCUDE', finance: '', operator: 'RCUE', report_builder: '', viewer: 'R' },
+    smartCheckHistory: { admin: 'RX', team_manager: 'RX', compliance_officer: 'RX', developer: 'R', finance: 'RX', operator: 'R', report_builder: '', viewer: 'R' },
+    smartReportsTemplates: { admin: 'RCUDX', team_manager: 'RCUDX', compliance_officer: 'RX', developer: 'RCUDX', finance: '', operator: 'R', report_builder: 'RCUDX', viewer: 'R' },
+    smartReportsBatch: { admin: 'RCUDEX', team_manager: 'RCUDEX', compliance_officer: 'RCEX', developer: 'RCUDE', finance: '', operator: 'RCEX', report_builder: 'RCUD', viewer: 'R' },
+    smartReportsResults: { admin: 'RX', team_manager: 'RX', compliance_officer: 'RX', developer: 'R', finance: '', operator: 'RX', report_builder: '', viewer: 'R' },
+    smartFleetAssets: { admin: 'RCUDEX', team_manager: 'RCUDE', compliance_officer: 'RX', developer: 'RCUDE', finance: '', operator: 'RCUE', report_builder: '', viewer: 'R' },
+    smartFleetRules: { admin: 'RCUDAX', team_manager: 'RCUDA', compliance_officer: 'RAX', developer: 'RCUD', finance: '', operator: 'RA', report_builder: '', viewer: 'R' },
+    smartEnrollProjects: { admin: 'RCUD', team_manager: 'RCUD', compliance_officer: 'R', developer: 'RCUD', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    smartEnrollRecords: { admin: 'RUDAX', team_manager: 'RUAX', compliance_officer: 'RUAX', developer: 'RU', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    smartEnrollScan: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'RE', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: 'R' },
+    smartEnrollBiometrics: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: 'R' },
+    smartBusinessProjects: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    smartBusinessRecords: { admin: 'RUDAX', team_manager: 'RUAX', compliance_officer: 'RUAX', developer: 'R', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    humanAuthn: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    smartAccess: { admin: 'RCUD', team_manager: 'RCUD', compliance_officer: 'R', developer: 'RCUD', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    smartLinks: { admin: 'RCUDE', team_manager: 'RCUDE', compliance_officer: 'R', developer: 'RCUDE', finance: '', operator: 'RCE', report_builder: '', viewer: 'R' },
+    smartMonitorStatus: { admin: 'RCUD', team_manager: 'RCUD', compliance_officer: 'R', developer: 'RCUD', finance: '', operator: 'R', report_builder: '', viewer: 'R' },
+    smartMonitorWebhooks: { admin: 'RCUDK', team_manager: 'RCUD', compliance_officer: '', developer: 'RCUDK', finance: '', operator: '', report_builder: '', viewer: '' },
+    smartTools: { admin: 'RCE', team_manager: 'RCE', compliance_officer: '', developer: 'RCE', finance: '', operator: 'RCE', report_builder: '', viewer: '' },
+    billingCredits: { admin: 'RCUDX', team_manager: '', compliance_officer: '', developer: '', finance: 'RCUDX', operator: '', report_builder: '', viewer: '' },
+    billingSubscriptions: { admin: 'RCUD', team_manager: '', compliance_officer: '', developer: '', finance: 'RCUD', operator: '', report_builder: '', viewer: '' },
+    billingUsage: { admin: 'RCUDX', team_manager: 'RX', compliance_officer: 'R', developer: 'R', finance: 'RCUDX', operator: '', report_builder: '', viewer: 'R' },
+    apiKeys: { admin: 'RCDK', team_manager: '', compliance_officer: '', developer: 'RCK', finance: '', operator: '', report_builder: '', viewer: '' },
+    team: { admin: 'RCUDALM', team_manager: 'RCUDAM', compliance_officer: '', developer: '', finance: '', operator: '', report_builder: '', viewer: '' },
+    workspaceSettings: { admin: 'RUK', team_manager: 'R', compliance_officer: 'R', developer: 'R', finance: 'R', operator: 'R', report_builder: 'R', viewer: 'R' },
 };
 
 export const DEFAULT_STAFF_ACCESS_POLICY: StaffAccessPolicy = {
