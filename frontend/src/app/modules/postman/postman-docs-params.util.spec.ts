@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatCatalogPrice, mergeParamsFromDocs, sanitizeDisplayPayload } from './postman-docs-params.util';
+import {
+    coerceEndpointDocParamRows,
+    formatCatalogPrice,
+    mergeParamsFromDocs,
+    sanitizeDisplayPayload,
+} from './postman-docs-params.util';
 import { ApiEndpoint } from './postman.types';
 
 const endpoint = (overrides: Partial<ApiEndpoint> = {}): ApiEndpoint =>
@@ -55,6 +60,35 @@ describe('mergeParamsFromDocs', () => {
         const once = mergeParamsFromDocs(endpoint());
         const twice = mergeParamsFromDocs(once);
         expect(twice.params?.filter((param) => param.key === 'primerApellido')).toHaveLength(1);
+    });
+});
+
+describe('coerceEndpointDocParamRows', () => {
+    it('turns field-name strings into rows and drops staff-only force', () => {
+        expect(coerceEndpointDocParamRows(['fullName', 'force', 'documentNumber'])).toEqual([
+            { field: 'fullName', description: '' },
+            { field: 'documentNumber', description: '' },
+        ]);
+    });
+});
+
+describe('mergeParamsFromDocs', () => {
+    it('adds query params documented as field-name strings', () => {
+        const merged = mergeParamsFromDocs(
+            endpoint({
+                code: 'world_api_argentina_repet',
+                params: [],
+                docs: {
+                    en: {
+                        params: ['fullName', 'documentNumber', 'force'] as unknown as {
+                            field: string;
+                            description: string;
+                        }[],
+                    },
+                },
+            })
+        );
+        expect(merged.params?.map((param) => param.key)).toEqual(['fullName', 'documentNumber']);
     });
 });
 

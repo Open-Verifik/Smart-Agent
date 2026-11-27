@@ -77,6 +77,43 @@ export const extractFeatureRows = (payload: unknown): any[] => {
     return [];
 };
 
+/**
+ * Country pills for the explorer. Index counts win. Countries that only appear on
+ * loaded endpoints (for example a deep link to a United States or European Union
+ * watchlist before the country index includes them) are added from those endpoints.
+ */
+export const mergeCatalogCountryRows = (
+    indexRows: CatalogCountryRow[],
+    endpointCountries: Array<string | null | undefined>
+): CatalogCountryRow[] => {
+    const counts = new Map<string, number>();
+    for (const row of indexRows) {
+        const rawCountry = String(row?.country || '').trim();
+        if (!rawCountry) continue;
+        const canonical = isWorldCountry(rawCountry)
+            ? WORLD_CATALOG_COUNTRY
+            : canonicalPostmanCountryName(rawCountry);
+        if (!canonical) continue;
+        counts.set(canonical, (counts.get(canonical) ?? 0) + (Number(row?.count) || 0));
+    }
+
+    const endpointCounts = new Map<string, number>();
+    for (const raw of endpointCountries) {
+        const rawCountry = raw?.trim() ?? '';
+        if (!rawCountry) continue;
+        const canonical = isWorldCountry(rawCountry)
+            ? WORLD_CATALOG_COUNTRY
+            : canonicalPostmanCountryName(rawCountry);
+        if (!canonical) continue;
+        endpointCounts.set(canonical, (endpointCounts.get(canonical) ?? 0) + 1);
+    }
+    for (const [country, count] of endpointCounts) {
+        if (!counts.has(country)) counts.set(country, count);
+    }
+
+    return [...counts.entries()].map(([country, count]) => ({ country, count }));
+};
+
 export const extractCountryRows = (payload: unknown): CatalogCountryRow[] => {
     const rows = extractFeatureRows(payload);
     const countsByCanonical = new Map<string, number>();

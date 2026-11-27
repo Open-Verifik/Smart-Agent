@@ -75,6 +75,7 @@ import {
     tap,
     throwError,
 } from 'rxjs';
+import { enrichAppFeatureRecord } from './postman-catalog-enrichment.util';
 import { mergeParamsFromDocs } from './postman-docs-params.util';
 import postmanEndpointsIo from './postman-endpoints-io.json';
 import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
@@ -641,6 +642,7 @@ export class PostmanService {
     }
 
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
+        feature = enrichAppFeatureRecord(feature);
         const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
         const rawCatalogDeps = feature.dependencies ?? feature.input?.dependencies ?? [];
         const normalizedDeps = Array.isArray(rawCatalogDeps)
