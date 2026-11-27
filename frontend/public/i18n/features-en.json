@@ -997,7 +997,7 @@
             "description": "Live official identity and sole-proprietor validation in Norway. Verifies legal citizen/individual name, registration status, and official identity attributes."
         },
         "ocr_scan_gpt": {
-            "title": "OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "Panama — Lawyer Idoneidad Verification",
+            "description": "Verify a Panamanian lawyer's idoneidad against the official Órgano Judicial registry by cédula, idoneidad number, or full name."
         },
         "panama_api_pep": {
             "title": "Panama - Politically Exposed Persons (PEP) Screening",

@@ -997,7 +997,7 @@
             "description": "通过挪威官方身份登记信息，核验公民证件有效性、个人基本信息及法定身份状态。"
         },
         "ocr_scan_gpt": {
-            "title": "全球 — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "全球官方数据核验与身份验证服务：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "巴拿马 — Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "巴拿马官方数据核验与身份验证服务：Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "巴拿马 — 律师资格核验",
+            "description": "通过身份证、资格编号或姓名，对照巴拿马司法机关名录核验律师资格。"
         },
         "panama_api_pep": {
             "title": "巴拿马 — 政治敏感人物（PEP）核查",

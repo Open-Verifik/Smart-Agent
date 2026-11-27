@@ -33,7 +33,7 @@ import {
 } from '../postman-request-validation';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
-import { coerceEndpointDocParamRows } from '../postman-docs-params.util';
+import { coerceEndpointDocParamRows, indexAboutParamMetadata } from '../postman-docs-params.util';
 
 /**
  * "About" tab for the Postman-style request editor.
@@ -403,7 +403,8 @@ export class AboutEndpointComponent {
     /** Rich params table merging doc-level descriptions with catalog-level metadata. */
     readonly paramsRows = computed(() => {
         const doc = this.activeDoc();
-        const catalog = (this._endpoint()?.params ?? []).filter(
+        const endpoint = this._endpoint();
+        const catalog = (endpoint?.params ?? []).filter(
             (p) => p.system !== 'includeCost' && isClientVisibleBatchDependencyField(p.key)
         );
         const englishParamDescriptions = new Map(
@@ -420,28 +421,7 @@ export class AboutEndpointComponent {
             catalogDescription?.trim() ||
             englishParamDescriptions.get(field) ||
             '';
-        const byField = new Map<
-            string,
-            {
-                type?: string;
-                required?: boolean;
-                allowed?: string[];
-                requiredWhen?: { field: string; in?: string[] };
-                dateFormat?: string;
-                description?: string;
-            }
-        >();
-        for (const p of catalog) {
-            byField.set(p.key, {
-                type: p.type,
-                required: p.required,
-                allowed: p.enum,
-                requiredWhen: p.requiredWhen,
-                dateFormat: p.dateFormat,
-                description: p.description,
-            });
-        }
-        const endpoint = this._endpoint();
+        const byField = indexAboutParamMetadata(catalog, endpoint?.dependencies);
         const layout = getPostmanXorParamLayout(endpoint);
         const xorHintForField = (field: string): string | undefined => {
             if (layout.kind === 'xor') {
@@ -508,6 +488,17 @@ export class AboutEndpointComponent {
                         dateFormat: extra.dateFormat,
                     };
                 });
+        }
+        if (!catalog.length && byField.size) {
+            return [...byField.entries()].map(([field, extra]) => ({
+                field,
+                type: extra.type,
+                required: !!extra.required,
+                allowed: extra.allowed,
+                description: resolveDescription(field, undefined, extra.description),
+                conditionalHint: conditionalHint(field, extra.requiredWhen),
+                dateFormat: extra.dateFormat,
+            }));
         }
         return catalog.map((p) => ({
             field: p.key,

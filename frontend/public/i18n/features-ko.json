@@ -997,7 +997,7 @@
             "description": "노르웨이의 공식 신원 기록을 기반으로 신분증 유효성, 성명, 생년월일 및 법적 신원 상태를 검증합니다."
         },
         "ocr_scan_gpt": {
-            "title": "글로벌 — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "파나마 — Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "파나마를 위한 공식 검증 및 데이터 조회 서비스: Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "파나마 — 변호사 적격 확인",
+            "description": "파나마 변호사의 적격을 공식 사법부 명부에서 세둘라, 적격 번호 또는 성명으로 확인합니다."
         },
         "panama_api_pep": {
             "title": "파나마 — 정치적 주요 인물 (PEP) 스크리닝",

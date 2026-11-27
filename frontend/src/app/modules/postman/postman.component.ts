@@ -25,7 +25,6 @@ import {
     DEFAULT_POSTMAN_COUNTRY,
     endpointMatchesCountryFilter,
     mergeCatalogCountryRows,
-    WORLD_CATALOG_COUNTRY,
 } from './postman-catalog.util';
 import {
     areSamePostmanCountry,
@@ -1771,8 +1770,8 @@ export class PostmanComponent {
         )
             .map(({ country, count }) => ({ name: country, count }))
             .sort((a, b) => {
-                const aWorld = a.name.toLowerCase() === WORLD_CATALOG_COUNTRY;
-                const bWorld = b.name.toLowerCase() === WORLD_CATALOG_COUNTRY;
+                const aWorld = countryNameToIso(a.name) === 'world';
+                const bWorld = countryNameToIso(b.name) === 'world';
                 if (aWorld !== bWorld) {
                     return aWorld ? -1 : 1;
                 }

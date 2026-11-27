@@ -12,7 +12,15 @@ import {
     resolveHumanAuthnDependencies,
     shouldListHumanAuthnParams,
 } from './human-authn-postman.catalog';
-import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
+import { attachColombiaCedulaPremiumPricing, COLOMBIA_CEDULA_PREMIUM_CODE } from './postman-billing.util';
+import {
+    isUnlistedPostmanFeature,
+    joinPostmanFeatureUrl,
+    staysListedWhenCatalogHidden,
+    resolvePostmanFeatureCategory,
+    resolvePostmanFeatureCountry,
+    resolvePostmanHttpMethod,
+} from './postman-feature-shape.util';
 import {
     CatalogCountryRow,
     DEFAULT_POSTMAN_COUNTRY,
@@ -260,6 +268,7 @@ export class PostmanService {
      * Opens an endpoint by feature code, loading its country scope when needed.
      */
     openEndpointByCode(code: string): void {
+        if (code === COLOMBIA_CEDULA_PREMIUM_CODE) return;
         const existing = this.endpoints().find((endpoint) => endpoint.code === code);
         if (existing) {
             this.selectEndpoint(existing);
@@ -284,6 +293,7 @@ export class PostmanService {
      * Resolves and hydrates an ApiEndpoint by feature code.
      */
     getOrHydrateEndpointByCode(code: string): Observable<ApiEndpoint | null> {
+        if (code === COLOMBIA_CEDULA_PREMIUM_CODE) return of(null);
         const existing = this.endpoints().find((endpoint) => endpoint.code === code);
         if (existing && !catalogNeedsDetailHydration(existing)) {
             return of(existing);
@@ -388,7 +398,9 @@ export class PostmanService {
                 feature?.isAvailable !== false && feature?.deleted !== true
         );
         const catalogFeatures = allFeatures.filter(
-            (feature: { catalogHidden?: boolean }) => feature?.catalogHidden !== true
+            (feature: { catalogHidden?: boolean; code?: string; url?: string }) =>
+                (feature?.catalogHidden !== true || staysListedWhenCatalogHidden(feature)) &&
+                !isUnlistedPostmanFeature(feature)
         );
         const dynamicEndpoints = catalogFeatures.map((feature: any) =>
             this._createEndpointFromFeature(feature, apiUrl)
@@ -585,22 +597,6 @@ export class PostmanService {
         });
     }
 
-    /**
-     * Normalizes API `baseCategory` / `group` to a stable UPPER_SNAKE string for
-     * grouping and `categories.*` i18n keys (avoids keys with spaces or apostrophes).
-     */
-    private _mapCategory(category: string): string {
-        if (!category) {
-            return 'OTHER';
-        }
-        return category
-            .trim()
-            .toUpperCase()
-            .replace(/'/g, '')
-            .replace(/[\s-]+/g, '_')
-            .replace(/_+/g, '_');
-    }
-
     private _inferCountryFromFeature(feature: any): string {
         const code = typeof feature?.code === 'string' ? feature.code.trim() : '';
         const url = typeof feature?.url === 'string' ? feature.url.trim() : '';
@@ -643,7 +639,7 @@ export class PostmanService {
 
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
         feature = enrichAppFeatureRecord(feature);
-        const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
+        const method = resolvePostmanHttpMethod(feature);
         const rawCatalogDeps = feature.dependencies ?? feature.input?.dependencies ?? [];
         const normalizedDeps = Array.isArray(rawCatalogDeps)
             ? rawCatalogDeps
@@ -666,10 +662,11 @@ export class PostmanService {
         const listParams = method === 'GET' || shouldListHumanAuthnParams(feature.code);
 
         let resolvedCountry =
-            canonicalPostmanCountryName(feature.country) || feature.country;
+            resolvePostmanFeatureCountry(feature.country) || feature.country;
         if (!resolvedCountry || resolvedCountry.trim().toLowerCase() === 'undefined') {
             resolvedCountry = this._inferCountryFromFeature(feature);
         }
+        resolvedCountry = resolvePostmanFeatureCountry(resolvedCountry) || resolvedCountry;
 
         const created: ApiEndpoint = {
             id: feature._id || feature.code,
@@ -678,17 +675,13 @@ export class PostmanService {
                 ? { nameES: feature.nameES.trim() }
                 : {}),
             code: feature.code,
-            category: this._mapCategory(feature.baseCategory || feature.group),
+            category: resolvePostmanFeatureCategory(feature),
             country: resolvedCountry,
             ...(Array.isArray(feature.checkListDomains) && feature.checkListDomains.length
                 ? { checkListDomains: feature.checkListDomains }
                 : {}),
             method,
-            url: feature.url
-                ? feature.url.startsWith('http')
-                    ? feature.url
-                    : `${apiUrl}/${feature.url}`
-                : '',
+            url: joinPostmanFeatureUrl(apiUrl, feature.url),
             description: feature.description,
             estimatedCost: feature.price ?? 0,
             headers: [
@@ -721,18 +714,35 @@ export class PostmanService {
                 }
             }
         }
-        if (created.code && (!created.dependencies?.length || !created.params?.length)) {
+        const bodyIsEmpty =
+            created.body == null ||
+            (typeof created.body === 'object' && !Object.keys(created.body as object).length);
+        const needsBody = method !== 'GET' && method !== 'DELETE' && bodyIsEmpty;
+        if (
+            created.code &&
+            (!created.dependencies?.length || (listParams && !created.params?.length) || needsBody)
+        ) {
             const staticEndpoints =
                 (postmanEndpointsIo as any)?.endpoints ??
                 (Array.isArray(postmanEndpointsIo) ? postmanEndpointsIo : []);
             const staticEntry = staticEndpoints.find((e: any) => e.code === created.code);
-            if (staticEntry?.input?.dependencies?.length) {
-                const staticRawDeps = staticEntry.input.dependencies;
-                const staticDeps = this._toPostmanDependencyMeta(staticRawDeps);
+            const staticRawDeps = staticEntry?.input?.dependencies?.length
+                ? staticEntry.input.dependencies
+                : staticEntry?.dependencies;
+            if (Array.isArray(staticRawDeps) && staticRawDeps.length) {
+                const visibleDeps = staticRawDeps.filter((dep: { field?: string }) =>
+                    isClientVisibleBatchDependencyField(String(dep?.field || ''))
+                );
+                const staticDeps = this._toPostmanDependencyMeta(visibleDeps);
                 const staticXor = getPostmanXorGroupMetadata(staticDeps);
-                created.dependencies = staticDeps;
-                if (listParams) {
-                    created.params = this._paramsFromDependencies(staticRawDeps, staticXor);
+                if (!created.dependencies?.length) {
+                    created.dependencies = staticDeps;
+                }
+                if (listParams && !created.params?.length) {
+                    created.params = this._paramsFromDependencies(visibleDeps, staticXor);
+                }
+                if (needsBody) {
+                    created.body = this._bodyFromDependencies(visibleDeps);
                 }
             }
         }
