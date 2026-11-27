@@ -81,6 +81,19 @@ const isOptionalNameOrDocumentPair = (deps: DependencyRow[]): boolean => {
     return visible.every((dep) => dep.required !== true && !nonEmpty(dep.dependencyGroup));
 };
 
+const PEP_PATH = /(?:^|\/)?v\d+\/(?:[a-z]{2}\/politically-exposed-persons|world\/pep)\/?$/i;
+
+/**
+ * Country PEP screens (`GET /v2/{cc}/politically-exposed-persons`) and `GET /v2/world/pep`.
+ * Colombia's immigration PEP products are a different API.
+ */
+const isCountryOrWorldPepFeature = (feature: Record<string, unknown>): boolean => {
+    const code = nonEmpty(feature.code).toLowerCase();
+    if (code === 'world_api_pep' || /^[a-z]{2}_api_pep$/.test(code)) return true;
+    const url = nonEmpty(feature.url).replace(/^\/+/, '');
+    return PEP_PATH.test(url);
+};
+
 /**
  * Flat `/v2/{list}` sanctions lists are stored as optional `fullName` + `documentNumber`
  * with no `baseCategory`. The explorer groups those under Background Check and offers the
@@ -110,11 +123,14 @@ const resolveBaseCategory = (
     if (fromStatic && fromStatic.toLowerCase() !== 'apirequest') return fromStatic;
     const group = nonEmpty(feature.group);
     if (group && group !== 'apiRequest') return group;
-    if (isFlatWatchlistFeature(feature, deps)) return 'background_check';
+    if (isFlatWatchlistFeature(feature, deps) || isCountryOrWorldPepFeature(feature)) {
+        return 'background_check';
+    }
     return '';
 };
 
 const enrichDependencies = (
+    feature: Record<string, unknown>,
     featureDeps: DependencyRow[],
     staticEntry: StaticCatalogEntry | undefined
 ): DependencyRow[] => {
@@ -141,6 +157,13 @@ const enrichDependencies = (
             ...dep,
             dependencyGroup: dep.field === 'fullName' ? '1' : '2',
         }));
+    } else if (isCountryOrWorldPepFeature(feature)) {
+        deps = deps.map((dep) => {
+            if (nonEmpty(dep.dependencyGroup)) return dep;
+            if (dep.field === 'documentNumber') return { ...dep, dependencyGroup: '1' };
+            if (dep.field === 'fullName') return { ...dep, dependencyGroup: '2' };
+            return dep;
+        });
     }
     return deps;
 };
@@ -229,6 +252,7 @@ export const enrichAppFeatureRecord = <T extends Record<string, unknown>>(
     const code = nonEmpty(feature.code);
     const staticEntry = code ? catalog.get(code) : undefined;
     const deps = enrichDependencies(
+        feature,
         asDependencyList(
             feature.dependencies ??
                 (feature.input as { dependencies?: unknown } | undefined)?.dependencies

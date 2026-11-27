@@ -56,6 +56,24 @@ describe('mergeParamsFromDocs', () => {
         expect(merged.params?.some((param) => param.key === 'primerApellido')).toBe(true);
     });
 
+    it('adds fields that production docs list as plain strings', () => {
+        const merged = mergeParamsFromDocs(
+            endpoint({
+                code: 'be_api_pep',
+                params: [{ key: 'documentNumber', value: '', type: 'String', required: false }],
+                docs: {
+                    en: {
+                        params: ['documentNumber', 'fullName', 'force'] as unknown as {
+                            field: string;
+                            description: string;
+                        }[],
+                    },
+                },
+            })
+        );
+        expect(merged.params?.map((param) => param.key)).toEqual(['documentNumber', 'fullName']);
+    });
+
     it('does not duplicate existing params', () => {
         const once = mergeParamsFromDocs(endpoint());
         const twice = mergeParamsFromDocs(once);
