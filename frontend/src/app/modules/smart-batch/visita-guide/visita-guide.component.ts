@@ -1333,6 +1333,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isLoadingDeliveries = signal(false);
     deliveries = signal<SmartReport[]>([]);
     reportStudioTemplateId = computed(() => this.selectedTemplate()?._id ?? null);
+    reportStudioConfigId = computed(() => this._state.configId());
+
+    copyStudioId(label: string, value: string | null | undefined): void {
+        if (!value || typeof navigator === 'undefined' || !navigator.clipboard) return;
+        void navigator.clipboard.writeText(value);
+        this._snack.open(`${label}: ${value}`, undefined, { duration: 2500 });
+    }
     deliveryHistory = computed(() => {
         const fromReports = this.deliveries().flatMap((report) =>
             (report.emailHistory ?? []).map((entry) => ({

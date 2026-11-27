@@ -12,7 +12,9 @@ import {
     StaffAccessRequestDto,
     StaffAccessRequestResourceItem,
     StaffPermissionsSnapshot,
+    StaffResource,
     SystemRoleSlug,
+    TeamAssignableResourceType,
     TeamDto,
     TeamFeatureBudgetDto,
 } from './staff-permission.types';
@@ -113,6 +115,8 @@ export class StaffRbacApiService {
         basedOn?: SystemRoleSlug | null;
         permissions: PermissionMap;
         endpointPolicy?: EndpointPolicy;
+        allowAccessRequests?: boolean;
+        requestableResources?: StaffResource[] | null;
     }): Observable<ClientRoleDto> {
         return this._http
             .sendRequest('post', apiUrl('v2/client-roles'), payload)
@@ -128,6 +132,8 @@ export class StaffRbacApiService {
             basedOn: SystemRoleSlug | null;
             permissions: PermissionMap;
             endpointPolicy: EndpointPolicy;
+            allowAccessRequests: boolean;
+            requestableResources: StaffResource[] | null;
         }>
     ): Observable<ClientRoleDto> {
         return this._http
@@ -182,6 +188,8 @@ export class StaffRbacApiService {
         defaultRole?: SystemRoleSlug | null;
         defaultCustomRole?: string | null;
         defaultCostCenter?: string | null;
+        allowedCostCenters?: string[];
+        enforceCostCenter?: boolean;
         memberIds?: string[];
     }): Observable<TeamDto> {
         return this._http
@@ -204,6 +212,8 @@ export class StaffRbacApiService {
             defaultRole: SystemRoleSlug | null;
             defaultCustomRole: string | null;
             defaultCostCenter: string | null;
+            allowedCostCenters: string[];
+            enforceCostCenter: boolean;
             memberIds: string[];
         }>
     ): Observable<TeamDto> {
@@ -233,6 +243,24 @@ export class StaffRbacApiService {
     deleteTeam(id: string): Observable<unknown> {
         return this._http
             .sendRequest('delete', apiUrl(`v2/teams/${id}`))
+            .pipe(map((res) => res?.data ?? res));
+    }
+
+    assignResourcesToTeam(
+        teamId: string,
+        payload: {
+            resourceType: TeamAssignableResourceType;
+            ids: string[];
+            visibility?: 'team' | 'workspace';
+        }
+    ): Observable<{
+        resourceType: TeamAssignableResourceType;
+        teamId: string | null;
+        matchedCount: number;
+        modifiedCount: number;
+    }> {
+        return this._http
+            .sendRequest('post', apiUrl(`v2/teams/${teamId}/assign`), payload)
             .pipe(map((res) => res?.data ?? res));
     }
 

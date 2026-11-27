@@ -39,6 +39,7 @@ export interface UsageQuery {
     endDate?: string;
     groupBy: UsageGroupBy;
     costCenter?: string;
+    team?: string;
     page?: number;
     limit?: number;
 }

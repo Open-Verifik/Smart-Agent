@@ -6,7 +6,8 @@ export type StaffAction =
     | 'execute'
     | 'approve'
     | 'export'
-    | 'manageKeys';
+    | 'manageKeys'
+    | 'readAll';
 
 export type StaffResource =
     | 'home'
@@ -15,6 +16,7 @@ export type StaffResource =
     | 'smartCheckHistory'
     | 'smartReportsTemplates'
     | 'smartReportsBatch'
+    | 'smartReportsResults'
     | 'smartFleetAssets'
     | 'smartFleetRules'
     | 'smartEnrollProjects'
@@ -42,6 +44,7 @@ export type SystemRoleSlug =
     | 'developer'
     | 'finance'
     | 'operator'
+    | 'report_builder'
     | 'viewer';
 
 export type RequestDurationOption = '24h' | '7d' | '30d' | 'permanent';
@@ -92,6 +95,15 @@ export interface SystemRoleMeta {
     description: string;
     descriptionKey: string;
     color: string;
+    allowAccessRequests: boolean;
+    requestableResources: StaffResource[] | null;
+}
+
+export interface AccessRequestPolicyState {
+    allowByTenant: boolean;
+    allowByRole: boolean;
+    canRequestAccess: boolean;
+    requestableResources: StaffResource[] | null;
 }
 
 export interface StaffTemporaryGrant {
@@ -112,6 +124,8 @@ export interface StaffAccessPolicy {
     allowAccessRequests: boolean;
     notifyAdminsOnAccessRequest: boolean;
     defaultRequestDuration: RequestDurationOption;
+    teamScopedVisibility: boolean;
+    requireTeamApiKeys: boolean;
 }
 
 export interface TeamBudgetSummary {
@@ -127,12 +141,22 @@ export interface TeamBudgetSummary {
     featureBudgets?: TeamFeatureBudgetDto[];
 }
 
+export interface CostCenterSummary {
+    _id: string;
+    name: string;
+    code: string;
+    country?: string;
+}
+
 export interface StaffTeamSummary {
     _id: string;
     name: string;
     slug: string;
     color?: string;
     status: 'active' | 'paused';
+    defaultCostCenter?: CostCenterSummary | string | null;
+    allowedCostCenters?: Array<CostCenterSummary | string>;
+    enforceCostCenter?: boolean;
     monthlyBudget?: number | null;
     currentPeriodUsage?: number;
     currentPeriodBonus?: number;
@@ -146,6 +170,8 @@ export interface CustomRoleSummary {
     name: string;
     slug: string;
     color?: string;
+    allowAccessRequests?: boolean;
+    requestableResources?: StaffResource[] | null;
 }
 
 export interface ClientRoleDto {
@@ -158,6 +184,8 @@ export interface ClientRoleDto {
     basedOn?: SystemRoleSlug | null;
     permissions: PermissionMap;
     endpointPolicy?: EndpointPolicy;
+    allowAccessRequests?: boolean;
+    requestableResources?: StaffResource[] | null;
     memberCount?: number;
     createdAt?: string;
     updatedAt?: string;
@@ -183,7 +211,9 @@ export interface TeamDto {
     status: 'active' | 'paused';
     defaultRole?: SystemRoleSlug | null;
     defaultCustomRole?: CustomRoleSummary | string | null;
-    defaultCostCenter?: { _id: string; name: string; code: string; country?: string } | string | null;
+    defaultCostCenter?: CostCenterSummary | string | null;
+    allowedCostCenters?: Array<CostCenterSummary | string>;
+    enforceCostCenter?: boolean;
     monthlyBudget: number | null;
     budgetEnforcement: 'hard' | 'soft';
     budgetPeriod: string;
@@ -271,6 +301,7 @@ export interface StaffPermissionsSnapshot {
     endpointPolicy?: EndpointPolicy;
     activeTemporaryGrants: StaffTemporaryGrant[];
     staffAccessPolicy: StaffAccessPolicy;
+    accessRequestPolicy?: AccessRequestPolicyState;
     pendingRequestsCount: number;
 }
 
@@ -286,8 +317,21 @@ export interface StaffPermissionState {
     permissions: PermissionMap | null;
     temporaryGrants: StaffTemporaryGrant[];
     accessPolicy: StaffAccessPolicy;
+    accessRequestPolicy: AccessRequestPolicyState;
     pendingRequestsCount: number;
 }
+
+export type TeamAssignableResourceType =
+    | 'projects'
+    | 'projectFlows'
+    | 'smartReportTemplates'
+    | 'batchConfigurations'
+    | 'smartBatches'
+    | 'smartReports'
+    | 'appRegistrations'
+    | 'documentValidations'
+    | 'biometricValidations'
+    | 'apiRequests';
 
 export type PermissionCheckTuple = [StaffResource, StaffAction?];
 

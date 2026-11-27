@@ -58,6 +58,30 @@
                                         || ('batchDashboard.batchProcessingDashboard' | transloco)
                                 }}
                             </p>
+                            @if (configId()) {
+                                <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                                    <button
+                                        type="button"
+                                        (click)="copyId(configId())"
+                                        [matTooltip]="('staffRbac.common.copy' | transloco) + ' Config ID'"
+                                        class="inline-flex items-center gap-1 rounded-md border border-stone-200 bg-stone-50 px-2 py-0.5 font-mono text-[11px] text-stone-600 transition hover:bg-stone-100 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-300 dark:hover:bg-gray-800"
+                                    >
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[13px]">content_copy</mat-icon>
+                                        <span>Config: {{ configId() }}</span>
+                                    </button>
+                                    @if (agentKitContext().templateId; as tplId) {
+                                        <button
+                                            type="button"
+                                            (click)="copyId(tplId)"
+                                            [matTooltip]="('staffRbac.common.copy' | transloco) + ' Template ID'"
+                                            class="inline-flex items-center gap-1 rounded-md border border-stone-200 bg-stone-50 px-2 py-0.5 font-mono text-[11px] text-stone-600 transition hover:bg-stone-100 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-300 dark:hover:bg-gray-800"
+                                        >
+                                            <mat-icon class="!h-3.5 !w-3.5 !text-[13px]">content_copy</mat-icon>
+                                            <span>Template: {{ tplId }}</span>
+                                        </button>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -73,6 +97,7 @@
                         {{ 'smartReportKit.openBtn' | transloco }}
                     </button>
                     <button
+                        *hasStaffPermission="'smartReportsBatch.execute'"
                         mat-flat-button
                         color="primary"
                         type="button"
@@ -379,9 +404,16 @@
                 [context]="agentKitContext()"
             ></smart-report-agent-kit>
 
+            @if (!canViewResults()) {
+                <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 flex items-center gap-2.5">
+                    <mat-icon class="!h-5 !w-5 !text-[20px] shrink-0">lock_outline</mat-icon>
+                    <span>{{ 'staffRbac.resources.smartReportsResults' | transloco }} — {{ 'staffRbac.insufficientPermissionsToast' | transloco }}</span>
+                </div>
+            }
+
             <!-- Stats Row -->
             <div
-                *ngIf="stats() && stats()!.totalBatches > 0"
+                *ngIf="canViewResults() && stats() && stats()!.totalBatches > 0"
                 class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
             >
                 <!-- Total Batches -->
@@ -573,7 +605,7 @@
 
             <!-- Empty State -->
             <div
-                *ngIf="!isLoading() && batches().length === 0"
+                *ngIf="canViewResults() && !isLoading() && batches().length === 0"
                 class="flex flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 p-12 text-center dark:border-gray-800"
             >
                 <div
@@ -587,14 +619,14 @@
                 <p class="mb-6 mt-2 max-w-sm text-stone-500 dark:text-stone-400">
                     {{ 'batchDashboard.createFirstBatchDescription' | transloco }}
                 </p>
-                <button mat-flat-button color="primary" type="button" class="rounded-xl" (click)="createBatch()">
+                <button *hasStaffPermission="'smartReportsBatch.execute'" mat-flat-button color="primary" type="button" class="rounded-xl" (click)="createBatch()">
                     <mat-icon class="mr-2">add</mat-icon>
                     {{ 'batchDashboard.createFirstBatch' | transloco }}
                 </button>
             </div>
 
             <!-- Batches List -->
-            <div *ngIf="!isLoading() && batches().length > 0" class="flex flex-col gap-4">
+            <div *ngIf="canViewResults() && !isLoading() && batches().length > 0" class="flex flex-col gap-4">
                 <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
                     {{ 'batchDashboard.batches' | transloco }}
                 </h2>

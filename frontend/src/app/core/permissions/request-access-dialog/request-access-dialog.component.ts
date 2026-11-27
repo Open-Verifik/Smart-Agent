@@ -235,6 +235,11 @@ export class RequestAccessDialogComponent {
                 const msg = err?.error?.message || '';
                 if (msg === 'pending_access_request_already_exists') {
                     this.errorMessage = this._transloco.translate('staffRbac.requestDialog.duplicatePending');
+                } else if (
+                    msg === 'access_requests_disabled_for_role' ||
+                    msg === 'resource_not_requestable_for_role'
+                ) {
+                    this.errorMessage = this._transloco.translate('staffRbac.requestDialog.disabledByRole');
                 } else if (msg === 'access_requests_disabled') {
                     this.errorMessage = this._transloco.translate('staffRbac.requestDialog.disabled');
                 } else {

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
+import { StaffPermissionService } from 'app/core/permissions';
 
 import type {
     EnrollProjectMember,
@@ -19,18 +20,19 @@ const CLIENT_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
     sort: '-updatedAt',
     populates: ['projectMembers', 'projectMembers.staff', 'client'],
-    select: '_id name client projectFlows branding projectMembers demoMode demoOTP version updatedAt createdAt currentStep lastStep status',
+    select: '_id name client team visibility projectFlows branding projectMembers demoMode demoOTP version updatedAt createdAt currentStep lastStep status',
 };
 
 const STAFF_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
     populates: ['projectMembers', 'projectMembers.staff'],
-    select: '_id name client projectFlows branding projectMembers demoMode demoOTP updatedAt createdAt currentStep lastStep status',
+    select: '_id name client team visibility projectFlows branding projectMembers demoMode demoOTP updatedAt createdAt currentStep lastStep status',
 };
 
 @Injectable({ providedIn: 'root' })
 export class SmartAccessProjectsService {
     private _http = inject(HttpClient);
+    private _perm = inject(StaffPermissionService);
 
     private get apiUrl(): string {
         return environment.apiUrl;
@@ -89,17 +91,17 @@ export class SmartAccessProjectsService {
             );
     }
 
-    listProjects(): Observable<AccessProject[]> {
+    listProjects(team?: string): Observable<AccessProject[]> {
         const user = this.parseStoredUser();
-        if (user?.staff && user.canonicalRole !== 'admin') {
+        if (user?.staff && !this._perm.canViewAllTeams() && user.canonicalRole !== 'admin') {
             return this._fetchStaffProjectIds(user.staff).pipe(
                 switchMap((ids) => {
                     if (!ids.length) return of([]);
-                    return this._getProjectsByIds(ids);
+                    return this._getProjectsByIds(ids, team);
                 })
             );
         }
-        return this._getProjectsClient();
+        return this._getProjectsClient(team);
     }
 
     getProject(id: string): Observable<AccessProject | null> {
@@ -252,8 +254,9 @@ export class SmartAccessProjectsService {
             );
     }
 
-    private _getProjectsByIds(ids: string[]): Observable<AccessProject[]> {
+    private _getProjectsByIds(ids: string[], team?: string): Observable<AccessProject[]> {
         const params: Record<string, string | string[]> = { ...STAFF_LIST_PARAMS, in__id: ids };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data: AccessProject[] }>(`${this.apiUrl}/v2/projects`, { params, headers: this.authHeaders })
             .pipe(
@@ -265,10 +268,12 @@ export class SmartAccessProjectsService {
             );
     }
 
-    private _getProjectsClient(): Observable<AccessProject[]> {
+    private _getProjectsClient(team?: string): Observable<AccessProject[]> {
+        const params: Record<string, string | string[]> = { ...CLIENT_LIST_PARAMS };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data: AccessProject[] }>(`${this.apiUrl}/v2/projects`, {
-                params: CLIENT_LIST_PARAMS,
+                params,
                 headers: this.authHeaders,
             })
             .pipe(

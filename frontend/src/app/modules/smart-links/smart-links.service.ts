@@ -207,14 +207,16 @@ export class SmartLinksService {
         };
     }
 
-    listSmartLinkProjects(): Observable<SmartLinkProject[]> {
+    listSmartLinkProjects(team?: string): Observable<SmartLinkProject[]> {
+        const params: Record<string, string> = {
+            populates: 'projectFlows',
+            projectFlowType: 'smartlink',
+            sort: '-updatedAt',
+        };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data?: SmartLinkProject[] | { docs?: SmartLinkProject[] } }>(`${this.apiUrl}/v3/projects`, {
-                params: {
-                    populates: 'projectFlows',
-                    projectFlowType: 'smartlink',
-                    sort: '-updatedAt',
-                },
+                params,
                 headers: this.authHeaders,
             })
             .pipe(

@@ -28,7 +28,13 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import QRCode from 'qrcode';
 import { map, of, switchMap } from 'rxjs';
-import { HasStaffPermissionDirective } from 'app/core/permissions';
+import {
+    HasStaffPermissionDirective,
+    TeamFilterSelectComponent,
+    extractProjectTeam,
+    type ProjectTeamRef,
+    type TeamDto,
+} from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 
 import { SmartLinkProjectDeleteDialogComponent } from '../dialogs/smart-link-project-delete-dialog.component';
@@ -61,6 +67,7 @@ import type {
         MatSnackBarModule,
         TranslocoModule,
         HasStaffPermissionDirective,
+        TeamFilterSelectComponent,
     ],
     templateUrl: './smart-link-project-list.component.html',
     styleUrls: ['./smart-link-project-list.component.scss'],
@@ -82,7 +89,18 @@ export class SmartLinkProjectListComponent implements OnInit {
     loading = signal(false);
     isAuthenticated = signal(false);
     searchTerm = signal('');
+    selectedTeam = signal('');
+    availableTeams = signal<TeamDto[]>([]);
     error = signal<string | null>(null);
+
+    onTeamFilterChange(teamId: string): void {
+        this.selectedTeam.set(teamId || '');
+        this.loadProjects();
+    }
+
+    teamBadge(project: SmartLinkProject): ProjectTeamRef | null {
+        return extractProjectTeam(project.team, this.availableTeams());
+    }
     copiedProjectId = signal<string | null>(null);
 
     mintModalOpen = signal(false);
@@ -136,7 +154,8 @@ export class SmartLinkProjectListComponent implements OnInit {
     loadProjects(): void {
         this.loading.set(true);
         this.error.set(null);
-        this._service.listSmartLinkProjects().subscribe({
+        const team = this.selectedTeam() || undefined;
+        this._service.listSmartLinkProjects(team).subscribe({
             next: (rows) => {
                 this.projects.set(rows);
                 this.loading.set(false);

@@ -144,6 +144,26 @@
                                 </mat-select>
                                 <mat-error>{{ 'createBatchConfig.countryRequired' | transloco }}</mat-error>
                             </mat-form-field>
+
+                            @if (canAssignTeam() && availableTeams().length > 0) {
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>{{ 'staffRbac.members.subTeamColumn' | transloco }}</mat-label>
+                                    <mat-select formControlName="team">
+                                        <mat-option value="">{{ 'staffRbac.common.none' | transloco }}</mat-option>
+                                        @for (team of availableTeams(); track team._id) {
+                                            <mat-option [value]="team._id">{{ team.name }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>{{ 'staffRbac.teams.visibilityLabel' | transloco }}</mat-label>
+                                    <mat-select formControlName="visibility">
+                                        <mat-option value="team">{{ 'staffRbac.teams.visibilityTeam' | transloco }}</mat-option>
+                                        <mat-option value="workspace">{{ 'staffRbac.teams.visibilityWorkspace' | transloco }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            }
                         </div>
                 </section>
 

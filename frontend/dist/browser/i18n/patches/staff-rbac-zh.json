@@ -14,7 +14,8 @@
       "execute": "执行",
       "approve": "审批",
       "export": "导出",
-      "manageKeys": "密钥"
+      "manageKeys": "密钥",
+      "readAll": "全部子团队"
     },
     "actionTooltips": {
       "read": "查看页面、记录、列表和分析数据",
@@ -24,7 +25,8 @@
       "execute": "运行扫描、API 调用、核验或批处理任务",
       "approve": "人工审批、拒绝或处理核验状态",
       "export": "导出 PDF、CSV、XLSX 或 JSONL 报告",
-      "manageKeys": "创建、轮换、吊销 API 密钥或切换生产/沙盒模式"
+      "manageKeys": "创建、轮换、吊销 API 密钥或切换生产/沙盒模式",
+      "readAll": "查看工作区中所有子团队的记录，而不仅限于自己的子团队"
     },
     "budget": {
       "oneTimeThisMonth": "本 UTC 自然月一次性增额",
@@ -149,7 +151,11 @@
       "defaultDurationTitle": "默认申请有效期",
       "defaultDurationDesc": "成员提交即时权限申请时预选的授权时长。",
       "savedToast": "访问策略已更新",
-      "saveError": "无法更新访问策略"
+      "saveError": "无法更新访问策略",
+      "teamScopedVisibilityTitle": "按子团队隔离资源可见性",
+      "teamScopedVisibilityDesc": "将生成的报告、批处理、项目、日志和模板按子团队隔离（拥有全部子团队权限除外）。",
+      "requireTeamApiKeysTitle": "强制使用子团队 API 密钥",
+      "requireTeamApiKeysDesc": "要求外部 API 调用使用绑定了子团队的团队 API 密钥。"
     },
     "presets": {
       "viewOnly": "仅查看",
@@ -179,7 +185,8 @@
       "submittedToast": "申请已提交审核",
       "duplicatePending": "您已有覆盖该范围的待审批申请。",
       "submitError": "无法提交申请",
-      "disabled": "工作区策略已禁用自助权限申请。"
+      "disabled": "工作区策略已禁用自助权限申请。",
+      "disabledByRole": "当前角色已禁用访问申请功能。"
     },
     "requestsTab": {
       "typeAll": "全部类型",
@@ -215,7 +222,7 @@
       "smartCheckLists": "检查清单",
       "smartCheckHistory": "API 调用历史",
       "smartReportsTemplates": "报告模板",
-      "smartReportsBatch": "批量任务与配置",
+      "smartReportsBatch": "批处理预设与配置",
       "smartFleetAssets": "车辆与驾驶员",
       "smartFleetRules": "监控规则与告警",
       "smartEnrollProjects": "KYC 项目与流程",
@@ -235,7 +242,8 @@
       "billingUsage": "用量与成本中心",
       "apiKeys": "API 密钥与生产环境",
       "team": "团队、子团队与角色",
-      "workspaceSettings": "工作区设置与保留策略"
+      "workspaceSettings": "工作区设置与保留策略",
+      "smartReportsResults": "报告运行与结果"
     },
     "restricted": {
       "title": "访问受限",
@@ -253,7 +261,10 @@
       "accessGrantedToast": "已获得访问权限！正在跳转…",
       "stillRestrictedToast": "该资源目前仍受限。",
       "goHome": "返回首页",
-      "viewMyAccess": "查看我的权限"
+      "viewMyAccess": "查看我的权限",
+      "requestsDisabledByRoleHint": "您的角色不允许提交访问申请。如有需要请联系工作区所有者或管理员。",
+      "notFoundTitle": "未找到资源或不在您的子团队中",
+      "notFoundBody": "此记录不存在或属于其他子团队。"
     },
     "roles": {
       "admin": {
@@ -279,6 +290,10 @@
       "viewer": {
         "name": "观察者",
         "desc": "只读查看仪表板、记录、日志历史及监控状态。"
+      },
+      "report_builder": {
+        "name": "文档构建器",
+        "desc": "创建和编辑报告模板与批处理配置，但不查看已执行结果、PII 或 API 密钥。"
       }
     },
     "rolesTab": {
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "重新分配成员至",
       "confirmDeleteBtn": "重新分配并删除",
       "deletedToast": "自定义角色已删除",
-      "duplicateAsCustomTooltip": "将此系统预设复制为可编辑的自定义角色"
+      "duplicateAsCustomTooltip": "将此系统预设复制为可编辑的自定义角色",
+      "accessRequestPolicyTitle": "自助访问申请",
+      "allowAccessRequestsToggle": "允许此角色成员提交访问申请",
+      "allowAccessRequestsDesc": "关闭后，此角色成员将无法申请额外权限。",
+      "requestableResourcesLabel": "可申请模块",
+      "requestableResourcesAll": "所有受限模块（默认）",
+      "requestableResourcesNone": "无（已禁用）",
+      "requestableResourcesCustom": "仅所选模块",
+      "requestsLockedByPreset": "系统预设策略（克隆角色后可自定义）"
     },
     "statuses": {
       "pending": "待审批",
@@ -362,7 +385,19 @@
       "deleteConfirmDesc": "成员将被移回共享工作区池，不再受此团队上限限制。",
       "deletedToast": "子团队已删除",
       "savedToast": "子团队已保存",
-      "saveError": "无法保存子团队"
+      "saveError": "无法保存子团队",
+      "allowedCostCentersLabel": "允许的成本中心 (CECO)",
+      "allowedCostCentersPlaceholder": "留空以允许所有成本中心",
+      "enforceCostCenterLabel": "锁定子团队至允许的成本中心",
+      "enforceCostCenterDesc": "拒绝使用未在允许列表中的成本中心发起的 API 调用和报告运行。",
+      "cecoLockedBadge": "CECO 已锁定",
+      "filterAllTeams": "全部子团队",
+      "filterUnassigned": "未分配",
+      "assignTeamAction": "分配至子团队",
+      "assignedTeamToast": "子团队分配已更新",
+      "visibilityLabel": "可见范围",
+      "visibilityTeam": "仅限子团队",
+      "visibilityWorkspace": "整个工作区"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "需要 API 密钥管理权限才能切换生产/沙盒环境。"

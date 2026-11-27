@@ -49,6 +49,8 @@ export interface HistoryListParams {
     country?: string;
     /** Cost center id. */
     costCenter?: string;
+    /** Sub-team id or 'none' for unassigned (when caller has team.readAll). */
+    team?: string;
 }
 
 export interface HistoryFeatureMeta {
@@ -237,6 +239,7 @@ export class HistoryService {
         whereLTE_createdAt: params.whereLTE_createdAt,
         prefix_endpoint: params.country ? `/v2/${params.country.toLowerCase()}/` : undefined,
         where_costCenter: params.costCenter,
+        team: params.team,
     });
 
     private _authHeaders = (): Record<string, string> => {

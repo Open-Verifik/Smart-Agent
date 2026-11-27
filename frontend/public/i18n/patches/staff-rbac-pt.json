@@ -14,7 +14,8 @@
       "execute": "Executar",
       "approve": "Aprovar",
       "export": "Exportar",
-      "manageKeys": "Chaves"
+      "manageKeys": "Chaves",
+      "readAll": "Todas as Equipes"
     },
     "actionTooltips": {
       "read": "Visualizar telas, registros, listas e métricas",
@@ -24,7 +25,8 @@
       "execute": "Executar verificações, consultas API ou lotes",
       "approve": "Aprovar, rejeitar ou resolver verificações manualmente",
       "export": "Baixar relatórios em PDF, CSV, XLSX ou JSONL",
-      "manageKeys": "Gerenciar chaves API e alternar modo Live/Sandbox"
+      "manageKeys": "Gerenciar chaves API e alternar modo Live/Sandbox",
+      "readAll": "Visualizar registros de todas as subequipes do espaço em vez de apenas a sua"
     },
     "budget": {
       "oneTimeThisMonth": "Reforço único para este mês UTC",
@@ -149,7 +151,11 @@
       "defaultDurationTitle": "Duração Padrão",
       "defaultDurationDesc": "Duração pré-selecionada nas solicitações Just-in-Time.",
       "savedToast": "Política atualizada",
-      "saveError": "Não foi possível salvar a política"
+      "saveError": "Não foi possível salvar a política",
+      "teamScopedVisibilityTitle": "Visibilidade por Subequipe",
+      "teamScopedVisibilityDesc": "Isola relatórios, lotes, projetos, logs e modelos por subequipe (exceto com permissão Todas as Equipes).",
+      "requireTeamApiKeysTitle": "Exigir Chaves API de Subequipe",
+      "requireTeamApiKeysDesc": "Exige que chamadas de API externas usem uma chave de API vinculada a uma subequipe."
     },
     "presets": {
       "viewOnly": "Somente Ver",
@@ -179,7 +185,8 @@
       "submittedToast": "Solicitação enviada",
       "duplicatePending": "Já existe uma solicitação pendente equivalente.",
       "submitError": "Erro ao enviar solicitação",
-      "disabled": "Solicitações estão desativadas pela política."
+      "disabled": "Solicitações estão desativadas pela política.",
+      "disabledByRole": "Solicitações de acesso estão desativadas para a sua função atual."
     },
     "requestsTab": {
       "typeAll": "Todos os Tipos",
@@ -215,7 +222,7 @@
       "smartCheckLists": "Checklists",
       "smartCheckHistory": "Histórico de API",
       "smartReportsTemplates": "Modelos de Relatórios",
-      "smartReportsBatch": "Execuções em Lote",
+      "smartReportsBatch": "Predefinições e Lotes",
       "smartFleetAssets": "Veículos e Motoristas",
       "smartFleetRules": "Regras e Alertas",
       "smartEnrollProjects": "Projetos KYC",
@@ -235,7 +242,8 @@
       "billingUsage": "Uso e Centros de Custo",
       "apiKeys": "Chaves API e Modo Live",
       "team": "Equipe, Subequipes e Funções",
-      "workspaceSettings": "Configurações e Retenção"
+      "workspaceSettings": "Configurações e Retenção",
+      "smartReportsResults": "Execuções e Resultados"
     },
     "restricted": {
       "title": "Acesso Restrito",
@@ -253,7 +261,10 @@
       "accessGrantedToast": "Acesso liberado! Redirecionando…",
       "stillRestrictedToast": "Acesso ainda restrito.",
       "goHome": "Ir ao Início",
-      "viewMyAccess": "Abrir Meu Acesso"
+      "viewMyAccess": "Abrir Meu Acesso",
+      "requestsDisabledByRoleHint": "Solicitações de acesso desativadas para esta função. Contate o Proprietário ou Administrador.",
+      "notFoundTitle": "Recurso não encontrado ou fora da sua subequipe",
+      "notFoundBody": "Este registro não existe ou pertence a outra subequipe."
     },
     "roles": {
       "admin": {
@@ -279,6 +290,10 @@
       "viewer": {
         "name": "Visualizador",
         "desc": "Acesso somente leitura a painéis, registros e histórico."
+      },
+      "report_builder": {
+        "name": "Criador de Documentos",
+        "desc": "Cria e edita modelos de relatórios e lotes sem visualizar resultados executados, PII ou chaves API."
       }
     },
     "rolesTab": {
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "Reatribuir para",
       "confirmDeleteBtn": "Reatribuir e Excluir",
       "deletedToast": "Função excluída",
-      "duplicateAsCustomTooltip": "Duplicar esta predefinição do sistema como uma função personalizada editável"
+      "duplicateAsCustomTooltip": "Duplicar esta predefinição do sistema como uma função personalizada editável",
+      "accessRequestPolicyTitle": "Solicitações de Acesso",
+      "allowAccessRequestsToggle": "Permitir que membros com esta função solicitem acesso",
+      "allowAccessRequestsDesc": "Quando desativado, membros com esta função não podem enviar solicitações Just-in-Time.",
+      "requestableResourcesLabel": "Módulos solicitáveis",
+      "requestableResourcesAll": "Qualquer módulo restrito (padrão)",
+      "requestableResourcesNone": "Nenhum (desativado)",
+      "requestableResourcesCustom": "Apenas módulos selecionados",
+      "requestsLockedByPreset": "Política padrão do sistema (clonar para personalizar)"
     },
     "statuses": {
       "pending": "Pendente",
@@ -362,7 +385,19 @@
       "deleteConfirmDesc": "Os membros voltarão ao pool geral.",
       "deletedToast": "Subequipe excluída",
       "savedToast": "Subequipe salva",
-      "saveError": "Erro ao salvar subequipe"
+      "saveError": "Erro ao salvar subequipe",
+      "allowedCostCentersLabel": "Centros de Custo Permitidos (CECO)",
+      "allowedCostCentersPlaceholder": "Deixe vazio para permitir todos os centros de custo",
+      "enforceCostCenterLabel": "Restringir subequipe aos Centros de Custo",
+      "enforceCostCenterDesc": "Rejeita chamadas API e execuções com um centro de custo fora desta lista.",
+      "cecoLockedBadge": "CECO Bloqueado",
+      "filterAllTeams": "Todas as Subequipes",
+      "filterUnassigned": "Não atribuído",
+      "assignTeamAction": "Atribuir à Subequipe",
+      "assignedTeamToast": "Atribuição de subequipe atualizada",
+      "visibilityLabel": "Visibilidade",
+      "visibilityTeam": "Apenas subequipe",
+      "visibilityWorkspace": "Todo o espaço de trabalho"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Requer permissão de Chaves API para alternar Live/Sandbox."

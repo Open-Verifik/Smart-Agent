@@ -14,7 +14,8 @@
       "execute": "実行",
       "approve": "承認",
       "export": "出力",
-      "manageKeys": "キー"
+      "manageKeys": "キー",
+      "readAll": "全チーム"
     },
     "actionTooltips": {
       "read": "画面、レコード、一覧、分析データを閲覧",
@@ -24,7 +25,8 @@
       "execute": "スキャン、API呼び出し、バッチ処理を実行",
       "approve": "審査を手動で承認、却下、または解決",
       "export": "PDF、CSV、XLSX、JSONL でデータを出力",
-      "manageKeys": "API キーの作成・ローテーション・失効、本番/サンドボックス切替"
+      "manageKeys": "API キーの作成・ローテーション・失効、本番/サンドボックス切替",
+      "readAll": "自分のサブチームだけでなくワークスペース全サブチームの記録を表示"
     },
     "budget": {
       "oneTimeThisMonth": "今月(UTC)のみの一時増額",
@@ -149,7 +151,11 @@
       "defaultDurationTitle": "既定の申請期間",
       "defaultDurationDesc": "一時アクセス申請時のデフォルト有効期間。",
       "savedToast": "アクセスポリシーを更新しました",
-      "saveError": "ポリシーの保存に失敗しました"
+      "saveError": "ポリシーの保存に失敗しました",
+      "teamScopedVisibilityTitle": "サブチーム別リソース表示制限",
+      "teamScopedVisibilityDesc": "レポート・バッチ・プロジェクト・ログ・テンプレートをサブチーム単位で分離します（全チーム閲覧権限を除く）。",
+      "requireTeamApiKeysTitle": "サブチームAPIキーを必須化",
+      "requireTeamApiKeysDesc": "外部API呼び出しにサブチーム紐付け済みのTeam APIキーを必須にします。"
     },
     "presets": {
       "viewOnly": "閲覧のみ",
@@ -179,7 +185,8 @@
       "submittedToast": "申請を送信しました",
       "duplicatePending": "同じ範囲の保留中申請が既にあります。",
       "submitError": "申請の送信に失敗しました",
-      "disabled": "セルフサービス申請はポリシーにより無効です。"
+      "disabled": "セルフサービス申請はポリシーにより無効です。",
+      "disabledByRole": "現在のロールではアクセス申請が無効になっています。"
     },
     "requestsTab": {
       "typeAll": "すべて",
@@ -215,7 +222,7 @@
       "smartCheckLists": "チェックリスト",
       "smartCheckHistory": "API リクエスト履歴",
       "smartReportsTemplates": "レポートテンプレート",
-      "smartReportsBatch": "バッチ実行・設定",
+      "smartReportsBatch": "バッチ設定とテンプレート",
       "smartFleetAssets": "車両・ドライバー",
       "smartFleetRules": "監視ルール・アラート",
       "smartEnrollProjects": "KYC プロジェクト",
@@ -235,7 +242,8 @@
       "billingUsage": "利用状況・コストセンター",
       "apiKeys": "API キー・本番モード",
       "team": "スタッフ・サブチーム・ロール",
-      "workspaceSettings": "ワークスペース設定"
+      "workspaceSettings": "ワークスペース設定",
+      "smartReportsResults": "レポート実行と結果"
     },
     "restricted": {
       "title": "アクセス制限",
@@ -253,7 +261,10 @@
       "accessGrantedToast": "アクセスが許可されました！移動中…",
       "stillRestrictedToast": "まだ制限されています。",
       "goHome": "ホームへ",
-      "viewMyAccess": "マイアクセスを開く"
+      "viewMyAccess": "マイアクセスを開く",
+      "requestsDisabledByRoleHint": "このロールではアクセス申請を利用できません。オーナーまたは管理者にお問い合わせください。",
+      "notFoundTitle": "リソースが見つからないか、サブチーム外です",
+      "notFoundBody": "このレコードは存在しないか、別のサブチームに属しています。"
     },
     "roles": {
       "admin": {
@@ -279,6 +290,10 @@
       "viewer": {
         "name": "閲覧者",
         "desc": "ダッシュボードや履歴ログの閲覧専用。"
+      },
+      "report_builder": {
+        "name": "ドキュメントビルダー",
+        "desc": "実行済みレポート結果やPII、APIキーを閲覧せずにレポートテンプレートやバッチ設定を作成・編集します。"
       }
     },
     "rolesTab": {
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "移行先ロール",
       "confirmDeleteBtn": "移行して削除",
       "deletedToast": "カスタムロールを削除しました",
-      "duplicateAsCustomTooltip": "このシステムプリセットを編集可能なカスタムロールとして複製します"
+      "duplicateAsCustomTooltip": "このシステムプリセットを編集可能なカスタムロールとして複製します",
+      "accessRequestPolicyTitle": "セルフサービスアクセス申請",
+      "allowAccessRequestsToggle": "このロールのメンバーによるアクセス申請を許可",
+      "allowAccessRequestsDesc": "オフにすると、このロールのメンバーは追加権限を申請できなくなります。",
+      "requestableResourcesLabel": "申請可能なモジュール",
+      "requestableResourcesAll": "すべての制限モジュール（既定）",
+      "requestableResourcesNone": "なし（申請不可）",
+      "requestableResourcesCustom": "選択したモジュールのみ",
+      "requestsLockedByPreset": "システム標準ポリシー（複製して編集）"
     },
     "statuses": {
       "pending": "保留中",
@@ -362,7 +385,19 @@
       "deleteConfirmDesc": "メンバーは共通プールに戻ります。",
       "deletedToast": "サブチームを削除しました",
       "savedToast": "サブチームを保存しました",
-      "saveError": "保存に失敗しました"
+      "saveError": "保存に失敗しました",
+      "allowedCostCentersLabel": "許可コストセンター (CECO)",
+      "allowedCostCentersPlaceholder": "空欄の場合は全コストセンターを許可",
+      "enforceCostCenterLabel": "許可コストセンターに制限",
+      "enforceCostCenterDesc": "リスト外のコストセンターを指定したAPI呼び出しやレポート実行を拒否します。",
+      "cecoLockedBadge": "CECOロック",
+      "filterAllTeams": "全サブチーム",
+      "filterUnassigned": "未割り当て",
+      "assignTeamAction": "サブチームに割り当て",
+      "assignedTeamToast": "サブチーム割り当てを更新しました",
+      "visibilityLabel": "公開範囲",
+      "visibilityTeam": "サブチームのみ",
+      "visibilityWorkspace": "ワークスペース全体"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "本番/サンドボックス切替には API キー管理権限が必要です。"

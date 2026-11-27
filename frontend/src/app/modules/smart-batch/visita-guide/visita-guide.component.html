@@ -190,6 +190,30 @@
                                         [attr.aria-label]="t('visitaGuide.layoutIdentifyColor')"
                                     />
                                 </label>
+                                @if (reportStudioTemplateId(); as tplId) {
+                                    <button
+                                        type="button"
+                                        (click)="copyStudioId(t('smartReportKit.templateIdLabel'), tplId)"
+                                        class="hidden md:inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-stone-50 px-2 py-1 text-[11px] font-mono text-stone-600 transition hover:border-stone-400 hover:text-stone-900 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300"
+                                        [matTooltip]="t('smartReportKit.templateIdLabel') + ': ' + tplId"
+                                    >
+                                        <span class="font-sans text-stone-400">Tpl:</span>
+                                        <span class="max-w-[72px] truncate">{{ tplId }}</span>
+                                        <mat-icon class="!h-3 !w-3 !text-[12px]">content_copy</mat-icon>
+                                    </button>
+                                }
+                                @if (reportStudioConfigId(); as cfgId) {
+                                    <button
+                                        type="button"
+                                        (click)="copyStudioId(t('smartReportKit.configIdLabel'), cfgId)"
+                                        class="hidden md:inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-stone-50 px-2 py-1 text-[11px] font-mono text-stone-600 transition hover:border-stone-400 hover:text-stone-900 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-300"
+                                        [matTooltip]="t('smartReportKit.configIdLabel') + ': ' + cfgId"
+                                    >
+                                        <span class="font-sans text-stone-400">Cfg:</span>
+                                        <span class="max-w-[72px] truncate">{{ cfgId }}</span>
+                                        <mat-icon class="!h-3 !w-3 !text-[12px]">content_copy</mat-icon>
+                                    </button>
+                                }
                             </div>
                             <p class="sr-only">
                                 {{
