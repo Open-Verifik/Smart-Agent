@@ -311,7 +311,14 @@ const appendDocumentTypeNumberPairErrorsForDeps = (
                     iss.translationKey === 'createBatch.pairDocumentNumberRequiredWhenType')
         );
 
-    if (!numEmpty && typeEmpty) {
+    const counterpartIsRequired = (field: string): boolean => {
+        const dep = deps.find((item) => item.field === field && inDocGroup(item));
+        if (!dep) return false;
+        if (dep.required) return true;
+        return normalizeDependencyGroup(dep) !== null;
+    };
+
+    if (!numEmpty && typeEmpty && counterpartIsRequired(DOCUMENT_TYPE_FIELD)) {
         if (!hasPairIssueFor(DOCUMENT_TYPE_FIELD)) {
             issues.push({
                 field: DOCUMENT_TYPE_FIELD,
@@ -319,7 +326,7 @@ const appendDocumentTypeNumberPairErrorsForDeps = (
                 translationParams: { step: stepLabel },
             });
         }
-    } else if (numEmpty && !typeEmpty) {
+    } else if (numEmpty && !typeEmpty && counterpartIsRequired(DOCUMENT_NUMBER_FIELD)) {
         if (!hasPairIssueFor(DOCUMENT_NUMBER_FIELD)) {
             issues.push({
                 field: DOCUMENT_NUMBER_FIELD,
