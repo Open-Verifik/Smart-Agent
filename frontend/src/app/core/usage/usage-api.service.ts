@@ -80,6 +80,60 @@ export interface AvailabilityReport {
     months: AvailabilityMonth[];
 }
 
+export interface CostCenterStatementEndpoint {
+    endpoint: string;
+    requests: number;
+    ok: number;
+    failed: number;
+    timedOut: number;
+    costUSD: number;
+}
+
+export interface CostCenterStatementRow {
+    costCenterId: string | null;
+    costCenterCode: string;
+    costCenterName: string;
+    country: string;
+    teamId: string | null;
+    teamName: string;
+    teamCode: string;
+    totalRequests: number;
+    ok: number;
+    failed: number;
+    timedOut: number;
+    apiCostUSD: number;
+    meteredCostUSD: number;
+    meteredCount: number;
+    costUSD: number;
+    topEndpoints: CostCenterStatementEndpoint[];
+}
+
+export interface CostCenterStatement {
+    period: string;
+    startDate: string;
+    endDate: string;
+    currency: string;
+    generatedAt: string;
+    totals: {
+        totalRequests: number;
+        ok: number;
+        failed: number;
+        timedOut: number;
+        apiCostUSD: number;
+        meteredCostUSD: number;
+        costUSD: number;
+        costCentersCount: number;
+        teamsCount: number;
+    };
+    rows: CostCenterStatementRow[];
+}
+
+export interface CostCenterStatementQuery {
+    period?: string;
+    team?: string;
+    costCenter?: string;
+}
+
 /**
  * Wraps `GET /v2/usage`, `GET /v2/usage/availability`, and `/v2/cost-centers`.
  * None of these calls spend credits.
@@ -117,6 +171,39 @@ export class UsageApiService {
                 params: toHttpParams({ months }),
             })
             .pipe(map((res) => res.data));
+    }
+
+    getCostCenterStatement(query: CostCenterStatementQuery = {}): Observable<CostCenterStatement> {
+        return this._http
+            .get<{ data: CostCenterStatement }>(`${this._apiUrl}/v2/usage/cost-center-statement`, {
+                headers: this._authHeaders(),
+                params: toHttpParams({ ...query, format: 'json' }),
+            })
+            .pipe(map((res) => res.data));
+    }
+
+    downloadCostCenterStatement(
+        query: CostCenterStatementQuery,
+        format: 'csv' | 'xlsx'
+    ): Observable<{ blob: Blob; filename: string }> {
+        const period = query.period || new Date().toISOString().slice(0, 7);
+        return this._http
+            .get(`${this._apiUrl}/v2/usage/cost-center-statement`, {
+                headers: this._authHeaders(),
+                params: toHttpParams({ ...query, format }),
+                responseType: 'blob',
+                observe: 'response',
+            })
+            .pipe(
+                map((res: HttpResponse<Blob>) => {
+                    const disposition = res.headers.get('Content-Disposition') || '';
+                    const match = /filename="([^"]+)"/.exec(disposition);
+                    return {
+                        blob: res.body as Blob,
+                        filename: match?.[1] || `verifik-ceco-statement-${period}.${format}`,
+                    };
+                })
+            );
     }
 
     listCostCenters(includeInactive = true): Observable<CostCenter[]> {

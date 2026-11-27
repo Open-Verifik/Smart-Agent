@@ -189,6 +189,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     isLoading = signal(false);
     isGenerating = signal(false);
     isSending = signal(false);
+    isCreatingSignedLink = signal(false);
+    signedLinkTtl = signal<number>(3600);
     previewContextMenu = signal<{ x: number; y: number } | null>(null);
 
     /** Results display: PDF preview first, then table / json / excel */
@@ -1533,6 +1535,48 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
         this.setStepResultsViewMode('pdf');
         void this._generateReport(template._id, batchId, { download: true });
+    }
+
+    async copySignedLink(): Promise<void> {
+        if (this.isCreatingSignedLink()) return;
+        const template = this.selectedTemplate();
+        const batchId = this.batchId();
+        if (!template?._id || !batchId) {
+            this._snack.open(
+                this._transloco.translate('smartReport.pleaseSelectTemplate'),
+                this._snackCloseLabel(),
+                { duration: 3000 }
+            );
+            return;
+        }
+
+        this.isCreatingSignedLink.set(true);
+        try {
+            const report = this.report()?._id ? this.report()! : await this._ensureReport(template._id, batchId);
+            const rowIndex = this._currentPreviewRowIndex();
+            const res = await firstValueFrom(
+                this._reportService.createSignedLink(report._id!, {
+                    ttlSeconds: this.signedLinkTtl(),
+                    ...(rowIndex != null ? { rowIndex } : {}),
+                })
+            );
+            if (res?.url && navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(res.url);
+            }
+            this._snack.open(
+                this._transloco.translate('staffRbac.signedLink.copiedToast'),
+                this._snackCloseLabel(),
+                { duration: 3500 }
+            );
+        } catch {
+            this._snack.open(
+                this._transloco.translate('staffRbac.signedLink.errorToast'),
+                this._snackCloseLabel(),
+                { duration: 3500 }
+            );
+        } finally {
+            this.isCreatingSignedLink.set(false);
+        }
     }
 
     onPreviewContextMenu(event: MouseEvent): void {

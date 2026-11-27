@@ -88,5 +88,20 @@
                 <app-team-access-policy [user]="user"></app-team-access-policy>
             </div>
         </mat-tab>
+
+        <!-- Tab 6: Audit Log -->
+        @if (permService.can('team', 'read')) {
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="mr-1.5 !w-4 !h-4 !text-[16px]">history</mat-icon>
+                    {{ 'staffRbac.hub.tabAudit' | transloco }}
+                </ng-template>
+                <ng-template matTabContent>
+                    <div class="pt-5">
+                        <app-team-audit-log></app-team-audit-log>
+                    </div>
+                </ng-template>
+            </mat-tab>
+        }
     </mat-tab-group>
 </div>

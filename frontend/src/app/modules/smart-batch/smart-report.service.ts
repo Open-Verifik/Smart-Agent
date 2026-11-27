@@ -1402,4 +1402,29 @@ export class SmartReportService {
             ...(rowIndex != null ? { params: { rowIndex: String(rowIndex) } } : {}),
         });
     }
+
+    createSignedLink(
+        id: string,
+        options?: { ttlSeconds?: number; rowIndex?: number }
+    ): Observable<{
+        reportId: string;
+        url: string;
+        relativeUrl: string;
+        expiresAt: string;
+        ttlSeconds: number;
+        rowIndex?: number | null;
+    }> {
+        return this._httpClient
+            .post<{
+                data: {
+                    reportId: string;
+                    url: string;
+                    relativeUrl: string;
+                    expiresAt: string;
+                    ttlSeconds: number;
+                    rowIndex?: number | null;
+                };
+            }>(`${environment.apiUrl}/v2/smart-reports/${id}/signed-link`, options ?? {})
+            .pipe(map((res) => res?.data));
+    }
 }
