@@ -94,6 +94,9 @@ export class StaffPermissionService {
     readonly canViewAllTeams = computed(
         () => this.isOwner() || !this.isStaff() || this.can('team', 'readAll')
     );
+    readonly canManageOwnTeam = computed(
+        () => this.isOwner() || !this.isStaff() || this.can('team', 'manageOwnTeam') || this.can('team', 'readAll')
+    );
 
     constructor() {
         this._tryHydrateFromStorage();

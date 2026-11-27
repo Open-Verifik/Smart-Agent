@@ -206,6 +206,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             role: ['operator' as StaffRoleSlug],
             customRole: [''],
             team: [''],
+            additionalTeams: [[] as string[]],
             useCustomPermissions: [false],
             status: ['joined'],
         });
@@ -338,6 +339,11 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             const customRoleId =
                 typeof staff.customRole === 'object' ? staff.customRole?._id || '' : staff.customRole || '';
             const teamId = typeof staff.team === 'object' ? staff.team?._id || '' : staff.team || '';
+            const additionalTeamIds = Array.isArray(staff.additionalTeams)
+                ? staff.additionalTeams
+                      .map((t) => (typeof t === 'object' ? t?._id : t))
+                      .filter((id): id is string => Boolean(id && String(id) !== String(teamId)))
+                : [];
 
             this.customPermissionsBuffer = staff.customPermissions
                 ? normalizePermissions(staff.customPermissions)
@@ -358,6 +364,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
                 role: canonicalRole,
                 customRole: customRoleId,
                 team: teamId,
+                additionalTeams: additionalTeamIds,
                 useCustomPermissions: Boolean(staff.useCustomPermissions),
                 status: staff.status || 'joined',
             });
@@ -459,6 +466,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             role: 'operator',
             customRole: '',
             team: '',
+            additionalTeams: [],
             useCustomPermissions: false,
             status: 'joined',
         });
@@ -490,6 +498,10 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         this._cdr.markForCheck();
 
         const fv = this.staffForm.value;
+        const primaryTeamId = fv.team || null;
+        const cleanedAdditionalTeams = Array.isArray(fv.additionalTeams)
+            ? fv.additionalTeams.filter((id: string) => Boolean(id && String(id) !== String(primaryTeamId || '')))
+            : [];
         const payload: Partial<StaffMember> = {
             name: fv.name,
             email: fv.email,
@@ -497,7 +509,8 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             phone: String(fv.phone),
             role: fv.role,
             customRole: fv.customRole || null,
-            team: fv.team || null,
+            team: primaryTeamId,
+            additionalTeams: cleanedAdditionalTeams,
             useCustomPermissions: Boolean(fv.useCustomPermissions),
             ...(fv.useCustomPermissions ? { customPermissions: this.customPermissionsBuffer } : {}),
             endpointPolicy: this.endpointPolicyBuffer,
@@ -664,6 +677,38 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         if (typeof staff.team === 'object') return staff.team.name || null;
         const found = this.teams.find((t) => String(t._id) === String(staff.team));
         return found?.name || null;
+    }
+
+    additionalTeamNames(staff: StaffMember): string[] {
+        if (!Array.isArray(staff.additionalTeams) || !staff.additionalTeams.length) return [];
+        const primaryId = typeof staff.team === 'object' ? staff.team?._id : staff.team;
+        return staff.additionalTeams
+            .map((t) => {
+                const tid = typeof t === 'object' ? t?._id : t;
+                if (!tid || String(tid) === String(primaryId || '')) return null;
+                if (typeof t === 'object' && t?.name) return t.name;
+                return this.teams.find((tm) => String(tm._id) === String(tid))?.name || null;
+            })
+            .filter((name): name is string => Boolean(name));
+    }
+
+    get availableAdditionalTeams(): TeamDto[] {
+        const primaryId = String(this.staffForm?.get('team')?.value || '');
+        return this.teams.filter((t) => String(t._id) !== primaryId);
+    }
+
+    isAdditionalTeamSelected(teamId: string): boolean {
+        const list = (this.staffForm?.get('additionalTeams')?.value as string[]) || [];
+        return list.includes(String(teamId));
+    }
+
+    toggleAdditionalTeam(teamId: string): void {
+        const current = [...((this.staffForm?.get('additionalTeams')?.value as string[]) || [])];
+        const idx = current.indexOf(String(teamId));
+        if (idx >= 0) current.splice(idx, 1);
+        else current.push(String(teamId));
+        this.staffForm.patchValue({ additionalTeams: current });
+        this._cdr.markForCheck();
     }
 
     grantResourceLabel(resourceKey: string): string {

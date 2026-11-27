@@ -34,6 +34,7 @@
 					"status": { "type": "string", "enum": ["active", "paused"] },
 					"defaultRole": { "type": "string", "description": "Optional default system role slug for members." },
 					"defaultCustomRole": { "type": "string", "description": "Optional ClientRole ID." },
+					"parentTeam": { "type": "string", "description": "Optional parent Sub-Team ID to form a regional/department hierarchy." },
 					"defaultCostCenter": { "type": "string", "description": "Optional CostCenter ID used as default when caller omits x-cost-center." },
 					"allowedCostCenters": {
 						"type": "array",
@@ -73,6 +74,7 @@
 					"description": { "type": "string" },
 					"color": { "type": "string", "enum": ["blue", "emerald", "indigo", "amber", "rose", "violet", "cyan", "slate"] },
 					"status": { "type": "string", "enum": ["active", "paused"] },
+					"parentTeam": { "type": "string", "description": "Optional parent Sub-Team ID (or empty/null to make root team)." },
 					"defaultCostCenter": { "type": "string" },
 					"allowedCostCenters": { "type": "array", "items": { "type": "string" } },
 					"enforceCostCenter": { "type": "boolean" },
@@ -263,15 +265,20 @@
 					"email": { "type": "string", "format": "email" },
 					"countryCode": { "type": "string" },
 					"phone": { "type": "string" },
-					"role": { "type": "string", "description": "System role slug (e.g. operator, report_builder, admin, viewer)." },
+					"role": { "type": "string", "description": "System role slug (e.g. admin, team_manager, compliance_officer, developer, finance, operator, report_builder, viewer)." },
 					"customRole": { "type": "string", "description": "Optional ClientRole ID." },
-					"team": { "type": "string", "description": "Optional Sub-Team ID." }
+					"team": { "type": "string", "description": "Optional primary Sub-Team ID." },
+					"additionalTeams": {
+						"type": "array",
+						"items": { "type": "string" },
+						"description": "Optional additional Sub-Team IDs for cross-team access or management."
+					}
 				}
 			}
 		},
 		{
 			"name": "staff_update",
-			"description": "Update an existing staff member's role, custom role, sub-team assignment, or custom permission overrides.",
+			"description": "Update an existing staff member's role, custom role, primary/additional sub-team assignments, or custom permission overrides.",
 			"method": "PUT",
 			"verifikPath": "/v2/staff/{id}",
 			"openApiPath": "/v2/staff/{id}",
@@ -282,9 +289,14 @@
 				"properties": {
 					"id": { "type": "string", "description": "Staff ID." },
 					"name": { "type": "string" },
-					"role": { "type": "string" },
+					"role": { "type": "string", "description": "System role slug (including team_manager and report_builder)." },
 					"customRole": { "type": "string" },
 					"team": { "type": "string" },
+					"additionalTeams": {
+						"type": "array",
+						"items": { "type": "string" },
+						"description": "Optional additional Sub-Team IDs."
+					},
 					"useCustomPermissions": { "type": "boolean" },
 					"customPermissions": { "type": "object", "additionalProperties": true }
 				}
@@ -396,6 +408,61 @@
 					"code": { "type": "string", "description": "Short unique CECO code (e.g. CO-OPS)." },
 					"name": { "type": "string" },
 					"country": { "type": "string", "description": "ISO-2 country code (e.g. CO, MX, PE)." }
+				}
+			}
+		},
+		{
+			"name": "usage_cost_center_statement",
+			"description": "Generate the monthly Cost Center (CECO) & Sub-Team usage statement (API requests + SmartReport credits + top 5 endpoints). Does not consume credits.",
+			"method": "GET",
+			"verifikPath": "/v2/usage/cost-center-statement",
+			"openApiPath": "/v2/usage/cost-center-statement",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"period": { "type": "string", "description": "Billing month YYYY-MM (defaults to current UTC month)." },
+					"format": { "type": "string", "enum": ["json", "csv", "xlsx"], "description": "Response format (json, csv, xlsx)." },
+					"team": { "type": "string", "description": "Optional Sub-Team ID or 'unassigned'." },
+					"costCenter": { "type": "string", "description": "Optional CostCenter ID or 'none'." }
+				}
+			}
+		},
+		{
+			"name": "staff_audit_logs_list",
+			"description": "Query the immutable team-scoped RBAC & Staff audit trail (role updates, access approvals, team assignments, signed downloads).",
+			"method": "GET",
+			"verifikPath": "/v2/staff-audit-logs",
+			"openApiPath": "/v2/staff-audit-logs",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"team": { "type": "string", "description": "Optional Sub-Team ID filter." },
+					"action": { "type": "string", "description": "Optional action filter (e.g. staff.update, team.create, access_request.approve)." },
+					"resourceType": { "type": "string", "description": "Optional resourceType filter." },
+					"startDate": { "type": "string", "description": "ISO start timestamp." },
+					"endDate": { "type": "string", "description": "ISO end timestamp." },
+					"page": { "type": "number" },
+					"limit": { "type": "number" },
+					"format": { "type": "string", "enum": ["json", "csv"] }
+				}
+			}
+		},
+		{
+			"name": "smart_report_create_signed_link",
+			"description": "Mint a short-lived HMAC-signed PDF download URL (max 24h TTL) for sharing a SmartReport without bearer auth headers.",
+			"method": "POST",
+			"verifikPath": "/v2/smart-reports/{id}/signed-link",
+			"openApiPath": "/v2/smart-reports/{id}/signed-link",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "SmartReport ID." },
+					"ttlSeconds": { "type": "number", "description": "Lifetime in seconds (60 to 86400; defaults to 3600)." },
+					"rowIndex": { "type": "number", "description": "Optional batch row index." }
 				}
 			}
 		}

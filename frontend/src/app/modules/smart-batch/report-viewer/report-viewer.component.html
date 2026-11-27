@@ -251,6 +251,29 @@
                                         {{ 'smartReport.downloadPdf' | transloco }}
                                     </button>
 
+                                    <div class="flex items-center gap-1.5">
+                                        <select
+                                            [ngModel]="signedLinkTtl()"
+                                            (ngModelChange)="signedLinkTtl.set(+$event)"
+                                            [attr.aria-label]="'staffRbac.signedLink.ttlLabel' | transloco"
+                                            class="h-10 px-2 rounded-xl border border-stone-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs text-stone-700 dark:text-gray-200 shrink-0"
+                                        >
+                                            <option [value]="3600">1h</option>
+                                            <option [value]="21600">6h</option>
+                                            <option [value]="86400">24h</option>
+                                        </select>
+                                        <button
+                                            mat-stroked-button
+                                            type="button"
+                                            (click)="copySignedLink()"
+                                            [disabled]="isCreatingSignedLink() || isGenerating()"
+                                            class="flex-1 !rounded-xl !inline-flex !items-center !justify-center"
+                                        >
+                                            <mat-icon class="mr-1.5 !align-middle !text-[18px]">link</mat-icon>
+                                            {{ 'staffRbac.signedLink.copyBtn' | transloco }}
+                                        </button>
+                                    </div>
+
                                     <button
                                         mat-stroked-button
                                         (click)="sendEmail()"

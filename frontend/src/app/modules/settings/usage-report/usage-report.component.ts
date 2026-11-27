@@ -11,7 +11,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { getVerifikDocsUrls } from 'app/core/docs/verifik-docs-urls';
 import { StaffPermissionService, StaffRbacApiService, TeamDto } from 'app/core/permissions';
 import { countryName } from 'app/core/usage/country-geo';
-import { CostCenter, UsageApiService, UsageGroup, UsageGroupBy, UsageQuery, UsageReport } from 'app/core/usage/usage-api.service';
+import { CostCenter, CostCenterStatement, UsageApiService, UsageGroup, UsageGroupBy, UsageQuery, UsageReport } from 'app/core/usage/usage-api.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
@@ -69,6 +69,11 @@ export class UsageReportComponent implements OnChanges {
     readonly exporting = signal(false);
     readonly failed = signal(false);
 
+    readonly statementPeriod = signal<string>(new Date().toISOString().slice(0, 7));
+    readonly statement = signal<CostCenterStatement | null>(null);
+    readonly statementLoading = signal(false);
+    readonly statementExporting = signal(false);
+
     readonly period = computed(() => this.customWindow() || this._bounds(this.range()));
 
     readonly chart = computed<ApexOptions | null>(() => {
@@ -99,6 +104,9 @@ export class UsageReportComponent implements OnChanges {
             this._rbacApi.listTeams().subscribe({ next: (teams) => this.teams.set(teams), error: () => this.teams.set([]) });
         }
         this.load();
+        if (this.permService.can('billingUsage', 'export')) {
+            this.loadStatement();
+        }
     }
 
     onBusinessAccountLinked(account: unknown): void {
@@ -121,11 +129,62 @@ export class UsageReportComponent implements OnChanges {
     setCostCenter(value: string): void {
         this.costCenter.set(value || '');
         this.load();
+        if (this.permService.can('billingUsage', 'export')) {
+            this.loadStatement();
+        }
     }
 
     setTeam(value: string): void {
         this.team.set(value || '');
         this.load();
+        if (this.permService.can('billingUsage', 'export')) {
+            this.loadStatement();
+        }
+    }
+
+    setStatementPeriod(value: string): void {
+        if (!value || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) return;
+        this.statementPeriod.set(value);
+        this.loadStatement();
+    }
+
+    loadStatement(): void {
+        this.statementLoading.set(true);
+        const query = {
+            period: this.statementPeriod(),
+            ...(this.costCenter() ? { costCenter: this.costCenter() } : {}),
+            ...(this.team() ? { team: this.team() === 'none' ? 'unassigned' : this.team() } : {}),
+        };
+        this._api.getCostCenterStatement(query).subscribe({
+            next: (stmt) => {
+                this.statement.set(stmt);
+                this.statementLoading.set(false);
+            },
+            error: () => {
+                this.statement.set(null);
+                this.statementLoading.set(false);
+            },
+        });
+    }
+
+    downloadStatement(format: 'csv' | 'xlsx'): void {
+        if (this.statementExporting()) return;
+        this.statementExporting.set(true);
+        const query = {
+            period: this.statementPeriod(),
+            ...(this.costCenter() ? { costCenter: this.costCenter() } : {}),
+            ...(this.team() ? { team: this.team() === 'none' ? 'unassigned' : this.team() } : {}),
+        };
+        this._api.downloadCostCenterStatement(query, format).subscribe({
+            next: ({ blob, filename }) => {
+                this._save(blob, filename);
+                this.statementExporting.set(false);
+            },
+            error: () => {
+                this._snack.open(this._transloco.translate('settings.usageReport.exportError'), undefined, { duration: 3000 });
+                this.statementExporting.set(false);
+            },
+        });
     }
 
     load(): void {

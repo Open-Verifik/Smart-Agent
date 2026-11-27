@@ -7,7 +7,8 @@ export type StaffAction =
     | 'approve'
     | 'export'
     | 'manageKeys'
-    | 'readAll';
+    | 'readAll'
+    | 'manageOwnTeam';
 
 export type StaffResource =
     | 'home'
@@ -40,6 +41,7 @@ export type StaffResource =
 
 export type SystemRoleSlug =
     | 'admin'
+    | 'team_manager'
     | 'compliance_officer'
     | 'developer'
     | 'finance'
@@ -209,6 +211,7 @@ export interface TeamDto {
     description?: string;
     color?: string;
     status: 'active' | 'paused';
+    parentTeam?: string | { _id: string; name?: string; slug?: string; color?: string } | null;
     defaultRole?: SystemRoleSlug | null;
     defaultCustomRole?: CustomRoleSummary | string | null;
     defaultCostCenter?: CostCenterSummary | string | null;
@@ -334,6 +337,30 @@ export type TeamAssignableResourceType =
     | 'apiRequests';
 
 export type PermissionCheckTuple = [StaffResource, StaffAction?];
+
+export interface StaffAuditLogDto {
+    _id: string;
+    client: string;
+    actorType: 'client' | 'staff' | 'superadmin' | 'system';
+    actorId?: string | null;
+    actorName?: string;
+    actorEmail?: string;
+    team?: string | { _id: string; name?: string; color?: string; slug?: string } | null;
+    action: string;
+    resourceType: string;
+    resourceId?: string | null;
+    summary?: string;
+    metadata?: Record<string, unknown>;
+    createdAt: string;
+}
+
+export interface StaffAuditLogPageDto {
+    rows: StaffAuditLogDto[];
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+}
 
 export interface RoutePermissionRequirement {
     resource?: StaffResource;
