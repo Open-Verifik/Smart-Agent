@@ -10,6 +10,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { environment } from 'environments/environment';
 import { MAX_CREDIT_PURCHASE_USD, MIN_CREDIT_PURCHASE_USD } from '../add-credits.constants';
 import type { BringBackOffer, SmartAgentWeekOneUsd50Promotion } from 'app/core/user/user.types';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { PaymentCard } from '../services/credits.service';
 import {
     BoldCheckoutConfig,
@@ -80,6 +81,7 @@ const BOLD_QUOTE_DEBOUNCE_MS = 400;
 export class PurchaseCreditsDialogComponent implements OnInit {
     private _dialogRef = inject(MatDialogRef<PurchaseCreditsDialogComponent>);
     private _paymentService = inject(PaymentService);
+    private _accountEnv = inject(AccountEnvironmentService);
     private _transloco = inject(TranslocoService);
     data = inject<PurchaseCreditsDialogData>(MAT_DIALOG_DATA);
 
@@ -516,6 +518,34 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     startKyc(): void {
         this.loading = true;
 
+        if (this._accountEnv.kybOnboardingEnabled() && !this._accountEnv.isLegacyKycClient()) {
+            this._paymentService.resumeKYB({ origin: environment.kycBaseUrl }).subscribe({
+                next: (response) => {
+                    this.loading = false;
+                    if (response.data?.verifyUrl) {
+                        window.open(response.data.verifyUrl, '_blank', 'noopener,noreferrer');
+                        this._dialogRef.close();
+                    }
+                },
+                error: (err) => {
+                    const code = String(err?.error?.message || err?.error?.code || '');
+                    if (err?.status === 503 || code.includes('verifik_kyb_project_not_configured')) {
+                        this._startLegacyKyc();
+                        return;
+                    }
+                    this.loading = false;
+                    this.error = this._transloco.translate(
+                        'addCredits.purchaseDialog.errors.kycVerificationStartFailed'
+                    );
+                },
+            });
+            return;
+        }
+
+        this._startLegacyKyc();
+    }
+
+    private _startLegacyKyc(): void {
         this._paymentService.resumeKYC().subscribe({
             next: (response) => {
                 this.loading = false;
@@ -530,7 +560,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
                     this._dialogRef.close();
                 }
             },
-            error: (err) => {
+            error: () => {
                 this.loading = false;
                 this.error = this._transloco.translate(
                     'addCredits.purchaseDialog.errors.kycVerificationStartFailed'

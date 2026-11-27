@@ -791,28 +791,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "project": {
-                    "type": "string",
-                    "description": "Verifik project that sends the email OTP."
-                  },
-                  "validationMethod": {
-                    "type": "string",
-                    "description": "How the recipient proves they received the code."
-                  },
                   "email": {
                     "type": "string",
-                    "description": "Recipient email address."
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Email OTP message type."
+                    "description": "Parameter: email"
                   }
                 },
                 "required": [
-                  "project",
-                  "validationMethod",
-                  "email",
-                  "type"
+                  "email"
                 ]
               }
             }
@@ -3929,22 +3914,23 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "phone": {
-                    "type": "string",
-                    "description": "Destination WhatsApp phone number, without the country calling code."
-                  },
                   "countryCode": {
                     "type": "string",
-                    "description": "Country calling code, such as 57."
+                    "description": "Parameter: countryCode"
                   },
-                  "whatsappTemplate": {
+                  "phone": {
                     "type": "string",
-                    "description": "WhatsApp template name. Optional."
+                    "description": "Parameter: phone"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Parameter: message"
                   }
                 },
                 "required": [
+                  "countryCode",
                   "phone",
-                  "countryCode"
+                  "message"
                 ]
               }
             }
@@ -5082,18 +5068,23 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "phone": {
-                    "type": "string",
-                    "description": "Destination phone number, without the country calling code."
-                  },
                   "countryCode": {
                     "type": "string",
-                    "description": "Country calling code, such as 57."
+                    "description": "Parameter: countryCode"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Parameter: phone"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Parameter: message"
                   }
                 },
                 "required": [
+                  "countryCode",
                   "phone",
-                  "countryCode"
+                  "message"
                 ]
               }
             }
@@ -5815,7 +5806,7 @@
           "Global"
         ],
         "operationId": "ocr_scan_gpt",
-        "summary": "Scan Agent",
+        "summary": "OCR Document Scan Prompt",
         "description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
         "x-payment-info": {
           "price": {
@@ -5851,25 +5842,21 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "image": {
-                    "type": "string",
-                    "description": "Document image as Base64 or a URL."
-                  },
                   "documentType": {
                     "type": "string",
-                    "description": "Document type hint. Optional."
+                    "description": "Parameter: documentType"
                   },
-                  "backImage": {
+                  "country": {
                     "type": "string",
-                    "description": "Back of the document as Base64 or a URL. Optional."
+                    "description": "Parameter: country"
                   },
-                  "template": {
+                  "image": {
                     "type": "string",
-                    "description": "Extraction template. Optional."
+                    "description": "Parameter: image"
                   }
                 },
                 "required": [
-                  "image"
+                  "documentType"
                 ]
               }
             }

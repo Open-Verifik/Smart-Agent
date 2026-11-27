@@ -697,8 +697,8 @@
             "description": "キューバの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
         },
         "czechia_api_identity_lookup": {
-            "title": "Czechia — 国民身元確認および個人事業主検証（KYC）",
-            "description": "Czechiaの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+            "title": "チェコ — 国民身元確認および個人事業主検証（KYC）",
+            "description": "チェコの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
         },
         "data_finance_balancesheet": {
             "title": "グローバル — Financial - Balance Sheet",
@@ -997,7 +997,7 @@
             "description": "ノルウェーの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
         },
         "ocr_scan_gpt": {
-            "title": "グローバル — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "グローバル向けの公式検証および身元確認サービス：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "パナマ — Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "パナマ向けの公式検証および身元確認サービス：Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "パナマ — 弁護士適格性の確認",
+            "description": "パナマの弁護士の適格性を、公式の司法機関名簿でセドゥラ、適格番号、または氏名から確認します。"
         },
         "panama_api_pep": {
             "title": "パナマ — 政治的に影響力のある人物（PEP）スクリーニング",
@@ -1189,8 +1193,8 @@
             "description": "ウルグアイの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
         },
         "us_api_npi_identity_lookup": {
-            "title": "アメリカ合衆国 — United States — Citizen Identity & Sole Proprietor Verification (KYC)",
-            "description": "アメリカ合衆国向けの公式検証および身元確認サービス：Live official identity and sole-proprietor validation in United States. Verifies legal citizen/individual name, registration status, and official identity attributes."
+            "title": "アメリカ合衆国 — 国民身元確認および個人事業主検証（KYC）",
+            "description": "アメリカ合衆国の公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
         },
         "us_api_passport_entries": {
             "title": "アメリカ — パスポート・米国入出国履歴",
@@ -1801,8 +1805,8 @@
             "description": "ベルギーの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
         },
         "czechia_api_company_lookup": {
-            "title": "Czechia — 法人および企業登記照会（KYB）",
-            "description": "Czechiaの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+            "title": "チェコ — 法人および企業登記照会（KYB）",
+            "description": "チェコの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
         },
         "denmark_api_company_lookup": {
             "title": "デンマーク — 法人および企業登記照会（KYB）",

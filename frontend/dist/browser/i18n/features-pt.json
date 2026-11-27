@@ -697,8 +697,8 @@
             "description": "Verificação de indivíduos nos registros oficiais de Pessoas Politicamente Expostas (PEP) de Cuba conforme a Recomendação 12 do GAFI/FATF e legislação nacional antilavagem de dinheiro."
         },
         "czechia_api_identity_lookup": {
-            "title": "Czechia — Verificação de Identidade Cidadã e Empresário Individual (KYC)",
-            "description": "Validação de identidade nacional e situação cadastral do cidadão ou empresário individual no registro oficial de Czechia."
+            "title": "Chéquia — Verificação de Identidade Cidadã e Empresário Individual (KYC)",
+            "description": "Validação de identidade nacional e situação cadastral do cidadão ou empresário individual no registro oficial de Chéquia."
         },
         "data_finance_balancesheet": {
             "title": "Global — Financial - Balance Sheet",
@@ -997,7 +997,7 @@
             "description": "Validação de identidade nacional e situação cadastral do cidadão ou empresário individual no registro oficial de Noruega."
         },
         "ocr_scan_gpt": {
-            "title": "Global — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "Serviço oficial de verificação e validação para Global: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "Panamá — Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "Serviço oficial de verificação e validação para Panamá: Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "Panamá — Verificação de idoneidade de advogado",
+            "description": "Verifique a idoneidade de um advogado no Panamá no Órgano Judicial por cédula, número de idoneidade ou nome completo."
         },
         "panama_api_pep": {
             "title": "Panamá — Triagem de Pessoas Politicamente Expostas (PEP)",
@@ -1189,8 +1193,8 @@
             "description": "Validação de identidade nacional e situação cadastral do cidadão ou empresário individual no registro oficial de Uruguai."
         },
         "us_api_npi_identity_lookup": {
-            "title": "Estados Unidos — United States — Citizen Identity & Sole Proprietor Verification (KYC)",
-            "description": "Serviço oficial de verificação e validação para Estados Unidos: Live official identity and sole-proprietor validation in United States. Verifies legal citizen/individual name, registration status, and official identity attributes."
+            "title": "Estados Unidos — Verificação de Identidade Cidadã e Empresário Individual (KYC)",
+            "description": "Validação de identidade nacional e situação cadastral do cidadão ou empresário individual no registro oficial dos Estados Unidos."
         },
         "us_api_passport_entries": {
             "title": "Estados Unidos — United States - Passport & U.S. entries",
@@ -1801,8 +1805,8 @@
             "description": "Verificação de empresas no registro comercial oficial de Bélgica, fornecendo dados cadastrais, situação jurídica e representação legal."
         },
         "czechia_api_company_lookup": {
-            "title": "Czechia — Consulta de Registro Empresarial e Societário (KYB)",
-            "description": "Verificação de empresas no registro comercial oficial de Czechia, fornecendo dados cadastrais, situação jurídica e representação legal."
+            "title": "Chéquia — Consulta de Registro Empresarial e Societário (KYB)",
+            "description": "Verificação de empresas no registro comercial oficial de Chéquia, fornecendo dados cadastrais, situação jurídica e representação legal."
         },
         "denmark_api_company_lookup": {
             "title": "Dinamarca — Consulta de Registro Empresarial e Societário (KYB)",

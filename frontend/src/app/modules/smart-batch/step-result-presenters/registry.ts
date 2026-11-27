@@ -6,6 +6,7 @@ import {
 import { presentColombiaFasecoldaSinister } from './presenters/colombia-fasecolda-sinister';
 import { presentColombiaFasecoldaValues } from './presenters/colombia-fasecolda-values';
 import { presentColombiaRuntVehicleByPlate } from './presenters/colombia-runt-vehicle-by-plate';
+import { presentColombiaSena } from './presenters/colombia-sena';
 import { presentColombiaSimitAgreements } from './presenters/colombia-simit-agreements';
 import { presentColombiaSimitPlate } from './presenters/colombia-simit-plate';
 
@@ -74,6 +75,8 @@ const PRESENTERS_BY_CODE: Record<string, StepResultPresenter> = {
     colombia_api_rues_v3: presentColombiaRues,
     colombia_api_rues_full_v3: presentColombiaRues,
     colombia_api_vehicle_complete_by_plate: presentColombiaRuntVehicleByPlate,
+    colombia_api_sena: presentColombiaSena,
+    colombia_api_sena_certificates: presentColombiaSena,
     colombia_api_simit_plate: presentColombiaSimitPlate,
     colombia_api_simit_agreements: presentColombiaSimitAgreements,
     colombia_api_vehicle_sinister_fasecolda_by_plate: presentColombiaFasecoldaSinister,
