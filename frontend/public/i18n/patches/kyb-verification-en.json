@@ -1,0 +1,115 @@
+{
+  "accountEnv": {
+    "kybStrip": {
+      "verifyTitle": "Verify your company (KYB)",
+      "verifyText": "Verify a representative first for Standard APIs, then complete company documents.",
+      "pendingTitle": "Company verification in review",
+      "pendingText": "Your KYB submission is under compliance review.",
+      "changesTitle": "Action needed on KYB",
+      "changesText": "Our compliance team requested updated company or representative details.",
+      "cta": "Verify company",
+      "pendingCta": "Review pending",
+      "changesCta": "Update verification",
+      "viewStatusCta": "KYB status",
+      "tier1Eyebrow": "Tier 1 · Standard Production",
+      "tier1Title": "Standard APIs active",
+      "tier1Text": "Complete company documents to unlock Full KYB (Tier 2) and enterprise APIs.",
+      "tier1Cta": "Complete Full KYB",
+      "dismissAria": "Dismiss banner"
+    },
+    "kybModal": {
+      "title": "Verify Your Company to Unlock Production",
+      "subtitle": "Start fast with representative verification, then complete your company dossier for full access.",
+      "reason1_title": "Tier 1 · Quick Representative KYC",
+      "reason1_desc": "Verify at least one legal representative's identity to unlock Standard APIs in Production.",
+      "reason2_title": "Tier 2 · Full KYB Company Dossier",
+      "reason2_desc": "Upload your company documents anytime to unlock enterprise and regulated APIs.",
+      "reason3_title": "Flexible Missing-Document Notes",
+      "reason3_desc": "If a document is unavailable today, leave a note for manual compliance review.",
+      "reason4_title": "Credits & Recharge",
+      "reason4_desc": "Your first credit recharge or plan unlocks welcome credits separately from KYB.",
+      "cta": "Start company verification"
+    }
+  },
+  "settings": {
+    "panels": {
+      "company_verification": "Company Verification",
+      "company_verification_desc": "Track your KYB tier, verified representatives, and company documents"
+    },
+    "kyb": {
+      "title": "Company Verification (KYB)",
+      "subtitle": "Manage representative KYC and corporate documents to unlock Production APIs.",
+      "refresh": "Refresh status",
+      "ctaStart": "Start KYB verification",
+      "ctaContinue": "Continue KYB verification",
+      "ctaUpdate": "Update & resubmit KYB",
+      "ctaCompleteTier2": "Complete Full KYB (Tier 2)",
+      "ctaUpgradeOptional": "Upgrade to Full KYB",
+      "changesAlertTitle": "Compliance updates requested",
+      "changesAlertFallback": "Please review your submitted company documents or representative KYC and resubmit.",
+      "manualReviewTitle": "Manual compliance review in progress",
+      "manualReviewDesc": "Our compliance team is reviewing your documents and notes. We will notify you as soon as a decision is made.",
+      "emptyTitle": "No KYB dossier started yet",
+      "emptyDesc": "Start your company verification to unlock Standard Production APIs with representative KYC and Full KYB with company documents.",
+      "emptyLegacyTitle": "Account verified via Legacy KYC",
+      "emptyLegacyDesc": "Your account already has full Production access. You can optionally submit a Full KYB dossier at any time.",
+      "tiers": {
+        "none": {
+          "badge": "Sandbox Mode · Verification Needed",
+          "title": "Verify a representative to unlock Standard Production",
+          "desc": "Complete legal representative KYC to activate Standard Production (Tier 1), then upload company documents for Full KYB (Tier 2)."
+        },
+        "legacy_kyc": {
+          "badge": "Verified · Legacy KYC",
+          "title": "Your Production access is active",
+          "desc": "Existing KYC accounts keep full access automatically. You may optionally complete a Full KYB company dossier anytime."
+        },
+        "tier1_standard": {
+          "badge": "Tier 1 · Standard Production",
+          "title": "Standard Production APIs unlocked",
+          "desc": "Your representative KYC is verified. Upload your required company documents to upgrade to Tier 2 (Full KYB)."
+        },
+        "tier2_full": {
+          "badge": "Tier 2 · Full KYB Verified",
+          "title": "Full KYB verification complete",
+          "desc": "All company documents and representative verifications are approved across Verifik APIs."
+        }
+      },
+      "track": {
+        "sandboxTitle": "Account Created",
+        "sandboxDesc": "Sandbox testing ready",
+        "tier1Title": "Tier 1 · Standard",
+        "tier1Desc": "Representative KYC",
+        "tier2Title": "Tier 2 · Full KYB",
+        "tier2Desc": "Company documents approved"
+      },
+      "companyCard": {
+        "title": "Company Profile",
+        "legalName": "Legal Name",
+        "taxId": "Tax ID",
+        "country": "Country",
+        "city": "City",
+        "email": "Contact Email",
+        "updated": "Last Updated"
+      },
+      "repsCard": {
+        "title": "Legal Representatives",
+        "verifiedLabel": "verified",
+        "defaultRole": "Legal Representative",
+        "empty": "No representatives added yet."
+      },
+      "docsCard": {
+        "title": "Company Documents",
+        "countLabel": "uploaded",
+        "viewFile": "View document",
+        "empty": "No company documents uploaded yet.",
+        "notesTitle": "Notes for compliance review"
+      },
+      "ticketsCard": {
+        "title": "Linked Support Tickets",
+        "openSupport": "Open Support Center",
+        "defaultTitle": "KYB review ticket"
+      }
+    }
+  }
+}

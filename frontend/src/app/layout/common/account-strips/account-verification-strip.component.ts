@@ -35,10 +35,13 @@ import { StaffPermissionService } from '../../../core/permissions';
                     <div
                         class="journey-step"
                         [class.journey-step--pending]="env.verifyStripPendingReview()"
+                        [class.journey-step--warn]="env.kybChangesRequested()"
                     >
                         <span class="journey-step__number">
                             @if (env.verifyStripPendingReview()) {
                                 <mat-icon aria-hidden="true">schedule</mat-icon>
+                            } @else if (env.kybChangesRequested()) {
+                                <mat-icon aria-hidden="true">error_outline</mat-icon>
                             } @else {
                                 1
                             }
@@ -46,16 +49,28 @@ import { StaffPermissionService } from '../../../core/permissions';
                         <span class="journey-step__copy">
                             <strong>
                                 {{
-                                    env.verifyStripPendingReview()
-                                        ? ('accountEnv.verifyStrip.pendingTitle' | transloco)
-                                        : ('accountEnv.verifyStrip.verifyTitle' | transloco)
+                                    (env.kybOnboardingEnabled()
+                                        ? env.kybChangesRequested()
+                                            ? 'accountEnv.kybStrip.changesTitle'
+                                            : env.verifyStripPendingReview()
+                                                ? 'accountEnv.kybStrip.pendingTitle'
+                                                : 'accountEnv.kybStrip.verifyTitle'
+                                        : env.verifyStripPendingReview()
+                                            ? 'accountEnv.verifyStrip.pendingTitle'
+                                            : 'accountEnv.verifyStrip.verifyTitle') | transloco
                                 }}
                             </strong>
                             <span>
                                 {{
-                                    env.verifyStripPendingReview()
-                                        ? ('accountEnv.verifyStrip.pendingText' | transloco)
-                                        : ('accountEnv.verifyStrip.verifyText' | transloco)
+                                    (env.kybOnboardingEnabled()
+                                        ? env.kybChangesRequested()
+                                            ? 'accountEnv.kybStrip.changesText'
+                                            : env.verifyStripPendingReview()
+                                                ? 'accountEnv.kybStrip.pendingText'
+                                                : 'accountEnv.kybStrip.verifyText'
+                                        : env.verifyStripPendingReview()
+                                            ? 'accountEnv.verifyStrip.pendingText'
+                                            : 'accountEnv.verifyStrip.verifyText') | transloco
                                 }}
                             </span>
                         </span>
@@ -77,6 +92,11 @@ import { StaffPermissionService } from '../../../core/permissions';
                 </div>
 
                 <div class="verification-strip__actions">
+                    @if (env.kybOnboardingEnabled()) {
+                        <a routerLink="/settings/company-verification" class="verification-strip__ghost">
+                            <span>{{ 'accountEnv.kybStrip.viewStatusCta' | transloco }}</span>
+                        </a>
+                    }
                     <a routerLink="/add-credits" class="verification-strip__secondary">
                         <mat-icon aria-hidden="true">account_balance_wallet</mat-icon>
                         <span>{{ 'accountEnv.verifyStrip.rechargeCta' | transloco }}</span>
@@ -94,10 +114,61 @@ import { StaffPermissionService } from '../../../core/permissions';
                             <mat-icon aria-hidden="true">verified_user</mat-icon>
                         }
                         {{
-                            env.verifyStripPendingReview()
-                                ? ('accountEnv.verifyStrip.pendingCta' | transloco)
-                                : ('accountEnv.verifyStrip.cta' | transloco)
+                            (env.kybOnboardingEnabled()
+                                ? env.kybChangesRequested()
+                                    ? 'accountEnv.kybStrip.changesCta'
+                                    : env.verifyStripPendingReview()
+                                        ? 'accountEnv.kybStrip.pendingCta'
+                                        : 'accountEnv.kybStrip.cta'
+                                : env.verifyStripPendingReview()
+                                    ? 'accountEnv.verifyStrip.pendingCta'
+                                    : 'accountEnv.verifyStrip.cta') | transloco
                         }}
+                    </button>
+                </div>
+            </section>
+        } @else if (env.showTier1UpgradeStrip() && canManageVerification()) {
+            <section class="verification-strip verification-strip--tier1" aria-labelledby="tier1-strip-title">
+                <div class="verification-strip__intro">
+                    <span class="verification-strip__eyebrow verification-strip__eyebrow--emerald">
+                        <mat-icon aria-hidden="true">verified</mat-icon>
+                        {{ 'accountEnv.kybStrip.tier1Eyebrow' | transloco }}
+                    </span>
+                    <span id="tier1-strip-title" class="verification-strip__title">
+                        {{ 'accountEnv.kybStrip.tier1Title' | transloco }}
+                    </span>
+                </div>
+
+                <div class="verification-strip__tier1-copy">
+                    {{ 'accountEnv.kybStrip.tier1Text' | transloco }}
+                </div>
+
+                <div class="verification-strip__actions">
+                    <a routerLink="/settings/company-verification" class="verification-strip__ghost">
+                        <span>{{ 'accountEnv.kybStrip.viewStatusCta' | transloco }}</span>
+                    </a>
+                    <button
+                        mat-flat-button
+                        type="button"
+                        class="verification-strip__primary"
+                        [disabled]="env.verifyCompanyLoading()"
+                        (click)="env.openKybFlowDirectly()"
+                    >
+                        @if (env.verifyCompanyLoading()) {
+                            <mat-spinner diameter="16"></mat-spinner>
+                        } @else {
+                            <mat-icon aria-hidden="true">domain_verification</mat-icon>
+                        }
+                        {{ 'accountEnv.kybStrip.tier1Cta' | transloco }}
+                    </button>
+                    <button
+                        mat-icon-button
+                        type="button"
+                        class="verification-strip__dismiss"
+                        [attr.aria-label]="'accountEnv.kybStrip.dismissAria' | transloco"
+                        (click)="env.dismissTier1Strip()"
+                    >
+                        <mat-icon aria-hidden="true">close</mat-icon>
                     </button>
                 </div>
             </section>
@@ -224,6 +295,62 @@ import { StaffPermissionService } from '../../../core/permissions';
                 border-color: rgba(251, 191, 36, 0.4);
                 background: rgba(245, 158, 11, 0.14);
                 color: #fde68a;
+            }
+
+            .journey-step--warn .journey-step__number {
+                border-color: rgba(249, 115, 22, 0.45);
+                background: rgba(234, 88, 12, 0.18);
+                color: #fed7aa;
+            }
+
+            .verification-strip--tier1 {
+                min-height: 58px;
+                border-bottom-color: rgba(52, 211, 153, 0.22);
+                background:
+                    linear-gradient(110deg, rgba(16, 185, 129, 0.16), transparent 34%),
+                    linear-gradient(90deg, #071419 0%, #0b1f26 52%, #071419 100%);
+            }
+
+            .verification-strip__eyebrow--emerald {
+                color: #6ee7b7;
+            }
+
+            .verification-strip__tier1-copy {
+                color: var(--strip-muted);
+                font-size: 12px;
+                line-height: 1.35;
+                text-align: center;
+            }
+
+            .verification-strip__ghost {
+                display: inline-flex;
+                min-height: 34px;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(148, 163, 184, 0.35);
+                border-radius: 10px;
+                padding: 0 12px;
+                color: #e2e8f0;
+                font-size: 11px;
+                font-weight: 700;
+                line-height: 1;
+                text-decoration: none;
+                transition: border-color 150ms ease, background 150ms ease;
+            }
+
+            .verification-strip__ghost:hover {
+                border-color: rgba(226, 232, 240, 0.65);
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .verification-strip__dismiss {
+                width: 30px !important;
+                height: 30px !important;
+                color: #94a3b8 !important;
+            }
+
+            .verification-strip__dismiss:hover {
+                color: #f8fafc !important;
             }
 
             .journey-step--credits .journey-step__number {
