@@ -353,6 +353,13 @@ try {
 	// optional in isolated bundles
 }
 
+let teamRbacTools = { tools: [] };
+try {
+	teamRbacTools = require("../config/team-rbac-mcp-tools.json");
+} catch {
+	// optional in isolated bundles
+}
+
 const extractSmartReportPathParams = (openApiPath, schema) => {
 	const pathParams = [];
 	const remainingProperties = { ...(schema.properties || {}) };
@@ -384,8 +391,9 @@ const buildSmartReportOperation = (tool) => {
 	const openApiPath = tool.openApiPath || tool.verifikPath;
 	const { pathParams, remainingProperties, requiredSet } = extractSmartReportPathParams(openApiPath, schema);
 
+	const tag = tool.category === "TeamRBAC" ? "Team & RBAC" : "SmartReports";
 	const operation = {
-		tags: ["SmartReports", "Data"],
+		tags: [tag, "Data"],
 		operationId: tool.name,
 		summary: tool.name,
 		description: `${tool.description} Requires your own Verifik Bearer JWT.`,
@@ -499,12 +507,12 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 		paths[pathname][method] = buildOperationFromTool(manifestEndpoint, pathname);
 	}
 
-	for (const smartReportTool of smartReportsTools.tools || []) {
-		const smartReportPath = smartReportTool.openApiPath || smartReportTool.verifikPath;
-		if (!smartReportPath) continue;
-		const method = String(smartReportTool.method || "GET").toLowerCase();
-		if (!paths[smartReportPath]) paths[smartReportPath] = {};
-		paths[smartReportPath][method] = buildSmartReportOperation(smartReportTool);
+	for (const bearerTool of [...(smartReportsTools.tools || []), ...(teamRbacTools.tools || [])]) {
+		const bearerPath = bearerTool.openApiPath || bearerTool.verifikPath;
+		if (!bearerPath) continue;
+		const method = String(bearerTool.method || "GET").toLowerCase();
+		if (!paths[bearerPath]) paths[bearerPath] = {};
+		paths[bearerPath][method] = buildSmartReportOperation(bearerTool);
 	}
 
 	paths["/api/proxy"] = { ...(paths["/api/proxy"] || {}), ...buildProxyOperations(manifest) };
@@ -535,6 +543,10 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 			{
 				name: "SmartReports",
 				description: "Headless SmartReports, templates, batches, and PDF generation (Bearer JWT required)",
+			},
+			{
+				name: "Team & RBAC",
+				description: "Sub-teams, custom roles, staff assignments, access requests, and cost centers (Bearer JWT required)",
 			},
 		],
 		"x-discovery": {

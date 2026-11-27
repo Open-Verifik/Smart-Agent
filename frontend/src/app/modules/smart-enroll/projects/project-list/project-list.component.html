@@ -19,6 +19,14 @@
                 <span class="crumb-here">{{ t('smartEnrollProjects.title') }}</span>
             </div>
 
+            <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
+                <app-team-filter-select
+                    [value]="selectedTeam()"
+                    (valueChange)="onTeamFilterChange($event)"
+                    (teamsLoaded)="availableTeams.set($event)"
+                ></app-team-filter-select>
+            </div>
+
             <div
                 class="workspace"
                 [class.workspace--split]="!!activePlan() && !loading() && !error() && !noActivePlan()"
@@ -121,6 +129,12 @@
                                             }
                                             @if (project.demoMode) {
                                                 <span class="demo-badge">({{ t('smartEnrollProjects.list.demoMode') }})</span>
+                                            }
+                                            @if (teamBadge(project); as tb) {
+                                                <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                                                    <span class="h-1.5 w-1.5 rounded-full" [style.backgroundColor]="tb.color || '#6366f1'"></span>
+                                                    {{ tb.name }}
+                                                </span>
                                             }
                                             <mat-slide-toggle
                                                 color="primary"

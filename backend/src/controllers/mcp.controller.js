@@ -10,6 +10,7 @@ const axios = require("axios");
 const config = require("../config");
 const toolsManifest = require("../config/tools-manifest.json");
 const smartReportsMcp = require("../config/smart-reports-mcp-tools.json");
+const teamRbacMcp = require("../config/team-rbac-mcp-tools.json");
 const { extractClientBearerToken } = require("../config/smart-report-auth-policy");
 
 const PROTOCOL_VERSION = "2025-03-26";
@@ -35,7 +36,7 @@ const RESERVED_ID_LITERALS = new Set([
 const buildToolRegistry = () => {
 	const registry = new Map();
 
-	for (const tool of smartReportsMcp.tools || []) {
+	for (const tool of [...(smartReportsMcp.tools || []), ...(teamRbacMcp.tools || [])]) {
 		registry.set(tool.name, {
 			name: tool.name,
 			description: tool.description,
@@ -216,6 +217,8 @@ const buildMcpUpstreamRequest = ({ ctx, tool, upstreamUrl, clientBearerToken, pa
 	};
 	if (ctx.ip) headers["x-forwarded-for"] = ctx.get("x-forwarded-for") || ctx.ip;
 	if (ctx.get("user-agent")) headers["user-agent"] = ctx.get("user-agent");
+	const costCenterHeader = payload?.costCenter || ctx.get("x-cost-center");
+	if (costCenterHeader) headers["x-cost-center"] = String(costCenterHeader);
 
 	return {
 		method: tool.method,

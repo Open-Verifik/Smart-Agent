@@ -49,6 +49,10 @@
     {
       "name": "SmartReports",
       "description": "Headless SmartReports, templates, batches, and PDF generation (Bearer JWT required)"
+    },
+    {
+      "name": "Team & RBAC",
+      "description": "Sub-teams, custom roles, staff assignments, access requests, and cost centers (Bearer JWT required)"
     }
   ],
   "x-discovery": {
@@ -13173,6 +13177,10 @@
                   "externalRefId": {
                     "type": "string",
                     "description": "Caller correlation ID persisted on the SmartReport and included in webhook events."
+                  },
+                  "costCenter": {
+                    "type": "string",
+                    "description": "Optional Cost Center (CECO) code or ID attributed to this run and forwarded as x-cost-center."
                   }
                 }
               }
@@ -13560,6 +13568,1285 @@
             }
           }
         ]
+      }
+    },
+    "/v2/teams": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "teams_list",
+        "summary": "teams_list",
+        "description": "List all sub-teams (cost-center budget pools) for the authenticated client tenant, including current period spend and member counts. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "includeMembers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Include assigned staff member summaries on each team."
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "teams_create",
+        "summary": "teams_create",
+        "description": "Create a new sub-team with optional monthly budget cap, default role, endpoint allowlist/blocklist, initial members, defaultCostCenter, allowedCostCenters, and enforceCostCenter lock. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Sub-team display name."
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "string",
+                    "enum": [
+                      "blue",
+                      "emerald",
+                      "indigo",
+                      "amber",
+                      "rose",
+                      "violet",
+                      "cyan",
+                      "slate"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "paused"
+                    ]
+                  },
+                  "defaultRole": {
+                    "type": "string",
+                    "description": "Optional default system role slug for members."
+                  },
+                  "defaultCustomRole": {
+                    "type": "string",
+                    "description": "Optional ClientRole ID."
+                  },
+                  "defaultCostCenter": {
+                    "type": "string",
+                    "description": "Optional CostCenter ID used as default when caller omits x-cost-center."
+                  },
+                  "allowedCostCenters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Allowed CostCenter IDs for this sub-team when enforceCostCenter is enabled."
+                  },
+                  "enforceCostCenter": {
+                    "type": "boolean",
+                    "description": "When true, reject requests whose x-cost-center is not in allowedCostCenters or defaultCostCenter."
+                  },
+                  "monthlyBudget": {
+                    "type": "number",
+                    "description": "Monthly credit budget cap in USD (null for unlimited)."
+                  },
+                  "budgetEnforcement": {
+                    "type": "string",
+                    "enum": [
+                      "hard",
+                      "soft"
+                    ]
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Initial Staff IDs to assign."
+                  },
+                  "endpointPolicy": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "all",
+                          "blocklist",
+                          "allowlist"
+                        ]
+                      },
+                      "features": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/teams/{id}": {
+      "put": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "teams_update",
+        "summary": "teams_update",
+        "description": "Update an existing sub-team's metadata, budget cap, CECO lock policy, endpoint policy, or assigned member list. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Sub-team ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "string",
+                    "enum": [
+                      "blue",
+                      "emerald",
+                      "indigo",
+                      "amber",
+                      "rose",
+                      "violet",
+                      "cyan",
+                      "slate"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "paused"
+                    ]
+                  },
+                  "defaultCostCenter": {
+                    "type": "string"
+                  },
+                  "allowedCostCenters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "enforceCostCenter": {
+                    "type": "boolean"
+                  },
+                  "monthlyBudget": {
+                    "type": "number"
+                  },
+                  "budgetEnforcement": {
+                    "type": "string",
+                    "enum": [
+                      "hard",
+                      "soft"
+                    ]
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "teams_delete",
+        "summary": "teams_delete",
+        "description": "Delete a sub-team and optionally reassign its members and owned resources to another sub-team ID. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Sub-team ID to delete.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reassignToTeamId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional target sub-team ID for reassignment."
+          }
+        ]
+      }
+    },
+    "/v2/teams/{id}/assign": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "teams_assign_resources",
+        "summary": "teams_assign_resources",
+        "description": "Bulk-assign or unassign existing workspace resources (projects, flows, templates, batch configs, batches, reports, requests) to a sub-team (requires team.update and team.readAll). Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Target sub-team ID, or 'unassigned' to clear team ownership.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "resourceType": {
+                    "type": "string",
+                    "enum": [
+                      "projects",
+                      "projectFlows",
+                      "smartReportTemplates",
+                      "batchConfigurations",
+                      "smartBatches",
+                      "smartReports",
+                      "appRegistrations",
+                      "documentValidations",
+                      "biometricValidations",
+                      "apiRequests"
+                    ]
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Resource ObjectIds to update (max 500)."
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "enum": [
+                      "team",
+                      "workspace"
+                    ],
+                    "description": "Optional shared visibility override for config resources."
+                  }
+                },
+                "required": [
+                  "resourceType",
+                  "ids"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/teams/{id}/api-keys": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "teams_create_api_key",
+        "summary": "teams_create_api_key",
+        "description": "Generate a Sub-Team-scoped API key JWT carrying { clientId, teamId } so server integrations obey that team's CECO, endpoint, and budget rules. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Sub-team ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "alias": {
+                    "type": "string",
+                    "description": "Human-friendly label for the API key."
+                  },
+                  "expiresInMonths": {
+                    "type": "number",
+                    "description": "Validity in months (1-36)."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/client-roles/catalog": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "roles_catalog",
+        "summary": "roles_catalog",
+        "description": "Retrieve the full RBAC catalog including resources, actions, built-in system presets (including report_builder), and tenant custom roles. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        }
+      }
+    },
+    "/v2/client-roles": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "roles_create",
+        "summary": "roles_create",
+        "description": "Create a custom tenant role with granular resource/action permissions, endpoint policy, and access-request policy. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "string",
+                    "enum": [
+                      "blue",
+                      "emerald",
+                      "indigo",
+                      "amber",
+                      "rose",
+                      "violet",
+                      "cyan",
+                      "slate"
+                    ]
+                  },
+                  "basedOn": {
+                    "type": "string",
+                    "description": "Optional system role preset slug to seed defaults from."
+                  },
+                  "permissions": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "allowAccessRequests": {
+                    "type": "boolean",
+                    "description": "Whether staff on this role may submit self-service access requests."
+                  },
+                  "requestableResources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Optional allowlist of requestable resource keys (null for unrestricted)."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/client-roles/{id}": {
+      "put": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "roles_update",
+        "summary": "roles_update",
+        "description": "Update an existing custom role's permissions, metadata, or access-request policy. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Custom ClientRole ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "permissions": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "allowAccessRequests": {
+                    "type": "boolean"
+                  },
+                  "requestableResources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "roles_delete",
+        "summary": "roles_delete",
+        "description": "Delete a custom role, optionally reassigning affected staff members to another system or custom role. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Custom ClientRole ID to delete.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reassignToRole",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reassignToCustomRole",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v2/client-roles/{id}/duplicate": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "roles_duplicate",
+        "summary": "roles_duplicate",
+        "description": "Clone any built-in system role preset (e.g. report_builder, operator) or custom role into an editable custom role. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "System role slug or existing ClientRole ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Optional name for the cloned custom role."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/staff": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "staff_list",
+        "summary": "staff_list",
+        "description": "List workspace staff members along with their role, custom role, and assigned sub-team. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "staff_invite",
+        "summary": "staff_invite",
+        "description": "Invite a new staff member and assign them a system role, custom role, and optional sub-team. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "countryCode": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "System role slug (e.g. operator, report_builder, admin, viewer)."
+                  },
+                  "customRole": {
+                    "type": "string",
+                    "description": "Optional ClientRole ID."
+                  },
+                  "team": {
+                    "type": "string",
+                    "description": "Optional Sub-Team ID."
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/staff/{id}": {
+      "put": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "staff_update",
+        "summary": "staff_update",
+        "description": "Update an existing staff member's role, custom role, sub-team assignment, or custom permission overrides. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Staff ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "customRole": {
+                    "type": "string"
+                  },
+                  "team": {
+                    "type": "string"
+                  },
+                  "useCustomPermissions": {
+                    "type": "boolean"
+                  },
+                  "customPermissions": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/staff/me/permissions": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "staff_my_permissions",
+        "summary": "staff_my_permissions",
+        "description": "Inspect the authenticated caller's effective RBAC permissions matrix, assigned sub-team, CECO policy, and access request policy. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        }
+      }
+    },
+    "/v2/staff-access-requests": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "access_requests_list",
+        "summary": "access_requests_list",
+        "description": "List tenant self-service access, role upgrade, and budget increase requests. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected",
+                "cancelled",
+                "expired",
+                "revoked",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "requestType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "resource_access",
+                "role_upgrade",
+                "budget_increase",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/v2/staff-access-requests/{id}/approve": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "access_requests_approve",
+        "summary": "access_requests_approve",
+        "description": "Approve a pending staff access, role upgrade, or budget boost request. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Path parameter id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "approvedDuration": {
+                    "type": "string",
+                    "enum": [
+                      "24h",
+                      "7d",
+                      "30d",
+                      "permanent"
+                    ]
+                  },
+                  "reviewNote": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/staff-access-requests/{id}/reject": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "access_requests_reject",
+        "summary": "access_requests_reject",
+        "description": "Reject a pending staff access request. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Path parameter id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reviewNote": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/staff-access-requests/{id}/revoke": {
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "access_requests_revoke",
+        "summary": "access_requests_revoke",
+        "description": "Revoke a previously approved temporary access grant immediately. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Path parameter id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revokeReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/cost-centers": {
+      "get": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "cost_centers_list",
+        "summary": "cost_centers_list",
+        "description": "List active Cost Centers (CECOs) configured on this account. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Team & RBAC",
+          "Data"
+        ],
+        "operationId": "cost_centers_create",
+        "summary": "cost_centers_create",
+        "description": "Create a new Cost Center (CECO) code for billing attribution and sub-team locking. Requires your own Verifik Bearer JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized — Verifik Bearer JWT required"
+          },
+          "403": {
+            "description": "Forbidden — per-client Bearer JWT required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "Short unique CECO code (e.g. CO-OPS)."
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "ISO-2 country code (e.g. CO, MX, PE)."
+                  }
+                },
+                "required": [
+                  "code",
+                  "name",
+                  "country"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "/api/proxy": {

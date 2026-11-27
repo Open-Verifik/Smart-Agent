@@ -9,6 +9,12 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { requiresHumanAuthnSubscription } from 'app/core/client-settings/override-conditions';
+import {
+    TeamFilterSelectComponent,
+    extractProjectTeam,
+    type ProjectTeamRef,
+    type TeamDto,
+} from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
@@ -35,6 +41,7 @@ import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smar
         MatSlideToggleModule,
         RouterLink,
         TranslocoModule,
+        TeamFilterSelectComponent,
     ],
     templateUrl: './human-authn-projects.component.html',
     styleUrls: ['./human-authn-projects.component.scss'],
@@ -49,6 +56,18 @@ export class HumanAuthnProjectsComponent implements OnInit {
     loading = signal(true);
     error = signal<string | null>(null);
     noActivePlan = signal(false);
+    selectedTeam = signal('');
+    availableTeams = signal<TeamDto[]>([]);
+
+    onTeamFilterChange(teamId: string): void {
+        this.selectedTeam.set(teamId || '');
+        this.loading.set(true);
+        this._loadProjects();
+    }
+
+    teamBadge(project: HumanAuthnProject): ProjectTeamRef | null {
+        return extractProjectTeam(project.team, this.availableTeams());
+    }
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
@@ -85,7 +104,8 @@ export class HumanAuthnProjectsComponent implements OnInit {
     }
 
     private _loadProjects(): void {
-        this._projectsService.listProjects().subscribe({
+        const team = this.selectedTeam() || undefined;
+        this._projectsService.listProjects(team).subscribe({
             next: (rows) => {
                 this.projects.set(rows);
                 this.loading.set(false);

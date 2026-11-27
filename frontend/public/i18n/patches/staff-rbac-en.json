@@ -14,7 +14,8 @@
       "execute": "Execute",
       "approve": "Approve",
       "export": "Export",
-      "manageKeys": "Keys"
+      "manageKeys": "Keys",
+      "readAll": "All Teams"
     },
     "actionTooltips": {
       "read": "View screens, records, lists, and analytics",
@@ -24,7 +25,8 @@
       "execute": "Trigger scans, API runs, checks, or batch jobs",
       "approve": "Manually approve, reject, or resolve verifications",
       "export": "Download PDF, CSV, XLSX, or JSONL reports and data",
-      "manageKeys": "Create, rotate, or revoke API keys and toggle live mode"
+      "manageKeys": "Create, rotate, or revoke API keys and toggle live mode",
+      "readAll": "View records across all workspace sub-teams instead of only your own sub-team"
     },
     "budget": {
       "oneTimeThisMonth": "One-time boost for this UTC month",
@@ -148,6 +150,10 @@
       "notifyAdminsDesc": "Send in-app notifications and email alerts whenever a new request is submitted.",
       "defaultDurationTitle": "Default Access Request Duration",
       "defaultDurationDesc": "Pre-selected expiry window when staff submit a new Just-in-Time request.",
+      "teamScopedVisibilityTitle": "Sub-Team Scoped Resource Visibility",
+      "teamScopedVisibilityDesc": "Isolate generated reports, batches, projects, logs, and templates so staff see only items owned by their sub-team (unless granted All Teams access).",
+      "requireTeamApiKeysTitle": "Require Sub-Team Scoped API Keys",
+      "requireTeamApiKeysDesc": "Require external API callers to authenticate with a Team API key carrying a sub-team assignment.",
       "savedToast": "Access policy updated",
       "saveError": "Could not update access policy"
     },
@@ -179,7 +185,8 @@
       "submittedToast": "Request submitted for admin review",
       "duplicatePending": "You already have a pending request covering this scope.",
       "submitError": "Could not submit access request",
-      "disabled": "Self-service access requests are disabled by your workspace policy."
+      "disabled": "Self-service access requests are disabled by your workspace policy.",
+      "disabledByRole": "Self-service access requests are disabled for your current role."
     },
     "requestsTab": {
       "typeAll": "All Types",
@@ -215,7 +222,8 @@
       "smartCheckLists": "Checklists & Presets",
       "smartCheckHistory": "API Request History",
       "smartReportsTemplates": "Report Templates",
-      "smartReportsBatch": "Batch Runs & Configs",
+      "smartReportsBatch": "Batch Presets & Configs",
+      "smartReportsResults": "Report Runs & Results",
       "smartFleetAssets": "Fleet Vehicles & Drivers",
       "smartFleetRules": "Watch Rules & Alerts",
       "smartEnrollProjects": "KYC Projects & Flows",
@@ -248,12 +256,15 @@
       "pendingReviewDesc": "A Just-in-Time access request has already been submitted and is awaiting approval.",
       "requestFormTitle": "Request Temporary or Permanent Access",
       "requestsDisabledHint": "Self-service access requests are disabled for this workspace. Contact your Workspace Owner or Administrator.",
+      "requestsDisabledByRoleHint": "Self-service access requests are disabled for your role. Contact your Workspace Owner or Administrator if you need a role change.",
       "cancelRequest": "Cancel Request",
       "refreshAccess": "Refresh Access",
       "accessGrantedToast": "Access granted! Redirecting…",
       "stillRestrictedToast": "Access is still restricted for this resource.",
       "goHome": "Go to Home",
-      "viewMyAccess": "Open My Access"
+      "viewMyAccess": "Open My Access",
+      "notFoundTitle": "Resource Not Found or Outside Your Sub-Team",
+      "notFoundBody": "This record does not exist or belongs to a different sub-team."
     },
     "roles": {
       "admin": {
@@ -275,6 +286,10 @@
       "operator": {
         "name": "Operator",
         "desc": "Day-to-day verification operator who creates and executes scans, batches, links, and fleet updates."
+      },
+      "report_builder": {
+        "name": "Document Builder",
+        "desc": "Creates and edits report templates and batch configs without viewing executed report results, PII, or API keys."
       },
       "viewer": {
         "name": "Viewer",
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "Reassign Members To",
       "confirmDeleteBtn": "Reassign & Delete Role",
       "deletedToast": "Custom role deleted",
-      "duplicateAsCustomTooltip": "Duplicate this built-in preset as an editable custom role"
+      "duplicateAsCustomTooltip": "Duplicate this built-in preset as an editable custom role",
+      "accessRequestPolicyTitle": "Self-Service Access Requests",
+      "allowAccessRequestsToggle": "Allow members with this role to submit access requests",
+      "allowAccessRequestsDesc": "When off, members assigned this role cannot submit Just-in-Time requests for additional access.",
+      "requestableResourcesLabel": "Requestable Modules",
+      "requestableResourcesAll": "Any restricted module (workspace default)",
+      "requestableResourcesNone": "None (requests disabled)",
+      "requestableResourcesCustom": "Only selected modules",
+      "requestsLockedByPreset": "System preset policy (clone role to customize)"
     },
     "statuses": {
       "pending": "Pending",
@@ -333,6 +356,15 @@
       "hardCap": "Hard Cap (Block requests at 100%)",
       "softCap": "Soft Cap (Alert only)",
       "defaultCostCenter": "Default Cost Center",
+      "allowedCostCentersLabel": "Allowed Cost Centers (CECO)",
+      "allowedCostCentersPlaceholder": "Leave empty to allow all workspace cost centers",
+      "enforceCostCenterLabel": "Lock sub-team to allowed Cost Centers",
+      "enforceCostCenterDesc": "Reject API calls and report runs using a cost center outside this sub-team's allowlist.",
+      "cecoLockedBadge": "CECO Locked",
+      "filterAllTeams": "All Sub-Teams",
+      "filterUnassigned": "Unassigned",
+      "assignTeamAction": "Assign to Sub-Team",
+      "assignedTeamToast": "Sub-team assignment updated",
       "monthlyUsage": "This Month Usage",
       "bonusTag": "Boost",
       "resetsOn": "Resets",
@@ -362,7 +394,10 @@
       "deleteConfirmDesc": "Members will be unassigned cleanly back to the workspace pool.",
       "deletedToast": "Sub-team deleted",
       "savedToast": "Sub-team saved",
-      "saveError": "Could not save sub-team"
+      "saveError": "Could not save sub-team",
+      "visibilityLabel": "Visibility",
+      "visibilityTeam": "Sub-Team only",
+      "visibilityWorkspace": "Entire workspace"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Requires API Key Management permission to switch Live/Sandbox mode."

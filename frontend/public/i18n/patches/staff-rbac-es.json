@@ -14,7 +14,8 @@
       "execute": "Ejecutar",
       "approve": "Aprobar",
       "export": "Exportar",
-      "manageKeys": "Llaves"
+      "manageKeys": "Llaves",
+      "readAll": "Todos los Subequipos"
     },
     "actionTooltips": {
       "read": "Ver pantallas, registros, listas y analíticas",
@@ -24,7 +25,8 @@
       "execute": "Ejecutar escaneos, consultas API, validaciones o lotes",
       "approve": "Aprobar, rechazar o resolver verificaciones manualmente",
       "export": "Descargar reportes y datos en PDF, CSV, XLSX o JSONL",
-      "manageKeys": "Crear, rotar o revocar llaves API y cambiar entre Live/Sandbox"
+      "manageKeys": "Crear, rotar o revocar llaves API y cambiar entre Live/Sandbox",
+      "readAll": "Ver registros de todos los subequipos del espacio en lugar de solo el tuyo"
     },
     "budget": {
       "oneTimeThisMonth": "Aumento único para este mes UTC",
@@ -149,7 +151,11 @@
       "defaultDurationTitle": "Duración Predeterminada de Solicitud",
       "defaultDurationDesc": "Ventana de expiración preseleccionada cuando el miembro solicita acceso temporal.",
       "savedToast": "Política de acceso actualizada",
-      "saveError": "No se pudo actualizar la política"
+      "saveError": "No se pudo actualizar la política",
+      "teamScopedVisibilityTitle": "Visibilidad por Subequipo",
+      "teamScopedVisibilityDesc": "Aísla reportes generados, lotes, proyectos, registros y plantillas por subequipo (salvo permiso Todos los Subequipos).",
+      "requireTeamApiKeysTitle": "Exigir Llaves API de Subequipo",
+      "requireTeamApiKeysDesc": "Exige que las llamadas API usen una llave de Subequipo asignada."
     },
     "presets": {
       "viewOnly": "Solo Ver",
@@ -179,7 +185,8 @@
       "submittedToast": "Solicitud enviada para aprobación",
       "duplicatePending": "Ya tienes una solicitud pendiente para este alcance.",
       "submitError": "No se pudo enviar la solicitud",
-      "disabled": "Las solicitudes de acceso están deshabilitadas por la política de este espacio de trabajo."
+      "disabled": "Las solicitudes de acceso están deshabilitadas por la política de este espacio de trabajo.",
+      "disabledByRole": "Tu rol actual no tiene habilitadas las solicitudes de acceso."
     },
     "requestsTab": {
       "typeAll": "Todos los Tipos",
@@ -215,7 +222,7 @@
       "smartCheckLists": "Listas de Verificación",
       "smartCheckHistory": "Historial de Peticiones API",
       "smartReportsTemplates": "Plantillas de Reportes",
-      "smartReportsBatch": "Ejecuciones Batch y Configs",
+      "smartReportsBatch": "Lotes y Configuraciones",
       "smartFleetAssets": "Vehículos y Conductores",
       "smartFleetRules": "Reglas de Vigilancia y Alertas",
       "smartEnrollProjects": "Proyectos y Flujos KYC",
@@ -235,7 +242,8 @@
       "billingUsage": "Uso y Centros de Costo",
       "apiKeys": "Llaves API y Entorno Live",
       "team": "Equipo, Subequipos y Roles",
-      "workspaceSettings": "Configuración y Retención"
+      "workspaceSettings": "Configuración y Retención",
+      "smartReportsResults": "Ejecuciones y Resultados"
     },
     "restricted": {
       "title": "Acceso Restringido",
@@ -253,7 +261,10 @@
       "accessGrantedToast": "¡Acceso concedido! Redirigiendo…",
       "stillRestrictedToast": "El acceso sigue restringido para este recurso.",
       "goHome": "Ir al Inicio",
-      "viewMyAccess": "Ver Mi Acceso"
+      "viewMyAccess": "Ver Mi Acceso",
+      "requestsDisabledByRoleHint": "Las solicitudes de acceso están deshabilitadas para tu rol. Contacta al Propietario o Administrador si necesitas un cambio.",
+      "notFoundTitle": "Recurso no encontrado o fuera de tu subequipo",
+      "notFoundBody": "Este registro no existe o pertenece a otro subequipo."
     },
     "roles": {
       "admin": {
@@ -279,6 +290,10 @@
       "viewer": {
         "name": "Observador",
         "desc": "Acceso de solo lectura a tableros, registros, historial y monitoreo."
+      },
+      "report_builder": {
+        "name": "Creador de Documentos",
+        "desc": "Crea y edita plantillas y configuraciones de lotes sin ver resultados ejecutados, PII ni llaves API."
       }
     },
     "rolesTab": {
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "Reasignar Miembros a",
       "confirmDeleteBtn": "Reasignar y Eliminar",
       "deletedToast": "Rol personalizado eliminado",
-      "duplicateAsCustomTooltip": "Duplicar este preajuste del sistema como un rol personalizado editable"
+      "duplicateAsCustomTooltip": "Duplicar este preajuste del sistema como un rol personalizado editable",
+      "accessRequestPolicyTitle": "Solicitudes de Acceso",
+      "allowAccessRequestsToggle": "Permitir a los miembros con este rol enviar solicitudes",
+      "allowAccessRequestsDesc": "Si está desactivado, los miembros con este rol no podrán solicitar permisos adicionales.",
+      "requestableResourcesLabel": "Módulos solicitables",
+      "requestableResourcesAll": "Cualquier módulo restringido (por defecto)",
+      "requestableResourcesNone": "Ninguno (deshabilitado)",
+      "requestableResourcesCustom": "Solo módulos seleccionados",
+      "requestsLockedByPreset": "Política del sistema (clona el rol para editar)"
     },
     "statuses": {
       "pending": "Pendiente",
@@ -362,7 +385,19 @@
       "deleteConfirmDesc": "Los miembros quedarán desasignados y usarán el saldo general.",
       "deletedToast": "Subequipo eliminado",
       "savedToast": "Subequipo guardado",
-      "saveError": "No se pudo guardar el subequipo"
+      "saveError": "No se pudo guardar el subequipo",
+      "allowedCostCentersLabel": "Centros de Costo Permitidos (CECO)",
+      "allowedCostCentersPlaceholder": "Déjalo vacío para permitir todos los centros de costo",
+      "enforceCostCenterLabel": "Bloquear subequipo a Centros de Costo permitidos",
+      "enforceCostCenterDesc": "Rechaza llamadas API y ejecuciones con un centro de costo fuera de la lista.",
+      "cecoLockedBadge": "CECO Restringido",
+      "filterAllTeams": "Todos los Subequipos",
+      "filterUnassigned": "Sin asignar",
+      "assignTeamAction": "Asignar a Subequipo",
+      "assignedTeamToast": "Asignación de subequipo actualizada",
+      "visibilityLabel": "Visibilidad",
+      "visibilityTeam": "Solo subequipo",
+      "visibilityWorkspace": "Todo el espacio de trabajo"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Requiere permiso de Gestión de Llaves API para cambiar entre Live y Sandbox."

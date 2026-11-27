@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { HasStaffPermissionDirective, StaffPermissionService } from 'app/core/permissions';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
 import { SmartReportAgentKitComponent } from '../agent-kit/smart-report-agent-kit.component';
@@ -41,6 +42,7 @@ import { inferBatchCategory, SmartBatchInputModeService } from '../smart-batch-i
         WebhookEventsComponent,
         BatchExecutorControlComponent,
         SmartReportAgentKitComponent,
+        HasStaffPermissionDirective,
     ],
     templateUrl: './batch-dashboard.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -53,6 +55,9 @@ export class BatchDashboardComponent implements OnInit {
     private _webhooksService = inject(WebhooksService);
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
+    readonly permService = inject(StaffPermissionService);
+
+    readonly canViewResults = computed(() => this.permService.can('smartReportsResults', 'read'));
 
     configId = signal<string | null>(null);
     configuration = signal<BatchConfiguration | null>(null);
@@ -176,11 +181,25 @@ export class BatchDashboardComponent implements OnInit {
             next: (res) => {
                 this.configuration.set(res.data);
                 this.resolveWebhook(res.data);
+                if (!this.canViewResults()) {
+                    this.isLoading.set(false);
+                }
             },
-            error: () => {
+            error: (err) => {
+                if (err?.status === 404) {
+                    this._router.navigate(['/access-restricted'], { queryParams: { reason: 'not_found' } });
+                    return;
+                }
                 this._router.navigate(['/smart-batch/workspace']);
             },
         });
+
+        if (!this.canViewResults()) {
+            this.batches.set([]);
+            this.stats.set(null);
+            this.isLoadingBatches.set(false);
+            return;
+        }
 
         this.loadBatches(1);
 
@@ -190,6 +209,16 @@ export class BatchDashboardComponent implements OnInit {
                 this.stats.set(res.data);
             },
         });
+    }
+
+    copyId(value?: string | null): void {
+        if (!value || typeof navigator === 'undefined' || !navigator.clipboard) return;
+        void navigator.clipboard.writeText(value);
+        this._snackBar.open(
+            `${this._transloco.translate('staffRbac.common.copy') || 'Copied'}: ${value}`,
+            undefined,
+            { duration: 2500 }
+        );
     }
 
     private resolveWebhook(config?: BatchConfiguration | null): void {

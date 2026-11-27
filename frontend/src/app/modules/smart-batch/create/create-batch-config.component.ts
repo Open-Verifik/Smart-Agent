@@ -17,6 +17,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatSelect } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { StaffPermissionService, StaffRbacApiService, type TeamDto } from 'app/core/permissions';
 import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
 import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
 import {
@@ -89,8 +90,13 @@ export class CreateBatchConfigComponent {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _transloco = inject(TranslocoService);
+    private _permService = inject(StaffPermissionService);
+    private _rbacApi = inject(StaffRbacApiService);
     private _loadedConfig: BatchConfiguration | null = null;
     private _checkListPrefill: CheckListBatchPrefill | null = null;
+
+    canAssignTeam = this._permService.canViewAllTeams;
+    availableTeams = signal<TeamDto[]>([]);
 
     // Edit mode
     isEditMode = signal(false);
@@ -126,6 +132,8 @@ export class CreateBatchConfigComponent {
         name: ['', [Validators.required, Validators.maxLength(150)]],
         description: ['', [Validators.maxLength(800)]],
         country: ['Colombia', Validators.required],
+        team: [''],
+        visibility: ['team'],
         inputFormat: ['csv', Validators.required],
         outputFormat: ['csv', Validators.required],
         mergeStrategy: ['sequential', Validators.required],
@@ -211,6 +219,12 @@ export class CreateBatchConfigComponent {
     constructor() {
         const id = this._route.snapshot.paramMap.get('id');
         this._checkListPrefill = readCheckListBatchPrefill(this._route.snapshot.queryParamMap);
+        if (this.canAssignTeam()) {
+            this._rbacApi.listTeams().subscribe({
+                next: (teams) => this.availableTeams.set(Array.isArray(teams) ? teams : []),
+                error: () => this.availableTeams.set([]),
+            });
+        }
         if (id) {
             this.isEditMode.set(true);
             this.editConfigId.set(id);
@@ -261,11 +275,15 @@ export class CreateBatchConfigComponent {
             this.countries().map((country) => country.code)
         );
 
+        const loadedTeamId =
+            typeof config.team === 'object' && config.team ? config.team._id : (config.team || '');
         this.step1Form.patchValue(
             {
                 name: config.name,
                 description: config.description || '',
                 country: countryValue,
+                team: loadedTeamId,
+                visibility: config.visibility || 'team',
                 inputFormat: config.inputFormat,
                 outputFormat: config.outputFormat,
                 mergeStrategy: config.mergeStrategy,
@@ -573,7 +591,7 @@ export class CreateBatchConfigComponent {
                 timeoutSeconds: Math.max(5, previous?.timeoutSeconds ?? 30),
             };
         });
-        return {
+        const result: BatchConfiguration = {
             name: basicInfo.name,
             description: basicInfo.description,
             country: basicInfo.country,
@@ -588,6 +606,11 @@ export class CreateBatchConfigComponent {
             steps,
             isActive: this._loadedConfig?.isActive ?? true,
         };
+        if (this.canAssignTeam()) {
+            result.team = basicInfo.team || null;
+            result.visibility = basicInfo.visibility === 'workspace' ? 'workspace' : 'team';
+        }
+        return result;
     }
 
     currentRunMode(): 'queue' | 'browser' {

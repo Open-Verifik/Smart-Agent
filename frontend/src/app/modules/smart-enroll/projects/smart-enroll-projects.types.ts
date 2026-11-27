@@ -129,6 +129,8 @@ export interface EnrollProject {
     projectFlows?: EnrollProjectFlow[];
     projectMembers?: EnrollProjectMember[];
     client?: EnrollClientRef | string;
+    team?: string | { _id?: string; name?: string; color?: string } | null;
+    visibility?: 'team' | 'workspace';
     createdAt?: string;
     updatedAt?: string;
     role?: string;

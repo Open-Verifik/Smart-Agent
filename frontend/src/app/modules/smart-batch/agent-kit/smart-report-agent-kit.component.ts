@@ -6,23 +6,27 @@ import {
     QueryList,
     ViewChildren,
     computed,
+    inject,
     input,
     signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
+import { StaffPermissionService } from 'app/core/permissions';
 import {
     SmartReportKitContext,
     buildSmartReportAiPrompt,
     buildSmartReportCurlSnippet,
+    buildSmartReportJsSnippet,
     buildSmartReportMcpSnippet,
+    buildSmartReportPythonSnippet,
     buildSmartReportWebhookSnippet,
 } from './smart-report-kit-builders.util';
 
-export type SmartReportKitTab = 'prompt' | 'mcp' | 'webhook' | 'curl';
+export type SmartReportKitTab = 'prompt' | 'mcp' | 'webhook' | 'curl' | 'js' | 'python';
 
-const TAB_ORDER: SmartReportKitTab[] = ['prompt', 'mcp', 'webhook', 'curl'];
+const TAB_ORDER: SmartReportKitTab[] = ['prompt', 'mcp', 'webhook', 'curl', 'js', 'python'];
 
 @Component({
     selector: 'smart-report-agent-kit',
@@ -34,6 +38,7 @@ const TAB_ORDER: SmartReportKitTab[] = ['prompt', 'mcp', 'webhook', 'curl'];
 })
 export class SmartReportAgentKitComponent {
     private static _nextInstanceId = 0;
+    private readonly _permService = inject(StaffPermissionService);
 
     readonly instanceId = `sr-kit-${++SmartReportAgentKitComponent._nextInstanceId}`;
     context = input.required<SmartReportKitContext>();
@@ -44,17 +49,32 @@ export class SmartReportAgentKitComponent {
     activeTab = signal<SmartReportKitTab>('prompt');
     copiedKey = signal<string | null>(null);
 
-    readonly tabs: Array<{ id: SmartReportKitTab; labelKey: string }> = [
+    readonly tabs: Array<{ id: SmartReportKitTab; labelKey?: string; label?: string }> = [
         { id: 'prompt', labelKey: 'smartReportKit.tabPrompt' },
         { id: 'mcp', labelKey: 'smartReportKit.tabMcp' },
         { id: 'webhook', labelKey: 'smartReportKit.tabWebhook' },
         { id: 'curl', labelKey: 'smartReportKit.tabCurl' },
+        { id: 'js', label: 'JavaScript' },
+        { id: 'python', label: 'Python' },
     ];
+
+    effectiveContext = computed<SmartReportKitContext>(() => {
+        const ctx = this.context();
+        if (ctx.costCenter) return ctx;
+        const teamDefault = this._permService.team()?.defaultCostCenter;
+        const derivedCeco =
+            typeof teamDefault === 'object' && teamDefault
+                ? teamDefault.code || null
+                : typeof teamDefault === 'string' && teamDefault
+                  ? teamDefault
+                  : null;
+        return derivedCeco ? { ...ctx, costCenter: derivedCeco } : ctx;
+    });
 
     activeTabDomId = computed(() => `${this.instanceId}-tab-${this.activeTab()}`);
 
     activeSnippet = computed(() => {
-        const kitContext = this.context();
+        const kitContext = this.effectiveContext();
         switch (this.activeTab()) {
             case 'prompt':
                 return buildSmartReportAiPrompt(kitContext);
@@ -64,6 +84,10 @@ export class SmartReportAgentKitComponent {
                 return buildSmartReportWebhookSnippet(kitContext);
             case 'curl':
                 return buildSmartReportCurlSnippet(kitContext);
+            case 'js':
+                return buildSmartReportJsSnippet(kitContext);
+            case 'python':
+                return buildSmartReportPythonSnippet(kitContext);
         }
     });
 

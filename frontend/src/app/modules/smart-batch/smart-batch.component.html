@@ -97,39 +97,60 @@
                 </div>
                 </div>
 
-                <div
-                    class="inline-flex w-fit rounded-xl border border-stone-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900/70"
-                >
-                    <button
-                        type="button"
-                        class="rounded-lg px-4 py-2 text-sm font-medium transition"
-                        [class.bg-stone-950]="activeTab() === 'configurations'"
-                        [class.text-white]="activeTab() === 'configurations'"
-                        [class.dark:bg-white]="activeTab() === 'configurations'"
-                        [class.dark:text-gray-950]="activeTab() === 'configurations'"
-                        [class.text-stone-600]="activeTab() !== 'configurations'"
-                        [class.hover:bg-stone-50]="activeTab() !== 'configurations'"
-                        [class.dark:text-stone-300]="activeTab() !== 'configurations'"
-                        [class.dark:hover:bg-gray-800]="activeTab() !== 'configurations'"
-                        (click)="setActiveTab('configurations')"
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div
+                        class="inline-flex w-fit rounded-xl border border-stone-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900/70"
                     >
-                        {{ t('smartBatchLanding.configurationsTab') }}
-                    </button>
-                    <button
-                        type="button"
-                        class="rounded-lg px-4 py-2 text-sm font-medium transition"
-                        [class.bg-stone-950]="activeTab() === 'templates'"
-                        [class.text-white]="activeTab() === 'templates'"
-                        [class.dark:bg-white]="activeTab() === 'templates'"
-                        [class.dark:text-gray-950]="activeTab() === 'templates'"
-                        [class.text-stone-600]="activeTab() !== 'templates'"
-                        [class.hover:bg-stone-50]="activeTab() !== 'templates'"
-                        [class.dark:text-stone-300]="activeTab() !== 'templates'"
-                        [class.dark:hover:bg-gray-800]="activeTab() !== 'templates'"
-                        (click)="setActiveTab('templates')"
-                    >
-                        {{ t('smartBatchLanding.reportTemplatesTab') }}
-                    </button>
+                        <button
+                            type="button"
+                            class="rounded-lg px-4 py-2 text-sm font-medium transition"
+                            [class.bg-stone-950]="activeTab() === 'configurations'"
+                            [class.text-white]="activeTab() === 'configurations'"
+                            [class.dark:bg-white]="activeTab() === 'configurations'"
+                            [class.dark:text-gray-950]="activeTab() === 'configurations'"
+                            [class.text-stone-600]="activeTab() !== 'configurations'"
+                            [class.hover:bg-stone-50]="activeTab() !== 'configurations'"
+                            [class.dark:text-stone-300]="activeTab() !== 'configurations'"
+                            [class.dark:hover:bg-gray-800]="activeTab() !== 'configurations'"
+                            (click)="setActiveTab('configurations')"
+                        >
+                            {{ t('smartBatchLanding.configurationsTab') }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-lg px-4 py-2 text-sm font-medium transition"
+                            [class.bg-stone-950]="activeTab() === 'templates'"
+                            [class.text-white]="activeTab() === 'templates'"
+                            [class.dark:bg-white]="activeTab() === 'templates'"
+                            [class.dark:text-gray-950]="activeTab() === 'templates'"
+                            [class.text-stone-600]="activeTab() !== 'templates'"
+                            [class.hover:bg-stone-50]="activeTab() !== 'templates'"
+                            [class.dark:text-stone-300]="activeTab() !== 'templates'"
+                            [class.dark:hover:bg-gray-800]="activeTab() !== 'templates'"
+                            (click)="setActiveTab('templates')"
+                        >
+                            {{ t('smartBatchLanding.reportTemplatesTab') }}
+                        </button>
+                    </div>
+
+                    @if (permService.canViewAllTeams() && teams().length > 0) {
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-stone-500 dark:text-stone-400">
+                                {{ t('staffRbac.members.subTeamColumn') }}:
+                            </span>
+                            <select
+                                class="h-9 rounded-xl border border-stone-200 bg-white px-3 text-xs font-medium text-stone-800 outline-none focus:border-stone-400 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100"
+                                [value]="selectedTeamFilter()"
+                                (change)="onTeamFilterChange($any($event.target).value)"
+                            >
+                                <option value="">{{ t('staffRbac.teams.filterAllTeams') }}</option>
+                                @for (tm of teams(); track tm._id) {
+                                    <option [value]="tm._id">{{ tm.name }}</option>
+                                }
+                                <option value="none">{{ t('staffRbac.teams.filterUnassigned') }}</option>
+                            </select>
+                        </div>
+                    }
                 </div>
             </div>
         </header>
@@ -291,6 +312,35 @@
                                                 <button
                                                     type="button"
                                                     mat-icon-button
+                                                    (click)="copyEntityId(card.id, $event)"
+                                                    [matTooltip]="t('staffRbac.common.copy') + ' ID'"
+                                                >
+                                                    <mat-icon class="icon-size-5">content_copy</mat-icon>
+                                                </button>
+                                                @if (canAssignTeams() && teams().length > 0) {
+                                                    <button
+                                                        type="button"
+                                                        mat-icon-button
+                                                        [matMenuTriggerFor]="assignConfigTeamMenu"
+                                                        (click)="$event.stopPropagation()"
+                                                        [matTooltip]="t('staffRbac.teams.assignTeamAction')"
+                                                    >
+                                                        <mat-icon class="icon-size-5">group_work</mat-icon>
+                                                    </button>
+                                                    <mat-menu #assignConfigTeamMenu="matMenu">
+                                                        @for (tm of teams(); track tm._id) {
+                                                            <button mat-menu-item (click)="assignResourceToTeam('batchConfigurations', card.id, tm._id, $event)">
+                                                                {{ tm.name }}
+                                                            </button>
+                                                        }
+                                                        <button mat-menu-item (click)="assignResourceToTeam('batchConfigurations', card.id, 'unassigned', $event)">
+                                                            {{ t('staffRbac.teams.filterUnassigned') }}
+                                                        </button>
+                                                    </mat-menu>
+                                                }
+                                                <button
+                                                    type="button"
+                                                    mat-icon-button
                                                     (click)="editConfiguration(card.id, $event)"
                                                     [matTooltip]="t('smartBatchLanding.edit')"
                                                 >
@@ -340,6 +390,11 @@
                                                     >
                                                         {{ t(executorBadgeKey(workspaceConfigExecutor(card))) }}
                                                     </span>
+                                                    @if (card.kind === 'owned' && teamLabel(card.config.team); as cfgTeamName) {
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-medium text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                                                            {{ cfgTeamName }}
+                                                        </span>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -760,40 +815,80 @@
                                             class="group relative flex h-full cursor-pointer flex-col rounded-2xl border border-stone-200 bg-white p-5 transition hover:border-stone-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-950/40 dark:hover:border-gray-700"
                                             (click)="openTemplatePreview(template)"
                                         >
-                                            <div class="mb-3 flex items-center justify-end gap-1">
-                                                <button
-                                                    *hasStaffPermission="'smartReportsTemplates.update'"
-                                                    type="button"
-                                                    mat-icon-button
-                                                    (click)="openTemplateEditor(template, $event)"
-                                                    [matTooltip]="t('smartBatchLanding.edit')"
-                                                >
-                                                    <mat-icon class="icon-size-5">edit</mat-icon>
-                                                </button>
-                                                <button
-                                                    *hasStaffPermission="'smartReportsTemplates.export'"
-                                                    type="button"
-                                                    mat-icon-button
-                                                    [disabled]="exportingTemplateId() !== null"
-                                                    (click)="exportTemplate(template, $event)"
-                                                    [matTooltip]="t('smartBatchLanding.exportTemplate')"
-                                                >
-                                                    @if (exportingTemplateId() === template._id) {
-                                                        <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
-                                                    } @else {
-                                                        <mat-icon class="icon-size-5">download</mat-icon>
+                                            <div class="mb-3 flex items-center justify-between gap-1">
+                                                <div class="flex items-center gap-1.5 min-w-0">
+                                                    @if (teamLabel(template.team); as tplTeamName) {
+                                                        <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-medium text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 truncate">
+                                                            {{ tplTeamName }}
+                                                        </span>
                                                     }
-                                                </button>
-                                                <button
-                                                    *hasStaffPermission="'smartReportsTemplates.delete'"
-                                                    type="button"
-                                                    mat-icon-button
-                                                    color="warn"
-                                                    (click)="deleteTemplate(template._id ?? '', $event)"
-                                                    [matTooltip]="t('smartBatchLanding.delete')"
-                                                >
-                                                    <mat-icon class="icon-size-5">delete</mat-icon>
-                                                </button>
+                                                </div>
+                                                <div class="flex items-center justify-end gap-1">
+                                                    @if (template._id) {
+                                                        <button
+                                                            type="button"
+                                                            mat-icon-button
+                                                            (click)="copyEntityId(template._id, $event)"
+                                                            [matTooltip]="t('staffRbac.common.copy') + ' Template ID'"
+                                                        >
+                                                            <mat-icon class="icon-size-5">content_copy</mat-icon>
+                                                        </button>
+                                                    }
+                                                    @if (template._id && canAssignTeams() && teams().length > 0) {
+                                                        <button
+                                                            type="button"
+                                                            mat-icon-button
+                                                            [matMenuTriggerFor]="assignTplTeamMenu"
+                                                            (click)="$event.stopPropagation()"
+                                                            [matTooltip]="t('staffRbac.teams.assignTeamAction')"
+                                                        >
+                                                            <mat-icon class="icon-size-5">group_work</mat-icon>
+                                                        </button>
+                                                        <mat-menu #assignTplTeamMenu="matMenu">
+                                                            @for (tm of teams(); track tm._id) {
+                                                                <button mat-menu-item (click)="assignResourceToTeam('smartReportTemplates', template._id, tm._id, $event)">
+                                                                    {{ tm.name }}
+                                                                </button>
+                                                            }
+                                                            <button mat-menu-item (click)="assignResourceToTeam('smartReportTemplates', template._id, 'unassigned', $event)">
+                                                                {{ t('staffRbac.teams.filterUnassigned') }}
+                                                            </button>
+                                                        </mat-menu>
+                                                    }
+                                                    <button
+                                                        *hasStaffPermission="'smartReportsTemplates.update'"
+                                                        type="button"
+                                                        mat-icon-button
+                                                        (click)="openTemplateEditor(template, $event)"
+                                                        [matTooltip]="t('smartBatchLanding.edit')"
+                                                    >
+                                                        <mat-icon class="icon-size-5">edit</mat-icon>
+                                                    </button>
+                                                    <button
+                                                        *hasStaffPermission="'smartReportsTemplates.export'"
+                                                        type="button"
+                                                        mat-icon-button
+                                                        [disabled]="exportingTemplateId() !== null"
+                                                        (click)="exportTemplate(template, $event)"
+                                                        [matTooltip]="t('smartBatchLanding.exportTemplate')"
+                                                    >
+                                                        @if (exportingTemplateId() === template._id) {
+                                                            <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+                                                        } @else {
+                                                            <mat-icon class="icon-size-5">download</mat-icon>
+                                                        }
+                                                    </button>
+                                                    <button
+                                                        *hasStaffPermission="'smartReportsTemplates.delete'"
+                                                        type="button"
+                                                        mat-icon-button
+                                                        color="warn"
+                                                        (click)="deleteTemplate(template._id ?? '', $event)"
+                                                        [matTooltip]="t('smartBatchLanding.delete')"
+                                                    >
+                                                        <mat-icon class="icon-size-5">delete</mat-icon>
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             <ng-container

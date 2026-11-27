@@ -55,6 +55,7 @@ import { buildUsageChart } from '../settings/usage-report/usage-report-chart.uti
 import { createdAtRangeParams } from '../settings/usage-history/usage-history-date-params.util';
 import { countryName } from 'app/core/usage/country-geo';
 import { CostCenter, UsageApiService, UsageReport } from 'app/core/usage/usage-api.service';
+import { StaffPermissionService, StaffRbacApiService, TeamDto } from 'app/core/permissions';
 import { HistoryRequestDialogComponent, HistoryRequestDialogResult } from './history-request-dialog.component';
 
 export type DatePreset = 'all' | 'custom' | 'last_month' | 'this_month' | 'this_week' | 'today';
@@ -138,6 +139,8 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
 export class HistoryComponent implements OnInit, OnDestroy {
     private _historyService = inject(HistoryService);
     private _usageApi = inject(UsageApiService);
+    private _rbacApi = inject(StaffRbacApiService);
+    readonly permService = inject(StaffPermissionService);
     private _dialog = inject(MatDialog);
     private _walletService = inject(AgentWalletService);
     private _router = inject(Router);
@@ -213,8 +216,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
     serviceFilter = '';
     countryFilter = '';
     costCenterFilter = '';
+    teamFilter = '';
     countryOptions = signal<{ code: string; name: string }[]>([]);
     costCenterOptions = signal<CostCenter[]>([]);
+    teamOptions = signal<TeamDto[]>([]);
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
     topTotals = signal<HistoryTopSalesTotals>({ total: 0, ok: 0, failed: 0, costUSD: 0 });
 
@@ -288,7 +293,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
 
     get disabledClearFilters(): boolean {
-        return !this.searchText && !this.serviceFilter && !this.countryFilter && !this.costCenterFilter && this.datePreset === 'all';
+        return (
+            !this.searchText &&
+            !this.serviceFilter &&
+            !this.countryFilter &&
+            !this.costCenterFilter &&
+            !this.teamFilter &&
+            this.datePreset === 'all'
+        );
     }
 
     setMode = (mode: 'credits' | 'x402'): void => {
@@ -329,6 +341,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.loadData();
     };
 
+    onTeamFilterChange = (value: string): void => {
+        this.teamFilter = value || '';
+        this._resetVisiblePages();
+        this.loadData();
+    };
+
     onDatePresetChange = (value: DatePreset): void => {
         this.datePreset = value;
         if (value === 'custom') {
@@ -365,6 +383,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.searchText = '';
         this.serviceFilter = '';
         this.costCenterFilter = '';
+        this.teamFilter = '';
         if (this.countryFilter) this.onCountryFilterChange('');
         this.datePreset = 'all';
         this.rangeStart.setValue(null, { emitEvent: false });
@@ -645,6 +664,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (this.serviceFilter) params.where_code = this.serviceFilter;
         if (this.countryFilter) params.country = this.countryFilter;
         if (this.costCenterFilter) params.costCenter = this.costCenterFilter;
+        if (this.teamFilter) params.team = this.teamFilter;
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
             Object.assign(params, createdAtRangeParams(range.start, range.end));
@@ -850,6 +870,16 @@ export class HistoryComponent implements OnInit, OnDestroy {
                 this.costCenterOptions.set(centers);
                 this._cdr.markForCheck();
             });
+
+        if (this.permService.canViewAllTeams()) {
+            this._rbacApi
+                .listTeams()
+                .pipe(catchError(() => of([] as TeamDto[])))
+                .subscribe((teams) => {
+                    this.teamOptions.set(teams);
+                    this._cdr.markForCheck();
+                });
+        }
     };
 
     private _loadFeatureCatalog = (): void => {
@@ -876,6 +906,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (range) Object.assign(params, createdAtRangeParams(range.start, range.end));
         if (this.countryFilter) params.country = this.countryFilter;
         if (this.costCenterFilter) params.costCenter = this.costCenterFilter;
+        if (this.teamFilter) params.team = this.teamFilter;
         this._historyService.getTopSales(params).subscribe({
             next: (result) => {
                 this.topTotals.set(result.totals);

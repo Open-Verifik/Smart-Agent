@@ -108,6 +108,8 @@ export interface SmartLinkProject {
     };
     branding: SmartLinkBranding;
     projectFlows?: SmartLinkProjectFlow[];
+    team?: string | { _id?: string; name?: string; color?: string } | null;
+    visibility?: 'team' | 'workspace';
     createdAt?: string;
     updatedAt?: string;
 }

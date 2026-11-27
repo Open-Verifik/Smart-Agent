@@ -170,7 +170,7 @@ export class DisableWithoutPermissionDirective {
         const tuple = this._tuple();
         if (!tuple) return;
 
-        if (!this._permService.allowAccessRequests() || !this._dialog) {
+        if (!this._permService.canRequestResource(tuple[0]) || !this._dialog) {
             this._snackBar?.open(
                 this._transloco?.translate('staffRbac.insufficientPermissionsToast') ||
                     'You do not have permission for this action.',

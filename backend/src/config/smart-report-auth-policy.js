@@ -20,6 +20,11 @@ const PROTECTED_V2_SEGMENTS = [
 	"batch-configurations",
 	"smart-batches",
 	"smart-batch-presets",
+	"teams",
+	"client-roles",
+	"staff",
+	"staff-access-requests",
+	"cost-centers",
 	"internal",
 ];
 

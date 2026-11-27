@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,8 +21,13 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { take } from 'rxjs';
-import { HasStaffPermissionDirective } from 'app/core/permissions';
+import { catchError, of, take } from 'rxjs';
+import {
+    HasStaffPermissionDirective,
+    StaffPermissionService,
+    StaffRbacApiService,
+    TeamDto,
+} from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { DemoRelatedDocsSectionComponent } from '../smart-enroll/demos/shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../smart-enroll/demos/shared/demo-related-docs-section.types';
@@ -59,6 +65,7 @@ type WorkspaceConfigCard =
         RouterModule,
         MatButtonModule,
         MatIconModule,
+        MatMenuModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
@@ -85,6 +92,16 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     private _transfer = inject(SmartTemplateTransferService);
     private _sanitizer = inject(DomSanitizer);
     private _cdr = inject(ChangeDetectorRef);
+    private _rbacApi = inject(StaffRbacApiService);
+    readonly permService = inject(StaffPermissionService);
+
+    readonly teams = signal<TeamDto[]>([]);
+    readonly selectedTeamFilter = signal<string>('');
+    readonly canAssignTeams = computed(
+        () =>
+            this.permService.isOwner() ||
+            (this.permService.can('team', 'update') && this.permService.can('team', 'readAll'))
+    );
 
     exportingTemplateId = signal<string | null>(null);
     isImportingTemplate = signal(false);
@@ -571,15 +588,33 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     private _loadLandingData(): void {
-        this._smartBatchService.getConfigurations().subscribe({
+        const team = this.selectedTeamFilter() || undefined;
+        this._smartBatchService.getConfigurations({ team }).subscribe({
             error: (err) => console.error('[SmartBatch] getConfigurations error', err),
         });
-        this._smartReportService.getTemplates().subscribe({
+        this._smartReportService.getTemplates(undefined, team).subscribe({
             error: (err) => console.error('[SmartBatch] getTemplates error', err),
         });
         this._smartBatchService.getAvailableFeatures().subscribe({
             next: (res) => this.availableFeatures.set(res.data ?? []),
             error: (err) => console.error('[SmartBatch] getAvailableFeatures error', err),
+        });
+        if (this.permService.canViewAllTeams()) {
+            this._rbacApi
+                .listTeams()
+                .pipe(catchError(() => of([] as TeamDto[])))
+                .subscribe((teams) => this.teams.set(teams));
+        }
+    }
+
+    onTeamFilterChange(teamId: string): void {
+        this.selectedTeamFilter.set(teamId || '');
+        const team = this.selectedTeamFilter() || undefined;
+        this._smartBatchService.getConfigurations({ page: 1, team }).subscribe({
+            error: (err) => console.error('[SmartBatch] getConfigurations error', err),
+        });
+        this._smartReportService.getTemplates(undefined, team).subscribe({
+            error: (err) => console.error('[SmartBatch] getTemplates error', err),
         });
     }
 
@@ -607,7 +642,8 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     private _loadConfigPage(page: number): void {
-        this._smartBatchService.getConfigurations({ page }).subscribe({
+        const team = this.selectedTeamFilter() || undefined;
+        this._smartBatchService.getConfigurations({ page, team }).subscribe({
             error: (err) => console.error('[SmartBatch] getConfigurations error', err),
         });
     }
@@ -1109,5 +1145,56 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
     isSystemPresetAvailable(template: SmartReportTemplate): boolean {
         return Boolean(template.systemKey) && this.getStepCount(template) > 0;
+    }
+
+    teamLabel(teamRef?: string | { _id?: string; name?: string } | null): string | null {
+        if (!teamRef) return null;
+        if (typeof teamRef === 'object' && teamRef.name) return teamRef.name;
+        const id = typeof teamRef === 'object' ? teamRef._id : teamRef;
+        if (!id) return null;
+        return this.teams().find((t) => String(t._id) === String(id))?.name || null;
+    }
+
+    copyEntityId(id: string | undefined, event: Event): void {
+        event.stopPropagation();
+        if (!id || typeof navigator === 'undefined' || !navigator.clipboard) return;
+        void navigator.clipboard.writeText(id);
+        this._snackBar.open(
+            `${this._transloco.translate('staffRbac.common.copy') || 'Copied'}: ${id}`,
+            undefined,
+            { duration: 2500 }
+        );
+    }
+
+    assignResourceToTeam(
+        resourceType: 'smartReportTemplates' | 'batchConfigurations',
+        resourceId: string | undefined,
+        targetTeamId: string,
+        event: Event
+    ): void {
+        event.stopPropagation();
+        if (!resourceId) return;
+        this._rbacApi
+            .assignResourcesToTeam(targetTeamId || 'unassigned', {
+                resourceType,
+                ids: [resourceId],
+            })
+            .subscribe({
+                next: () => {
+                    this._snackBar.open(
+                        this._transloco.translate('staffRbac.teams.assignedTeamToast'),
+                        undefined,
+                        { duration: 3000 }
+                    );
+                    this.onTeamFilterChange(this.selectedTeamFilter());
+                },
+                error: (err) => {
+                    this._snackBar.open(
+                        err?.error?.message || this._transloco.translate('staffRbac.teams.saveError'),
+                        undefined,
+                        { duration: 4000 }
+                    );
+                },
+            });
     }
 }

@@ -19,6 +19,14 @@
                 <span class="crumb-here">{{ t('smartAccessProjects.title') }}</span>
             </div>
 
+            <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
+                <app-team-filter-select
+                    [value]="selectedTeam()"
+                    (valueChange)="onTeamFilterChange($event)"
+                    (teamsLoaded)="availableTeams.set($event)"
+                ></app-team-filter-select>
+            </div>
+
             @if (loading()) {
                 <div class="state-loading">
                     <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
@@ -117,6 +125,12 @@
                                                 (click)="$event.stopPropagation()"
                                                 (change)="onFlowStatusToggle($event, project)"
                                             ></mat-slide-toggle>
+                                            @if (teamBadge(project); as tb) {
+                                                <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                                                    <span class="h-1.5 w-1.5 rounded-full" [style.backgroundColor]="tb.color || '#6366f1'"></span>
+                                                    {{ tb.name }}
+                                                </span>
+                                            }
                                         </div>
                                     }
                                 </div>
