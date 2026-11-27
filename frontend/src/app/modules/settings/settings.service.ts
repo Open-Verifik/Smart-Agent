@@ -125,10 +125,12 @@ export interface WorkspaceResponse {
 
 export type StaffRoleSlug =
     | 'admin'
+    | 'team_manager'
     | 'compliance_officer'
     | 'developer'
     | 'finance'
     | 'operator'
+    | 'report_builder'
     | 'viewer'
     | 'empleado'
     | 'contabilidad'
@@ -145,6 +147,7 @@ export interface StaffMember {
     canonicalRole?: string;
     customRole?: CustomRoleSummary | string | null;
     team?: StaffTeamSummary | string | null;
+    additionalTeams?: Array<StaffTeamSummary | string>;
     useCustomPermissions?: boolean;
     customPermissions?: PermissionMap | null;
     endpointPolicy?: EndpointPolicy;

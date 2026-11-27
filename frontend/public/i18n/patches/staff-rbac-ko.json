@@ -15,7 +15,8 @@
       "approve": "승인",
       "export": "내보내기",
       "manageKeys": "키 관리",
-      "readAll": "모든 팀"
+      "readAll": "모든 팀",
+      "manageOwnTeam": "Manage Own Team"
     },
     "actionTooltips": {
       "read": "화면, 기록, 목록 및 분석 보기",
@@ -26,7 +27,8 @@
       "approve": "인증 수동 승인, 거부 또는 처리",
       "export": "PDF, CSV, XLSX 또는 JSONL 내보내기",
       "manageKeys": "API 키 생성/교체/폐기 및 Live/Sandbox 전환",
-      "readAll": "내 하위 팀뿐만 아니라 워크스페이스의 모든 하위 팀 기록 보기"
+      "readAll": "내 하위 팀뿐만 아니라 워크스페이스의 모든 하위 팀 기록 보기",
+      "manageOwnTeam": "Manage members, budgets, and child sub-teams within your own assigned team hierarchy"
     },
     "budget": {
       "oneTimeThisMonth": "이번 UTC 월 일회성 증액",
@@ -80,7 +82,8 @@
       "tabTeams": "하위 팀 및 예산",
       "tabRoles": "역할 및 권한",
       "tabRequests": "액세스 요청",
-      "tabPolicy": "접근 정책"
+      "tabPolicy": "접근 정책",
+      "tabAudit": "Audit Log"
     },
     "insufficientPermissionsToast": "이 작업에 대한 권한이 없습니다.",
     "lockedActionTooltip": "상위 권한 필요 — 클릭하여 요청",
@@ -116,7 +119,9 @@
       "cannotDeleteSelf": "현재 사용 중인 본인 계정은 삭제할 수 없습니다.",
       "removeConfirmTitle": "{{name}}을(를) 제거하시겠습니까?",
       "removeConfirmDesc": "토큰이 즉시 해지되며 워크스페이스에서 제거됩니다.",
-      "statusSuspended": "정지됨"
+      "statusSuspended": "정지됨",
+      "additionalTeamsLabel": "Additional Sub-Teams (Optional)",
+      "additionalTeamsHint": "Grant read or manager visibility across extra sub-teams in addition to the primary team."
     },
     "myAccess": {
       "title": "내 액세스 및 권한",
@@ -294,6 +299,10 @@
       "report_builder": {
         "name": "문서 빌더",
         "desc": "실행된 보고서 결과, 개인정보 또는 API 키를 보지 않고 보고서 템플릿과 배치 구성을 생성/편집합니다."
+      },
+      "team_manager": {
+        "name": "Team Manager",
+        "desc": "Manages members, sub-teams, budgets, access requests, and CECO usage exports within their assigned team and child sub-teams."
       }
     },
     "rolesTab": {
@@ -397,7 +406,9 @@
       "assignedTeamToast": "하위 팀 할당이 업데이트되었습니다",
       "visibilityLabel": "공개 범위",
       "visibilityTeam": "하위 팀만",
-      "visibilityWorkspace": "전체 워크스페이스"
+      "visibilityWorkspace": "전체 워크스페이스",
+      "parentTeamLabel": "Parent Sub-Team (Optional)",
+      "noParentTeam": "None (Top-level team)"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Live/Sandbox 전환에는 API 키 관리 권한이 필요합니다."
@@ -430,6 +441,42 @@
       "badgeCaps": "엔드포인트 한도 {{count}}개",
       "memberToggleTitle": "특정 API 엔드포인트 제한",
       "memberToggleAllSummary": "하위 팀 및 역할 규칙 상속 (모든 엔드포인트)"
+    },
+    "auditLog": {
+      "title": "Access & Team Audit Log",
+      "subtitle": "Immutable trail of role updates, sub-team changes, access approvals, and signed downloads.",
+      "exportCsv": "Export CSV",
+      "actionColumn": "Action",
+      "actionPlaceholder": "e.g. staff.update",
+      "resourceColumn": "Resource",
+      "timeColumn": "Timestamp",
+      "actorColumn": "Actor",
+      "summaryColumn": "Summary",
+      "startDateLabel": "From Date",
+      "applyFilters": "Filter",
+      "resetFilters": "Reset",
+      "emptyTitle": "No audit events found",
+      "emptyDesc": "Administrative and team actions will appear here as they happen.",
+      "loadError": "Could not load audit log entries.",
+      "entriesLabel": "entries",
+      "prevPage": "Previous",
+      "nextPage": "Next"
+    },
+    "cecoStatement": {
+      "title": "Monthly CECO Statement",
+      "subtitle": "Reconcile API calls and metered SmartReport credits grouped by Cost Center and Sub-Team.",
+      "costCentersCount": "Cost Centers",
+      "apiSpend": "API Spend",
+      "meteredSpend": "SmartReport Credits",
+      "totalSpend": "Total Spend",
+      "topEndpoints": "Top Endpoints",
+      "empty": "No billed activity recorded for the selected billing month."
+    },
+    "signedLink": {
+      "ttlLabel": "Signed link expiration",
+      "copyBtn": "Copy Signed Link",
+      "copiedToast": "Signed PDF link copied to clipboard",
+      "errorToast": "Could not generate signed PDF link"
     }
   }
 }

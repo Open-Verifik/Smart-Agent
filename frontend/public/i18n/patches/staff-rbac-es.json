@@ -15,7 +15,8 @@
       "approve": "Aprobar",
       "export": "Exportar",
       "manageKeys": "Llaves",
-      "readAll": "Todos los Subequipos"
+      "readAll": "Todos los Subequipos",
+      "manageOwnTeam": "Gestionar Equipo Propio"
     },
     "actionTooltips": {
       "read": "Ver pantallas, registros, listas y analíticas",
@@ -26,7 +27,8 @@
       "approve": "Aprobar, rechazar o resolver verificaciones manualmente",
       "export": "Descargar reportes y datos en PDF, CSV, XLSX o JSONL",
       "manageKeys": "Crear, rotar o revocar llaves API y cambiar entre Live/Sandbox",
-      "readAll": "Ver registros de todos los subequipos del espacio en lugar de solo el tuyo"
+      "readAll": "Ver registros de todos los subequipos del espacio en lugar de solo el tuyo",
+      "manageOwnTeam": "Administrar miembros, presupuestos y subequipos hijos dentro de la jerarquía del equipo asignado"
     },
     "budget": {
       "oneTimeThisMonth": "Aumento único para este mes UTC",
@@ -80,7 +82,8 @@
       "tabTeams": "Subequipos y Presupuestos",
       "tabRoles": "Roles y Permisos",
       "tabRequests": "Solicitudes de Acceso",
-      "tabPolicy": "Política de Acceso"
+      "tabPolicy": "Política de Acceso",
+      "tabAudit": "Auditoría"
     },
     "insufficientPermissionsToast": "No tienes permisos para realizar esta acción.",
     "lockedActionTooltip": "Requiere permisos elevados — haz clic para solicitar acceso",
@@ -116,7 +119,9 @@
       "cannotDeleteSelf": "No puedes eliminar tu propia cuenta activa.",
       "removeConfirmTitle": "¿Eliminar a {{name}}?",
       "removeConfirmDesc": "Esto revocará sus tokens inmediatamente y lo eliminará del espacio de trabajo.",
-      "statusSuspended": "Suspendido"
+      "statusSuspended": "Suspendido",
+      "additionalTeamsLabel": "Sub-Equipos Adicionales (Opcional)",
+      "additionalTeamsHint": "Otorga acceso o gestión sobre sub-equipos adicionales además del equipo principal."
     },
     "myAccess": {
       "title": "Mi Acceso y Permisos",
@@ -294,6 +299,10 @@
       "report_builder": {
         "name": "Creador de Documentos",
         "desc": "Crea y edita plantillas y configuraciones de lotes sin ver resultados ejecutados, PII ni llaves API."
+      },
+      "team_manager": {
+        "name": "Gerente de Equipo",
+        "desc": "Administra miembros, sub-equipos, presupuestos, solicitudes y exportaciones CECO dentro de su equipo asignado y sub-equipos hijos."
       }
     },
     "rolesTab": {
@@ -397,7 +406,9 @@
       "assignedTeamToast": "Asignación de subequipo actualizada",
       "visibilityLabel": "Visibilidad",
       "visibilityTeam": "Solo subequipo",
-      "visibilityWorkspace": "Todo el espacio de trabajo"
+      "visibilityWorkspace": "Todo el espacio de trabajo",
+      "parentTeamLabel": "Sub-Equipo Padre (Opcional)",
+      "noParentTeam": "Ninguno (Equipo raíz)"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Requiere permiso de Gestión de Llaves API para cambiar entre Live y Sandbox."
@@ -430,6 +441,42 @@
       "badgeCaps": "{{count}} límites por endpoint",
       "memberToggleTitle": "Restringir Endpoints API Específicos",
       "memberToggleAllSummary": "Hereda reglas de Sub-Equipo y Rol (todos los endpoints)"
+    },
+    "auditLog": {
+      "title": "Registro de Auditoría de Acceso y Equipos",
+      "subtitle": "Historial inmutable de cambios de roles, sub-equipos, aprobaciones y descargas firmadas.",
+      "exportCsv": "Exportar CSV",
+      "actionColumn": "Acción",
+      "actionPlaceholder": "ej. staff.update",
+      "resourceColumn": "Recurso",
+      "timeColumn": "Fecha",
+      "actorColumn": "Actor",
+      "summaryColumn": "Resumen",
+      "startDateLabel": "Desde",
+      "applyFilters": "Filtrar",
+      "resetFilters": "Limpiar",
+      "emptyTitle": "No hay eventos de auditoría",
+      "emptyDesc": "Los cambios administrativos y de equipo aparecerán aquí.",
+      "loadError": "No se pudo cargar el registro de auditoría.",
+      "entriesLabel": "registros",
+      "prevPage": "Anterior",
+      "nextPage": "Siguiente"
+    },
+    "cecoStatement": {
+      "title": "Estado Mensual por CECO",
+      "subtitle": "Concilia consumo API y créditos de SmartReports agrupados por Centro de Costo y Sub-Equipo.",
+      "costCentersCount": "Centros de Costo",
+      "apiSpend": "Consumo API",
+      "meteredSpend": "Créditos SmartReport",
+      "totalSpend": "Consumo Total",
+      "topEndpoints": "Principales Endpoints",
+      "empty": "No hay actividad registrada para el mes seleccionado."
+    },
+    "signedLink": {
+      "ttlLabel": "Expiración del enlace firmado",
+      "copyBtn": "Copiar Enlace Firmado",
+      "copiedToast": "Enlace PDF firmado copiado al portapapeles",
+      "errorToast": "No se pudo generar el enlace firmado"
     }
   }
 }

@@ -18,10 +18,11 @@ import { StaffPermissionService } from 'app/core/permissions/staff-permission.se
 import { StaffListComponent } from '../staff-list/staff-list.component';
 import { TeamAccessPolicyComponent } from './team-access-policy/team-access-policy.component';
 import { TeamAccessRequestsComponent } from './team-access-requests/team-access-requests.component';
+import { TeamAuditLogComponent } from './team-audit-log/team-audit-log.component';
 import { TeamRolesComponent } from './team-roles/team-roles.component';
 import { TeamSubteamsComponent } from './team-subteams/team-subteams.component';
 
-const TAB_SLUGS = ['members', 'teams', 'roles', 'requests', 'policy'] as const;
+const TAB_SLUGS = ['members', 'teams', 'roles', 'requests', 'policy', 'audit'] as const;
 
 @Component({
     selector: 'app-team-hub',
@@ -38,6 +39,7 @@ const TAB_SLUGS = ['members', 'teams', 'roles', 'requests', 'policy'] as const;
         TeamRolesComponent,
         TeamAccessRequestsComponent,
         TeamAccessPolicyComponent,
+        TeamAuditLogComponent,
     ],
     templateUrl: './team-hub.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,

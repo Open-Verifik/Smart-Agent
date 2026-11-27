@@ -99,6 +99,7 @@ export class TeamSubteamsComponent implements OnInit {
         budgetEnforcement: 'hard' as 'hard' | 'soft',
         defaultRole: '' as SystemRoleSlug | '',
         defaultCustomRole: '' as string,
+        parentTeam: '' as string,
         defaultCostCenter: '' as string,
         allowedCostCenters: [] as string[],
         enforceCostCenter: false,
@@ -172,6 +173,17 @@ export class TeamSubteamsComponent implements OnInit {
         );
     }
 
+    parentTeamName(team: TeamDto): string | null {
+        if (!team?.parentTeam) return null;
+        if (typeof team.parentTeam === 'object') return team.parentTeam.name || null;
+        return this.teams().find((t) => String(t._id) === String(team.parentTeam))?.name || null;
+    }
+
+    parentTeamCandidates(): TeamDto[] {
+        const selfId = this.editingTeam?._id ? String(this.editingTeam._id) : null;
+        return this.teams().filter((t) => !selfId || String(t._id) !== selfId);
+    }
+
     openTeamModal(team?: TeamDto): void {
         this.editingTeam = team ?? null;
         if (team) {
@@ -186,6 +198,8 @@ export class TeamSubteamsComponent implements OnInit {
                 typeof team.defaultCustomRole === 'object'
                     ? team.defaultCustomRole?._id || ''
                     : team.defaultCustomRole || '';
+            const parentTeamId =
+                typeof team.parentTeam === 'object' ? team.parentTeam?._id || '' : team.parentTeam || '';
             const defaultCostCenterId =
                 typeof team.defaultCostCenter === 'object'
                     ? team.defaultCostCenter?._id || ''
@@ -206,6 +220,7 @@ export class TeamSubteamsComponent implements OnInit {
                 budgetEnforcement: team.budgetEnforcement || 'hard',
                 defaultRole: (team.defaultRole as SystemRoleSlug) || '',
                 defaultCustomRole: defaultCustomId,
+                parentTeam: parentTeamId,
                 defaultCostCenter: defaultCostCenterId,
                 allowedCostCenters: allowedCostCenterIds,
                 enforceCostCenter: Boolean(team.enforceCostCenter),
@@ -231,6 +246,7 @@ export class TeamSubteamsComponent implements OnInit {
                 budgetEnforcement: 'hard',
                 defaultRole: '',
                 defaultCustomRole: '',
+                parentTeam: '',
                 defaultCostCenter: '',
                 allowedCostCenters: [],
                 enforceCostCenter: false,
@@ -265,6 +281,7 @@ export class TeamSubteamsComponent implements OnInit {
             budgetEnforcement: this.teamForm.budgetEnforcement,
             defaultRole: this.teamForm.defaultRole ? (this.teamForm.defaultRole as SystemRoleSlug) : null,
             defaultCustomRole: this.teamForm.defaultCustomRole || null,
+            parentTeam: this.teamForm.parentTeam || null,
             defaultCostCenter: this.teamForm.defaultCostCenter || null,
             allowedCostCenters: this.teamForm.allowedCostCenters,
             enforceCostCenter: this.teamForm.enforceCostCenter,
