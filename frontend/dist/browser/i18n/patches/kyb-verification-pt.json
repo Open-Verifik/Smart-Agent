@@ -1,0 +1,115 @@
+{
+  "accountEnv": {
+    "kybStrip": {
+      "verifyTitle": "Verifique sua empresa (KYB)",
+      "verifyText": "Verifique primeiro um representante para APIs padrão e depois envie os documentos.",
+      "pendingTitle": "Verificação empresarial em análise",
+      "pendingText": "Sua solicitação KYB está em análise de conformidade.",
+      "changesTitle": "Ação necessária no KYB",
+      "changesText": "Nossa equipe solicitou atualização nos documentos ou representantes.",
+      "cta": "Verificar empresa",
+      "pendingCta": "Análise pendente",
+      "changesCta": "Atualizar KYB",
+      "viewStatusCta": "Status KYB",
+      "tier1Eyebrow": "Nível 1 · Produção Padrão",
+      "tier1Title": "APIs padrão ativas",
+      "tier1Text": "Envie os documentos da empresa para desbloquear o KYB Completo (Nível 2).",
+      "tier1Cta": "Concluir KYB",
+      "dismissAria": "Fechar aviso"
+    },
+    "kybModal": {
+      "title": "Verifique sua empresa para ativar Produção",
+      "subtitle": "Comece rápido com a verificação do representante e conclua o dossiê corporativo depois.",
+      "reason1_title": "Nível 1 · KYC rápido do representante",
+      "reason1_desc": "Verifique um representante legal para liberar APIs padrão em Produção.",
+      "reason2_title": "Nível 2 · Dossiê KYB completo",
+      "reason2_desc": "Envie os documentos da empresa quando quiser para liberar todas as APIs.",
+      "reason3_title": "Notas para documentos ausentes",
+      "reason3_desc": "Se faltar algum documento agora, deixe uma nota para revisão manual.",
+      "reason4_title": "Créditos e recargas",
+      "reason4_desc": "Sua primeira recarga ou plano libera os créditos bônus separadamente.",
+      "cta": "Iniciar verificação da empresa"
+    }
+  },
+  "settings": {
+    "panels": {
+      "company_verification": "Verificação da Empresa",
+      "company_verification_desc": "Acompanhe seu nível KYB, representantes e documentos corporativos"
+    },
+    "kyb": {
+      "title": "Verificação da Empresa (KYB)",
+      "subtitle": "Gerencie o KYC dos representantes e os documentos corporativos para Produção.",
+      "refresh": "Atualizar status",
+      "ctaStart": "Iniciar verificação KYB",
+      "ctaContinue": "Continuar verificação KYB",
+      "ctaUpdate": "Atualizar e reenviar KYB",
+      "ctaCompleteTier2": "Concluir KYB (Nível 2)",
+      "ctaUpgradeOptional": "Atualizar para KYB completo",
+      "changesAlertTitle": "Atualizações solicitadas pela conformidade",
+      "changesAlertFallback": "Revise os documentos ou o KYC do representante e envie novamente.",
+      "manualReviewTitle": "Análise manual em andamento",
+      "manualReviewDesc": "Nossa equipe está analisando seus documentos e notas.",
+      "emptyTitle": "Nenhum dossiê KYB iniciado ainda",
+      "emptyDesc": "Inicie a verificação da empresa para liberar Produção Padrão e depois o KYB Completo.",
+      "emptyLegacyTitle": "Conta verificada via KYC legado",
+      "emptyLegacyDesc": "Sua conta já possui acesso total à Produção. Você pode enviar um dossiê KYB quando desejar.",
+      "tiers": {
+        "none": {
+          "badge": "Modo Sandbox · Verificação Pendente",
+          "title": "Verifique um representante para ativar Produção Padrão",
+          "desc": "Conclua o KYC de um representante para o Nível 1 e envie documentos da empresa para o Nível 2."
+        },
+        "legacy_kyc": {
+          "badge": "Verificada · KYC Legado",
+          "title": "Seu acesso à Produção está ativo",
+          "desc": "Contas verificadas mantêm acesso completo. Você pode optar pelo KYB completo a qualquer momento."
+        },
+        "tier1_standard": {
+          "badge": "Nível 1 · Produção Padrão",
+          "title": "APIs padrão em Produção ativas",
+          "desc": "KYC do representante aprovado. Envie os documentos da empresa para subir ao Nível 2."
+        },
+        "tier2_full": {
+          "badge": "Nível 2 · KYB Completo",
+          "title": "Verificação KYB completa aprovada",
+          "desc": "Todos os documentos e representantes foram aprovados para todas as APIs da Verifik."
+        }
+      },
+      "track": {
+        "sandboxTitle": "Conta criada",
+        "sandboxDesc": "Testes em Sandbox prontos",
+        "tier1Title": "Nível 1 · Padrão",
+        "tier1Desc": "KYC do representante",
+        "tier2Title": "Nível 2 · KYB Completo",
+        "tier2Desc": "Documentos aprovados"
+      },
+      "companyCard": {
+        "title": "Dados da Empresa",
+        "legalName": "Razão Social",
+        "taxId": "ID Fiscal / CNPJ",
+        "country": "País",
+        "city": "Cidade",
+        "email": "E-mail de Contato",
+        "updated": "Última Atualização"
+      },
+      "repsCard": {
+        "title": "Representantes Legais",
+        "verifiedLabel": "verificados",
+        "defaultRole": "Representante Legal",
+        "empty": "Nenhum representante adicionado ainda."
+      },
+      "docsCard": {
+        "title": "Documentos da Empresa",
+        "countLabel": "enviados",
+        "viewFile": "Ver documento",
+        "empty": "Nenhum documento enviado ainda.",
+        "notesTitle": "Notas para análise de conformidade"
+      },
+      "ticketsCard": {
+        "title": "Tickets de Suporte Vinculados",
+        "openSupport": "Abrir Suporte",
+        "defaultTitle": "Ticket de revisão KYB"
+      }
+    }
+  }
+}
