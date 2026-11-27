@@ -34,8 +34,8 @@ import {
 } from './postman-catalog.util';
 import {
     canonicalPostmanCountryName,
-    countryNameToIso,
     expandPostmanCountryQueryVariants,
+    inferPostmanCountryFromCodeAndUrl,
 } from './postman-country.util';
 import {
     POSTMAN_INCLUDE_COST_KEY,
@@ -83,7 +83,10 @@ import {
     tap,
     throwError,
 } from 'rxjs';
-import { enrichAppFeatureRecord } from './postman-catalog-enrichment.util';
+import {
+    enrichAppFeatureRecord,
+    inferRegistryBaseCategory,
+} from './postman-catalog-enrichment.util';
 import { mergeParamsFromDocs } from './postman-docs-params.util';
 import postmanEndpointsIo from './postman-endpoints-io.json';
 import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
@@ -598,43 +601,10 @@ export class PostmanService {
     }
 
     private _inferCountryFromFeature(feature: any): string {
-        const code = typeof feature?.code === 'string' ? feature.code.trim() : '';
-        const url = typeof feature?.url === 'string' ? feature.url.trim() : '';
-
-        // 1. Try from feature.code prefix (e.g. "be_api_pep" -> "be" -> "Belgium", "colombia_api_..." -> "Colombia")
-        if (code) {
-            const parts = code.split('_');
-            if (parts.length > 0) {
-                if (parts.length >= 2) {
-                    const compound = `${parts[0]} ${parts[1]}`.toLowerCase();
-                    const compoundIso = countryNameToIso(compound);
-                    if (compoundIso) {
-                        const canonical = canonicalPostmanCountryName(compoundIso);
-                        if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
-                    }
-                }
-                const first = parts[0].toLowerCase();
-                const iso = countryNameToIso(first);
-                if (iso) {
-                    const canonical = canonicalPostmanCountryName(iso);
-                    if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
-                }
-            }
-        }
-
-        // 2. Try from URL segment (e.g. "/v2/be/..." or "v2/be/..." -> "be" -> "Belgium")
-        if (url) {
-            const match = url.match(/(?:^|\/)v\d+\/([a-z]{2})(?:\/|$)/i);
-            if (match && match[1]) {
-                const iso = countryNameToIso(match[1]);
-                if (iso) {
-                    const canonical = canonicalPostmanCountryName(iso);
-                    if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
-                }
-            }
-        }
-
-        return DEFAULT_POSTMAN_COUNTRY;
+        return (
+            inferPostmanCountryFromCodeAndUrl(feature?.code, feature?.url) ||
+            DEFAULT_POSTMAN_COUNTRY
+        );
     }
 
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
@@ -675,7 +645,10 @@ export class PostmanService {
                 ? { nameES: feature.nameES.trim() }
                 : {}),
             code: feature.code,
-            category: resolvePostmanFeatureCategory(feature),
+            category: resolvePostmanFeatureCategory({
+                ...feature,
+                baseCategory: feature.baseCategory || inferRegistryBaseCategory(feature),
+            }),
             country: resolvedCountry,
             ...(Array.isArray(feature.checkListDomains) && feature.checkListDomains.length
                 ? { checkListDomains: feature.checkListDomains }

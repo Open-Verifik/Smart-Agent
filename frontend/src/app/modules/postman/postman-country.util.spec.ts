@@ -7,7 +7,9 @@ import {
     formatPostmanCountryDisplayName,
     normalizeCountryToken,
     postmanCountryFlagUi,
+    inferPostmanCountryFromCodeAndUrl,
     resolveCountryNameFromIso,
+    scorePostmanCountryQuery,
     stripCountryPrefixFromTitle,
 } from './postman-country.util';
 
@@ -203,6 +205,49 @@ describe('postman-country.util', () => {
             expect(stripCountryPrefixFromTitle('Custom Endpoint Name', 'Colombia')).toBe(
                 'Custom Endpoint Name'
             );
+        });
+
+        it('strips company and citizen titles in all 7 locales and resolves their flags', () => {
+            const cases: Array<[string, string, string, string]> = [
+                ['Australie — Vérification d\'entreprise (KYB)', 'Australia', 'au', 'Vérification d\'entreprise (KYB)'],
+                ['Tchéquie — Vérification d\'entreprise (KYB)', 'Czech Republic', 'cz', 'Vérification d\'entreprise (KYB)'],
+                ['호주 — 기업 검증 (KYB)', 'Australia', 'au', '기업 검증 (KYB)'],
+                ['États-Unis — Vérification d\'identité (KYC)', 'United States', 'us', 'Vérification d\'identité (KYC)'],
+                ['トリニダード・トバゴ — 法人および企業登記照会（KYB）', 'Trinidad and Tobago', 'tt', '法人および企業登記照会（KYB）'],
+                ['多米尼加共和国 — 企业与商业登记查询（KYB）', 'Dominican Republic', 'do', '企业与商业登记查询（KYB）'],
+            ];
+
+            for (const [title, country, iso, stripped] of cases) {
+                expect(stripCountryPrefixFromTitle(title, country)).toBe(stripped);
+                expect(postmanCountryFlagUi(country)).toEqual({
+                    k: 'img',
+                    src: `https://flagcdn.com/w40/${iso}.png`,
+                });
+                expect(countryNameToIso(title.split('—')[0].trim())).toBe(iso);
+            }
+        });
+
+        it('infers multi-word registry countries from the feature code or URL', () => {
+            expect(
+                inferPostmanCountryFromCodeAndUrl('trinidad_and_tobago_api_company_lookup', '')
+            ).toBe('Trinidad and Tobago');
+            expect(inferPostmanCountryFromCodeAndUrl('new_zealand_api_company_lookup', '')).toBe(
+                'New Zealand'
+            );
+            expect(inferPostmanCountryFromCodeAndUrl('puerto_rico_api_company_lookup', '')).toBe(
+                'Puerto Rico'
+            );
+            expect(
+                inferPostmanCountryFromCodeAndUrl('republica_dominicana_api_company_lookup', '')
+            ).toBe('Dominican Republic');
+            expect(inferPostmanCountryFromCodeAndUrl('us_api_npi_identity_lookup', '')).toBe(
+                'United States'
+            );
+            expect(inferPostmanCountryFromCodeAndUrl('', 'v2/il/company')).toBe('Israel');
+            expect(scorePostmanCountryQuery('Czech Republic', 'Tchéquie')).toBe(100);
+            expect(scorePostmanCountryQuery('Australia', '호주')).toBe(100);
+            expect(resolveCountryNameFromIso('cz', [])).toBe('Czech Republic');
+            expect(resolveCountryNameFromIso('pr', [])).toBe('Puerto Rico');
         });
     });
 });
