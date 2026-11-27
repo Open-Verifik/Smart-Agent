@@ -15,7 +15,8 @@
       "approve": "Approuver",
       "export": "Exporter",
       "manageKeys": "Clés",
-      "readAll": "Toutes les équipes"
+      "readAll": "Toutes les équipes",
+      "manageOwnTeam": "Gérer son équipe"
     },
     "actionTooltips": {
       "read": "Consulter les écrans, dossiers et analytiques",
@@ -26,7 +27,8 @@
       "approve": "Approuver ou rejeter les vérifications",
       "export": "Exporter en PDF, CSV, XLSX ou JSONL",
       "manageKeys": "Gérer les clés API et le mode Production/Sandbox",
-      "readAll": "Voir les données de toutes les sous-équipes de l’espace au lieu de la vôtre uniquement"
+      "readAll": "Voir les données de toutes les sous-équipes de l’espace au lieu de la vôtre uniquement",
+      "manageOwnTeam": "Gérer membres, budgets et sous-équipes enfants dans votre hiérarchie"
     },
     "budget": {
       "oneTimeThisMonth": "Augmentation ponctuelle pour ce mois UTC",
@@ -80,7 +82,8 @@
       "tabTeams": "Sous-équipes & Budgets",
       "tabRoles": "Rôles & Permissions",
       "tabRequests": "Demandes d'accès",
-      "tabPolicy": "Politique d'accès"
+      "tabPolicy": "Politique d'accès",
+      "tabAudit": "Journal d’audit"
     },
     "insufficientPermissionsToast": "Vous n'avez pas la permission pour cette action.",
     "lockedActionTooltip": "Permission élevée requise — cliquez pour demander l'accès",
@@ -116,7 +119,9 @@
       "cannotDeleteSelf": "Impossible de supprimer votre propre compte.",
       "removeConfirmTitle": "Supprimer {{name}} ?",
       "removeConfirmDesc": "Ses jetons seront immédiatement révoqués.",
-      "statusSuspended": "Suspendu"
+      "statusSuspended": "Suspendu",
+      "additionalTeamsLabel": "Sous-équipes supplémentaires",
+      "additionalTeamsHint": "Accorder la visibilité sur des sous-équipes additionnelles."
     },
     "myAccess": {
       "title": "Mon accès & Permissions",
@@ -294,6 +299,10 @@
       "report_builder": {
         "name": "Créateur de documents",
         "desc": "Crée et modifie les modèles de rapport et configurations sans voir les résultats, PII ou clés API."
+      },
+      "team_manager": {
+        "name": "Chef d’équipe",
+        "desc": "Gère les membres, sous-équipes, budgets et exports CECO de son équipe et sous-équipes."
       }
     },
     "rolesTab": {
@@ -397,7 +406,9 @@
       "assignedTeamToast": "Affectation de sous-équipe mise à jour",
       "visibilityLabel": "Visibilité",
       "visibilityTeam": "Sous-équipe uniquement",
-      "visibilityWorkspace": "Tout l'espace de travail"
+      "visibilityWorkspace": "Tout l'espace de travail",
+      "parentTeamLabel": "Sous-équipe parente",
+      "noParentTeam": "Aucune (Équipe racine)"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Permission de gestion des clés requise pour basculer Live/Sandbox."
@@ -430,6 +441,42 @@
       "badgeCaps": "{{count}} plafonds d'endpoint",
       "memberToggleTitle": "Restreindre des Endpoints API Spécifiques",
       "memberToggleAllSummary": "Hérite des règles de Sous-Équipe et de Rôle"
+    },
+    "auditLog": {
+      "title": "Journal d’audit d’accès et d’équipes",
+      "subtitle": "Historique immuable des modifications de rôles, d’équipes et des liens signés.",
+      "exportCsv": "Exporter CSV",
+      "actionColumn": "Action",
+      "actionPlaceholder": "ex. staff.update",
+      "resourceColumn": "Ressource",
+      "timeColumn": "Horodatage",
+      "actorColumn": "Acteur",
+      "summaryColumn": "Résumé",
+      "startDateLabel": "Date de début",
+      "applyFilters": "Filtrer",
+      "resetFilters": "Réinitialiser",
+      "emptyTitle": "Aucun événement d’audit",
+      "emptyDesc": "Les actions administratives apparaîtront ici.",
+      "loadError": "Impossible de charger le journal.",
+      "entriesLabel": "entrées",
+      "prevPage": "Précédent",
+      "nextPage": "Suivant"
+    },
+    "cecoStatement": {
+      "title": "Relevé mensuel CECO",
+      "subtitle": "Rapprochez les appels API et crédits SmartReport par centre de coûts.",
+      "costCentersCount": "Centres de coûts",
+      "apiSpend": "Dépenses API",
+      "meteredSpend": "Crédits SmartReport",
+      "totalSpend": "Total",
+      "topEndpoints": "Principaux endpoints",
+      "empty": "Aucune activité facturée pour cette période."
+    },
+    "signedLink": {
+      "ttlLabel": "Expiration du lien signé",
+      "copyBtn": "Copier le lien signé",
+      "copiedToast": "Lien PDF signé copié",
+      "errorToast": "Échec de création du lien signé"
     }
   }
 }

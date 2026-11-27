@@ -15,7 +15,8 @@
       "approve": "审批",
       "export": "导出",
       "manageKeys": "密钥",
-      "readAll": "全部子团队"
+      "readAll": "全部子团队",
+      "manageOwnTeam": "Manage Own Team"
     },
     "actionTooltips": {
       "read": "查看页面、记录、列表和分析数据",
@@ -26,7 +27,8 @@
       "approve": "人工审批、拒绝或处理核验状态",
       "export": "导出 PDF、CSV、XLSX 或 JSONL 报告",
       "manageKeys": "创建、轮换、吊销 API 密钥或切换生产/沙盒模式",
-      "readAll": "查看工作区中所有子团队的记录，而不仅限于自己的子团队"
+      "readAll": "查看工作区中所有子团队的记录，而不仅限于自己的子团队",
+      "manageOwnTeam": "Manage members, budgets, and child sub-teams within your own assigned team hierarchy"
     },
     "budget": {
       "oneTimeThisMonth": "本 UTC 自然月一次性增额",
@@ -80,7 +82,8 @@
       "tabTeams": "子团队与预算",
       "tabRoles": "角色与权限",
       "tabRequests": "权限申请",
-      "tabPolicy": "访问策略"
+      "tabPolicy": "访问策略",
+      "tabAudit": "Audit Log"
     },
     "insufficientPermissionsToast": "您没有执行此操作的权限。",
     "lockedActionTooltip": "需要更高权限 — 点击申请访问",
@@ -116,7 +119,9 @@
       "cannotDeleteSelf": "无法删除您当前正在使用的账号。",
       "removeConfirmTitle": "移除 {{name}}？",
       "removeConfirmDesc": "这将立即吊销其令牌并将其移出工作区。",
-      "statusSuspended": "已暂停"
+      "statusSuspended": "已暂停",
+      "additionalTeamsLabel": "Additional Sub-Teams (Optional)",
+      "additionalTeamsHint": "Grant read or manager visibility across extra sub-teams in addition to the primary team."
     },
     "myAccess": {
       "title": "我的权限与访问",
@@ -294,6 +299,10 @@
       "report_builder": {
         "name": "文档构建器",
         "desc": "创建和编辑报告模板与批处理配置，但不查看已执行结果、PII 或 API 密钥。"
+      },
+      "team_manager": {
+        "name": "Team Manager",
+        "desc": "Manages members, sub-teams, budgets, access requests, and CECO usage exports within their assigned team and child sub-teams."
       }
     },
     "rolesTab": {
@@ -397,7 +406,9 @@
       "assignedTeamToast": "子团队分配已更新",
       "visibilityLabel": "可见范围",
       "visibilityTeam": "仅限子团队",
-      "visibilityWorkspace": "整个工作区"
+      "visibilityWorkspace": "整个工作区",
+      "parentTeamLabel": "Parent Sub-Team (Optional)",
+      "noParentTeam": "None (Top-level team)"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "需要 API 密钥管理权限才能切换生产/沙盒环境。"
@@ -430,6 +441,42 @@
       "badgeCaps": "{{count}} 个端点上限",
       "memberToggleTitle": "限制特定 API 端点",
       "memberToggleAllSummary": "继承子团队和角色规则（全部端点）"
+    },
+    "auditLog": {
+      "title": "Access & Team Audit Log",
+      "subtitle": "Immutable trail of role updates, sub-team changes, access approvals, and signed downloads.",
+      "exportCsv": "Export CSV",
+      "actionColumn": "Action",
+      "actionPlaceholder": "e.g. staff.update",
+      "resourceColumn": "Resource",
+      "timeColumn": "Timestamp",
+      "actorColumn": "Actor",
+      "summaryColumn": "Summary",
+      "startDateLabel": "From Date",
+      "applyFilters": "Filter",
+      "resetFilters": "Reset",
+      "emptyTitle": "No audit events found",
+      "emptyDesc": "Administrative and team actions will appear here as they happen.",
+      "loadError": "Could not load audit log entries.",
+      "entriesLabel": "entries",
+      "prevPage": "Previous",
+      "nextPage": "Next"
+    },
+    "cecoStatement": {
+      "title": "Monthly CECO Statement",
+      "subtitle": "Reconcile API calls and metered SmartReport credits grouped by Cost Center and Sub-Team.",
+      "costCentersCount": "Cost Centers",
+      "apiSpend": "API Spend",
+      "meteredSpend": "SmartReport Credits",
+      "totalSpend": "Total Spend",
+      "topEndpoints": "Top Endpoints",
+      "empty": "No billed activity recorded for the selected billing month."
+    },
+    "signedLink": {
+      "ttlLabel": "Signed link expiration",
+      "copyBtn": "Copy Signed Link",
+      "copiedToast": "Signed PDF link copied to clipboard",
+      "errorToast": "Could not generate signed PDF link"
     }
   }
 }
