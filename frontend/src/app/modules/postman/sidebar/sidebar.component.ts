@@ -25,6 +25,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
 import { PostmanService } from '../postman.service';
 import { endpointMatchesCountryFilter } from '../postman-catalog.util';
+import { formatPostmanCategoryLabel } from '../postman-feature-shape.util';
 import { formatPostmanCountryDisplayName } from '../postman-country.util';
 import {
   ApiEndpoint,
@@ -958,25 +959,12 @@ export class SidebarComponent {
   }
 
   categoryDisplayTitle(categoryName: string): string {
-    if (!categoryName) return '';
     const activeTranslations =
       this._transloco.getTranslation(this._transloco.getActiveLang()) || {};
     const categoriesObj = activeTranslations['categories'] as
-      | Record<string, string>
+      | Record<string, unknown>
       | undefined;
-    if (categoriesObj && typeof categoriesObj === 'object') {
-      const match =
-        categoriesObj[categoryName] ||
-        categoriesObj[categoryName.toLowerCase()] ||
-        categoriesObj[categoryName.toUpperCase()];
-      if (typeof match === 'string' && match.trim()) {
-        return match.trim();
-      }
-    }
-    return categoryName
-      .toLowerCase()
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return formatPostmanCategoryLabel(categoryName, categoriesObj);
   }
 
   private _defaultEndpointCatalogDescription(endpoint: ApiEndpoint): string {

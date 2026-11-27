@@ -697,8 +697,8 @@
             "description": "FATF 권고 12 및 국가 자금세탁방지(AML) 법률에 따라 쿠바의 공식 PEP(정치적 주요 인물) 등록부를 조회하여 공직자 및 관계자를 식별합니다."
         },
         "czechia_api_identity_lookup": {
-            "title": "Czechia — 국민 신원 확인 및 개인사업자 검증 (KYC)",
-            "description": "Czechia의 공식 신원 기록을 기반으로 신분증 유효성, 성명, 생년월일 및 법적 신원 상태를 검증합니다."
+            "title": "체코 — 국민 신원 확인 및 개인사업자 검증 (KYC)",
+            "description": "체코의 공식 신원 기록을 기반으로 신분증 유효성, 성명, 생년월일 및 법적 신원 상태를 검증합니다."
         },
         "data_finance_balancesheet": {
             "title": "글로벌 — Financial - Balance Sheet",
@@ -997,7 +997,7 @@
             "description": "노르웨이의 공식 신원 기록을 기반으로 신분증 유효성, 성명, 생년월일 및 법적 신원 상태를 검증합니다."
         },
         "ocr_scan_gpt": {
-            "title": "글로벌 — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "파나마 — Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "파나마를 위한 공식 검증 및 데이터 조회 서비스: Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "파나마 — 변호사 적격 확인",
+            "description": "파나마 변호사의 적격을 공식 사법부 명부에서 세둘라, 적격 번호 또는 성명으로 확인합니다."
         },
         "panama_api_pep": {
             "title": "파나마 — 정치적 주요 인물 (PEP) 스크리닝",
@@ -1189,8 +1193,8 @@
             "description": "우루과이의 공식 신원 기록을 기반으로 신분증 유효성, 성명, 생년월일 및 법적 신원 상태를 검증합니다."
         },
         "us_api_npi_identity_lookup": {
-            "title": "미국 — United States — Citizen Identity & Sole Proprietor Verification (KYC)",
-            "description": "미국를 위한 공식 검증 및 데이터 조회 서비스: Live official identity and sole-proprietor validation in United States. Verifies legal citizen/individual name, registration status, and official identity attributes."
+            "title": "미국 — 국민 신원 확인 및 개인사업자 검증 (KYC)",
+            "description": "미국의 공식 신원 기록을 기반으로 신분증 유효성, 성명, 생년월일 및 법적 신원 상태를 검증합니다."
         },
         "us_api_passport_entries": {
             "title": "미국 — United States - Passport & U.S. entries",
@@ -1801,8 +1805,8 @@
             "description": "벨기에의 공식 법인 등기부를 통해 기업의 법적 지위, 등록 번호, 사업자 정보 및 임원 현황을 검증합니다."
         },
         "czechia_api_company_lookup": {
-            "title": "Czechia — 기업 및 법인 등록 조회 (KYB)",
-            "description": "Czechia의 공식 법인 등기부를 통해 기업의 법적 지위, 등록 번호, 사업자 정보 및 임원 현황을 검증합니다."
+            "title": "체코 — 기업 및 법인 등록 조회 (KYB)",
+            "description": "체코의 공식 법인 등기부를 통해 기업의 법적 지위, 등록 번호, 사업자 정보 및 임원 현황을 검증합니다."
         },
         "denmark_api_company_lookup": {
             "title": "덴마크 — 기업 및 법인 등록 조회 (KYB)",

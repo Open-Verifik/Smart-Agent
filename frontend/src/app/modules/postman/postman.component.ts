@@ -24,7 +24,7 @@ import {
     catalogCountryScope,
     DEFAULT_POSTMAN_COUNTRY,
     endpointMatchesCountryFilter,
-    WORLD_CATALOG_COUNTRY,
+    mergeCatalogCountryRows,
 } from './postman-catalog.util';
 import {
     areSamePostmanCountry,
@@ -33,6 +33,7 @@ import {
     formatPostmanCountryDisplayName,
     normalizeCountryToken,
     postmanCountryFlagUi,
+    scorePostmanCountryQuery,
     PostmanCountryFlagUi,
     resolveCountryNameFromIso,
 } from './postman-country.util';
@@ -1764,12 +1765,14 @@ export class PostmanComponent {
     selectedCountry = this._postmanService.selectedCountry;
 
     countries = computed(() =>
-        this._postmanService
-            .catalogCountries()
+        mergeCatalogCountryRows(
+            this._postmanService.catalogCountries(),
+            this._postmanService.visibleEndpoints().map((endpoint) => endpoint.country)
+        )
             .map(({ country, count }) => ({ name: country, count }))
             .sort((a, b) => {
-                const aWorld = a.name.toLowerCase() === WORLD_CATALOG_COUNTRY;
-                const bWorld = b.name.toLowerCase() === WORLD_CATALOG_COUNTRY;
+                const aWorld = countryNameToIso(a.name) === 'world';
+                const bWorld = countryNameToIso(b.name) === 'world';
                 if (aWorld !== bWorld) {
                     return aWorld ? -1 : 1;
                 }
@@ -1817,33 +1820,20 @@ export class PostmanComponent {
 
         const scored: Array<{ country: { name: string; count: number }; score: number }> = [];
         for (const country of this.countries()) {
-            const iso = (countryNameToIso(country.name) || '').toLowerCase();
             const displayName = this.countryDisplayName(country.name);
             const displayToken = normalizeCountryToken(displayName);
-            const canonicalToken = normalizeCountryToken(country.name);
             const displayLower = displayName.toLowerCase();
-            const canonicalLower = country.name.toLowerCase();
 
-            let score = 0;
-            if (iso === qLower || displayToken === qToken || canonicalToken === qToken) {
-                score = 100;
+            let score = scorePostmanCountryQuery(country.name, rawQuery);
+            if (displayToken === qToken || displayLower === qLower) {
+                score = Math.max(score, 100);
+            } else if (displayToken.startsWith(qToken) || displayLower.startsWith(qLower)) {
+                score = Math.max(score, 80);
             } else if (
-                displayToken.startsWith(qToken) ||
-                canonicalToken.startsWith(qToken) ||
-                displayLower.startsWith(qLower) ||
-                canonicalLower.startsWith(qLower)
+                qToken.length >= 2 &&
+                (displayToken.includes(qToken) || displayLower.includes(qLower))
             ) {
-                score = 80;
-            } else if (iso.startsWith(qLower) && qLower.length <= 2) {
-                score = 70;
-            } else if (
-                displayToken.includes(qToken) ||
-                canonicalToken.includes(qToken) ||
-                displayLower.includes(qLower) ||
-                canonicalLower.includes(qLower) ||
-                iso.includes(qLower)
-            ) {
-                score = 50;
+                score = Math.max(score, 50);
             }
 
             if (score > 0) {

@@ -1,6 +1,6 @@
 import { mergeEnumValues } from '../batch-required-fields.util';
 import { canonicalChainField, seedParamFieldsForFeatures } from '../endpoint-chain.util';
-import { isWorldCountry, normalizeCountryName } from '../smart-batch-country.util';
+import { countryIso2, isWorldCountry, normalizeCountryName } from '../smart-batch-country.util';
 import {
     canonicalParamFilterId,
     collectRequiredParamFields,
@@ -83,7 +83,8 @@ export const countryIsoFromHint = (value?: string | null): string => {
     const byIso = GUIDE_COUNTRIES.find((country) => country.iso === lower);
     if (byIso) return byIso.iso;
     const name = normalizeCountryName(raw).toLowerCase();
-    return GUIDE_COUNTRIES.find((country) => country.name.toLowerCase() === name)?.iso ?? '';
+    const byName = GUIDE_COUNTRIES.find((country) => country.name.toLowerCase() === name)?.iso;
+    return byName ?? countryIso2(raw) ?? '';
 };
 
 /** Catalog countries, plus any other country that shows up on a loaded feature. */
@@ -94,7 +95,7 @@ export const guideCountriesFromFeatures = (features: { country?: string }[]): Gu
         const name = normalizeCountryName(feature.country);
         if (!name || isWorldCountry(name) || byName.has(name)) continue;
         byName.set(name, {
-            iso: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            iso: countryIso2(name) || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
             name,
             available: true,
         });
@@ -119,7 +120,7 @@ export const countriesFromEndpointFeatures = (
         byName.set(
             key,
             catalog.get(key) ?? {
-                iso: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                iso: countryIso2(name) || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
                 name,
                 available: true,
             }

@@ -296,3 +296,44 @@ describe('colombia_api_registraduria_matrimonio required indicators and validati
         expect(getPostmanRequestValidationIssues(serialEp, null)).toEqual([]);
     });
 });
+
+describe('company and citizen registry validation', () => {
+    const company = (documentNumber = '', documentType = ''): ApiEndpoint =>
+        ({
+            id: 'au-company',
+            label: 'Australia company',
+            code: 'australia_api_company_lookup',
+            method: 'GET',
+            url: 'v2/au/company',
+            country: 'Australia',
+            category: 'BUSINESS',
+            dependencies: [
+                { field: 'documentNumber', type: 'String', required: true },
+                { field: 'documentType', type: 'String', required: false },
+                { field: 'force', type: 'Boolean', required: false },
+            ],
+            params: [
+                { key: 'documentNumber', value: documentNumber, type: 'String', required: true },
+                { key: 'documentType', value: documentType, type: 'String', required: false },
+                { key: 'force', value: 'true', type: 'Boolean', required: false },
+            ],
+        }) as ApiEndpoint;
+
+    it('requires documentNumber and allows an empty optional documentType', () => {
+        expect(
+            getPostmanRequestValidationIssues(company(), null).map((issue) => issue.field)
+        ).toContain('documentNumber');
+        expect(getPostmanRequestValidationIssues(company('51824753556'), null)).toEqual([]);
+    });
+
+    it('still requires documentType when it shares a dependency group with documentNumber', () => {
+        const grouped = company('51824753556', '');
+        grouped.dependencies = [
+            { field: 'documentNumber', required: false, dependencyGroup: '1' },
+            { field: 'documentType', required: false, dependencyGroup: '1' },
+        ];
+        expect(
+            getPostmanRequestValidationIssues(grouped, null).map((issue) => issue.translationKey)
+        ).toContain('createBatch.pairDocumentTypeRequiredWhenNumber');
+    });
+});

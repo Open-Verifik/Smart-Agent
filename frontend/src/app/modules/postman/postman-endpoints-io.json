@@ -8496,6 +8496,26 @@
       "input": {
         "dependencies": [
           {
+            "field": "project",
+            "type": "String",
+            "required": true,
+            "enum": null,
+            "default": null,
+            "min": null,
+            "max": null,
+            "description": "Verifik project that sends the email OTP."
+          },
+          {
+            "field": "validationMethod",
+            "type": "String",
+            "required": true,
+            "enum": null,
+            "default": null,
+            "min": null,
+            "max": null,
+            "description": "How the recipient proves they received the code."
+          },
+          {
             "field": "email",
             "type": "String",
             "required": true,
@@ -8503,13 +8523,35 @@
             "default": null,
             "min": null,
             "max": null,
-            "description": "email"
+            "description": "Recipient email address."
+          },
+          {
+            "field": "type",
+            "type": "String",
+            "required": true,
+            "enum": null,
+            "default": null,
+            "min": null,
+            "max": null,
+            "description": "Email OTP message type."
           }
         ],
         "documentedParams": [
           {
+            "field": "project",
+            "description": "Verifik project that sends the email OTP."
+          },
+          {
+            "field": "validationMethod",
+            "description": "How the recipient proves they received the code."
+          },
+          {
             "field": "email",
-            "description": "email"
+            "description": "Recipient email address."
+          },
+          {
+            "field": "type",
+            "description": "Email OTP message type."
           }
         ]
       },
@@ -8533,8 +8575,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "Proyecto de Verifik que envía el OTP por correo."
+            },
+            {
+              "field": "validationMethod",
+              "description": "Forma en que el destinatario demuestra que recibió el código."
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "Correo del destinatario."
+            },
+            {
+              "field": "type",
+              "description": "Tipo de mensaje OTP por correo."
             }
           ],
           "responses": [
@@ -8573,8 +8627,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "Verifik project that sends the email OTP."
+            },
+            {
+              "field": "validationMethod",
+              "description": "How the recipient proves they received the code."
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "Recipient email address."
+            },
+            {
+              "field": "type",
+              "description": "Email OTP message type."
             }
           ],
           "responses": [
@@ -8614,8 +8680,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "Projet Verifik qui envoie le OTP par e-mail."
+            },
+            {
+              "field": "validationMethod",
+              "description": "Façon dont le destinataire prouve qu’il a reçu le code."
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "Adresse e-mail du destinataire."
+            },
+            {
+              "field": "type",
+              "description": "Type de message OTP par e-mail."
             }
           ],
           "requestExamples": [],
@@ -8656,8 +8734,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "メール OTP を送信する Verifik プロジェクト。"
+            },
+            {
+              "field": "validationMethod",
+              "description": "受信者がコードを受け取ったことを示す方法。"
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "受信者のメールアドレス。"
+            },
+            {
+              "field": "type",
+              "description": "メール OTP のメッセージ種別。"
             }
           ],
           "requestExamples": [],
@@ -8698,8 +8788,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "이메일 OTP를 보내는 Verifik 프로젝트."
+            },
+            {
+              "field": "validationMethod",
+              "description": "수신자가 코드를 받았음을 증명하는 방법."
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "수신자 이메일 주소."
+            },
+            {
+              "field": "type",
+              "description": "이메일 OTP 메시지 유형."
             }
           ],
           "requestExamples": [],
@@ -8740,8 +8842,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "Projeto Verifik que envia o OTP por e-mail."
+            },
+            {
+              "field": "validationMethod",
+              "description": "Como o destinatário comprova que recebeu o código."
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "E-mail do destinatário."
+            },
+            {
+              "field": "type",
+              "description": "Tipo da mensagem OTP por e-mail."
             }
           ],
           "requestExamples": [],
@@ -8782,8 +8896,20 @@
           ],
           "params": [
             {
+              "field": "project",
+              "description": "发送电子邮件 OTP 的 Verifik 项目。"
+            },
+            {
+              "field": "validationMethod",
+              "description": "收件人证明已收到验证码的方式。"
+            },
+            {
               "field": "email",
-              "description": "email"
+              "description": "收件人电子邮箱。"
+            },
+            {
+              "field": "type",
+              "description": "电子邮件 OTP 的消息类型。"
             }
           ],
           "requestExamples": [],
@@ -41897,21 +42023,11 @@
       "description": "Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications.",
       "price": 0.017,
       "isAvailable": true,
-      "catalogHidden": true,
+      "catalogHidden": false,
       "headers": [],
       "input": {
         "dependencies": [
           {
-            "field": "countryCode",
-            "type": "String",
-            "required": true,
-            "enum": null,
-            "default": null,
-            "min": null,
-            "max": null,
-            "description": "countryCode"
-          },
-          {
             "field": "phone",
             "type": "String",
             "required": true,
@@ -41919,31 +42035,41 @@
             "default": null,
             "min": null,
             "max": null,
-            "description": "phone"
+            "description": "Destination WhatsApp phone number, without the country calling code."
           },
           {
-            "field": "message",
+            "field": "countryCode",
             "type": "String",
             "required": true,
             "enum": null,
             "default": null,
             "min": null,
             "max": null,
-            "description": "message"
+            "description": "Country calling code, such as 57."
+          },
+          {
+            "field": "whatsappTemplate",
+            "type": "String",
+            "required": false,
+            "enum": null,
+            "default": null,
+            "min": null,
+            "max": null,
+            "description": "WhatsApp template name. Optional."
           }
         ],
         "documentedParams": [
           {
-            "field": "countryCode",
-            "description": "countryCode"
-          },
-          {
             "field": "phone",
-            "description": "phone"
+            "description": "Destination WhatsApp phone number, without the country calling code."
           },
           {
-            "field": "message",
-            "description": "message"
+            "field": "countryCode",
+            "description": "Country calling code, such as 57."
+          },
+          {
+            "field": "whatsappTemplate",
+            "description": "WhatsApp template name. Optional."
           }
         ]
       },
@@ -41967,16 +42093,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "countryCode"
-            },
-            {
               "field": "phone",
-              "description": "phone"
+              "description": "Número de WhatsApp destino, sin el código de país."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Código de país, por ejemplo 57."
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "Nombre de la plantilla de WhatsApp. Opcional."
             }
           ],
           "responses": [
@@ -42015,16 +42141,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "countryCode"
-            },
-            {
               "field": "phone",
-              "description": "phone"
+              "description": "Destination WhatsApp phone number, without the country calling code."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Country calling code, such as 57."
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "WhatsApp template name. Optional."
             }
           ],
           "responses": [
@@ -42064,16 +42190,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "Indicatif d'appel numérique, pas un code ISO2. Exemple : `57` pour la Colombie, `1` pour les États-Unis."
-            },
-            {
               "field": "phone",
-              "description": "Numéro national de la ligne à interroger, sans préfixe pays, espaces ni ponctuation."
+              "description": "Numéro WhatsApp du destinataire, sans l’indicatif pays."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Indicatif pays, par exemple 57."
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "Nom du modèle WhatsApp. Facultatif."
             }
           ],
           "requestExamples": [],
@@ -42114,16 +42240,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "数字の国番号であり、ISO2 ではありません。例: コロンビア `57`、米国 `1`。"
-            },
-            {
               "field": "phone",
-              "description": "照会対象回線の国内番号。国番号、スペース、句読点は含めないでください。"
+              "description": "国番号を除いた宛先の WhatsApp 番号。"
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "国番号。例: 57。"
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "WhatsApp テンプレート名。任意。"
             }
           ],
           "requestExamples": [],
@@ -42164,16 +42290,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "숫자 국가번호이며 ISO2가 아닙니다. 예: 콜롬비아 `57`, 미국 `1`."
-            },
-            {
               "field": "phone",
-              "description": "조회할 회선의 국내 번호. 국가 접두사, 공백, 문장 부호 없이 입력합니다."
+              "description": "국가 코드를 제외한 WhatsApp 수신 번호."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "국가 코드. 예: 57."
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "WhatsApp 템플릿 이름. 선택 사항."
             }
           ],
           "requestExamples": [],
@@ -42214,16 +42340,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "Código de chamada numérico, não ISO2. Exemplo: `57` para a Colômbia, `1` para os Estados Unidos."
-            },
-            {
               "field": "phone",
-              "description": "Número nacional da linha a consultar, sem prefixo do país, espaços ou pontuação."
+              "description": "Número de WhatsApp de destino, sem o código do país."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Código do país, por exemplo 57."
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "Nome do modelo de WhatsApp. Opcional."
             }
           ],
           "requestExamples": [],
@@ -42264,16 +42390,16 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "数字国际区号，不是 ISO2。例如哥伦比亚 `57`、美国 `1`。"
-            },
-            {
               "field": "phone",
-              "description": "待查询线路的国内号码，不含国家前缀、空格或标点。"
+              "description": "不含国家区号的 WhatsApp 目标号码。"
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "国家区号，例如 57。"
+            },
+            {
+              "field": "whatsappTemplate",
+              "description": "WhatsApp 模板名称。可选。"
             }
           ],
           "requestExamples": [],
@@ -53044,16 +53170,6 @@
       "input": {
         "dependencies": [
           {
-            "field": "countryCode",
-            "type": "String",
-            "required": true,
-            "enum": null,
-            "default": null,
-            "min": null,
-            "max": null,
-            "description": "countryCode"
-          },
-          {
             "field": "phone",
             "type": "String",
             "required": true,
@@ -53061,31 +53177,27 @@
             "default": null,
             "min": null,
             "max": null,
-            "description": "phone"
+            "description": "Destination phone number, without the country calling code."
           },
           {
-            "field": "message",
+            "field": "countryCode",
             "type": "String",
             "required": true,
             "enum": null,
             "default": null,
             "min": null,
             "max": null,
-            "description": "message"
+            "description": "Country calling code, such as 57."
           }
         ],
         "documentedParams": [
           {
-            "field": "countryCode",
-            "description": "countryCode"
-          },
-          {
             "field": "phone",
-            "description": "phone"
+            "description": "Destination phone number, without the country calling code."
           },
           {
-            "field": "message",
-            "description": "message"
+            "field": "countryCode",
+            "description": "Country calling code, such as 57."
           }
         ]
       },
@@ -53109,16 +53221,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "countryCode"
-            },
-            {
               "field": "phone",
-              "description": "phone"
+              "description": "Número de teléfono destino, sin el código de país."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Código de país, por ejemplo 57."
             }
           ],
           "responses": [
@@ -53157,16 +53265,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "countryCode"
-            },
-            {
               "field": "phone",
-              "description": "phone"
+              "description": "Destination phone number, without the country calling code."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Country calling code, such as 57."
             }
           ],
           "responses": [
@@ -53206,16 +53310,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "Indicatif d'appel numérique, pas un code ISO2. Exemple : `57` pour la Colombie, `1` pour les États-Unis."
-            },
-            {
               "field": "phone",
-              "description": "Numéro national de la ligne à interroger, sans préfixe pays, espaces ni ponctuation."
+              "description": "Numéro de téléphone du destinataire, sans l’indicatif pays."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Indicatif pays, par exemple 57."
             }
           ],
           "requestExamples": [],
@@ -53256,16 +53356,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "数字の国番号であり、ISO2 ではありません。例: コロンビア `57`、米国 `1`。"
-            },
-            {
               "field": "phone",
-              "description": "照会対象回線の国内番号。国番号、スペース、句読点は含めないでください。"
+              "description": "国番号を除いた宛先の電話番号。"
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "国番号。例: 57。"
             }
           ],
           "requestExamples": [],
@@ -53306,16 +53402,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "숫자 국가번호이며 ISO2가 아닙니다. 예: 콜롬비아 `57`, 미국 `1`."
-            },
-            {
               "field": "phone",
-              "description": "조회할 회선의 국내 번호. 국가 접두사, 공백, 문장 부호 없이 입력합니다."
+              "description": "국가 코드를 제외한 수신 전화 번호."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "국가 코드. 예: 57."
             }
           ],
           "requestExamples": [],
@@ -53356,16 +53448,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "Código de chamada numérico, não ISO2. Exemplo: `57` para a Colômbia, `1` para os Estados Unidos."
-            },
-            {
               "field": "phone",
-              "description": "Número nacional da linha a consultar, sem prefixo do país, espaços ou pontuação."
+              "description": "Telefone de destino, sem o código do país."
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "Código do país, por exemplo 57."
             }
           ],
           "requestExamples": [],
@@ -53406,16 +53494,12 @@
           ],
           "params": [
             {
-              "field": "countryCode",
-              "description": "数字国际区号，不是 ISO2。例如哥伦比亚 `57`、美国 `1`。"
-            },
-            {
               "field": "phone",
-              "description": "待查询线路的国内号码，不含国家前缀、空格或标点。"
+              "description": "不含国家区号的目标电话号码。"
             },
             {
-              "field": "message",
-              "description": "message"
+              "field": "countryCode",
+              "description": "国家区号，例如 57。"
             }
           ],
           "requestExamples": [],
@@ -62558,8 +62642,8 @@
     },
     {
       "code": "ocr_scan_gpt",
-      "name": "OCR Document Scan Prompt",
-      "nameES": "Escaneo OCR de Documentos GPT",
+      "name": "Scan Agent",
+      "nameES": "Scan Agent",
       "country": "world",
       "category": "OCR",
       "group": "biometrics",
@@ -62573,48 +62657,62 @@
       "input": {
         "dependencies": [
           {
-            "field": "documentType",
+            "field": "image",
             "type": "String",
             "required": true,
             "enum": null,
             "default": null,
             "min": null,
             "max": null,
-            "description": "Puedes especificar el documentType para que la IA no tenga que adivinar qué tipo de documento estamos extrayendo."
+            "description": "Document image as Base64 or a URL."
           },
           {
-            "field": "country",
+            "field": "documentType",
             "type": "String",
             "required": false,
             "enum": null,
             "default": null,
             "min": null,
             "max": null,
-            "description": "Parameter country"
+            "description": "Document type hint. Optional."
           },
           {
-            "field": "image",
+            "field": "backImage",
             "type": "String",
             "required": false,
             "enum": null,
             "default": null,
             "min": null,
             "max": null,
-            "description": "Imagen en formato Base64 codificado o una URL donde está alojada la imagen."
+            "description": "Back of the document as Base64 or a URL. Optional."
+          },
+          {
+            "field": "template",
+            "type": "String",
+            "required": false,
+            "enum": null,
+            "default": null,
+            "min": null,
+            "max": null,
+            "description": "Extraction template. Optional."
           }
         ],
         "documentedParams": [
           {
             "field": "image",
-            "description": "Image in Base64 encoded format or a URL where the image is hosted."
-          },
-          {
-            "field": "cropFace",
-            "description": "If you want to crop the face out of the document, pass this as `true`."
+            "description": "Document image as Base64 or a URL."
           },
           {
             "field": "documentType",
-            "description": "You could specify the documentType so the AI doesn't have to guess what document type are we extracting."
+            "description": "Document type hint. Optional."
+          },
+          {
+            "field": "backImage",
+            "description": "Back of the document as Base64 or a URL. Optional."
+          },
+          {
+            "field": "template",
+            "description": "Extraction template. Optional."
           }
         ]
       },
@@ -62622,7 +62720,7 @@
       "descriptionES": "OCR potenciado por GPT para documentos de identidad y otros escaneos. Envía una imagen y recibe campos estructurados (nombres, números de documento, fechas) junto con el texto extraído para flujos de KYC.",
       "docs": {
         "en": {
-          "title": "Scan Prompt",
+          "title": "Scan Agent",
           "description": "OCR API with prompt-based text extraction for legal documents",
           "overview": "Scan Prompt Document Scanning with AI Integration is a powerful tool designed to streamline the extraction of text from legal documents, supporting your Know Your Customer (KYC) process. This service harnesses advanced AI to automatically detect document types and utilizes proprietary technology for accurate data extraction.\n\n### Document match\n\nWhen `documentType` is `CC` (Colombian cédula) or `DRCC` (Colombian driver's license), `OCRExtraction` includes `documentClassification`:\n\n```json\n\"documentClassification\": {\n  \"requestedDocumentType\": \"CC\",\n  \"detectedDocumentType\": \"DRCC\",\n  \"detectedDocumentName\": \"Licencia de Conducción\",\n  \"isMatch\": false,\n  \"confidence\": 1,\n  \"reason\": \"El documento es una licencia de conducción del Ministerio de Transporte.\"\n}\n```\n\n- `detectedDocumentType` is `CC`, `DRCC`, or `UNKNOWN`.\n- `isMatch` is true only when the photo is the document you asked for.\n- A driver's license sent as `CC` still returns HTTP 200, and `documentType` stays `CC`. `isMatch` is false. Refuse that photo in your app.\n- A cédula sent as `DRCC` is the same in the other direction.\n- A passport, a vehicle card (`TLCC`), or a classification that could not run is `UNKNOWN`, with `isMatch` false.\n\nThe same scan can continue into a SmartCheck from [Smart Agent](https://ai.verifik.co). The photo is read, and a check configured on that document type, such as the Colombian cédula lookup, can run from the number OCR extracted.",
           "headers": [
@@ -62640,15 +62738,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Image in Base64 encoded format or a URL where the image is hosted."
-            },
-            {
-              "field": "cropFace",
-              "description": "If you want to crop the face out of the document, pass this as `true`."
+              "description": "Document image as Base64 or a URL."
             },
             {
               "field": "documentType",
-              "description": "You could specify the documentType so the AI doesn't have to guess what document type are we extracting."
+              "description": "Document type hint. Optional."
+            },
+            {
+              "field": "backImage",
+              "description": "Back of the document as Base64 or a URL. Optional."
+            },
+            {
+              "field": "template",
+              "description": "Extraction template. Optional."
             }
           ],
           "requestExamples": [
@@ -62684,7 +62786,7 @@
           ]
         },
         "es": {
-          "title": "Escaneo Prompt",
+          "title": "Scan Agent",
           "description": "API OCR con extracción de texto basada en prompts para documentos legales",
           "overview": "Escaneo Prompt con Integración de IA es una herramienta poderosa diseñada para optimizar la extracción de texto de documentos legales, apoyando tu proceso de Conoce a tu Cliente (KYC). Este servicio utiliza IA avanzada para detectar automáticamente tipos de documentos y emplea tecnología propietaria para una extracción de datos precisa.\n\n### Coincidencia del documento\n\nCuando `documentType` es `CC` (cédula colombiana) o `DRCC` (licencia de conducción colombiana), `OCRExtraction` incluye `documentClassification`:\n\n```json\n\"documentClassification\": {\n  \"requestedDocumentType\": \"CC\",\n  \"detectedDocumentType\": \"DRCC\",\n  \"detectedDocumentName\": \"Licencia de Conducción\",\n  \"isMatch\": false,\n  \"confidence\": 1,\n  \"reason\": \"El documento es una licencia de conducción del Ministerio de Transporte.\"\n}\n```\n\n- `detectedDocumentType` es `CC`, `DRCC` o `UNKNOWN`.\n- `isMatch` es true solo cuando la foto es el documento que pediste.\n- Una licencia enviada como `CC` sigue respondiendo HTTP 200, y `documentType` permanece `CC`. `isMatch` es false. Rechaza esa foto en tu aplicación.\n- Una cédula enviada como `DRCC` funciona igual en el otro sentido.\n- Un pasaporte, una tarjeta de vehículo (`TLCC`) o una clasificación que no pudo ejecutarse es `UNKNOWN`, con `isMatch` en false.\n\nEl mismo escaneo puede continuar en un SmartCheck desde [Smart Agent](https://ai.verifik.co). Se lee la foto, y una verificación configurada en ese tipo de documento, como la consulta de cédula colombiana, puede ejecutarse con el número que extrajo el OCR.",
           "headers": [
@@ -62702,15 +62804,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Imagen en formato Base64 codificado o una URL donde está alojada la imagen."
-            },
-            {
-              "field": "cropFace",
-              "description": "Si quieres recortar la cara del documento, pasa esto como `true`."
+              "description": "Imagen del documento en Base64 o una URL."
             },
             {
               "field": "documentType",
-              "description": "Puedes especificar el documentType para que la IA no tenga que adivinar qué tipo de documento estamos extrayendo."
+              "description": "Tipo de documento. Opcional."
+            },
+            {
+              "field": "backImage",
+              "description": "Reverso del documento en Base64 o una URL. Opcional."
+            },
+            {
+              "field": "template",
+              "description": "Plantilla de extracción. Opcional."
             }
           ],
           "requestExamples": [
@@ -62746,7 +62852,7 @@
           ]
         },
         "fr": {
-          "title": "Mondial — OCR Document Scan Prompt",
+          "title": "Scan Agent",
           "description": "Service officiel de vérification et de validation pour Mondial : GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "overview": "Service officiel de vérification et de validation pour Mondial : GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "headers": [
@@ -62764,15 +62870,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Image in Base64 encoded format or a URL where the image is hosted."
-            },
-            {
-              "field": "cropFace",
-              "description": "If you want to crop the face out of the document, pass this as `true`."
+              "description": "Image du document en Base64 ou URL."
             },
             {
               "field": "documentType",
-              "description": "Type de document à interroger."
+              "description": "Indication du type de document. Facultatif."
+            },
+            {
+              "field": "backImage",
+              "description": "Verso du document en Base64 ou URL. Facultatif."
+            },
+            {
+              "field": "template",
+              "description": "Modèle d’extraction. Facultatif."
             }
           ],
           "requestExamples": [
@@ -62808,7 +62918,7 @@
           ]
         },
         "ja": {
-          "title": "グローバル — OCR Document Scan Prompt",
+          "title": "Scan Agent",
           "description": "グローバル向けの公式検証および身元確認サービス：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "overview": "グローバル向けの公式検証および身元確認サービス：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "headers": [
@@ -62826,15 +62936,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Image in Base64 encoded format or a URL where the image is hosted."
-            },
-            {
-              "field": "cropFace",
-              "description": "If you want to crop the face out of the document, pass this as `true`."
+              "description": "Base64 または URL の書類画像。"
             },
             {
               "field": "documentType",
-              "description": "照会する文書タイプ。"
+              "description": "書類種別のヒント。任意。"
+            },
+            {
+              "field": "backImage",
+              "description": "Base64 または URL の書類裏面。任意。"
+            },
+            {
+              "field": "template",
+              "description": "抽出テンプレート。任意。"
             }
           ],
           "requestExamples": [
@@ -62870,7 +62984,7 @@
           ]
         },
         "ko": {
-          "title": "글로벌 — OCR Document Scan Prompt",
+          "title": "Scan Agent",
           "description": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "overview": "글로벌를 위한 공식 검증 및 데이터 조회 서비스: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "headers": [
@@ -62888,15 +63002,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Image in Base64 encoded format or a URL where the image is hosted."
-            },
-            {
-              "field": "cropFace",
-              "description": "If you want to crop the face out of the document, pass this as `true`."
+              "description": "Base64 또는 URL 형식의 문서 이미지."
             },
             {
               "field": "documentType",
-              "description": "조회할 문서 종류."
+              "description": "문서 유형 힌트. 선택 사항."
+            },
+            {
+              "field": "backImage",
+              "description": "Base64 또는 URL 형식의 문서 뒷면. 선택 사항."
+            },
+            {
+              "field": "template",
+              "description": "추출 템플릿. 선택 사항."
             }
           ],
           "requestExamples": [
@@ -62932,7 +63050,7 @@
           ]
         },
         "pt": {
-          "title": "Global — OCR Document Scan Prompt",
+          "title": "Scan Agent",
           "description": "Serviço oficial de verificação e validação para Global: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "overview": "Serviço oficial de verificação e validação para Global: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "headers": [
@@ -62950,15 +63068,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Image in Base64 encoded format or a URL where the image is hosted."
-            },
-            {
-              "field": "cropFace",
-              "description": "If you want to crop the face out of the document, pass this as `true`."
+              "description": "Imagem do documento em Base64 ou URL."
             },
             {
               "field": "documentType",
-              "description": "Tipo de documento que se deseja consultar."
+              "description": "Tipo de documento. Opcional."
+            },
+            {
+              "field": "backImage",
+              "description": "Verso do documento em Base64 ou URL. Opcional."
+            },
+            {
+              "field": "template",
+              "description": "Modelo de extração. Opcional."
             }
           ],
           "requestExamples": [
@@ -62994,7 +63116,7 @@
           ]
         },
         "zh": {
-          "title": "全球 — OCR Document Scan Prompt",
+          "title": "Scan Agent",
           "description": "全球官方数据核验与身份验证服务：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "overview": "全球官方数据核验与身份验证服务：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
           "headers": [
@@ -63012,15 +63134,19 @@
           "params": [
             {
               "field": "image",
-              "description": "Image in Base64 encoded format or a URL where the image is hosted."
-            },
-            {
-              "field": "cropFace",
-              "description": "If you want to crop the face out of the document, pass this as `true`."
+              "description": "Base64 或 URL 形式的证件图片。"
             },
             {
               "field": "documentType",
-              "description": "待请求的证件类型。"
+              "description": "证件类型提示。可选。"
+            },
+            {
+              "field": "backImage",
+              "description": "Base64 或 URL 形式的证件背面。可选。"
+            },
+            {
+              "field": "template",
+              "description": "提取模板。可选。"
             }
           ],
           "requestExamples": [
@@ -166640,6 +166766,198 @@
           "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Required parameter missing.\"\n}"
         }
       ]
+    },
+    {
+      "code": "panama_api_lawyer_idoneidad",
+      "name": "Panama — Lawyer Idoneidad Verification",
+      "nameES": "Panamá — Verificación de Idoneidad de Abogado",
+      "description": "Verify a Panamanian lawyer's idoneidad against the official Órgano Judicial registry by cédula, idoneidad number, or full name.",
+      "descriptionES": "Verifica la idoneidad de un abogado en Panamá ante el Órgano Judicial por cédula, número de idoneidad o nombre completo.",
+      "price": 0.2,
+      "smartCheckPrice": 0.2,
+      "feeType": "hybrid",
+      "legacy": false,
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/pa/lawyer/idoneidad",
+      "baseCategory": "professional_license",
+      "category": "professional_license",
+      "country": "Panama",
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [],
+      "dependencies": [
+        {
+          "field": "cedula",
+          "type": "String",
+          "required": false,
+          "enum": null,
+          "default": null,
+          "min": 4,
+          "max": 25,
+          "description": "Panamanian cédula (for example 8-123-456)",
+          "dependencyGroup": "1"
+        },
+        {
+          "field": "idoneidad",
+          "type": "String",
+          "required": false,
+          "enum": null,
+          "default": null,
+          "min": 1,
+          "max": 30,
+          "description": "Lawyer idoneidad number issued by the Órgano Judicial",
+          "dependencyGroup": "2"
+        },
+        {
+          "field": "fullName",
+          "type": "String",
+          "required": false,
+          "enum": null,
+          "default": null,
+          "min": 3,
+          "max": 160,
+          "description": "Full name of the lawyer",
+          "dependencyGroup": "3"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "cedula",
+            "type": "String",
+            "required": false,
+            "enum": null,
+            "default": null,
+            "min": 4,
+            "max": 25,
+            "description": "Panamanian cédula (for example 8-123-456)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "idoneidad",
+            "type": "String",
+            "required": false,
+            "enum": null,
+            "default": null,
+            "min": 1,
+            "max": 30,
+            "description": "Lawyer idoneidad number issued by the Órgano Judicial",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "enum": null,
+            "default": null,
+            "min": 3,
+            "max": 160,
+            "description": "Full name of the lawyer",
+            "dependencyGroup": "3"
+          }
+        ]
+      },
+      "docs": {
+        "en": {
+          "title": "Panama — Lawyer Idoneidad Verification",
+          "description": "Verify a Panamanian lawyer's idoneidad against the official Órgano Judicial registry.",
+          "overview": "Look up a lawyer admitted in Panama. Send a cédula, an idoneidad number, or a full name. The response confirms whether that person holds a current lawyer idoneidad.",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "Panamanian cédula (for example 8-123-456)." },
+            { "field": "idoneidad", "description": "Lawyer idoneidad number issued by the Órgano Judicial." },
+            { "field": "fullName", "description": "Full name of the lawyer." }
+          ]
+        },
+        "es": {
+          "title": "Panamá — Verificación de Idoneidad de Abogado",
+          "description": "Verifica la idoneidad de un abogado en Panamá ante el Órgano Judicial.",
+          "overview": "Consulta un abogado admitido en Panamá. Envía la cédula, el número de idoneidad o el nombre completo. La respuesta confirma si esa persona tiene una idoneidad de abogado vigente.",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "Cédula panameña (por ejemplo 8-123-456)." },
+            { "field": "idoneidad", "description": "Número de idoneidad de abogado expedido por el Órgano Judicial." },
+            { "field": "fullName", "description": "Nombre completo del abogado." }
+          ]
+        },
+        "fr": {
+          "title": "Panama — Vérification d'idoneité d'avocat",
+          "description": "Vérifiez l'idoneidad d'un avocat au Panama auprès de l'Órgano Judicial.",
+          "overview": "Recherchez un avocat admis au Panama. Envoyez une cédula, un numéro d'idoneidad ou un nom complet. La réponse indique si cette personne détient une idoneidad d'avocat en cours.",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "Cédula panaméenne (par exemple 8-123-456)." },
+            { "field": "idoneidad", "description": "Numéro d'idoneidad d'avocat délivré par l'Órgano Judicial." },
+            { "field": "fullName", "description": "Nom complet de l'avocat." }
+          ]
+        },
+        "pt": {
+          "title": "Panamá — Verificação de idoneidade de advogado",
+          "description": "Verifique a idoneidade de um advogado no Panamá no Órgano Judicial.",
+          "overview": "Consulte um advogado admitido no Panamá. Envie a cédula, o número de idoneidade ou o nome completo. A resposta confirma se essa pessoa tem idoneidade de advogado vigente.",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "Cédula panamenha (por exemplo 8-123-456)." },
+            { "field": "idoneidad", "description": "Número de idoneidade do advogado emitido pelo Órgano Judicial." },
+            { "field": "fullName", "description": "Nome completo do advogado." }
+          ]
+        },
+        "ko": {
+          "title": "파나마 — 변호사 적격 확인",
+          "description": "파나마 사법부 명부에서 변호사 적격을 확인합니다.",
+          "overview": "파나마에서 등록된 변호사를 조회합니다. 세둘라, 적격 번호 또는 성명을 보내면 해당 인물의 변호사 적격이 유효한지 확인합니다.",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "파나마 세둘라 (예: 8-123-456)." },
+            { "field": "idoneidad", "description": "사법부가 발급한 변호사 적격 번호." },
+            { "field": "fullName", "description": "변호사 성명." }
+          ]
+        },
+        "ja": {
+          "title": "パナマ — 弁護士適格性の確認",
+          "description": "パナマの司法機関名簿で弁護士の適格性を確認します。",
+          "overview": "パナマで登録された弁護士を照会します。セドゥラ、適格番号、または氏名を送ると、その人物の弁護士適格が有効か確認できます。",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "パナマのセドゥラ（例: 8-123-456）。" },
+            { "field": "idoneidad", "description": "司法機関が発行した弁護士適格番号。" },
+            { "field": "fullName", "description": "弁護士の氏名。" }
+          ]
+        },
+        "zh": {
+          "title": "巴拿马 — 律师资格核验",
+          "description": "对照巴拿马司法机关名录核验律师资格。",
+          "overview": "查询在巴拿马登记的律师。提交身份证、资格编号或姓名后，响应会确认该人是否持有有效律师资格。",
+          "headers": [
+            { "name": "Accept", "value": "application/json", "description": "" },
+            { "name": "Authorization", "value": "Bearer <token>", "description": "" }
+          ],
+          "params": [
+            { "field": "cedula", "description": "巴拿马身份证（例如 8-123-456）。" },
+            { "field": "idoneidad", "description": "司法机关颁发的律师资格编号。" },
+            { "field": "fullName", "description": "律师全名。" }
+          ]
+        }
+      }
     },
     {
       "code": "panama_api_jtia_license",

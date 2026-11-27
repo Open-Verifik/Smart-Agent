@@ -103,6 +103,25 @@ const mergeStaffRbacPatch = (
     .pipe(
       map((patch) => deepMergeTranslations(merged, patch)),
       catchError(() => of(merged)),
+      switchMap((withStaffRbac) => mergeKybVerificationPatch(http, lang, withStaffRbac)),
+    );
+
+/**
+ * Verifik KYB onboarding strip, modal, and Settings Company Verification copy.
+ */
+const mergeKybVerificationPatch = (
+  http: HttpClient,
+  lang: string,
+  merged: Translation,
+): Observable<Translation> =>
+  http
+    .get<Translation>(`./i18n/patches/kyb-verification-${lang}.json`, {
+      responseType: 'json',
+      observe: 'body',
+    })
+    .pipe(
+      map((patch) => deepMergeTranslations(merged, patch)),
+      catchError(() => of(merged)),
     );
 
 /** Optional patch files for AppFeature URL strings (avoids editing root-owned features-*.json). */

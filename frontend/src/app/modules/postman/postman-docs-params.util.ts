@@ -1,18 +1,104 @@
+import { isClientVisibleBatchDependencyField } from '../smart-batch/smart-batch-dependency.constants';
 import { ApiEndpoint, EndpointDocParamRow, EndpointDocs } from './postman.types';
 
 const SYSTEM_PARAM_KEYS = new Set(['includeCost', 'force']);
+
+export interface AboutParamFieldMeta {
+    type?: string;
+    required?: boolean;
+    allowed?: string[];
+    requiredWhen?: { field: string; in?: string[] };
+    dateFormat?: string;
+    description?: string;
+}
+
+type AboutParamSource = {
+    key?: string;
+    field?: string;
+    type?: string;
+    required?: boolean;
+    enum?: string[] | null;
+    requiredWhen?: { field: string; in?: string[] };
+    dateFormat?: string;
+    description?: string;
+    system?: string;
+};
+
+/**
+ * Merges query-param rows with dependency metadata.
+ * POST routes keep their inputs on `dependencies` / the JSON body, so the About
+ * table still receives type and required from those dependencies.
+ */
+export const indexAboutParamMetadata = (
+    params: readonly AboutParamSource[] | null | undefined,
+    dependencies: readonly AboutParamSource[] | null | undefined
+): Map<string, AboutParamFieldMeta> => {
+    const byField = new Map<string, AboutParamFieldMeta>();
+    const apply = (row: AboutParamSource, key: string) => {
+        if (!key || SYSTEM_PARAM_KEYS.has(key) || !isClientVisibleBatchDependencyField(key)) return;
+        const prev = byField.get(key);
+        const allowed =
+            Array.isArray(row.enum) && row.enum.length ? [...row.enum] : prev?.allowed;
+        byField.set(key, {
+            type: row.type || prev?.type,
+            required: typeof row.required === 'boolean' ? row.required : prev?.required,
+            allowed,
+            requiredWhen: row.requiredWhen ?? prev?.requiredWhen,
+            dateFormat: row.dateFormat || prev?.dateFormat,
+            description: row.description?.trim() ? row.description : prev?.description,
+        });
+    };
+    for (const dependency of dependencies ?? []) {
+        apply(dependency, dependency.field || '');
+    }
+    for (const param of params ?? []) {
+        if (param.system === 'includeCost') continue;
+        apply(param, param.key || '');
+    }
+    return byField;
+};
 
 const FALLBACK_DOC_PARAMS: Record<string, EndpointDocParamRow[]> = {
     colombia_api_driver: [{ field: 'primerApellido', description: 'First last name' }],
 };
 
+/**
+ * `AppFeature.docs` sometimes stores params as field-name strings (`["fullName"]`)
+ * instead of `{ field, description }` rows. Staff-only `force` is never a client param.
+ */
+export const coerceEndpointDocParamRows = (params: unknown): EndpointDocParamRow[] => {
+    if (!Array.isArray(params)) return [];
+    const rows: EndpointDocParamRow[] = [];
+    for (const item of params) {
+        if (typeof item === 'string') {
+            const field = item.trim();
+            if (!field || SYSTEM_PARAM_KEYS.has(field)) continue;
+            rows.push({ field, description: '' });
+            continue;
+        }
+        if (!item || typeof item !== 'object') continue;
+        const field =
+            typeof (item as EndpointDocParamRow).field === 'string'
+                ? (item as EndpointDocParamRow).field.trim()
+                : '';
+        if (!field || SYSTEM_PARAM_KEYS.has(field)) continue;
+        rows.push({
+            field,
+            description:
+                typeof (item as EndpointDocParamRow).description === 'string'
+                    ? (item as EndpointDocParamRow).description
+                    : '',
+        });
+    }
+    return rows;
+};
+
 const collectDocParamRows = (endpoint: ApiEndpoint): EndpointDocParamRow[] => {
     const byField = new Map<string, EndpointDocParamRow>();
     for (const locale of Object.values(endpoint.docs || {})) {
-        for (const row of locale?.params ?? []) {
-            const field = row.field?.trim();
-            if (!field || byField.has(field) || SYSTEM_PARAM_KEYS.has(field)) continue;
-            byField.set(field, row);
+        for (const row of coerceEndpointDocParamRows(locale?.params)) {
+            if (byField.has(row.field)) continue;
+            byField.set(row.field, row);
         }
     }
     for (const row of FALLBACK_DOC_PARAMS[endpoint.code || ''] || []) {

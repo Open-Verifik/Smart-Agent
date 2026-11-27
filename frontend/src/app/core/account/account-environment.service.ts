@@ -6,7 +6,11 @@ import { TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { of } from 'rxjs';
 import { catchError, finalize, take } from 'rxjs/operators';
-import { PaymentService } from '../../modules/add-credits/services/payment.service';
+import {
+    ClientKybStatusData,
+    ClientKybTier,
+    PaymentService,
+} from '../../modules/add-credits/services/payment.service';
 import { HttpWrapperService } from '../services/http-wrapper.service';
 import { SessionService } from '../services/session.service';
 import { UserService } from '../user/user.service';
@@ -26,12 +30,39 @@ export class AccountEnvironmentService {
     readonly accountSnapshot = signal<User | null>(null);
     readonly sandboxToggleLoading = signal(false);
     readonly verifyCompanyLoading = signal(false);
+    readonly kybStatus = signal<ClientKybStatusData | null>(null);
+    readonly kybStatusLoading = signal(false);
+    readonly tier1StripDismissed = signal(false);
+
+    private _kybLoadedForClientId: string | null = null;
 
     /**
      * True after `/v2/auth/session` (or equivalent) has hydrated the account.
      * Prevents stale `verifik_account` localStorage from flashing the KYC strip/modal.
      */
     readonly sessionHydrated = signal(false);
+
+    readonly kybOnboardingEnabled = computed(() => this.kybStatus()?.kybOnboardingEnabled === true);
+
+    readonly kybRegistration = computed(() => this.kybStatus()?.businessRegistration ?? null);
+
+    readonly kybTier = computed<ClientKybTier>(() => {
+        const status = this.kybStatus();
+        if (status?.effectiveKybTier) {
+            return status.effectiveKybTier;
+        }
+        return this.accountSnapshot()?.canRecharge === true ? 'legacy_kyc' : 'none';
+    });
+
+    readonly isLegacyKycClient = computed(() => this.kybTier() === 'legacy_kyc');
+
+    readonly isTier1Standard = computed(() => this.kybTier() === 'tier1_standard');
+
+    readonly isTier2Full = computed(() => this.kybTier() === 'tier2_full');
+
+    readonly kybChangesRequested = computed(
+        () => this.kybRegistration()?.status === 'CHANGES_REQUESTED'
+    );
 
     readonly showVerifyStrip = computed(
         () =>
@@ -41,11 +72,31 @@ export class AccountEnvironmentService {
             this.accountSnapshot()?.approvalRequestStatus !== 'approved'
     );
 
-    readonly verifyStripPendingReview = computed(
+    readonly verifyStripPendingReview = computed(() => {
+        if (!this.isAuthenticated() || this.accountSnapshot()?.canRecharge !== false) {
+            return false;
+        }
+        if (this.kybChangesRequested()) {
+            return false;
+        }
+        if (this.accountSnapshot()?.approvalRequestStatus === 'requested') {
+            return true;
+        }
+        const status = this.kybRegistration()?.status;
+        return (
+            this.kybOnboardingEnabled() &&
+            (status === 'NEEDS_MANUAL_VERIFICATION' || status === 'PENDING_REPRESENTATIVES')
+        );
+    });
+
+    readonly showTier1UpgradeStrip = computed(
         () =>
+            this.sessionHydrated() &&
             this.isAuthenticated() &&
-            this.accountSnapshot()?.canRecharge === false &&
-            this.accountSnapshot()?.approvalRequestStatus === 'requested'
+            !this.tier1StripDismissed() &&
+            this.kybOnboardingEnabled() &&
+            this.kybTier() === 'tier1_standard' &&
+            this.kybRegistration()?.status !== 'COMPLETED'
     );
 
     readonly showSandboxStrip = computed(
@@ -85,10 +136,17 @@ export class AccountEnvironmentService {
                 // goes through `_hydrateFromStorage` and must not unlock the KYC strip early.
                 if (typeof user.canRecharge === 'boolean') {
                     this.sessionHydrated.set(true);
+                    const clientId = String(user._id || '');
+                    if (clientId && this._kybLoadedForClientId !== clientId) {
+                        this._kybLoadedForClientId = clientId;
+                        this.loadKybStatus();
+                    }
                 }
             } else {
                 this.accountSnapshot.set(null);
                 this.sessionHydrated.set(false);
+                this.kybStatus.set(null);
+                this._kybLoadedForClientId = null;
             }
             this._refreshAuthState();
         });
@@ -99,6 +157,8 @@ export class AccountEnvironmentService {
             }
             this.accountSnapshot.set(null);
             this.sessionHydrated.set(false);
+            this.kybStatus.set(null);
+            this._kybLoadedForClientId = null;
             this._refreshAuthState();
         });
     }
@@ -122,6 +182,7 @@ export class AccountEnvironmentService {
                 }
                 this._refreshAuthState();
             });
+        this.loadKybStatus();
     }
 
     /** Called after AppComponent session restore so sandbox UI hydrates immediately. */
@@ -129,8 +190,38 @@ export class AccountEnvironmentService {
         if (user) {
             this.accountSnapshot.set(user);
             this.sessionHydrated.set(true);
+            const clientId = String(user._id || '');
+            if (!clientId || this._kybLoadedForClientId !== clientId) {
+                if (clientId) this._kybLoadedForClientId = clientId;
+                this.loadKybStatus();
+            }
         }
         this._refreshAuthState();
+    }
+
+    /** Fetches current KYB tier & business registration dossier without failing unauthenticated/legacy callers. */
+    loadKybStatus(): void {
+        if (!this._sessionService.hasValidAuthentication() || this.kybStatusLoading()) {
+            return;
+        }
+
+        this.kybStatusLoading.set(true);
+        this._paymentService
+            .getMyKyb()
+            .pipe(
+                take(1),
+                finalize(() => this.kybStatusLoading.set(false)),
+                catchError(() => of(null))
+            )
+            .subscribe((response) => {
+                if (response?.data) {
+                    this.kybStatus.set(response.data);
+                }
+            });
+    }
+
+    dismissTier1Strip(): void {
+        this.tier1StripDismissed.set(true);
     }
 
     /**
@@ -212,7 +303,58 @@ export class AccountEnvironmentService {
         );
     }
 
-    executeCompanyVerification(): void {
+    executeCompanyVerification(options?: { forceNew?: boolean }): void {
+        if (this.verifyCompanyLoading()) {
+            return;
+        }
+
+        if (this.kybOnboardingEnabled() && !this.isLegacyKycClient()) {
+            this.openKybFlowDirectly(Boolean(options?.forceNew));
+            return;
+        }
+
+        this._executeLegacyKycVerification();
+    }
+
+    /** Opens or resumes the KYB short-link portal directly (used by Tier 1 strip and Settings KYB panel). */
+    openKybFlowDirectly(forceNew = false): void {
+        if (this.verifyCompanyLoading()) {
+            return;
+        }
+
+        this.verifyCompanyLoading.set(true);
+        this._paymentService
+            .resumeKYB({ origin: environment.kycBaseUrl, forceNew })
+            .pipe(
+                take(1),
+                finalize(() => this.verifyCompanyLoading.set(false)),
+                catchError((err) => {
+                    const code = String(err?.error?.message || err?.error?.code || '');
+                    if (err?.status === 503 || code.includes('verifik_kyb_project_not_configured')) {
+                        this._executeLegacyKycVerification();
+                        return of(null);
+                    }
+                    console.error('[AccountEnvironmentService] resume-kyb failed:', err);
+                    this._snackBar.open(
+                        this._transloco.translate('accountEnv.errors.verifyFailed'),
+                        undefined,
+                        { duration: 4000 }
+                    );
+                    return of(null);
+                })
+            )
+            .subscribe((response) => {
+                const verifyUrl = response?.data?.verifyUrl;
+                if (!verifyUrl) {
+                    return;
+                }
+
+                window.open(verifyUrl, '_blank', 'noopener,noreferrer');
+                this.loadKybStatus();
+            });
+    }
+
+    private _executeLegacyKycVerification(): void {
         if (this.verifyCompanyLoading()) {
             return;
         }

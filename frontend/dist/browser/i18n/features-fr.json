@@ -697,8 +697,8 @@
             "description": "Vérifiez les personnes par rapport aux registres officiels des Personnes Politiquement Exposées (PPE) en Cuba conformément à la recommandation 12 du GAFI et à la législation nationale LCB-FT."
         },
         "czechia_api_identity_lookup": {
-            "title": "Czechia — Vérification d'identité citoyenne et entrepreneur (KYC)",
-            "description": "Vérifiez l'identité nationale, la validité des documents et le statut légal des citoyens et entrepreneurs individuels en Czechia."
+            "title": "Tchéquie — Vérification d'identité citoyenne et entrepreneur (KYC)",
+            "description": "Vérifiez l'identité nationale, la validité des documents et le statut légal des citoyens et entrepreneurs individuels en Tchéquie."
         },
         "data_finance_balancesheet": {
             "title": "Mondial — Financial - Balance Sheet",
@@ -997,7 +997,7 @@
             "description": "Vérifiez l'identité nationale, la validité des documents et le statut légal des citoyens et entrepreneurs individuels en Norvège."
         },
         "ocr_scan_gpt": {
-            "title": "Mondial — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "Service officiel de vérification et de validation pour Mondial : GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1023,6 +1023,10 @@
         "panama_api_identity_lookup": {
             "title": "Citoyen panaméen (CCPA)",
             "description": "Vérifier l'identité des personnes au Panama avec l'API KYC Verifik (cédula CCPA)."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "Panama — Vérification d'idoneité d'avocat",
+            "description": "Vérifiez l'idoneidad d'un avocat au Panama auprès de l'Órgano Judicial par cédula, numéro d'idoneidad ou nom complet."
         },
         "panama_api_jtia_license": {
             "title": "Panama — Panama - Engineering & Architecture License Verification (JTIA)",
@@ -1189,8 +1193,8 @@
             "description": "Vérifiez l'identité nationale, la validité des documents et le statut légal des citoyens et entrepreneurs individuels en Uruguay."
         },
         "us_api_npi_identity_lookup": {
-            "title": "États-Unis — United States — Citizen Identity & Sole Proprietor Verification (KYC)",
-            "description": "Service officiel de vérification et de validation pour États-Unis : Live official identity and sole-proprietor validation in United States. Verifies legal citizen/individual name, registration status, and official identity attributes."
+            "title": "États-Unis — Vérification d'identité citoyenne et entrepreneur (KYC)",
+            "description": "Vérifiez l'identité nationale, la validité des documents et le statut légal des citoyens et entrepreneurs individuels aux États-Unis."
         },
         "us_api_passport_entries": {
             "title": "États-Unis — United States - Passport & U.S. entries",
@@ -1801,8 +1805,8 @@
             "description": "Vérifiez l'immatriculation légale, le statut corporatif, les mandataires et les informations d'entreprises en Belgique via le registre officiel."
         },
         "czechia_api_company_lookup": {
-            "title": "Czechia — Consultation du registre des entreprises (KYB)",
-            "description": "Vérifiez l'immatriculation légale, le statut corporatif, les mandataires et les informations d'entreprises en Czechia via le registre officiel."
+            "title": "Tchéquie — Consultation du registre des entreprises (KYB)",
+            "description": "Vérifiez l'immatriculation légale, le statut corporatif, les mandataires et les informations d'entreprises en Tchéquie via le registre officiel."
         },
         "denmark_api_company_lookup": {
             "title": "Danemark — Consultation du registre des entreprises (KYB)",

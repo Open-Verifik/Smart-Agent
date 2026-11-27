@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatCatalogPrice, mergeParamsFromDocs, sanitizeDisplayPayload } from './postman-docs-params.util';
+import {
+    coerceEndpointDocParamRows,
+    formatCatalogPrice,
+    mergeParamsFromDocs,
+    sanitizeDisplayPayload,
+} from './postman-docs-params.util';
 import { ApiEndpoint } from './postman.types';
 
 const endpoint = (overrides: Partial<ApiEndpoint> = {}): ApiEndpoint =>
@@ -51,10 +56,57 @@ describe('mergeParamsFromDocs', () => {
         expect(merged.params?.some((param) => param.key === 'primerApellido')).toBe(true);
     });
 
+    it('adds fields that production docs list as plain strings', () => {
+        const merged = mergeParamsFromDocs(
+            endpoint({
+                code: 'be_api_pep',
+                params: [{ key: 'documentNumber', value: '', type: 'String', required: false }],
+                docs: {
+                    en: {
+                        params: ['documentNumber', 'fullName', 'force'] as unknown as {
+                            field: string;
+                            description: string;
+                        }[],
+                    },
+                },
+            })
+        );
+        expect(merged.params?.map((param) => param.key)).toEqual(['documentNumber', 'fullName']);
+    });
+
     it('does not duplicate existing params', () => {
         const once = mergeParamsFromDocs(endpoint());
         const twice = mergeParamsFromDocs(once);
         expect(twice.params?.filter((param) => param.key === 'primerApellido')).toHaveLength(1);
+    });
+});
+
+describe('coerceEndpointDocParamRows', () => {
+    it('turns field-name strings into rows and drops staff-only force', () => {
+        expect(coerceEndpointDocParamRows(['fullName', 'force', 'documentNumber'])).toEqual([
+            { field: 'fullName', description: '' },
+            { field: 'documentNumber', description: '' },
+        ]);
+    });
+});
+
+describe('mergeParamsFromDocs', () => {
+    it('adds query params documented as field-name strings', () => {
+        const merged = mergeParamsFromDocs(
+            endpoint({
+                code: 'world_api_argentina_repet',
+                params: [],
+                docs: {
+                    en: {
+                        params: ['fullName', 'documentNumber', 'force'] as unknown as {
+                            field: string;
+                            description: string;
+                        }[],
+                    },
+                },
+            })
+        );
+        expect(merged.params?.map((param) => param.key)).toEqual(['fullName', 'documentNumber']);
     });
 });
 
