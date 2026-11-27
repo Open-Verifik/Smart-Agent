@@ -1,0 +1,403 @@
+{
+	"tools": [
+		{
+			"name": "teams_list",
+			"description": "List all sub-teams (cost-center budget pools) for the authenticated client tenant, including current period spend and member counts.",
+			"method": "GET",
+			"verifikPath": "/v2/teams",
+			"openApiPath": "/v2/teams",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"includeMembers": {
+						"type": "boolean",
+						"description": "Include assigned staff member summaries on each team."
+					}
+				}
+			}
+		},
+		{
+			"name": "teams_create",
+			"description": "Create a new sub-team with optional monthly budget cap, default role, endpoint allowlist/blocklist, initial members, defaultCostCenter, allowedCostCenters, and enforceCostCenter lock.",
+			"method": "POST",
+			"verifikPath": "/v2/teams",
+			"openApiPath": "/v2/teams",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["name"],
+				"properties": {
+					"name": { "type": "string", "description": "Sub-team display name." },
+					"description": { "type": "string" },
+					"color": { "type": "string", "enum": ["blue", "emerald", "indigo", "amber", "rose", "violet", "cyan", "slate"] },
+					"status": { "type": "string", "enum": ["active", "paused"] },
+					"defaultRole": { "type": "string", "description": "Optional default system role slug for members." },
+					"defaultCustomRole": { "type": "string", "description": "Optional ClientRole ID." },
+					"defaultCostCenter": { "type": "string", "description": "Optional CostCenter ID used as default when caller omits x-cost-center." },
+					"allowedCostCenters": {
+						"type": "array",
+						"items": { "type": "string" },
+						"description": "Allowed CostCenter IDs for this sub-team when enforceCostCenter is enabled."
+					},
+					"enforceCostCenter": {
+						"type": "boolean",
+						"description": "When true, reject requests whose x-cost-center is not in allowedCostCenters or defaultCostCenter."
+					},
+					"monthlyBudget": { "type": "number", "description": "Monthly credit budget cap in USD (null for unlimited)." },
+					"budgetEnforcement": { "type": "string", "enum": ["hard", "soft"] },
+					"memberIds": { "type": "array", "items": { "type": "string" }, "description": "Initial Staff IDs to assign." },
+					"endpointPolicy": {
+						"type": "object",
+						"properties": {
+							"mode": { "type": "string", "enum": ["all", "blocklist", "allowlist"] },
+							"features": { "type": "array", "items": { "type": "string" } }
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "teams_update",
+			"description": "Update an existing sub-team's metadata, budget cap, CECO lock policy, endpoint policy, or assigned member list.",
+			"method": "PUT",
+			"verifikPath": "/v2/teams/{id}",
+			"openApiPath": "/v2/teams/{id}",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "Sub-team ID." },
+					"name": { "type": "string" },
+					"description": { "type": "string" },
+					"color": { "type": "string", "enum": ["blue", "emerald", "indigo", "amber", "rose", "violet", "cyan", "slate"] },
+					"status": { "type": "string", "enum": ["active", "paused"] },
+					"defaultCostCenter": { "type": "string" },
+					"allowedCostCenters": { "type": "array", "items": { "type": "string" } },
+					"enforceCostCenter": { "type": "boolean" },
+					"monthlyBudget": { "type": "number" },
+					"budgetEnforcement": { "type": "string", "enum": ["hard", "soft"] },
+					"memberIds": { "type": "array", "items": { "type": "string" } }
+				}
+			}
+		},
+		{
+			"name": "teams_delete",
+			"description": "Delete a sub-team and optionally reassign its members and owned resources to another sub-team ID.",
+			"method": "DELETE",
+			"verifikPath": "/v2/teams/{id}",
+			"openApiPath": "/v2/teams/{id}",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "Sub-team ID to delete." },
+					"reassignToTeamId": { "type": "string", "description": "Optional target sub-team ID for reassignment." }
+				}
+			}
+		},
+		{
+			"name": "teams_assign_resources",
+			"description": "Bulk-assign or unassign existing workspace resources (projects, flows, templates, batch configs, batches, reports, requests) to a sub-team (requires team.update and team.readAll).",
+			"method": "POST",
+			"verifikPath": "/v2/teams/{id}/assign",
+			"openApiPath": "/v2/teams/{id}/assign",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id", "resourceType", "ids"],
+				"properties": {
+					"id": { "type": "string", "description": "Target sub-team ID, or 'unassigned' to clear team ownership." },
+					"resourceType": {
+						"type": "string",
+						"enum": [
+							"projects",
+							"projectFlows",
+							"smartReportTemplates",
+							"batchConfigurations",
+							"smartBatches",
+							"smartReports",
+							"appRegistrations",
+							"documentValidations",
+							"biometricValidations",
+							"apiRequests"
+						]
+					},
+					"ids": { "type": "array", "items": { "type": "string" }, "description": "Resource ObjectIds to update (max 500)." },
+					"visibility": { "type": "string", "enum": ["team", "workspace"], "description": "Optional shared visibility override for config resources." }
+				}
+			}
+		},
+		{
+			"name": "teams_create_api_key",
+			"description": "Generate a Sub-Team-scoped API key JWT carrying { clientId, teamId } so server integrations obey that team's CECO, endpoint, and budget rules.",
+			"method": "POST",
+			"verifikPath": "/v2/teams/{id}/api-keys",
+			"openApiPath": "/v2/teams/{id}/api-keys",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "Sub-team ID." },
+					"alias": { "type": "string", "description": "Human-friendly label for the API key." },
+					"expiresInMonths": { "type": "number", "description": "Validity in months (1-36)." }
+				}
+			}
+		},
+		{
+			"name": "roles_catalog",
+			"description": "Retrieve the full RBAC catalog including resources, actions, built-in system presets (including report_builder), and tenant custom roles.",
+			"method": "GET",
+			"verifikPath": "/v2/client-roles/catalog",
+			"openApiPath": "/v2/client-roles/catalog",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {}
+			}
+		},
+		{
+			"name": "roles_create",
+			"description": "Create a custom tenant role with granular resource/action permissions, endpoint policy, and access-request policy.",
+			"method": "POST",
+			"verifikPath": "/v2/client-roles",
+			"openApiPath": "/v2/client-roles",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["name"],
+				"properties": {
+					"name": { "type": "string" },
+					"description": { "type": "string" },
+					"color": { "type": "string", "enum": ["blue", "emerald", "indigo", "amber", "rose", "violet", "cyan", "slate"] },
+					"basedOn": { "type": "string", "description": "Optional system role preset slug to seed defaults from." },
+					"permissions": { "type": "object", "additionalProperties": true },
+					"allowAccessRequests": { "type": "boolean", "description": "Whether staff on this role may submit self-service access requests." },
+					"requestableResources": { "type": "array", "items": { "type": "string" }, "description": "Optional allowlist of requestable resource keys (null for unrestricted)." }
+				}
+			}
+		},
+		{
+			"name": "roles_update",
+			"description": "Update an existing custom role's permissions, metadata, or access-request policy.",
+			"method": "PUT",
+			"verifikPath": "/v2/client-roles/{id}",
+			"openApiPath": "/v2/client-roles/{id}",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "Custom ClientRole ID." },
+					"name": { "type": "string" },
+					"description": { "type": "string" },
+					"permissions": { "type": "object", "additionalProperties": true },
+					"allowAccessRequests": { "type": "boolean" },
+					"requestableResources": { "type": "array", "items": { "type": "string" } }
+				}
+			}
+		},
+		{
+			"name": "roles_duplicate",
+			"description": "Clone any built-in system role preset (e.g. report_builder, operator) or custom role into an editable custom role.",
+			"method": "POST",
+			"verifikPath": "/v2/client-roles/{id}/duplicate",
+			"openApiPath": "/v2/client-roles/{id}/duplicate",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "System role slug or existing ClientRole ID." },
+					"name": { "type": "string", "description": "Optional name for the cloned custom role." }
+				}
+			}
+		},
+		{
+			"name": "roles_delete",
+			"description": "Delete a custom role, optionally reassigning affected staff members to another system or custom role.",
+			"method": "DELETE",
+			"verifikPath": "/v2/client-roles/{id}",
+			"openApiPath": "/v2/client-roles/{id}",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "Custom ClientRole ID to delete." },
+					"reassignToRole": { "type": "string" },
+					"reassignToCustomRole": { "type": "string" }
+				}
+			}
+		},
+		{
+			"name": "staff_list",
+			"description": "List workspace staff members along with their role, custom role, and assigned sub-team.",
+			"method": "GET",
+			"verifikPath": "/v2/staff",
+			"openApiPath": "/v2/staff",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"page": { "type": "number" },
+					"perPage": { "type": "number" }
+				}
+			}
+		},
+		{
+			"name": "staff_invite",
+			"description": "Invite a new staff member and assign them a system role, custom role, and optional sub-team.",
+			"method": "POST",
+			"verifikPath": "/v2/staff",
+			"openApiPath": "/v2/staff",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["name", "email"],
+				"properties": {
+					"name": { "type": "string" },
+					"email": { "type": "string", "format": "email" },
+					"countryCode": { "type": "string" },
+					"phone": { "type": "string" },
+					"role": { "type": "string", "description": "System role slug (e.g. operator, report_builder, admin, viewer)." },
+					"customRole": { "type": "string", "description": "Optional ClientRole ID." },
+					"team": { "type": "string", "description": "Optional Sub-Team ID." }
+				}
+			}
+		},
+		{
+			"name": "staff_update",
+			"description": "Update an existing staff member's role, custom role, sub-team assignment, or custom permission overrides.",
+			"method": "PUT",
+			"verifikPath": "/v2/staff/{id}",
+			"openApiPath": "/v2/staff/{id}",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string", "description": "Staff ID." },
+					"name": { "type": "string" },
+					"role": { "type": "string" },
+					"customRole": { "type": "string" },
+					"team": { "type": "string" },
+					"useCustomPermissions": { "type": "boolean" },
+					"customPermissions": { "type": "object", "additionalProperties": true }
+				}
+			}
+		},
+		{
+			"name": "staff_my_permissions",
+			"description": "Inspect the authenticated caller's effective RBAC permissions matrix, assigned sub-team, CECO policy, and access request policy.",
+			"method": "GET",
+			"verifikPath": "/v2/staff/me/permissions",
+			"openApiPath": "/v2/staff/me/permissions",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {}
+			}
+		},
+		{
+			"name": "access_requests_list",
+			"description": "List tenant self-service access, role upgrade, and budget increase requests.",
+			"method": "GET",
+			"verifikPath": "/v2/staff-access-requests",
+			"openApiPath": "/v2/staff-access-requests",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"status": { "type": "string", "enum": ["pending", "approved", "rejected", "cancelled", "expired", "revoked", "all"] },
+					"requestType": { "type": "string", "enum": ["resource_access", "role_upgrade", "budget_increase", "all"] },
+					"page": { "type": "number" },
+					"perPage": { "type": "number" }
+				}
+			}
+		},
+		{
+			"name": "access_requests_approve",
+			"description": "Approve a pending staff access, role upgrade, or budget boost request.",
+			"method": "POST",
+			"verifikPath": "/v2/staff-access-requests/{id}/approve",
+			"openApiPath": "/v2/staff-access-requests/{id}/approve",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string" },
+					"approvedDuration": { "type": "string", "enum": ["24h", "7d", "30d", "permanent"] },
+					"reviewNote": { "type": "string" }
+				}
+			}
+		},
+		{
+			"name": "access_requests_reject",
+			"description": "Reject a pending staff access request.",
+			"method": "POST",
+			"verifikPath": "/v2/staff-access-requests/{id}/reject",
+			"openApiPath": "/v2/staff-access-requests/{id}/reject",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string" },
+					"reviewNote": { "type": "string" }
+				}
+			}
+		},
+		{
+			"name": "access_requests_revoke",
+			"description": "Revoke a previously approved temporary access grant immediately.",
+			"method": "POST",
+			"verifikPath": "/v2/staff-access-requests/{id}/revoke",
+			"openApiPath": "/v2/staff-access-requests/{id}/revoke",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["id"],
+				"properties": {
+					"id": { "type": "string" },
+					"revokeReason": { "type": "string" }
+				}
+			}
+		},
+		{
+			"name": "cost_centers_list",
+			"description": "List active Cost Centers (CECOs) configured on this account.",
+			"method": "GET",
+			"verifikPath": "/v2/cost-centers",
+			"openApiPath": "/v2/cost-centers",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"country": { "type": "string" }
+				}
+			}
+		},
+		{
+			"name": "cost_centers_create",
+			"description": "Create a new Cost Center (CECO) code for billing attribution and sub-team locking.",
+			"method": "POST",
+			"verifikPath": "/v2/cost-centers",
+			"openApiPath": "/v2/cost-centers",
+			"category": "TeamRBAC",
+			"inputSchema": {
+				"type": "object",
+				"required": ["code", "name", "country"],
+				"properties": {
+					"code": { "type": "string", "description": "Short unique CECO code (e.g. CO-OPS)." },
+					"name": { "type": "string" },
+					"country": { "type": "string", "description": "ISO-2 country code (e.g. CO, MX, PE)." }
+				}
+			}
+		}
+	]
+}

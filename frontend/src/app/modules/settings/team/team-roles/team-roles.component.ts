@@ -14,11 +14,13 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { HasStaffPermissionDirective } from 'app/core/permissions/has-staff-permission.directive';
 import {
     defaultPermissionsForRole,
+    STAFF_RESOURCES,
     SYSTEM_ROLE_METADATA,
     SYSTEM_ROLES,
 } from 'app/core/permissions/staff-permission.constants';
@@ -27,6 +29,7 @@ import {
     ClientRoleDto,
     EndpointPolicy,
     PermissionMap,
+    StaffResource,
     SystemRoleSlug,
 } from 'app/core/permissions/staff-permission.types';
 import { StaffRbacApiService } from 'app/core/permissions/staff-rbac-api.service';
@@ -46,6 +49,7 @@ const ROLE_COLORS = ['blue', 'emerald', 'indigo', 'amber', 'rose', 'violet', 'cy
         MatIconModule,
         MatProgressSpinnerModule,
         MatSelectModule,
+        MatSlideToggleModule,
         TranslocoModule,
         HasStaffPermissionDirective,
         StaffPermissionMatrixComponent,
@@ -75,6 +79,9 @@ export class TeamRolesComponent implements OnInit {
     editColor = 'blue';
     editPermissions: PermissionMap = {};
     editEndpointPolicy: EndpointPolicy = { mode: 'all', features: [] };
+    editAllowAccessRequests = true;
+    editRequestableMode: 'all' | 'none' | 'custom' = 'all';
+    editRequestableResources: StaffResource[] = [];
     isCreatingNew = false;
 
     // Delete & Reassign dialog state
@@ -83,6 +90,7 @@ export class TeamRolesComponent implements OnInit {
     reassignCustomRoleId = '';
 
     readonly systemRoles = SYSTEM_ROLES.map((slug) => SYSTEM_ROLE_METADATA[slug]);
+    readonly allResources = STAFF_RESOURCES;
     readonly roleColors = ROLE_COLORS;
 
     @ViewChild('deleteRoleDialog') deleteRoleDialog!: TemplateRef<unknown>;
@@ -118,6 +126,9 @@ export class TeamRolesComponent implements OnInit {
         this.selectedCustomRole.set(null);
         this.editPermissions = defaultPermissionsForRole(slug);
         this.editEndpointPolicy = { mode: 'all', features: [] };
+        const meta = SYSTEM_ROLE_METADATA[slug];
+        this.editAllowAccessRequests = meta.allowAccessRequests;
+        this._syncRequestableBuffer(meta.requestableResources);
     }
 
     selectCustomRole(role: ClientRoleDto): void {
@@ -134,6 +145,8 @@ export class TeamRolesComponent implements OnInit {
                   features: [...(role.endpointPolicy.features || [])],
               }
             : { mode: 'all', features: [] };
+        this.editAllowAccessRequests = role.allowAccessRequests !== false;
+        this._syncRequestableBuffer(role.requestableResources ?? null);
     }
 
     startNewCustomRole(basedOn: SystemRoleSlug = 'viewer'): void {
@@ -146,6 +159,8 @@ export class TeamRolesComponent implements OnInit {
         this.editColor = 'indigo';
         this.editPermissions = defaultPermissionsForRole(basedOn);
         this.editEndpointPolicy = { mode: 'all', features: [] };
+        this.editAllowAccessRequests = baseMeta.allowAccessRequests;
+        this._syncRequestableBuffer(baseMeta.requestableResources ?? null);
     }
 
     duplicateSelected(): void {
@@ -179,6 +194,13 @@ export class TeamRolesComponent implements OnInit {
         if (!name || this.saving()) return;
         this.saving.set(true);
 
+        const requestableResources =
+            !this.editAllowAccessRequests || this.editRequestableMode === 'none'
+                ? []
+                : this.editRequestableMode === 'custom'
+                  ? [...this.editRequestableResources]
+                  : null;
+
         const req$ = this.isCreatingNew
             ? this._api.createClientRole({
                   name,
@@ -186,6 +208,8 @@ export class TeamRolesComponent implements OnInit {
                   color: this.editColor,
                   permissions: this.editPermissions,
                   endpointPolicy: this.editEndpointPolicy,
+                  allowAccessRequests: this.editAllowAccessRequests,
+                  requestableResources,
               })
             : this._api.updateClientRole(this.selectedCustomRole()!._id, {
                   name,
@@ -193,6 +217,8 @@ export class TeamRolesComponent implements OnInit {
                   color: this.editColor,
                   permissions: this.editPermissions,
                   endpointPolicy: this.editEndpointPolicy,
+                  allowAccessRequests: this.editAllowAccessRequests,
+                  requestableResources,
               });
 
         req$.subscribe({
@@ -282,5 +308,20 @@ export class TeamRolesComponent implements OnInit {
     get isMatrixReadonly(): boolean {
         if (this.selectedKind() === 'system' && !this.isCreatingNew) return true;
         return !this.permService.can('team', 'update');
+    }
+
+    private _syncRequestableBuffer(resources: StaffResource[] | null): void {
+        if (!Array.isArray(resources)) {
+            this.editRequestableMode = 'all';
+            this.editRequestableResources = [];
+            return;
+        }
+        if (resources.length === 0) {
+            this.editRequestableMode = 'none';
+            this.editRequestableResources = [];
+            return;
+        }
+        this.editRequestableMode = 'custom';
+        this.editRequestableResources = [...resources];
     }
 }

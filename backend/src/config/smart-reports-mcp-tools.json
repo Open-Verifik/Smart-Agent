@@ -78,7 +78,8 @@
 					"emailSubject": { "type": "string", "description": "Optional custom email subject." },
 					"emailLanguage": { "type": "string", "enum": ["en", "es"], "description": "Email body language (default es)." },
 					"webhookUrl": { "type": "string", "format": "uri", "pattern": "^https://", "description": "Optional per-run HTTPS webhook URL receiving smart_batch_report_generated / sent / batch_completed events." },
-					"externalRefId": { "type": "string", "description": "Caller correlation ID persisted on the SmartReport and included in webhook events." }
+					"externalRefId": { "type": "string", "description": "Caller correlation ID persisted on the SmartReport and included in webhook events." },
+					"costCenter": { "type": "string", "description": "Optional Cost Center (CECO) code or ID attributed to this run and forwarded as x-cost-center." }
 				}
 			}
 		},

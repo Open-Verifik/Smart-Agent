@@ -9,7 +9,13 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { HasStaffPermissionDirective } from 'app/core/permissions';
+import {
+    HasStaffPermissionDirective,
+    TeamFilterSelectComponent,
+    extractProjectTeam,
+    type ProjectTeamRef,
+    type TeamDto,
+} from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
@@ -33,6 +39,7 @@ import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smar
         MatSnackBarModule,
         TranslocoModule,
         HasStaffPermissionDirective,
+        TeamFilterSelectComponent,
     ],
     templateUrl: './business-project-list.component.html',
     styleUrls: ['./business-project-list.component.scss'],
@@ -71,6 +78,17 @@ export class BusinessProjectListComponent implements OnInit {
     projects = signal<BusinessProject[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
+    selectedTeam = signal('');
+    availableTeams = signal<TeamDto[]>([]);
+
+    onTeamFilterChange(teamId: string): void {
+        this.selectedTeam.set(teamId || '');
+        this._loadProjects();
+    }
+
+    teamBadge(project: BusinessProject): ProjectTeamRef | null {
+        return extractProjectTeam(project.team, this.availableTeams());
+    }
 
     ngOnInit(): void {
         if (this._authGate) {
@@ -86,7 +104,9 @@ export class BusinessProjectListComponent implements OnInit {
     private _loadProjects(): void {
         this.loading.set(true);
         this.error.set(null);
-        this._businessService.listProjects().subscribe({
+        const team = this.selectedTeam() || undefined;
+        const req$ = team ? this._businessService.listProjects(team) : this._businessService.listProjects();
+        req$.subscribe({
             next: (list) => {
                 this.projects.set(list);
                 this.loading.set(false);

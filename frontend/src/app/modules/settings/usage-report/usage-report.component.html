@@ -55,6 +55,26 @@
                     </div>
                 }
 
+                @if (permService.canViewAllTeams() && teams().length) {
+                    <div class="usage-filters__field usage-filters__field--center">
+                        <label class="usage-filters__label" for="usage-report-team">{{ t('staffRbac.members.subTeamColumn') }}</label>
+                        <mat-select
+                            id="usage-report-team"
+                            class="usage-filters__center"
+                            [value]="team()"
+                            (selectionChange)="setTeam($event.value)"
+                            [disabled]="loading()"
+                            [attr.aria-label]="t('staffRbac.members.subTeamColumn')"
+                        >
+                            <mat-option value="">{{ t('staffRbac.teams.filterAllTeams') }}</mat-option>
+                            @for (tm of teams(); track tm._id) {
+                                <mat-option [value]="tm._id">{{ tm.name }}</mat-option>
+                            }
+                            <mat-option value="none">{{ t('staffRbac.teams.filterUnassigned') }}</mat-option>
+                        </mat-select>
+                    </div>
+                }
+
                 <div class="usage-filters__date-panel">
                     <span class="usage-filters__date-title">{{ t('settings.usageReport.range') }}</span>
                     <div class="usage-filters__chips" role="group" [attr.aria-label]="t('settings.usageReport.range')">

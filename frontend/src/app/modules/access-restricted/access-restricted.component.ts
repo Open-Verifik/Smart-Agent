@@ -53,6 +53,7 @@ export class AccessRestrictedComponent implements OnInit {
     readonly requiredAction = signal<StaffAction>('read');
     readonly fromUrl = signal<string>('');
     readonly ownerOnly = signal<boolean>(false);
+    readonly isNotFound = signal<boolean>(false);
 
     readonly loadingPending = signal<boolean>(false);
     readonly pendingRequest = signal<StaffAccessRequestDto | null>(null);
@@ -81,11 +82,13 @@ export class AccessRestrictedComponent implements OnInit {
             const rawAction = (params.get('action') as StaffAction | null) ?? 'read';
             const from = params.get('from') || '';
             const ownerOnly = params.get('ownerOnly') === '1';
+            const isNotFound = params.get('reason') === 'not_found';
 
             this.resource.set(validRes);
             this.requiredAction.set(rawAction);
             this.fromUrl.set(from);
             this.ownerOnly.set(ownerOnly);
+            this.isNotFound.set(isNotFound);
             this.duration = this.permService.accessPolicy().defaultRequestDuration || '7d';
 
             this.customActions.clear();
@@ -98,12 +101,12 @@ export class AccessRestrictedComponent implements OnInit {
             this.selectedPresetId = matchingPreset?.id ?? this.presets[0]?.id ?? 'viewer';
 
             // If user actually already holds access (e.g. navigated back or just approved), bounce cleanly
-            if (!ownerOnly && this.permService.can(validRes, rawAction) && from && !from.startsWith('/access-restricted')) {
+            if (!ownerOnly && !isNotFound && this.permService.can(validRes, rawAction) && from && !from.startsWith('/access-restricted')) {
                 this._router.navigateByUrl(from);
                 return;
             }
 
-            if (this.permService.isStaff() && !ownerOnly) {
+            if (this.permService.isStaff() && !ownerOnly && !isNotFound) {
                 this._loadPendingRequest(validRes);
             }
         });
@@ -186,6 +189,13 @@ export class AccessRestrictedComponent implements OnInit {
                     if (msg === 'pending_access_request_already_exists') {
                         this.errorMessage.set(this._transloco.translate('staffRbac.requestDialog.duplicatePending'));
                         this._loadPendingRequest(this.resource());
+                    } else if (
+                        msg === 'access_requests_disabled_for_role' ||
+                        msg === 'resource_not_requestable_for_role'
+                    ) {
+                        this.errorMessage.set(this._transloco.translate('staffRbac.requestDialog.disabledByRole'));
+                    } else if (msg === 'access_requests_disabled') {
+                        this.errorMessage.set(this._transloco.translate('staffRbac.requestDialog.disabled'));
                     } else {
                         this.errorMessage.set(
                             msg || this._transloco.translate('staffRbac.requestDialog.submitError')

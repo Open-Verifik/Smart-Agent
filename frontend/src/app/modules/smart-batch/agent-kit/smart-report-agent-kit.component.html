@@ -42,7 +42,7 @@
         </div>
 
         <!-- Copyable identifiers + webhook badge -->
-        @if (context().configId || context().templateId || context().systemKey || context().reportId || context().webhookUrl) {
+        @if (context().configId || context().templateId || context().systemKey || context().reportId || context().webhookUrl || effectiveContext().costCenter) {
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 @if (context().configId; as configId) {
                     <button
@@ -100,6 +100,20 @@
                     </button>
                 }
 
+                @if (effectiveContext().costCenter; as costCenter) {
+                    <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-800 transition hover:border-indigo-400 dark:border-indigo-900/50 dark:bg-indigo-950/30 dark:text-indigo-300"
+                        (click)="copyValue('costCenter', costCenter)"
+                    >
+                        <span class="font-medium text-indigo-500 dark:text-indigo-400">CECO:</span>
+                        <code class="font-mono text-[11px]">{{ costCenter }}</code>
+                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">
+                            {{ copiedKey() === 'costCenter' ? 'check' : 'content_copy' }}
+                        </mat-icon>
+                    </button>
+                }
+
                 @if (context().webhookUrl; as webhookUrl) {
                     <button
                         type="button"
@@ -140,7 +154,7 @@
                         (click)="selectTab(tab.id, tabButton)"
                         (keydown)="onTabKeydown($event, tabIndex)"
                     >
-                        {{ t(tab.labelKey) }}
+                        {{ tab.labelKey ? t(tab.labelKey) : tab.label }}
                     </button>
                 }
             </div>

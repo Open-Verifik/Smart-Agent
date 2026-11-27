@@ -56,7 +56,15 @@ export class MyAccessComponent implements OnInit {
     quickRequestResource: StaffResource = 'smartReportsTemplates';
     readonly allResources = STAFF_RESOURCES;
 
+    get requestableResources() {
+        return this.allResources.filter((r) => this.permService.canRequestResource(r.key));
+    }
+
     ngOnInit(): void {
+        const firstRequestable = this.requestableResources[0];
+        if (firstRequestable) {
+            this.quickRequestResource = firstRequestable.key;
+        }
         this.refreshAll();
     }
 

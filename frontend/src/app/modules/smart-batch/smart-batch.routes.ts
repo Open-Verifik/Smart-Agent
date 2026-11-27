@@ -134,7 +134,7 @@ export default [
     {
         path: ':configId/batch/:batchId/inputs',
         canActivate: [staffPermissionGuard],
-        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
+        data: { permission: { resource: 'smartReportsResults', action: 'read' } },
         loadComponent: () =>
             import('app/modules/smart-batch/dashboard/create-batch/create-batch.component').then(
                 (m) => m.CreateBatchComponent
@@ -152,7 +152,7 @@ export default [
     {
         path: ':configId/batch/:batchId/report',
         canActivate: [staffPermissionGuard],
-        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
+        data: { permission: { resource: 'smartReportsResults', action: 'read' } },
         loadComponent: () =>
             import('app/modules/smart-batch/report-viewer/report-viewer.component').then(
                 (m) => m.ReportViewerComponent
@@ -161,7 +161,7 @@ export default [
     {
         path: ':configId/batch/:batchId',
         canActivate: [staffPermissionGuard],
-        data: { permission: { resource: 'smartReportsBatch', action: 'read' } },
+        data: { permission: { resource: 'smartReportsResults', action: 'read' } },
         loadComponent: () =>
             import(
                 'app/modules/smart-batch/dashboard/batch-processing/batch-processing.component'

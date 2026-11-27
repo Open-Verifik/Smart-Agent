@@ -167,4 +167,78 @@ describe('StaffPermissionService', () => {
         expect(service.isStaff()).toBe(false);
         expect(service.accessPolicy()).toEqual(DEFAULT_STAFF_ACCESS_POLICY);
     });
+
+    it('enforces report_builder preset gating, disabled access requests, and team.readAll', () => {
+        service.hydrateFromSession({
+            _id: 'staff-builder',
+            staff: 'staff-builder',
+            isStaff: true,
+            role: 'report_builder',
+        });
+
+        expect(service.canonicalRole()).toBe('report_builder');
+        expect(service.can('smartReportsTemplates', 'create')).toBe(true);
+        expect(service.can('smartReportsBatch', 'update')).toBe(true);
+        expect(service.can('smartReportsBatch', 'execute')).toBe(false);
+        expect(service.can('smartReportsResults', 'read')).toBe(false);
+        expect(service.can('apiKeys', 'read')).toBe(false);
+        expect(service.canRequestAccess()).toBe(false);
+        expect(service.canRequestResource('smartReportsResults')).toBe(false);
+        expect(service.canViewAllTeams()).toBe(false);
+
+        service.hydrateFromSession({
+            _id: 'staff-custom-req',
+            staff: 'staff-custom-req',
+            isStaff: true,
+            role: 'viewer',
+            customRole: {
+                _id: 'cr-1',
+                name: 'Scoped Requester',
+                slug: 'scoped-requester',
+                allowAccessRequests: true,
+                requestableResources: ['smartReportsResults'],
+            },
+        });
+        expect(service.canRequestAccess()).toBe(true);
+        expect(service.canRequestResource('smartReportsResults')).toBe(true);
+        expect(service.canRequestResource('apiKeys')).toBe(false);
+
+        service.hydrateFromSession({
+            _id: 'staff-admin',
+            staff: 'staff-admin',
+            isStaff: true,
+            role: 'admin',
+        });
+        expect(service.can('team', 'readAll')).toBe(true);
+        expect(service.canViewAllTeams()).toBe(true);
+    });
+
+    it('falls back to smartReportsBatch.{read,export} for legacy cached sessions missing smartReportsResults while honoring explicit false', () => {
+        service.hydrateFromSession({
+            _id: 'staff-legacy',
+            staff: 'staff-legacy',
+            isStaff: true,
+            role: 'viewer',
+            useCustomPermissions: true,
+            permissions: {
+                smartReportsBatch: { read: true, export: true },
+            },
+        });
+
+        expect(service.can('smartReportsResults', 'read')).toBe(true);
+        expect(service.can('smartReportsResults', 'export')).toBe(true);
+        expect(service.can('smartReportsResults', 'create')).toBe(false);
+
+        service.hydrateFromSession({
+            _id: 'staff-explicit',
+            staff: 'staff-explicit',
+            isStaff: true,
+            role: 'report_builder',
+            permissions: {
+                smartReportsBatch: { read: true, export: false },
+                smartReportsResults: { read: false, export: false },
+            },
+        });
+        expect(service.can('smartReportsResults', 'read')).toBe(false);
+    });
 });

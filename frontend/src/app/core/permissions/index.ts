@@ -5,3 +5,4 @@ export * from './staff-permission.service';
 export * from './has-staff-permission.directive';
 export * from './staff-permission.guard';
 export * from './request-access-dialog/request-access-dialog.component';
+export * from './team-filter-select/team-filter-select.component';

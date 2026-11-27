@@ -9,6 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { getVerifikDocsUrls } from 'app/core/docs/verifik-docs-urls';
+import { StaffPermissionService, StaffRbacApiService, TeamDto } from 'app/core/permissions';
 import { countryName } from 'app/core/usage/country-geo';
 import { CostCenter, UsageApiService, UsageGroup, UsageGroupBy, UsageQuery, UsageReport } from 'app/core/usage/usage-api.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
@@ -46,6 +47,8 @@ export class UsageReportComponent implements OnChanges {
     @Output() userChange = new EventEmitter<unknown>();
 
     private readonly _api = inject(UsageApiService);
+    private readonly _rbacApi = inject(StaffRbacApiService);
+    readonly permService = inject(StaffPermissionService);
     private readonly _transloco = inject(TranslocoService);
     private readonly _snack = inject(MatSnackBar);
     private readonly _route = inject(ActivatedRoute);
@@ -59,6 +62,8 @@ export class UsageReportComponent implements OnChanges {
     readonly customWindow = signal<{ start: Date; end: Date } | null>(null);
     readonly costCenter = signal<string>('');
     readonly costCenters = signal<CostCenter[]>([]);
+    readonly team = signal<string>('');
+    readonly teams = signal<TeamDto[]>([]);
     readonly report = signal<UsageReport | null>(null);
     readonly loading = signal(false);
     readonly exporting = signal(false);
@@ -90,6 +95,9 @@ export class UsageReportComponent implements OnChanges {
 
         this._applyRouteQuery();
         this._api.listCostCenters().subscribe({ next: (centers) => this.costCenters.set(centers), error: () => this.costCenters.set([]) });
+        if (this.permService.canViewAllTeams()) {
+            this._rbacApi.listTeams().subscribe({ next: (teams) => this.teams.set(teams), error: () => this.teams.set([]) });
+        }
         this.load();
     }
 
@@ -112,6 +120,11 @@ export class UsageReportComponent implements OnChanges {
 
     setCostCenter(value: string): void {
         this.costCenter.set(value || '');
+        this.load();
+    }
+
+    setTeam(value: string): void {
+        this.team.set(value || '');
         this.load();
     }
 
@@ -185,6 +198,7 @@ export class UsageReportComponent implements OnChanges {
         const query: UsageQuery = { groupBy: this.groupBy(), startDate: start.toISOString(), endDate: end.toISOString(), limit: 500 };
 
         if (this.costCenter()) query.costCenter = this.costCenter();
+        if (this.team()) query.team = this.team();
 
         return query;
     }

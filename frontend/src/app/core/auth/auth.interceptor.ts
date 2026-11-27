@@ -236,7 +236,7 @@ function handleStaffForbiddenNotice(error: HttpErrorResponse, injector: Injector
                         team: body.teamName || 'Sub-Team',
                     }) || `Monthly credit limit reached for ${body.teamName || 'your sub-team'}.`;
 
-        const canBoost = Boolean(body.canRequestBoost && dialog && permService?.allowAccessRequests());
+        const canBoost = Boolean(body.canRequestBoost && dialog && permService?.canRequestAccess());
         const actionLabel = canBoost
             ? transloco?.translate('staffRbac.errors.requestBoostAction') || 'Request Boost'
             : undefined;
@@ -258,7 +258,10 @@ function handleStaffForbiddenNotice(error: HttpErrorResponse, injector: Injector
     }
 
     const canRequest = Boolean(
-        body.canRequestAccess && body.resource && dialog && permService?.allowAccessRequests()
+        body.canRequestAccess &&
+            body.resource &&
+            dialog &&
+            permService?.canRequestResource(body.resource)
     );
     const msg =
         transloco?.translate('staffRbac.errors.insufficientPermissions') ||

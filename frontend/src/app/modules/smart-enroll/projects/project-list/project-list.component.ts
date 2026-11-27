@@ -10,7 +10,13 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { requiresSmartEnrollSubscription } from 'app/core/client-settings/override-conditions';
-import { StaffPermissionService } from 'app/core/permissions';
+import {
+    StaffPermissionService,
+    TeamFilterSelectComponent,
+    extractProjectTeam,
+    type ProjectTeamRef,
+    type TeamDto,
+} from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import {
@@ -54,6 +60,7 @@ import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smar
         MatProgressSpinnerModule,
         MatSlideToggleModule,
         TranslocoModule,
+        TeamFilterSelectComponent,
         UsageQuotaPreviewComponent,
     ],
     templateUrl: './project-list.component.html',
@@ -74,6 +81,18 @@ export class ProjectListComponent implements OnInit {
     noActivePlan = signal(false);
     activePlan = signal<EnrollUsagePlanPreview | null>(null);
     teaserPlan = signal<EnrollUsagePlanPreview | null>(null);
+    selectedTeam = signal('');
+    availableTeams = signal<TeamDto[]>([]);
+
+    onTeamFilterChange(teamId: string): void {
+        this.selectedTeam.set(teamId || '');
+        this.loading.set(true);
+        this._loadProjects();
+    }
+
+    teamBadge(project: EnrollProject): ProjectTeamRef | null {
+        return extractProjectTeam(project.team, this.availableTeams());
+    }
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
@@ -326,7 +345,8 @@ export class ProjectListComponent implements OnInit {
     }
 
     private _loadProjects(): void {
-        this._projectsService.listProjects().subscribe({
+        const team = this.selectedTeam() || undefined;
+        this._projectsService.listProjects(team).subscribe({
             next: (list) => {
                 this.projects.set((list || []).filter((p) => p.target !== 'business'));
                 this.loading.set(false);

@@ -14,7 +14,8 @@
       "execute": "Exécuter",
       "approve": "Approuver",
       "export": "Exporter",
-      "manageKeys": "Clés"
+      "manageKeys": "Clés",
+      "readAll": "Toutes les équipes"
     },
     "actionTooltips": {
       "read": "Consulter les écrans, dossiers et analytiques",
@@ -24,7 +25,8 @@
       "execute": "Lancer des analyses ou traitements par lots",
       "approve": "Approuver ou rejeter les vérifications",
       "export": "Exporter en PDF, CSV, XLSX ou JSONL",
-      "manageKeys": "Gérer les clés API et le mode Production/Sandbox"
+      "manageKeys": "Gérer les clés API et le mode Production/Sandbox",
+      "readAll": "Voir les données de toutes les sous-équipes de l’espace au lieu de la vôtre uniquement"
     },
     "budget": {
       "oneTimeThisMonth": "Augmentation ponctuelle pour ce mois UTC",
@@ -149,7 +151,11 @@
       "defaultDurationTitle": "Durée par défaut",
       "defaultDurationDesc": "Durée présélectionnée pour les demandes Just-in-Time.",
       "savedToast": "Politique mise à jour",
-      "saveError": "Erreur lors de l'enregistrement"
+      "saveError": "Erreur lors de l'enregistrement",
+      "teamScopedVisibilityTitle": "Visibilité limitée par sous-équipe",
+      "teamScopedVisibilityDesc": "Isole les rapports, lots, projets, journaux et modèles par sous-équipe (sauf permission Toutes les équipes).",
+      "requireTeamApiKeysTitle": "Exiger des clés API de sous-équipe",
+      "requireTeamApiKeysDesc": "Exige que les appels API utilisent une clé API liée à une sous-équipe."
     },
     "presets": {
       "viewOnly": "Lecture seule",
@@ -179,7 +185,8 @@
       "submittedToast": "Demande envoyée",
       "duplicatePending": "Une demande équivalente est déjà en attente.",
       "submitError": "Impossible d'envoyer la demande",
-      "disabled": "Les demandes sont désactivées par la politique."
+      "disabled": "Les demandes sont désactivées par la politique.",
+      "disabledByRole": "Les demandes d’accès sont désactivées pour votre rôle actuel."
     },
     "requestsTab": {
       "typeAll": "Tous",
@@ -215,7 +222,7 @@
       "smartCheckLists": "Listes de contrôle",
       "smartCheckHistory": "Historique API",
       "smartReportsTemplates": "Modèles de rapports",
-      "smartReportsBatch": "Lots & Configurations",
+      "smartReportsBatch": "Préréglages et lots",
       "smartFleetAssets": "Véhicules & Conducteurs",
       "smartFleetRules": "Règles & Alertes",
       "smartEnrollProjects": "Projets KYC",
@@ -235,7 +242,8 @@
       "billingUsage": "Consommation & Centres de coût",
       "apiKeys": "Clés API & Production",
       "team": "Équipe, Sous-équipes & Rôles",
-      "workspaceSettings": "Paramètres & Rétention"
+      "workspaceSettings": "Paramètres & Rétention",
+      "smartReportsResults": "Exécutions et résultats"
     },
     "restricted": {
       "title": "Accès restreint",
@@ -253,7 +261,10 @@
       "accessGrantedToast": "Accès accordé !",
       "stillRestrictedToast": "Accès toujours restreint.",
       "goHome": "Accueil",
-      "viewMyAccess": "Mon accès"
+      "viewMyAccess": "Mon accès",
+      "requestsDisabledByRoleHint": "Les demandes d’accès sont désactivées pour votre rôle. Contactez le propriétaire ou l’administrateur.",
+      "notFoundTitle": "Ressource introuvable ou hors de votre sous-équipe",
+      "notFoundBody": "Cet enregistrement n'existe pas ou appartient à une autre sous-équipe."
     },
     "roles": {
       "admin": {
@@ -279,6 +290,10 @@
       "viewer": {
         "name": "Lecteur",
         "desc": "Accès en lecture seule aux tableaux et journaux."
+      },
+      "report_builder": {
+        "name": "Créateur de documents",
+        "desc": "Crée et modifie les modèles de rapport et configurations sans voir les résultats, PII ou clés API."
       }
     },
     "rolesTab": {
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "Réassigner vers",
       "confirmDeleteBtn": "Réassigner & Supprimer",
       "deletedToast": "Rôle supprimé",
-      "duplicateAsCustomTooltip": "Dupliquer ce préréglage système en tant que rôle personnalisé modifiable"
+      "duplicateAsCustomTooltip": "Dupliquer ce préréglage système en tant que rôle personnalisé modifiable",
+      "accessRequestPolicyTitle": "Demandes d’accès en libre-service",
+      "allowAccessRequestsToggle": "Autoriser ce rôle à soumettre des demandes d’accès",
+      "allowAccessRequestsDesc": "Lorsque désactivé, les membres ayant ce rôle ne peuvent pas demander d’accès supplémentaire.",
+      "requestableResourcesLabel": "Modules demandables",
+      "requestableResourcesAll": "Tout module restreint (par défaut)",
+      "requestableResourcesNone": "Aucun (désactivé)",
+      "requestableResourcesCustom": "Seulement les modules sélectionnés",
+      "requestsLockedByPreset": "Politique système (cloner le rôle pour personnaliser)"
     },
     "statuses": {
       "pending": "En attente",
@@ -362,7 +385,19 @@
       "deleteConfirmDesc": "Les membres reviendront au solde global.",
       "deletedToast": "Sous-équipe supprimée",
       "savedToast": "Sous-équipe enregistrée",
-      "saveError": "Erreur lors de l'enregistrement"
+      "saveError": "Erreur lors de l'enregistrement",
+      "allowedCostCentersLabel": "Centres de coûts autorisés (CECO)",
+      "allowedCostCentersPlaceholder": "Laisser vide pour autoriser tous les centres de coûts",
+      "enforceCostCenterLabel": "Restreindre aux centres de coûts autorisés",
+      "enforceCostCenterDesc": "Rejette les appels API et rapports utilisant un centre de coûts hors liste.",
+      "cecoLockedBadge": "CECO Verrouillé",
+      "filterAllTeams": "Toutes les sous-équipes",
+      "filterUnassigned": "Non assigné",
+      "assignTeamAction": "Assigner à une sous-équipe",
+      "assignedTeamToast": "Affectation de sous-équipe mise à jour",
+      "visibilityLabel": "Visibilité",
+      "visibilityTeam": "Sous-équipe uniquement",
+      "visibilityWorkspace": "Tout l'espace de travail"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Permission de gestion des clés requise pour basculer Live/Sandbox."
