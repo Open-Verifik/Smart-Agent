@@ -66,4 +66,20 @@ describe('EndpointChainBoardComponent endpoint library close UX (#1193)', () => 
         expect(visitaHtml).toContain('[class.h-[calc(100dvh-4rem)]]="isFillViewportStep()"');
         expect(visitaHtml).toContain('[class.max-h-[calc(100dvh-4rem)]]="isFillViewportStep()"');
     });
+
+    it('allows clicking anywhere on an unselected library card without double-adding (#1192)', () => {
+        expect(boardSource).toContain('(click)="onLibraryCardClick(feature)"');
+        expect(boardSource).toContain('(keydown.enter)="onLibraryCardClick(feature)"');
+        expect(boardSource).toContain('(click)="addFromLibrary(feature); $event.stopPropagation()"');
+        expect(boardSource).toContain('this._suppressLibraryClickUntil = Date.now() + 250;');
+        expect(boardSource).toContain('if (Date.now() < this._suppressLibraryClickUntil || this.isAdded(feature)) return;');
+    });
+
+    it('renders remove (X) buttons on selected endpoints in both library cards and Resultado final (#1194)', () => {
+        expect(boardSource).toContain('class="flow-result-remove');
+        expect(boardSource).toContain('(click)="removeNode(source.id); $event.stopPropagation()"');
+        expect(boardSource).toContain('flow-library-card-remove');
+        expect(boardSource).toContain('(click)="removeFeatureFromLibrary(feature); $event.stopPropagation()"');
+        expect(boardSource).toContain(`[attr.aria-label]="'visitaGuide.flowRemoveEndpoint' | transloco"`);
+    });
 });

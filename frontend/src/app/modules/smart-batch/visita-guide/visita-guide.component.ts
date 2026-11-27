@@ -166,7 +166,7 @@ import {
     ROW_LINE_WIDTH_MAX,
     ROW_LINE_WIDTH_MIN,
 } from '../report-row-line.util';
-import { getStepDisplayFields } from '../step-result-presenters/registry';
+import { buildGuideResultFields, type GuideResultField } from './visita-guide-result-fields.util';
 import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
 import { REPORT_DATE_STAMP_PATHS, ReportDateStampKind } from '../report-date-stamp.util';
 import {
@@ -378,7 +378,7 @@ type GuideResultCard = {
     error: string | null;
     skipMessage: string | null;
     status: 'ok' | 'failed' | 'skipped' | 'empty';
-    fields: { label: string; value: unknown }[];
+    fields: GuideResultField[];
 };
 
 const SMART_FIELD_LABELS: Record<string, string> = {
@@ -1132,6 +1132,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             .map((iso) => getCountryFlag(countryNameForIso(iso) || iso))
             .join(' ')
     );
+    countryFlagBadges = computed(() =>
+        this.countryIsos()
+            .slice(0, 3)
+            .map((iso) => {
+                const name = countryNameForIso(iso) || iso;
+                return {
+                    iso,
+                    name,
+                    src: countryFlagImageUrl(name) || countryFlagImageUrl(iso),
+                    emoji: getCountryFlag(name),
+                };
+            })
+    );
 
     countryFilteredFeatures = computed(() => {
         const catalog = this.availableFeatures().filter(isSmartBatchCatalogFeature);
@@ -1663,7 +1676,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 const skip = skipped.find((item) => Number(item.sequence) === Number(step.sequence));
                 const hasData = !isEmptyConsultPayload(payload);
                 const fields = hasData
-                    ? getStepDisplayFields({ featureCode: code }, payload).slice(0, 8)
+                    ? buildGuideResultFields(
+                          { featureCode: code },
+                          payload,
+                          this._transloco.getActiveLang(),
+                          12
+                      )
                     : [];
                 let status: 'ok' | 'failed' | 'skipped' | 'empty' = 'empty';
                 if (skip) status = 'skipped';
