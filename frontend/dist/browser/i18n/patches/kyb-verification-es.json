@@ -1,0 +1,115 @@
+{
+  "accountEnv": {
+    "kybStrip": {
+      "verifyTitle": "Verifica tu empresa (KYB)",
+      "verifyText": "Verifica primero a un representante para APIs estándar y luego sube documentos.",
+      "pendingTitle": "Verificación empresarial en revisión",
+      "pendingText": "Tu solicitud KYB está en revisión de cumplimiento.",
+      "changesTitle": "Acción requerida en tu KYB",
+      "changesText": "Nuestro equipo de cumplimiento solicitó actualizar datos o documentos.",
+      "cta": "Verificar empresa",
+      "pendingCta": "Revisión pendiente",
+      "changesCta": "Actualizar KYB",
+      "viewStatusCta": "Estado KYB",
+      "tier1Eyebrow": "Nivel 1 · Producción Estándar",
+      "tier1Title": "APIs estándar activas",
+      "tier1Text": "Completa los documentos de tu empresa para desbloquear KYB Completo (Nivel 2).",
+      "tier1Cta": "Completar KYB",
+      "dismissAria": "Ocultar aviso"
+    },
+    "kybModal": {
+      "title": "Verifica tu empresa para activar Producción",
+      "subtitle": "Comienza rápido con la verificación del representante y luego completa el expediente empresarial.",
+      "reason1_title": "Nivel 1 · KYC rápido del representante",
+      "reason1_desc": "Verifica al menos a un representante legal para activar APIs estándar en Producción.",
+      "reason2_title": "Nivel 2 · Expediente KYB completo",
+      "reason2_desc": "Sube los documentos de tu empresa cuando los tengas para habilitar todas las APIs.",
+      "reason3_title": "Notas para documentos pendientes",
+      "reason3_desc": "Si aún no tienes un documento, deja una nota para revisión manual de cumplimiento.",
+      "reason4_title": "Créditos y recargas",
+      "reason4_desc": "Tu primera recarga o plan desbloquea tus créditos de bienvenida de forma independiente.",
+      "cta": "Iniciar verificación empresarial"
+    }
+  },
+  "settings": {
+    "panels": {
+      "company_verification": "Verificación de Empresa",
+      "company_verification_desc": "Consulta tu nivel KYB, representantes verificados y documentos"
+    },
+    "kyb": {
+      "title": "Verificación de Empresa (KYB)",
+      "subtitle": "Gestiona el KYC de tus representantes y los documentos corporativos para Producción.",
+      "refresh": "Actualizar estado",
+      "ctaStart": "Iniciar verificación KYB",
+      "ctaContinue": "Continuar verificación KYB",
+      "ctaUpdate": "Actualizar y reenviar KYB",
+      "ctaCompleteTier2": "Completar KYB (Nivel 2)",
+      "ctaUpgradeOptional": "Actualizar a KYB completo",
+      "changesAlertTitle": "Se requieren cambios de cumplimiento",
+      "changesAlertFallback": "Revisa los documentos corporativos o el KYC del representante y vuelve a enviar.",
+      "manualReviewTitle": "Revisión manual en curso",
+      "manualReviewDesc": "Nuestro equipo de cumplimiento está revisando tus documentos y notas. Te avisaremos pronto.",
+      "emptyTitle": "Aún no has iniciado un expediente KYB",
+      "emptyDesc": "Inicia la verificación de tu empresa para activar Producción Estándar con KYC y luego KYB Completo.",
+      "emptyLegacyTitle": "Cuenta verificada con KYC anterior",
+      "emptyLegacyDesc": "Tu cuenta ya tiene acceso completo a Producción. Si deseas, puedes completar un expediente KYB.",
+      "tiers": {
+        "none": {
+          "badge": "Modo Sandbox · Verificación Pendiente",
+          "title": "Verifica un representante para activar Producción Estándar",
+          "desc": "Completa el KYC de un representante legal para activar Nivel 1 y luego sube los documentos para Nivel 2."
+        },
+        "legacy_kyc": {
+          "badge": "Verificada · KYC Anterior",
+          "title": "Tu acceso a Producción está activo",
+          "desc": "Las cuentas verificadas anteriormente mantienen acceso completo. Puedes completar el KYB de forma opcional."
+        },
+        "tier1_standard": {
+          "badge": "Nivel 1 · Producción Estándar",
+          "title": "APIs estándar en Producción activas",
+          "desc": "El KYC de tu representante está aprobado. Sube los documentos de la empresa para subir a Nivel 2."
+        },
+        "tier2_full": {
+          "badge": "Nivel 2 · KYB Completo",
+          "title": "Verificación KYB completa aprobada",
+          "desc": "Tus documentos corporativos y representantes están aprobados para todas las APIs de Verifik."
+        }
+      },
+      "track": {
+        "sandboxTitle": "Cuenta creada",
+        "sandboxDesc": "Pruebas en Sandbox listas",
+        "tier1Title": "Nivel 1 · Estándar",
+        "tier1Desc": "KYC del representante",
+        "tier2Title": "Nivel 2 · KYB Completo",
+        "tier2Desc": "Documentos aprobados"
+      },
+      "companyCard": {
+        "title": "Datos de la Empresa",
+        "legalName": "Razón Social",
+        "taxId": "NIT / ID Fiscal",
+        "country": "País",
+        "city": "Ciudad",
+        "email": "Correo de Contacto",
+        "updated": "Última Actualización"
+      },
+      "repsCard": {
+        "title": "Representantes Legales",
+        "verifiedLabel": "verificados",
+        "defaultRole": "Representante Legal",
+        "empty": "Aún no se han registrado representantes."
+      },
+      "docsCard": {
+        "title": "Documentos de la Empresa",
+        "countLabel": "cargados",
+        "viewFile": "Ver documento",
+        "empty": "Aún no se han cargado documentos.",
+        "notesTitle": "Notas para revisión de cumplimiento"
+      },
+      "ticketsCard": {
+        "title": "Tickets de Soporte Asociados",
+        "openSupport": "Ir a Soporte",
+        "defaultTitle": "Ticket de revisión KYB"
+      }
+    }
+  }
+}
