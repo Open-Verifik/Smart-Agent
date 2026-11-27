@@ -143,44 +143,84 @@ const ISO_TO_CANONICAL_NAME: ReadonlyMap<string, string> = (() => {
 
 /** Extra i18n title prefixes not covered by POSTMAN_COUNTRY_ISO keys alone. */
 const COUNTRY_TITLE_PREFIX_EXTRAS: Record<string, string[]> = {
-    Australia: ['AU'],
+    Australia: ['AU', 'Australie', 'Austrália', '호주', 'オーストラリア', '澳大利亚'],
     Belarus: ['Bielorrusia', 'BY'],
     Belgium: ['Bélgica', 'Belgique', 'BE', 'ベルギー', '벨기에', '比利时'],
     Bolivia: ['玻利维亚', 'BO'],
     Brazil: ['Brasil', 'Brésil', 'ブラジル', '브라질', '巴西', 'BR'],
     Canada: ['Canadá', 'CA'],
-    'Czech Republic': ['República Checa', 'Czechia', 'CZ'],
-    Denmark: ['Dinamarca', 'DK'],
-    'Dominican Republic': ['República Dominicana', 'Republica Dominicana', 'DO'],
+    'Czech Republic': [
+        'República Checa',
+        'Czechia',
+        'Chequia',
+        'Tchéquie',
+        'Chéquia',
+        'Tchéquia',
+        'Česko',
+        'CZ',
+        '체코',
+        'チェコ',
+        '捷克',
+    ],
+    Denmark: ['Dinamarca', 'Danemark', 'Danmark', 'DK', '덴마크', 'デンマーク', '丹麦'],
+    'Dominican Republic': [
+        'República Dominicana',
+        'Republica Dominicana',
+        'République dominicaine',
+        'DO',
+        '도미니카 공화국',
+        'ドミニカ共和国',
+        '多米尼加共和国',
+    ],
     Ecuador: ['厄瓜多尔', 'EC'],
-    Estonia: ['EE'],
+    Estonia: ['EE', 'Estonie', 'Estônia', '에스토니아', 'エストニア', '爱沙尼亚'],
     'European Union': ['EU', 'Europe', 'Unión Europea', 'Union Européenne'],
     Europe: ['European Union', 'EU', 'Unión Europea', 'Union Européenne'],
-    Finland: ['Finlandia', 'FI'],
-    France: ['Francia', 'FR'],
+    Finland: ['Finlandia', 'Finlande', 'Finlândia', 'FI', '핀란드', 'フィンランド', '芬兰'],
+    France: ['Francia', 'França', 'FR', '프랑스', 'フランス', '法国'],
     Germany: ['Alemania', 'Deutschland', 'DE'],
     Iceland: ['Islandia', 'IS'],
-    Japan: ['Japón', 'JP'],
-    Latvia: ['Letonia', 'LV'],
+    Israel: ['Israël', '이스라엘', 'イスラエル', '以色列'],
+    Japan: ['Japón', 'Japon', 'Japão', 'JP', '일본', '日本'],
+    Latvia: ['Letonia', 'Lettonie', 'Letônia', 'LV', '라트비아', 'ラトビア', '拉脱维亚'],
     Lithuania: ['Lituania', 'LT'],
     Mexico: ['México', 'MX'],
     Netherlands: ['Países Bajos', 'Holanda', 'NL'],
-    'New Zealand': ['Nueva Zelanda', 'NZ'],
-    Norway: ['Noruega', 'NO'],
+    'New Zealand': [
+        'Nueva Zelanda',
+        'Nouvelle-Zélande',
+        'Nova Zelândia',
+        'NZ',
+        '뉴질랜드',
+        'ニュージーランド',
+        '新西兰',
+    ],
+    Norway: ['Noruega', 'Norvège', 'NO', '노르웨이', 'ノルウェー', '挪威'],
     Peru: ['Perú', 'PE'],
-    Poland: ['Polonia', 'PL'],
-    Portugal: ['PT'],
-    'Puerto Rico': ['PR'],
-    Romania: ['Rumania', 'Rumanía', 'RO'],
-    Singapore: ['Singapur', 'SG'],
-    Slovakia: ['Eslovaquia', 'SK'],
+    Poland: ['Polonia', 'Pologne', 'Polônia', 'PL', '폴란드', 'ポーランド', '波兰'],
+    Portugal: ['PT', '포르투갈', 'ポルトガル', '葡萄牙'],
+    'Puerto Rico': ['PR', 'Porto Rico', '푸에르토리코', 'プエルトリコ', '波多黎各'],
+    Romania: ['Rumania', 'Rumanía', 'Roumanie', 'Romênia', 'Roménia', 'RO', '루마니아', 'ルーマニア', '罗马尼亚'],
+    Singapore: ['Singapur', 'Singapour', 'Singapura', 'SG', '싱가포르', 'シンガポール', '新加坡'],
+    Slovakia: ['Eslovaquia', 'Slovaquie', 'Eslováquia', 'SK', '슬로바키아', 'スロバキア', '斯洛伐克'],
     Spain: ['España', 'ES'],
     Sweden: ['Suecia', 'SE'],
-    Switzerland: ['Suiza', 'CH'],
-    Taiwan: ['Taiwán', 'TW'],
-    'Trinidad and Tobago': ['Trinidad y Tobago', 'Trinidad & Tobago', 'TT'],
+    Switzerland: ['Suiza', 'Suisse', 'Suíça', 'CH', '스위스', 'スイス', '瑞士'],
+    Taiwan: ['Taiwán', 'Taïwan', 'TW', '대만', '台湾', '臺灣'],
+    'Trinidad and Tobago': [
+        'Trinidad y Tobago',
+        'Trinidad & Tobago',
+        'Trinité-et-Tobago',
+        'Trindade e Tobago',
+        'TT',
+        '트리니다드 토바고',
+        'トリニダード・トバゴ',
+        '特立尼达和多巴哥',
+    ],
     'United Kingdom': ['UK', 'Reino Unido', 'Great Britain', 'GB'],
-    'United States': ['USA', 'Estados Unidos', 'US'],
+    'United States': ['USA', 'Estados Unidos', 'États-Unis', 'US', '미국', 'アメリカ合衆国', '美国'],
+    Uruguay: ['Uruguai', '우루과이', 'ウルグアイ', '乌拉圭'],
+    Venezuela: ['베네수엘라', 'ベネズエラ', '委内瑞拉'],
 };
 
 export type PostmanCountryFlagUi =
@@ -262,6 +302,39 @@ export function canonicalPostmanCountryName(country: string | null | undefined):
     const iso = countryNameToIso(trimmed);
     if (!iso) return trimmed;
     return ISO_TO_CANONICAL_NAME.get(iso) ?? trimmed;
+}
+
+/**
+ * Country for a feature whose `country` field is missing or the string "undefined".
+ * Multi-word codes (`trinidad_and_tobago_api_…`, `new_zealand_api_…`) are matched
+ * before the URL's ISO segment (`v2/tt/company`).
+ */
+export function inferPostmanCountryFromCodeAndUrl(
+    code: string | null | undefined,
+    url: string | null | undefined
+): string {
+    const parts = (code ?? '')
+        .trim()
+        .toLowerCase()
+        .split('_')
+        .filter(Boolean);
+    const max = Math.min(parts.length, 4);
+    for (let len = max; len >= 1; len -= 1) {
+        const iso = countryNameToIso(parts.slice(0, len).join(' '));
+        if (!iso) continue;
+        const canonical = canonicalPostmanCountryName(iso);
+        if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
+    }
+
+    const match = (url ?? '').match(/(?:^|\/)v\d+\/([a-z]{2})(?:\/|$)/i);
+    if (match?.[1]) {
+        const iso = countryNameToIso(match[1]);
+        if (iso) {
+            const canonical = canonicalPostmanCountryName(iso);
+            if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
+        }
+    }
+    return '';
 }
 
 /**
@@ -406,6 +479,27 @@ export function getCountryTitlePrefixVariants(country: string | null | undefined
     }
 
     return [...variants];
+}
+
+/**
+ * Match score for the country picker. `100` is exact, `80` is a prefix, `50` is a
+ * substring. Localized title prefixes (Tchéquie, 호주, États-Unis) count as names.
+ */
+export function scorePostmanCountryQuery(country: string, query: string): number {
+    const q = query.trim();
+    if (!q || !country.trim()) return 0;
+    const qToken = normalizeCountryToken(q);
+    const qLower = q.toLowerCase();
+    const iso = (countryNameToIso(country) || '').toLowerCase();
+    const tokens = new Set(
+        getCountryTitlePrefixVariants(country).map(normalizeCountryToken).filter(Boolean)
+    );
+    if (iso === qLower || tokens.has(qToken)) return 100;
+    if ([...tokens].some((token) => token.startsWith(qToken))) return 80;
+    if (qLower.length <= 2 && iso.startsWith(qLower)) return 70;
+    if (qToken.length >= 2 && [...tokens].some((token) => token.includes(qToken))) return 50;
+    if (qLower.length >= 2 && iso.includes(qLower)) return 50;
+    return 0;
 }
 
 /**

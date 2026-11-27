@@ -82,6 +82,22 @@ const isOptionalNameOrDocumentPair = (deps: DependencyRow[]): boolean => {
 };
 
 const PEP_PATH = /(?:^|\/)?v\d+\/(?:[a-z]{2}\/politically-exposed-persons|world\/pep)\/?$/i;
+const REGISTRY_PATH = /(?:^|\/)?v\d+\/[a-z]{2}\/(company|citizen)\/?$/i;
+
+/**
+ * Company registry (`GET /v2/{cc}/company`) and citizen / sole-proprietor
+ * (`GET /v2/{cc}/citizen`) lookups. Live rows store `group: apiRequest` and omit
+ * `baseCategory`, which would otherwise land them under Apirequest.
+ */
+export const inferRegistryBaseCategory = (feature: {
+    url?: unknown;
+    code?: unknown;
+}): string => {
+    const url = nonEmpty(feature.url).replace(/^\/+/, '');
+    const match = url.match(REGISTRY_PATH);
+    if (!match) return '';
+    return match[1].toLowerCase() === 'company' ? 'business' : 'identity';
+};
 
 /**
  * Country PEP screens (`GET /v2/{cc}/politically-exposed-persons`) and `GET /v2/world/pep`.
@@ -126,7 +142,7 @@ const resolveBaseCategory = (
     if (isFlatWatchlistFeature(feature, deps) || isCountryOrWorldPepFeature(feature)) {
         return 'background_check';
     }
-    return '';
+    return inferRegistryBaseCategory(feature);
 };
 
 const enrichDependencies = (
@@ -239,10 +255,52 @@ const mergeDocs = (
     return Object.keys(merged).length ? merged : undefined;
 };
 
+const registryExampleQuery = (deps: DependencyRow[]): string => {
+    const parts = ['documentNumber=12345678'];
+    const documentType = deps.find((dep) => dep.field === 'documentType');
+    const sample =
+        documentType && typeof documentType.default === 'string' ? documentType.default.trim() : '';
+    if (sample) parts.push(`documentType=${encodeURIComponent(sample)}`);
+    return parts.join('&');
+};
+
+/**
+ * Catalog samples for these registries omit the required `documentNumber` query.
+ * Leave examples that already carry a query string untouched.
+ */
+const withRegistryExampleQueries = (
+    docs: EndpointDocs | undefined,
+    feature: Record<string, unknown>,
+    deps: DependencyRow[]
+): EndpointDocs | undefined => {
+    if (!docs || !inferRegistryBaseCategory(feature)) return docs;
+    if (!deps.some((dep) => dep.field === 'documentNumber')) return docs;
+    const query = registryExampleQuery(deps);
+    const next: EndpointDocs = {};
+    for (const [locale, block] of Object.entries(docs)) {
+        if (!block) continue;
+        const key = locale as EndpointDocLocale;
+        next[key] = {
+            ...block,
+            requestExamples: block.requestExamples?.map((example) => ({
+                ...example,
+                code:
+                    example.code.includes('?') || example.code.includes('documentNumber=')
+                        ? example.code
+                        : example.code.replace(
+                              /https?:\/\/[^\s"'\\?]+/g,
+                              (url) => `${url}?${query}`
+                          ),
+            })),
+        };
+    }
+    return next;
+};
+
 /**
  * Fills catalog gaps on a live AppFeature before Postman builds the sidebar row.
- * Production watchlist records omit `baseCategory` and `dependencyGroup`, and store
- * `docs.<locale>.params` as field-name strings. Staff-only `force` is dropped.
+ * Production watchlist, PEP, company, and citizen records omit `baseCategory`
+ * and store `docs.<locale>.params` as field-name strings. Staff-only `force` is dropped.
  */
 export const enrichAppFeatureRecord = <T extends Record<string, unknown>>(
     feature: T,
@@ -260,7 +318,11 @@ export const enrichAppFeatureRecord = <T extends Record<string, unknown>>(
         staticEntry
     );
     const baseCategory = resolveBaseCategory(feature, staticEntry, deps);
-    const docs = mergeDocs(feature.docs, staticEntry?.docs, deps);
+    const docs = withRegistryExampleQueries(
+        mergeDocs(feature.docs, staticEntry?.docs, deps),
+        feature,
+        deps
+    );
     const nameES = nonEmpty(feature.nameES) || nonEmpty(staticEntry?.nameES);
 
     return {
