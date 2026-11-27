@@ -1,0 +1,313 @@
+<div class="kyb-panel">
+    <div class="kyb-panel__header">
+        <div>
+            <h1 class="kyb-panel__title">{{ 'settings.kyb.title' | transloco }}</h1>
+            <p class="kyb-panel__subtitle">{{ 'settings.kyb.subtitle' | transloco }}</p>
+        </div>
+
+        <button
+            mat-stroked-button
+            type="button"
+            (click)="refresh()"
+            [disabled]="env.kybStatusLoading()"
+            class="kyb-panel__refresh"
+        >
+            @if (env.kybStatusLoading()) {
+                <mat-spinner diameter="16" class="mr-2 inline-block align-middle"></mat-spinner>
+            } @else {
+                <mat-icon>refresh</mat-icon>
+            }
+            {{ 'settings.kyb.refresh' | transloco }}
+        </button>
+    </div>
+
+    <!-- Tier Hero Card -->
+    <section class="kyb-hero" [attr.data-tier]="tier()">
+        <div class="kyb-hero__top">
+            <div class="kyb-hero__copy">
+                <span class="kyb-tier-pill" [attr.data-tier]="tier()">
+                    {{ tierBadgeKey(tier()) | transloco }}
+                </span>
+                <h2>{{ tierTitleKey(tier()) | transloco }}</h2>
+                <p>{{ tierDescKey(tier()) | transloco }}</p>
+            </div>
+
+            @if (showPrimaryCta()) {
+                <button
+                    mat-flat-button
+                    type="button"
+                    class="kyb-hero__cta"
+                    [disabled]="env.verifyCompanyLoading()"
+                    (click)="openKybPortal()"
+                >
+                    @if (env.verifyCompanyLoading()) {
+                        <mat-spinner diameter="18" class="mr-2 inline-block align-middle"></mat-spinner>
+                    } @else {
+                        <mat-icon>open_in_new</mat-icon>
+                    }
+                    {{ primaryCtaKey() | transloco }}
+                </button>
+            }
+        </div>
+
+        @if (showProgressTrack()) {
+            <div class="kyb-track" aria-label="Verification tiers">
+                <div class="kyb-track__step kyb-track__step--done">
+                    <span class="kyb-track__dot">
+                        <mat-icon>check</mat-icon>
+                    </span>
+                    <div>
+                        <strong>{{ 'settings.kyb.track.sandboxTitle' | transloco }}</strong>
+                        <span>{{ 'settings.kyb.track.sandboxDesc' | transloco }}</span>
+                    </div>
+                </div>
+
+                <div class="kyb-track__line" [class.kyb-track__line--done]="tier1Reached()"></div>
+
+                <div class="kyb-track__step" [class.kyb-track__step--done]="tier1Reached()">
+                    <span class="kyb-track__dot">
+                        @if (tier1Reached()) {
+                            <mat-icon>check</mat-icon>
+                        } @else {
+                            1
+                        }
+                    </span>
+                    <div>
+                        <strong>{{ 'settings.kyb.track.tier1Title' | transloco }}</strong>
+                        <span>{{ 'settings.kyb.track.tier1Desc' | transloco }}</span>
+                    </div>
+                </div>
+
+                <div class="kyb-track__line" [class.kyb-track__line--done]="tier2Reached()"></div>
+
+                <div class="kyb-track__step" [class.kyb-track__step--done]="tier2Reached()">
+                    <span class="kyb-track__dot">
+                        @if (tier2Reached()) {
+                            <mat-icon>check</mat-icon>
+                        } @else {
+                            2
+                        }
+                    </span>
+                    <div>
+                        <strong>{{ 'settings.kyb.track.tier2Title' | transloco }}</strong>
+                        <span>{{ 'settings.kyb.track.tier2Desc' | transloco }}</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </section>
+
+    <!-- Compliance Action Alert -->
+    @if (registration()?.status === 'CHANGES_REQUESTED' || registration()?.status === 'FAILED') {
+        <section class="kyb-alert kyb-alert--warn">
+            <mat-icon aria-hidden="true">warning_amber</mat-icon>
+            <div class="kyb-alert__body">
+                <h3>{{ 'settings.kyb.changesAlertTitle' | transloco }}</h3>
+                <p>
+                    {{ latestReviewerNote()?.note || ('settings.kyb.changesAlertFallback' | transloco) }}
+                </p>
+            </div>
+            <button
+                mat-flat-button
+                type="button"
+                color="warn"
+                [disabled]="env.verifyCompanyLoading()"
+                (click)="openKybPortal()"
+            >
+                {{ 'settings.kyb.ctaUpdate' | transloco }}
+            </button>
+        </section>
+    } @else if (registration()?.status === 'NEEDS_MANUAL_VERIFICATION') {
+        <section class="kyb-alert kyb-alert--info">
+            <mat-icon aria-hidden="true">hourglass_top</mat-icon>
+            <div class="kyb-alert__body">
+                <h3>{{ 'settings.kyb.manualReviewTitle' | transloco }}</h3>
+                <p>{{ 'settings.kyb.manualReviewDesc' | transloco }}</p>
+            </div>
+        </section>
+    }
+
+    @if (registration(); as reg) {
+        <div class="kyb-grid">
+            <!-- Company Profile Card -->
+            <section class="kyb-card">
+                <div class="kyb-card__head">
+                    <h3>{{ 'settings.kyb.companyCard.title' | transloco }}</h3>
+                    <span class="badge" [ngClass]="regStatusClass(reg.status)">
+                        {{ reg.status }}
+                    </span>
+                </div>
+
+                <dl class="kyb-dl">
+                    <div>
+                        <dt>{{ 'settings.kyb.companyCard.legalName' | transloco }}</dt>
+                        <dd>{{ reg.companyInfo?.legalName || '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt>{{ 'settings.kyb.companyCard.taxId' | transloco }}</dt>
+                        <dd>{{ reg.companyInfo?.taxId || '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt>{{ 'settings.kyb.companyCard.country' | transloco }}</dt>
+                        <dd>{{ reg.companyInfo?.country || '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt>{{ 'settings.kyb.companyCard.city' | transloco }}</dt>
+                        <dd>{{ reg.companyInfo?.city || '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt>{{ 'settings.kyb.companyCard.email' | transloco }}</dt>
+                        <dd>{{ reg.companyInfo?.email || '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt>{{ 'settings.kyb.companyCard.updated' | transloco }}</dt>
+                        <dd>{{ reg.updatedAt ? (reg.updatedAt | date: 'mediumDate') : '—' }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <!-- Legal Representatives Card -->
+            <section class="kyb-card">
+                <div class="kyb-card__head">
+                    <h3>{{ 'settings.kyb.repsCard.title' | transloco }}</h3>
+                    <span class="kyb-card__meta">
+                        {{ verifiedRepsCount() }} / {{ reg.representatives?.length || 0 }}
+                        {{ 'settings.kyb.repsCard.verifiedLabel' | transloco }}
+                    </span>
+                </div>
+
+                @if (reg.representatives?.length) {
+                    <ul class="kyb-list">
+                        @for (rep of reg.representatives; track rep._id || $index) {
+                            <li class="kyb-list__item">
+                                <div class="kyb-list__main">
+                                    <strong>{{ rep.fullName || rep.email || '—' }}</strong>
+                                    <span>
+                                        {{ rep.role || ('settings.kyb.repsCard.defaultRole' | transloco) }}
+                                        @if (rep.email) {
+                                            · {{ rep.email }}
+                                        }
+                                    </span>
+                                </div>
+                                <span class="badge" [ngClass]="repStatusClass(rep)">
+                                    {{ rep.kycStatus || 'pending' }}
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <p class="kyb-empty">{{ 'settings.kyb.repsCard.empty' | transloco }}</p>
+                }
+            </section>
+        </div>
+
+        <!-- Company Documents & Missing-Document Notes Card -->
+        <section class="kyb-card">
+            <div class="kyb-card__head">
+                <h3>{{ 'settings.kyb.docsCard.title' | transloco }}</h3>
+                <span class="kyb-card__meta">
+                    {{ reg.documents?.length || 0 }}
+                    {{ 'settings.kyb.docsCard.countLabel' | transloco }}
+                </span>
+            </div>
+
+            @if (reg.documents?.length) {
+                <ul class="kyb-list">
+                    @for (doc of reg.documents; track doc._id || doc.slotId || $index) {
+                        <li class="kyb-list__item">
+                            <div class="kyb-list__main">
+                                <strong>{{ doc.label || doc.documentType || doc.slotId }}</strong>
+                                <span>
+                                    {{ doc.fileName || '' }}
+                                    @if (doc.ocrStatus) {
+                                        · OCR: {{ doc.ocrStatus }}
+                                    }
+                                    @if (doc.uploadedAt) {
+                                        · {{ doc.uploadedAt | date: 'mediumDate' }}
+                                    }
+                                </span>
+                            </div>
+                            <div class="kyb-list__actions">
+                                <span class="badge" [ngClass]="docStatusClass(doc)">
+                                    {{ doc.status || 'uploaded' }}
+                                </span>
+                                @if (doc.fileUrl) {
+                                    <a
+                                        [href]="doc.fileUrl"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="kyb-link"
+                                    >
+                                        {{ 'settings.kyb.docsCard.viewFile' | transloco }}
+                                    </a>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            } @else {
+                <p class="kyb-empty">{{ 'settings.kyb.docsCard.empty' | transloco }}</p>
+            }
+
+            @if (reg.missingDocumentNotes?.length || reg.submissionNote) {
+                <div class="kyb-notes">
+                    <h4>{{ 'settings.kyb.docsCard.notesTitle' | transloco }}</h4>
+                    @if (reg.submissionNote) {
+                        <p class="kyb-notes__item">{{ reg.submissionNote }}</p>
+                    }
+                    @for (item of reg.missingDocumentNotes; track item.slotId || $index) {
+                        <p class="kyb-notes__item">
+                            <strong>{{ item.label || item.slotId }}:</strong> {{ item.note }}
+                        </p>
+                    }
+                </div>
+            }
+        </section>
+
+        <!-- Linked Support Tickets -->
+        @if (reg.supportTickets?.length) {
+            <section class="kyb-card">
+                <div class="kyb-card__head">
+                    <h3>{{ 'settings.kyb.ticketsCard.title' | transloco }}</h3>
+                    <a routerLink="/support-tickets" class="kyb-link">
+                        {{ 'settings.kyb.ticketsCard.openSupport' | transloco }}
+                    </a>
+                </div>
+                <ul class="kyb-list">
+                    @for (ticket of reg.supportTickets; track ticket._id) {
+                        <li class="kyb-list__item">
+                            <div class="kyb-list__main">
+                                <strong>
+                                    @if (ticket.number) {
+                                        #{{ ticket.number }} ·
+                                    }
+                                    {{ ticket.title || ticket.subject || ('settings.kyb.ticketsCard.defaultTitle' | transloco) }}
+                                </strong>
+                                <span>{{ ticket.createdAt ? (ticket.createdAt | date: 'mediumDate') : '' }}</span>
+                            </div>
+                            <span class="badge badge--info">{{ ticket.status || 'open' }}</span>
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
+    } @else {
+        <section class="kyb-card kyb-card--empty">
+            <mat-icon aria-hidden="true">domain_verification</mat-icon>
+            <h3>
+                {{
+                    (tier() === 'legacy_kyc'
+                        ? 'settings.kyb.emptyLegacyTitle'
+                        : 'settings.kyb.emptyTitle') | transloco
+                }}
+            </h3>
+            <p>
+                {{
+                    (tier() === 'legacy_kyc'
+                        ? 'settings.kyb.emptyLegacyDesc'
+                        : 'settings.kyb.emptyDesc') | transloco
+                }}
+            </p>
+        </section>
+    }
+</div>

@@ -140,4 +140,24 @@ describe('countriesFromEndpointFeatures', () => {
         ]).map((country) => country.name);
         expect(names).toEqual(['Panama', 'Peru']);
     });
+
+    it('assigns valid 2-letter ISO codes to dynamic catalog countries including Australia, Belarus, Belgium, and UK', () => {
+        const list = countriesFromEndpointFeatures([
+            { country: 'Australia' },
+            { country: 'Belarus' },
+            { country: 'Belgium' },
+            { country: 'United Kingdom' },
+            { country: 'New Zealand' },
+            { country: 'European Union' },
+            { country: 'Global' },
+        ]);
+        expect(list.map((c) => [c.name, c.iso])).toEqual([
+            ['Australia', 'au'],
+            ['Belarus', 'by'],
+            ['Belgium', 'be'],
+            ['European Union', 'eu'],
+            ['New Zealand', 'nz'],
+            ['United Kingdom', 'gb'],
+        ]);
+    });
 });

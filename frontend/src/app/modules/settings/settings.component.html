@@ -153,6 +153,10 @@
                     (userChange)="onUserChanged($event)"
                 ></app-cost-centers>
 
+                <app-company-verification
+                    *ngIf="selectedPanel === 'company_verification'"
+                ></app-company-verification>
+
                 <app-workspace-settings
                     *ngIf="selectedPanel === 'general'"
                     [user]="settingsUser"

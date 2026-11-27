@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
+import { AccountEnvironmentService } from '../../../core/account/account-environment.service';
 
 @Component({
     selector: 'identity-verification-info-modal',
@@ -37,63 +38,114 @@ import { TranslocoModule } from '@jsverse/transloco';
                     </svg>
                 </div>
                 <h2 class="identity-modal__title">
-                    {{ 'accountEnv.identityVerificationModal.title' | transloco }}
+                    {{
+                        (env.kybOnboardingEnabled()
+                            ? 'accountEnv.kybModal.title'
+                            : 'accountEnv.identityVerificationModal.title') | transloco
+                    }}
                 </h2>
                 <p class="identity-modal__subtitle">
-                    {{ 'accountEnv.identityVerificationModal.subtitle' | transloco }}
+                    {{
+                        (env.kybOnboardingEnabled()
+                            ? 'accountEnv.kybModal.subtitle'
+                            : 'accountEnv.identityVerificationModal.subtitle') | transloco
+                    }}
                 </p>
             </div>
 
             <ul class="identity-modal__reasons">
-                <li class="identity-modal__reason">
-                    <span class="identity-modal__icon" aria-hidden="true">
-                        <mat-icon>shield</mat-icon>
-                    </span>
-                    <div>
-                        <h3>{{ 'accountEnv.identityVerificationModal.reason5_title' | transloco }}</h3>
-                        <p>{{ 'accountEnv.identityVerificationModal.reason5_desc' | transloco }}</p>
-                    </div>
-                </li>
-                <li class="identity-modal__reason">
-                    <span class="identity-modal__icon" aria-hidden="true">
-                        <mat-icon>assignment_ind</mat-icon>
-                    </span>
-                    <div>
-                        <h3>{{ 'accountEnv.identityVerificationModal.reason1_title' | transloco }}</h3>
-                        <p>{{ 'accountEnv.identityVerificationModal.reason1_desc' | transloco }}</p>
-                    </div>
-                </li>
-                <li class="identity-modal__reason">
-                    <span class="identity-modal__icon" aria-hidden="true">
-                        <mat-icon>folder_shared</mat-icon>
-                    </span>
-                    <div>
-                        <h3>{{ 'accountEnv.identityVerificationModal.reason2_title' | transloco }}</h3>
-                        <p>{{ 'accountEnv.identityVerificationModal.reason2_desc' | transloco }}</p>
-                    </div>
-                </li>
-                <li class="identity-modal__reason">
-                    <span class="identity-modal__icon" aria-hidden="true">
-                        <mat-icon>rocket_launch</mat-icon>
-                    </span>
-                    <div>
-                        <h3>{{ 'accountEnv.identityVerificationModal.reason3_title' | transloco }}</h3>
-                        <p>{{ 'accountEnv.identityVerificationModal.reason3_desc' | transloco }}</p>
-                    </div>
-                </li>
-                <li class="identity-modal__reason">
-                    <span class="identity-modal__icon" aria-hidden="true">
-                        <mat-icon>payments</mat-icon>
-                    </span>
-                    <div>
-                        <h3>{{ 'accountEnv.identityVerificationModal.reason4_title' | transloco }}</h3>
-                        <p>{{ 'accountEnv.identityVerificationModal.reason4_desc' | transloco }}</p>
-                    </div>
-                </li>
+                @if (env.kybOnboardingEnabled()) {
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>verified_user</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.kybModal.reason1_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.kybModal.reason1_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>domain_verification</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.kybModal.reason2_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.kybModal.reason2_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>description</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.kybModal.reason3_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.kybModal.reason3_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>payments</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.kybModal.reason4_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.kybModal.reason4_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                } @else {
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>shield</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.identityVerificationModal.reason5_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.identityVerificationModal.reason5_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>assignment_ind</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.identityVerificationModal.reason1_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.identityVerificationModal.reason1_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>folder_shared</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.identityVerificationModal.reason2_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.identityVerificationModal.reason2_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>rocket_launch</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.identityVerificationModal.reason3_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.identityVerificationModal.reason3_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                    <li class="identity-modal__reason">
+                        <span class="identity-modal__icon" aria-hidden="true">
+                            <mat-icon>payments</mat-icon>
+                        </span>
+                        <div>
+                            <h3>{{ 'accountEnv.identityVerificationModal.reason4_title' | transloco }}</h3>
+                            <p>{{ 'accountEnv.identityVerificationModal.reason4_desc' | transloco }}</p>
+                        </div>
+                    </li>
+                }
             </ul>
 
             <button mat-flat-button type="button" class="identity-modal__cta" (click)="verify()">
-                {{ 'accountEnv.identityVerificationModal.cta' | transloco }}
+                {{
+                    (env.kybOnboardingEnabled()
+                        ? 'accountEnv.kybModal.cta'
+                        : 'accountEnv.identityVerificationModal.cta') | transloco
+                }}
             </button>
         </div>
     `,
@@ -268,6 +320,7 @@ import { TranslocoModule } from '@jsverse/transloco';
     ],
 })
 export class IdentityVerificationInfoModalComponent {
+    readonly env = inject(AccountEnvironmentService);
     private _dialogRef = inject(MatDialogRef<IdentityVerificationInfoModalComponent, 'verify' | undefined>);
 
     close(): void {
