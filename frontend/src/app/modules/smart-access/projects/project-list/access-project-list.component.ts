@@ -11,7 +11,13 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { forkJoin } from 'rxjs';
 import { environment } from 'environments/environment';
-import { StaffPermissionService } from 'app/core/permissions';
+import {
+    StaffPermissionService,
+    TeamFilterSelectComponent,
+    extractProjectTeam,
+    type ProjectTeamRef,
+    type TeamDto,
+} from 'app/core/permissions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { requiresSmartAccessSubscription } from 'app/core/client-settings/override-conditions';
 import { smartAccessLoginFlow } from '../login-flow.util';
@@ -33,6 +39,7 @@ import { SmartAccessProjectsService } from '../smart-access-projects.service';
         MatProgressSpinnerModule,
         MatSlideToggleModule,
         TranslocoModule,
+        TeamFilterSelectComponent,
     ],
     templateUrl: './access-project-list.component.html',
     styleUrls: ['./access-project-list.component.scss'],
@@ -47,6 +54,18 @@ export class AccessProjectListComponent implements OnInit {
     loading = signal(true);
     error = signal<string | null>(null);
     noActivePlan = signal(false);
+    selectedTeam = signal('');
+    availableTeams = signal<TeamDto[]>([]);
+
+    onTeamFilterChange(teamId: string): void {
+        this.selectedTeam.set(teamId || '');
+        this.loading.set(true);
+        this._loadProjects();
+    }
+
+    teamBadge(project: AccessProject): ProjectTeamRef | null {
+        return extractProjectTeam(project.team, this.availableTeams());
+    }
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
@@ -211,7 +230,8 @@ export class AccessProjectListComponent implements OnInit {
     }
 
     private _loadProjects(): void {
-        this._projectsService.listProjects().subscribe({
+        const team = this.selectedTeam() || undefined;
+        this._projectsService.listProjects(team).subscribe({
             next: (list) => {
                 this.projects.set(list);
                 this.loading.set(false);

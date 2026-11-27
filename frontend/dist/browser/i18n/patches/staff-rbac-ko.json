@@ -14,7 +14,8 @@
       "execute": "실행",
       "approve": "승인",
       "export": "내보내기",
-      "manageKeys": "키 관리"
+      "manageKeys": "키 관리",
+      "readAll": "모든 팀"
     },
     "actionTooltips": {
       "read": "화면, 기록, 목록 및 분석 보기",
@@ -24,7 +25,8 @@
       "execute": "스캔, API 실행, 일괄 작업 트리거",
       "approve": "인증 수동 승인, 거부 또는 처리",
       "export": "PDF, CSV, XLSX 또는 JSONL 내보내기",
-      "manageKeys": "API 키 생성/교체/폐기 및 Live/Sandbox 전환"
+      "manageKeys": "API 키 생성/교체/폐기 및 Live/Sandbox 전환",
+      "readAll": "내 하위 팀뿐만 아니라 워크스페이스의 모든 하위 팀 기록 보기"
     },
     "budget": {
       "oneTimeThisMonth": "이번 UTC 월 일회성 증액",
@@ -149,7 +151,11 @@
       "defaultDurationTitle": "기본 요청 기간",
       "defaultDurationDesc": "새 요청 작성 시 기본 선택되는 만료 기간입니다.",
       "savedToast": "접근 정책이 업데이트되었습니다",
-      "saveError": "정책을 저장하지 못했습니다"
+      "saveError": "정책을 저장하지 못했습니다",
+      "teamScopedVisibilityTitle": "하위 팀별 리소스 가시성 격리",
+      "teamScopedVisibilityDesc": "생성된 보고서, 배치, 프로젝트, 로그 및 템플릿을 하위 팀별로 격리합니다(모든 팀 권한 제외).",
+      "requireTeamApiKeysTitle": "하위 팀 API 키 필수",
+      "requireTeamApiKeysDesc": "외부 API 호출 시 하위 팀이 할당된 팀 API 키를 사용하도록 강제합니다."
     },
     "presets": {
       "viewOnly": "보기 전용",
@@ -179,7 +185,8 @@
       "submittedToast": "검토를 위해 요청을 제출했습니다",
       "duplicatePending": "동일한 범위의 대기 중 요청이 이미 있습니다.",
       "submitError": "요청을 제출하지 못했습니다",
-      "disabled": "워크스페이스 정책에 의해 셀프 서비스 요청이 비활성화되었습니다."
+      "disabled": "워크스페이스 정책에 의해 셀프 서비스 요청이 비활성화되었습니다.",
+      "disabledByRole": "현재 역할에서는 액세스 요청이 비활성화되어 있습니다."
     },
     "requestsTab": {
       "typeAll": "전체 유형",
@@ -215,7 +222,7 @@
       "smartCheckLists": "체크리스트",
       "smartCheckHistory": "API 요청 기록",
       "smartReportsTemplates": "리포트 템플릿",
-      "smartReportsBatch": "일괄 실행 및 구성",
+      "smartReportsBatch": "배치 설정 및 프리셋",
       "smartFleetAssets": "차량 및 운전자",
       "smartFleetRules": "감시 규칙 및 알림",
       "smartEnrollProjects": "KYC 프로젝트",
@@ -235,7 +242,8 @@
       "billingUsage": "사용량 및 비용 센터",
       "apiKeys": "API 키 및 운영 모드",
       "team": "구성원, 하위 팀 및 역할",
-      "workspaceSettings": "워크스페이스 설정"
+      "workspaceSettings": "워크스페이스 설정",
+      "smartReportsResults": "보고서 실행 및 결과"
     },
     "restricted": {
       "title": "접근 제한됨",
@@ -253,7 +261,10 @@
       "accessGrantedToast": "권한이 부여되었습니다! 이동 중…",
       "stillRestrictedToast": "아직 접근이 제한되어 있습니다.",
       "goHome": "홈으로",
-      "viewMyAccess": "내 액세스 열기"
+      "viewMyAccess": "내 액세스 열기",
+      "requestsDisabledByRoleHint": "이 역할에서는 액세스 요청을 사용할 수 없습니다. 워크스페이스 소유자나 관리자에게 문의하세요.",
+      "notFoundTitle": "리소스를 찾을 수 없거나 하위 팀 외부입니다",
+      "notFoundBody": "이 레코드는 존재하지 않거나 다른 하위 팀에 속해 있습니다."
     },
     "roles": {
       "admin": {
@@ -279,6 +290,10 @@
       "viewer": {
         "name": "뷰어",
         "desc": "대시보드, 기록 및 모니터링 읽기 전용 보기."
+      },
+      "report_builder": {
+        "name": "문서 빌더",
+        "desc": "실행된 보고서 결과, 개인정보 또는 API 키를 보지 않고 보고서 템플릿과 배치 구성을 생성/편집합니다."
       }
     },
     "rolesTab": {
@@ -302,7 +317,15 @@
       "reassignMembersLabel": "재할당 대상",
       "confirmDeleteBtn": "재할당 후 삭제",
       "deletedToast": "사용자 지정 역할이 삭제되었습니다",
-      "duplicateAsCustomTooltip": "이 기본 프리셋을 편집 가능한 사용자 지정 역할로 복제합니다"
+      "duplicateAsCustomTooltip": "이 기본 프리셋을 편집 가능한 사용자 지정 역할로 복제합니다",
+      "accessRequestPolicyTitle": "셀프 서비스 액세스 요청",
+      "allowAccessRequestsToggle": "이 역할의 구성원이 액세스를 요청할 수 있도록 허용",
+      "allowAccessRequestsDesc": "끄면 이 역할의 구성원은 추가 권한을 요청할 수 없습니다.",
+      "requestableResourcesLabel": "요청 가능한 모듈",
+      "requestableResourcesAll": "모든 제한된 모듈(기본값)",
+      "requestableResourcesNone": "없음(요청 비활성화)",
+      "requestableResourcesCustom": "선택한 모듈만",
+      "requestsLockedByPreset": "시스템 기본 정책(복제하여 사용자 지정)"
     },
     "statuses": {
       "pending": "대기 중",
@@ -362,7 +385,19 @@
       "deleteConfirmDesc": "구성원은 공용 풀로 반환됩니다.",
       "deletedToast": "하위 팀이 삭제되었습니다",
       "savedToast": "하위 팀이 저장되었습니다",
-      "saveError": "하위 팀을 저장하지 못했습니다"
+      "saveError": "하위 팀을 저장하지 못했습니다",
+      "allowedCostCentersLabel": "허용된 코스트 센터(CECO)",
+      "allowedCostCentersPlaceholder": "비워 두면 모든 코스트 센터 허용",
+      "enforceCostCenterLabel": "허용된 코스트 센터로 제한",
+      "enforceCostCenterDesc": "허용 목록에 없는 코스트 센터를 사용하는 API 호출 및 보고서 실행을 거부합니다.",
+      "cecoLockedBadge": "CECO 잠금",
+      "filterAllTeams": "모든 하위 팀",
+      "filterUnassigned": "미할당",
+      "assignTeamAction": "하위 팀에 할당",
+      "assignedTeamToast": "하위 팀 할당이 업데이트되었습니다",
+      "visibilityLabel": "공개 범위",
+      "visibilityTeam": "하위 팀만",
+      "visibilityWorkspace": "전체 워크스페이스"
     },
     "tooltips": {
       "toggleEnvironmentLocked": "Live/Sandbox 전환에는 API 키 관리 권한이 필요합니다."

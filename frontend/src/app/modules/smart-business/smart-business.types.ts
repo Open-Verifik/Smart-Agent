@@ -139,6 +139,8 @@ export interface BusinessProject {
     currentStep?: number;
     lastStep?: number;
     projectFlows?: BusinessProjectFlow[];
+    team?: string | { _id?: string; name?: string; color?: string } | null;
+    visibility?: 'team' | 'workspace';
     createdAt?: string;
     updatedAt?: string;
 }

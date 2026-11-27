@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable, catchError, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
+import { StaffPermissionService } from 'app/core/permissions';
 import { projectHasOnboardingFlow } from './onboarding-flow.util';
 import type {
     AppRegistrationDetail,
@@ -63,19 +64,20 @@ const CLIENT_LIST_PARAMS: Record<string, string | string[]> = {
     sort: '-updatedAt',
     wherenot_target: 'business',
     populates: ['projectMembers', 'projectMembers.staff', 'client'],
-    select: '_id name target client projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
+    select: '_id name target client team visibility projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
 };
 
 const STAFF_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
     wherenot_target: 'business',
     populates: ['projectMembers', 'projectMembers.staff'],
-    select: '_id name target client projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
+    select: '_id name target client team visibility projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
 };
 
 @Injectable({ providedIn: 'root' })
 export class SmartEnrollProjectsService {
     private _http = inject(HttpClient);
+    private _perm = inject(StaffPermissionService);
 
     private get apiUrl(): string {
         return environment.apiUrl;
@@ -187,17 +189,17 @@ export class SmartEnrollProjectsService {
         return request$;
     }
 
-    listProjects(): Observable<EnrollProject[]> {
+    listProjects(team?: string): Observable<EnrollProject[]> {
         const user = this.parseStoredUser();
-        if (user?.staff && user.canonicalRole !== 'admin') {
+        if (user?.staff && !this._perm.canViewAllTeams() && user.canonicalRole !== 'admin') {
             return this._fetchStaffProjectIds(user.staff).pipe(
                 switchMap((ids) => {
                     if (!ids.length) return of([]);
-                    return this._getProjectsByIds(ids);
+                    return this._getProjectsByIds(ids, team);
                 })
             );
         }
-        return this._getProjectsClient();
+        return this._getProjectsClient(team);
     }
 
     getProject(id: string): Observable<EnrollProject | null> {
@@ -669,11 +671,12 @@ export class SmartEnrollProjectsService {
             );
     }
 
-    private _getProjectsByIds(ids: string[]): Observable<EnrollProject[]> {
+    private _getProjectsByIds(ids: string[], team?: string): Observable<EnrollProject[]> {
         const params: Record<string, string | string[]> = {
             ...STAFF_LIST_PARAMS,
             in__id: ids,
         };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data: EnrollProject[] }>(`${this.apiUrl}/v2/projects`, {
                 params,
@@ -688,10 +691,12 @@ export class SmartEnrollProjectsService {
             );
     }
 
-    private _getProjectsClient(): Observable<EnrollProject[]> {
+    private _getProjectsClient(team?: string): Observable<EnrollProject[]> {
+        const params: Record<string, string | string[]> = { ...CLIENT_LIST_PARAMS };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data: EnrollProject[] }>(`${this.apiUrl}/v2/projects`, {
-                params: CLIENT_LIST_PARAMS,
+                params,
                 headers: this.authHeaders,
             })
             .pipe(

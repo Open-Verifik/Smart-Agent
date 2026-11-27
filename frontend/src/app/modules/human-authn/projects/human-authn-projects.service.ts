@@ -101,6 +101,8 @@ export interface HumanAuthnProject {
     createdAt?: string;
     projectFlows?: HumanAuthnProjectFlow[];
     projectMembers?: HumanAuthnProjectMember[];
+    team?: string | { _id?: string; name?: string; color?: string } | null;
+    visibility?: 'team' | 'workspace';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -158,14 +160,16 @@ export class HumanAuthnProjectsService {
             );
     }
 
-    listProjects(): Observable<HumanAuthnProject[]> {
+    listProjects(team?: string): Observable<HumanAuthnProject[]> {
+        const params: Record<string, string> = {
+            populates: 'projectFlows',
+            projectFlowType: 'humanAuthn',
+            sort: '-updatedAt',
+        };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data?: HumanAuthnProject[] | { docs?: HumanAuthnProject[] } }>(`${this.apiUrl}/v3/projects`, {
-                params: {
-                    populates: 'projectFlows',
-                    projectFlowType: 'humanAuthn',
-                    sort: '-updatedAt',
-                },
+                params,
                 headers: this.authHeaders,
             })
             .pipe(

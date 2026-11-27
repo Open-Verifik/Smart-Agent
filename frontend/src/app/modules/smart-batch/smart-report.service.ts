@@ -357,6 +357,7 @@ export interface SmartReportTemplate {
     layoutVersion?: number;
     batchConfiguration?: string | BatchConfigurationRef;
     client?: string;
+    team?: string | { _id: string; name?: string; color?: string } | null;
 
     // Branding
     logo?: string;
@@ -959,12 +960,15 @@ export class SmartReportService {
     // TEMPLATE METHODS
     // ============================================
 
-    getTemplates(configId?: string): Observable<SmartReportTemplate[]> {
+    getTemplates(configId?: string, team?: string): Observable<SmartReportTemplate[]> {
         this.isLoading.set(true);
         const epoch = ++this._templateListEpoch;
-        let params: Record<string, string> = {};
+        const params: Record<string, string> = {};
         if (configId) {
-            params = { batchConfiguration: configId };
+            params['batchConfiguration'] = configId;
+        }
+        if (team) {
+            params['team'] = team;
         }
         return this._httpClient
             .get<{

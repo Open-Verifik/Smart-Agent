@@ -33,15 +33,17 @@ export class SmartBusinessService {
         return token ? { Authorization: `Bearer ${token}` } : {};
     }
 
-    listProjects(): Observable<BusinessProject[]> {
+    listProjects(team?: string): Observable<BusinessProject[]> {
+        const params: Record<string, string | string[]> = {
+            with: ['projectFlows'],
+            sort: '-updatedAt',
+            populates: ['projectMembers', 'client'],
+        };
+        if (team) params['team'] = team;
         return this._http
             .get<{ data: BusinessProject[] }>(`${this.v3Url}/projects`, {
                 headers: this.authHeaders,
-                params: {
-                    with: ['projectFlows'],
-                    sort: '-updatedAt',
-                    populates: ['projectMembers', 'client'],
-                },
+                params,
             })
             .pipe(
                 map((res) => {

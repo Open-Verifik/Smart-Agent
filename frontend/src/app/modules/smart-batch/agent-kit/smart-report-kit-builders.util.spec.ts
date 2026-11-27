@@ -3,7 +3,9 @@ import {
     buildExampleInputObject,
     buildSmartReportAiPrompt,
     buildSmartReportCurlSnippet,
+    buildSmartReportJsSnippet,
     buildSmartReportMcpSnippet,
+    buildSmartReportPythonSnippet,
     buildSmartReportWebhookSnippet,
 } from './smart-report-kit-builders.util';
 
@@ -91,5 +93,42 @@ describe('smart-report-kit-builders.util', () => {
         expect(curl).toContain("O'\\''Brien");
         expect(curl).toContain('/v2/smart-reports/rep_5/download?rowIndex=2');
         expect(curl).toContain('/v2/smart-reports/rep_5/send-email');
+        expect(curl).toContain('x-cost-center');
+
+        const curlWithCostCenter = buildSmartReportCurlSnippet({
+            configId: 'cfg_1',
+            costCenter: 'CC-OPS-01',
+        });
+        expect(curlWithCostCenter).toContain('-H "x-cost-center: CC-OPS-01"');
+
+        const mcpWithCostCenter = JSON.parse(
+            buildSmartReportMcpSnippet({
+                configId: 'cfg_1',
+                costCenter: 'CC-OPS-01',
+            })
+        );
+        expect(mcpWithCostCenter.sampleToolCall.arguments.costCenter).toBe('CC-OPS-01');
+    });
+
+    it('renders JavaScript and Python SDK-free snippets with Team API key comment and x-cost-center', () => {
+        const js = buildSmartReportJsSnippet({
+            configId: 'cfg_1',
+            templateId: 'tpl_1',
+            costCenter: 'CC-LATAM-01',
+            requiredInputs: [{ field: 'documentNumber', required: true }],
+        });
+        expect(js).toContain('/v2/smart-reports/run');
+        expect(js).toContain("'x-cost-center': \"CC-LATAM-01\"");
+        expect(js).toContain('Team API Key');
+        expect(js).toContain('"batchConfigurationId": "cfg_1"');
+
+        const py = buildSmartReportPythonSnippet({
+            configId: 'cfg_1',
+            costCenter: 'CC-LATAM-01',
+        });
+        expect(py).toContain('requests.post(');
+        expect(py).toContain('/v2/smart-reports/run');
+        expect(py).toContain('"x-cost-center": "CC-LATAM-01"');
+        expect(py).toContain('Team API Key');
     });
 });

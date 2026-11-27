@@ -93,6 +93,8 @@ export interface BatchConfiguration {
     };
     scheduleExpression?: string;
     preferredReportTemplate?: string | { _id: string };
+    team?: string | { _id: string; name?: string; color?: string } | null;
+    visibility?: 'team' | 'workspace';
     isActive?: boolean;
     executor?: SmartBatchExecutor;
     /** Visual VISITA chain so the same consultation can be reopened and reused. */
@@ -149,16 +151,18 @@ export class SmartBatchService {
 
     constructor(private _httpClient: HttpClient) {}
 
-    getConfigurations(options: { page?: number; perPage?: number } = {}) {
+    getConfigurations(options: { page?: number; perPage?: number; team?: string } = {}) {
         this.isLoading.set(true);
 
         const page = options.page ?? 1;
         const perPage = options.perPage ?? DEFAULT_PER_PAGE;
+        const params: Record<string, string | number> = { page, perPage };
+        if (options.team) params['team'] = options.team;
 
         return this._httpClient
             .get<PaginatedResponse<BatchConfiguration>>(
                 `${environment.apiUrl}/v2/batch-configurations`,
-                { params: { page, perPage } }
+                { params }
             )
             .pipe(
                 tap((response) => {

@@ -5,8 +5,10 @@ import {
     defaultPermissionsForRole,
     RESOURCE_MAP,
     resolveRoleSlug,
+    SYSTEM_ROLE_METADATA,
 } from './staff-permission.constants';
 import {
+    AccessRequestPolicyState,
     PermissionCheckTuple,
     PermissionMap,
     StaffAccessPolicy,
@@ -20,6 +22,13 @@ import { StaffRbacApiService } from './staff-rbac-api.service';
 
 const ACCOUNT_STORAGE_KEY = 'verifik_account';
 
+const DEFAULT_REQUEST_POLICY: AccessRequestPolicyState = {
+    allowByTenant: true,
+    allowByRole: true,
+    canRequestAccess: true,
+    requestableResources: null,
+};
+
 const INITIAL_STATE: StaffPermissionState = {
     hydrated: false,
     isStaff: false,
@@ -32,6 +41,7 @@ const INITIAL_STATE: StaffPermissionState = {
     permissions: null,
     temporaryGrants: [],
     accessPolicy: { ...DEFAULT_STAFF_ACCESS_POLICY },
+    accessRequestPolicy: { ...DEFAULT_REQUEST_POLICY },
     pendingRequestsCount: 0,
 };
 
@@ -55,6 +65,7 @@ export class StaffPermissionService {
     readonly permissions = computed(() => this._state().permissions);
     readonly temporaryGrants = computed(() => this._state().temporaryGrants);
     readonly accessPolicy = computed(() => this._state().accessPolicy);
+    readonly accessRequestPolicy = computed(() => this._state().accessRequestPolicy);
     readonly pendingRequestsCount = computed(() => this._state().pendingRequestsCount);
 
     readonly hideRestrictedNavigation = computed(
@@ -63,12 +74,25 @@ export class StaffPermissionService {
     readonly allowAccessRequests = computed(
         () => this._state().accessPolicy?.allowAccessRequests !== false
     );
+    readonly canRequestAccess = computed(() => {
+        const current = this._state();
+        if (current.isOwner || !current.isStaff) return true;
+        return (
+            current.accessPolicy?.allowAccessRequests !== false &&
+            current.accessRequestPolicy?.allowByRole !== false &&
+            current.accessRequestPolicy?.canRequestAccess !== false
+        );
+    });
+    readonly requestableResources = computed(() => this._state().accessRequestPolicy?.requestableResources ?? null);
     readonly canApproveRequests = computed(
         () =>
             this.isOwner() ||
             !this.isStaff() ||
             this.can('team', 'approve') ||
             this.can('billingCredits', 'update')
+    );
+    readonly canViewAllTeams = computed(
+        () => this.isOwner() || !this.isStaff() || this.can('team', 'readAll')
     );
 
     constructor() {
@@ -88,6 +112,16 @@ export class StaffPermissionService {
         }
 
         if (current.permissions?.[resource]?.[action] === true) {
+            return true;
+        }
+
+        // Backward-compatibility for pre-P0-1 cached staff sessions missing `smartReportsResults`
+        if (
+            resource === 'smartReportsResults' &&
+            current.permissions &&
+            current.permissions['smartReportsResults'] === undefined &&
+            current.permissions['smartReportsBatch']?.[action] === true
+        ) {
             return true;
         }
 
@@ -124,6 +158,13 @@ export class StaffPermissionService {
         return meta.applicableActions.some((action) => this.can(resource, action));
     }
 
+    canRequestResource(resource: StaffResource | string): boolean {
+        if (!this.canRequestAccess()) return false;
+        const allowlist = this._state().accessRequestPolicy?.requestableResources;
+        if (allowlist === null || allowlist === undefined) return true;
+        return allowlist.includes(resource as StaffResource);
+    }
+
     hydrateFromSession(user: unknown): void {
         if (!user || typeof user !== 'object') {
             this.clear();
@@ -155,6 +196,14 @@ export class StaffPermissionService {
                 : defaultPermissionsForRole(canonicalRole)
             : null;
 
+        const accessRequestPolicy = this._resolveAccessRequestPolicy(
+            isStaff,
+            canonicalRole,
+            record['customRole'] ?? null,
+            accessPolicy,
+            record['accessRequestPolicy']
+        );
+
         const next: StaffPermissionState = {
             hydrated: true,
             isStaff,
@@ -167,6 +216,7 @@ export class StaffPermissionService {
             permissions,
             temporaryGrants: Array.isArray(record['temporaryGrants']) ? record['temporaryGrants'] : [],
             accessPolicy,
+            accessRequestPolicy,
             pendingRequestsCount: Number(record['pendingAccessRequestsCount'] || 0),
         };
 
@@ -176,12 +226,26 @@ export class StaffPermissionService {
     hydrateFromSnapshot(snapshot: StaffPermissionsSnapshot): void {
         if (!snapshot) return;
 
+        const accessPolicy: StaffAccessPolicy = {
+            ...DEFAULT_STAFF_ACCESS_POLICY,
+            ...(snapshot.staffAccessPolicy || {}),
+        };
+        const isStaff = Boolean(snapshot.isStaff);
+        const canonicalRole = snapshot.canonicalRole ?? null;
+        const accessRequestPolicy = this._resolveAccessRequestPolicy(
+            isStaff,
+            canonicalRole,
+            snapshot.customRole ?? null,
+            accessPolicy,
+            snapshot.accessRequestPolicy
+        );
+
         const next: StaffPermissionState = {
             hydrated: true,
-            isStaff: Boolean(snapshot.isStaff),
+            isStaff,
             isOwner: Boolean(snapshot.isOwner),
             role: snapshot.role,
-            canonicalRole: snapshot.canonicalRole,
+            canonicalRole,
             customRole: snapshot.customRole ?? null,
             team: snapshot.team ?? null,
             useCustomPermissions: Boolean(snapshot.useCustomPermissions),
@@ -189,10 +253,8 @@ export class StaffPermissionService {
             temporaryGrants: Array.isArray(snapshot.activeTemporaryGrants)
                 ? snapshot.activeTemporaryGrants
                 : [],
-            accessPolicy: {
-                ...DEFAULT_STAFF_ACCESS_POLICY,
-                ...(snapshot.staffAccessPolicy || {}),
-            },
+            accessPolicy,
+            accessRequestPolicy,
             pendingRequestsCount: Number(snapshot.pendingRequestsCount || 0),
         };
 
@@ -207,7 +269,13 @@ export class StaffPermissionService {
             ...current.accessPolicy,
             ...policy,
         };
-        this._commit({ ...current, accessPolicy: merged });
+        const accessRequestPolicy = this._resolveAccessRequestPolicy(
+            current.isStaff,
+            current.canonicalRole,
+            current.customRole,
+            merged
+        );
+        this._commit({ ...current, accessPolicy: merged, accessRequestPolicy });
     }
 
     updatePendingRequestsCount(count: number): void {
@@ -262,6 +330,7 @@ export class StaffPermissionService {
             account.team = next.team;
             account.useCustomPermissions = next.useCustomPermissions;
             account.temporaryGrants = next.temporaryGrants;
+            account.accessRequestPolicy = next.accessRequestPolicy;
             account.pendingAccessRequestsCount = next.pendingRequestsCount;
             if (account.settings) {
                 account.settings.staffAccessPolicy = next.accessPolicy;
@@ -273,5 +342,60 @@ export class StaffPermissionService {
         } catch {
             // Ignore storage write errors
         }
+    }
+
+    private _resolveAccessRequestPolicy(
+        isStaff: boolean,
+        canonicalRole: string | null,
+        customRole: StaffPermissionState['customRole'],
+        accessPolicy: StaffAccessPolicy,
+        provided?: Partial<AccessRequestPolicyState> | null
+    ): AccessRequestPolicyState {
+        const allowByTenant = accessPolicy?.allowAccessRequests !== false;
+        if (!isStaff) {
+            return {
+                allowByTenant,
+                allowByRole: true,
+                canRequestAccess: true,
+                requestableResources: null,
+            };
+        }
+
+        if (provided && typeof provided === 'object' && typeof provided.allowByRole === 'boolean') {
+            const allowByRole = provided.allowByRole;
+            const requestableResources = Array.isArray(provided.requestableResources)
+                ? provided.requestableResources
+                : null;
+            return {
+                allowByTenant,
+                allowByRole,
+                canRequestAccess:
+                    typeof provided.canRequestAccess === 'boolean'
+                        ? provided.canRequestAccess
+                        : allowByTenant && allowByRole,
+                requestableResources,
+            };
+        }
+
+        const meta = canonicalRole
+            ? SYSTEM_ROLE_METADATA[canonicalRole as keyof typeof SYSTEM_ROLE_METADATA]
+            : undefined;
+        const allowByRole = customRole
+            ? customRole.allowAccessRequests !== false
+            : meta?.allowAccessRequests !== false;
+        const requestableResources = customRole
+            ? Array.isArray(customRole.requestableResources)
+                ? customRole.requestableResources
+                : null
+            : Array.isArray(meta?.requestableResources)
+              ? [...meta.requestableResources]
+              : null;
+
+        return {
+            allowByTenant,
+            allowByRole,
+            canRequestAccess: allowByTenant && allowByRole,
+            requestableResources,
+        };
     }
 }

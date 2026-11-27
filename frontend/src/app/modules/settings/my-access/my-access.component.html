@@ -15,7 +15,7 @@
                 <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">refresh</mat-icon>
                 {{ 'staffRbac.restricted.refreshAccess' | transloco }}
             </button>
-            @if (permService.isStaff() && permService.allowAccessRequests()) {
+            @if (permService.isStaff() && permService.canRequestAccess()) {
                 <button mat-flat-button color="primary" type="button" class="shrink-0 whitespace-nowrap !px-4" (click)="openRequestAccess()">
                     <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">lock_open</mat-icon>
                     {{ 'staffRbac.myAccess.requestAccessBtn' | transloco }}
@@ -48,7 +48,7 @@
                         </p>
                     }
                 </div>
-                @if (permService.isStaff() && permService.allowAccessRequests()) {
+                @if (permService.isStaff() && permService.canRequestAccess()) {
                     <button mat-stroked-button type="button" class="shrink-0 whitespace-nowrap !text-xs !min-h-8 !h-8 !px-3.5" (click)="openRequestRoleUpgrade()">
                         {{ 'staffRbac.myAccess.requestUpgradeBtn' | transloco }}
                     </button>
@@ -71,7 +71,7 @@
                             </span>
                         </div>
                     </div>
-                    @if (team.budget?.effectiveCap != null && permService.allowAccessRequests()) {
+                    @if (team.budget?.effectiveCap != null && permService.canRequestAccess()) {
                         <button mat-stroked-button type="button" class="shrink-0 whitespace-nowrap !text-xs !min-h-8 !h-8 !px-3.5" (click)="openRequestBudgetBoost()">
                             {{ 'staffRbac.myAccess.requestBoostBtn' | transloco }}
                         </button>
@@ -118,7 +118,7 @@
     </div>
 
     <!-- Quick Feature Request Bar -->
-    @if (permService.isStaff() && permService.allowAccessRequests()) {
+    @if (permService.isStaff() && permService.canRequestAccess() && requestableResources.length > 0) {
         <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
             <div class="text-sm font-medium text-slate-700 dark:text-slate-200 shrink-0">
                 {{ 'staffRbac.myAccess.needSpecificFeature' | transloco }}
@@ -127,7 +127,7 @@
                 [(ngModel)]="quickRequestResource"
                 class="min-w-0 flex-1 h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-700 text-sm"
             >
-                @for (r of allResources; track r.key) {
+                @for (r of requestableResources; track r.key) {
                     <mat-option [value]="r.key">{{ r.group }} — {{ r.labelKey | transloco }}</mat-option>
                 }
             </mat-select>
@@ -135,6 +135,14 @@
                 <mat-icon class="!w-4 !h-4 !text-[16px] !mr-1.5">add_circle_outline</mat-icon>
                 {{ 'staffRbac.myAccess.requestSelectedBtn' | transloco }}
             </button>
+        </div>
+    } @else if (permService.isStaff() && !permService.canRequestAccess()) {
+        <div class="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4 text-sm text-amber-900 dark:text-amber-200">
+            {{
+                (permService.allowAccessRequests()
+                    ? 'staffRbac.restricted.requestsDisabledByRoleHint'
+                    : 'staffRbac.restricted.requestsDisabledHint') | transloco
+            }}
         </div>
     }
 

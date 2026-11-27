@@ -100,6 +100,8 @@ export class TeamSubteamsComponent implements OnInit {
         defaultRole: '' as SystemRoleSlug | '',
         defaultCustomRole: '' as string,
         defaultCostCenter: '' as string,
+        allowedCostCenters: [] as string[],
+        enforceCostCenter: false,
         memberIds: [] as string[],
         endpointPolicy: { mode: 'all', features: [] } as EndpointPolicy,
         featureBudgets: [] as TeamFeatureBudgetDto[],
@@ -188,6 +190,11 @@ export class TeamSubteamsComponent implements OnInit {
                 typeof team.defaultCostCenter === 'object'
                     ? team.defaultCostCenter?._id || ''
                     : team.defaultCostCenter || '';
+            const allowedCostCenterIds = Array.isArray(team.allowedCostCenters)
+                ? team.allowedCostCenters
+                      .map((cc) => (typeof cc === 'object' ? cc?._id : cc))
+                      .filter((v): v is string => Boolean(v))
+                : [];
 
             this.teamForm = {
                 name: team.name,
@@ -200,6 +207,8 @@ export class TeamSubteamsComponent implements OnInit {
                 defaultRole: (team.defaultRole as SystemRoleSlug) || '',
                 defaultCustomRole: defaultCustomId,
                 defaultCostCenter: defaultCostCenterId,
+                allowedCostCenters: allowedCostCenterIds,
+                enforceCostCenter: Boolean(team.enforceCostCenter),
                 memberIds,
                 endpointPolicy: team.endpointPolicy
                     ? {
@@ -223,6 +232,8 @@ export class TeamSubteamsComponent implements OnInit {
                 defaultRole: '',
                 defaultCustomRole: '',
                 defaultCostCenter: '',
+                allowedCostCenters: [],
+                enforceCostCenter: false,
                 memberIds: [],
                 endpointPolicy: { mode: 'all', features: [] },
                 featureBudgets: [],
@@ -255,6 +266,8 @@ export class TeamSubteamsComponent implements OnInit {
             defaultRole: this.teamForm.defaultRole ? (this.teamForm.defaultRole as SystemRoleSlug) : null,
             defaultCustomRole: this.teamForm.defaultCustomRole || null,
             defaultCostCenter: this.teamForm.defaultCostCenter || null,
+            allowedCostCenters: this.teamForm.allowedCostCenters,
+            enforceCostCenter: this.teamForm.enforceCostCenter,
             memberIds: this.teamForm.memberIds,
             endpointPolicy: this.teamForm.endpointPolicy,
             featureBudgets: this.teamForm.featureBudgets.map((fb) => ({

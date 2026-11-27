@@ -18,6 +18,7 @@ export interface SmartReportKitContext {
     reportId?: string | null;
     rowIndex?: number | null;
     webhookUrl?: string | null;
+    costCenter?: string | null;
     requiredInputs?: SmartReportKitInputField[];
 }
 
@@ -163,6 +164,9 @@ export const buildSmartReportAiPrompt = (kitContext: SmartReportKitContext): str
         '2. Run verification + generate PDF report in one headless call:',
         `   POST ${apiBaseUrl}/v2/smart-reports/run`,
         '   Header: Authorization: Bearer <VERIFIK_JWT>',
+        kitContext.costCenter
+            ? `   Header: x-cost-center: ${kitContext.costCenter}`
+            : '   Header (optional): x-cost-center: <COST_CENTER_CODE>',
         `   Body: ${exampleJson}`,
         '   Returns { data: { mode, report: { _id, verificationScoreSummary }, batch, verificationScore, pdf: { size, downloadUrl, htmlUrl } } }.',
         '   - Use "mode": "sync" for 1-5 records or "mode": "async" (returns 202) for larger CSV/array batches.',
@@ -176,6 +180,7 @@ export const buildSmartReportMcpSnippet = (kitContext: SmartReportKitContext): s
     const mcpBaseUrl = normalizeBaseUrl(kitContext.mcpUrl, DEFAULT_MCP_URL);
     const toolArguments: Record<string, unknown> = {
         ...targetBodyFragment(kitContext),
+        ...(kitContext.costCenter ? { costCenter: kitContext.costCenter } : {}),
         externalRefId: 'case-12345',
     };
 
@@ -277,10 +282,15 @@ export const buildSmartReportCurlSnippet = (kitContext: SmartReportKitContext): 
         );
     }
 
+    const costCenterHeaderLine = kitContext.costCenter
+        ? `  -H "x-cost-center: ${kitContext.costCenter}" \\`
+        : '  # Optional Cost Center override: -H "x-cost-center: <COST_CENTER_CODE>" \\';
+
     commandLines.push(
         `# ${kitContext.configId ? '2' : '1'}) Run verification + generate report PDF headlessly`,
         `curl -X POST "${apiBaseUrl}/v2/smart-reports/run" \\`,
         '  -H "Authorization: Bearer $VERIFIK_JWT" \\',
+        costCenterHeaderLine,
         '  -H "Content-Type: application/json" \\',
         `  -d '${shellSafePayload}'`,
         '',
@@ -297,4 +307,64 @@ export const buildSmartReportCurlSnippet = (kitContext: SmartReportKitContext): 
     );
 
     return commandLines.join('\n');
+};
+
+export const buildSmartReportJsSnippet = (kitContext: SmartReportKitContext): string => {
+    const apiBaseUrl = normalizeBaseUrl(kitContext.apiUrl, DEFAULT_API_URL);
+    const body = {
+        ...targetBodyFragment(kitContext),
+        externalRefId: 'case-12345',
+    };
+    const costCenterHeader = kitContext.costCenter
+        ? `  'x-cost-center': ${JSON.stringify(kitContext.costCenter)},`
+        : "  // 'x-cost-center': '<COST_CENTER_CODE>', // Optional CECO override";
+
+    return [
+        '// Run headless verification + PDF generation with a Workspace or Team API Key (VERIFIK_JWT)',
+        `const response = await fetch('${apiBaseUrl}/v2/smart-reports/run', {`,
+        "  method: 'POST',",
+        '  headers: {',
+        '    Authorization: `Bearer ${process.env.VERIFIK_JWT}`, // Accepts user JWT or Team API Key',
+        costCenterHeader,
+        "    'Content-Type': 'application/json',",
+        '  },',
+        `  body: JSON.stringify(${JSON.stringify(body, null, 2)}),`,
+        '});',
+        '',
+        'if (!response.ok) {',
+        '  throw new Error(`SmartReport request failed (${response.status}): ${await response.text()}`);',
+        '}',
+        'const result = await response.json();',
+        'console.log(result.data?.reportId, result.data?.pdfUrl);',
+    ].join('\n');
+};
+
+export const buildSmartReportPythonSnippet = (kitContext: SmartReportKitContext): string => {
+    const apiBaseUrl = normalizeBaseUrl(kitContext.apiUrl, DEFAULT_API_URL);
+    const body = {
+        ...targetBodyFragment(kitContext),
+        externalRefId: 'case-12345',
+    };
+    const costCenterLine = kitContext.costCenter
+        ? `        "x-cost-center": ${JSON.stringify(kitContext.costCenter)},`
+        : '        # "x-cost-center": "<COST_CENTER_CODE>",  # Optional CECO override';
+
+    return [
+        'import os',
+        'import requests',
+        '',
+        '# Run headless verification + PDF generation with a Workspace or Team API Key (VERIFIK_JWT)',
+        'response = requests.post(',
+        `    "${apiBaseUrl}/v2/smart-reports/run",`,
+        '    headers={',
+        '        "Authorization": f"Bearer {os.environ[\'VERIFIK_JWT\']}",  # Accepts user JWT or Team API Key',
+        costCenterLine,
+        '        "Content-Type": "application/json",',
+        '    },',
+        `    json=${JSON.stringify(body, null, 4)},`,
+        '    timeout=120,',
+        ')',
+        'response.raise_for_status()',
+        'print(response.json()["data"])',
+    ].join('\n');
 };
