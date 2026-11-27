@@ -11,11 +11,7 @@ import {
     countryNameToIso,
     postmanCountryFlagUi,
 } from './postman-country.util';
-import {
-    isCountryOrWorldPepEndpoint,
-    prepareLiveCatalogFeature,
-    staticCatalogEntry,
-} from './postman-live-catalog.util';
+import { enrichAppFeatureRecord } from './postman-catalog-enrichment.util';
 import {
     getPostmanRequestValidationIssues,
     getPostmanXorParamLayout,
@@ -103,10 +99,28 @@ const toLiveProductionFeature = (entry: any) => ({
     },
 });
 
+type EnrichedPep = {
+    baseCategory?: string;
+    nameES?: string;
+    dependencies?: Array<{
+        field: string;
+        type?: string;
+        required?: boolean;
+        description?: string;
+        default?: unknown;
+        dependencyGroup?: string;
+    }>;
+    docs?: ApiEndpoint['docs'];
+};
+
+const enrichLive = (
+    live: ReturnType<typeof toLiveProductionFeature> & { baseCategory?: string }
+): EnrichedPep => enrichAppFeatureRecord(live) as unknown as EnrichedPep;
+
 const toEndpoint = (live: ReturnType<typeof toLiveProductionFeature>): ApiEndpoint => {
-    const prepared = prepareLiveCatalogFeature(live);
+    const prepared = enrichLive(live);
     const country = canonicalPostmanCountryName(live.country) || live.country;
-    const params = prepared.dependencies.map((dep) => ({
+    const params = (prepared.dependencies ?? []).map((dep) => ({
         key: dep.field,
         value: dep.default == null ? '' : String(dep.default),
         type: dep.type || 'String',
@@ -122,7 +136,10 @@ const toEndpoint = (live: ReturnType<typeof toLiveProductionFeature>): ApiEndpoi
         method: 'GET',
         url: `https://api.verifik.co/${live.url}`,
         country,
-        category: prepared.category.trim().toUpperCase().replace(/[\s-]+/g, '_'),
+        category: String(prepared.baseCategory || '')
+            .trim()
+            .toUpperCase()
+            .replace(/[\s-]+/g, '_'),
         description: live.description,
         dependencies: prepared.dependencies,
         params,
@@ -141,22 +158,24 @@ describe('live production PEP catalog', () => {
         expect(PEP_CODES.filter((code) => code !== 'world_api_pep')).toHaveLength(27);
         for (const { code, entry } of entries) {
             expect(entry, code).toBeDefined();
-            expect(isCountryOrWorldPepEndpoint({ code, url: entry.url })).toBe(true);
+            expect(entry.url, code).toBeTruthy();
             if (code === 'world_api_pep') {
                 expect(entry.url).toBe('v2/world/pep');
             } else {
                 expect(entry.url).toMatch(/^v2\/[a-z]{2}\/politically-exposed-persons$/);
             }
         }
-        expect(isCountryOrWorldPepEndpoint({ code: 'colombia_pep_lookup', url: 'v2/co/pep' })).toBe(
-            false
-        );
-        expect(
-            isCountryOrWorldPepEndpoint({
+        const immigration = enrichAppFeatureRecord(
+            {
                 code: 'colombia_api_identity_pep_foreigner_id',
                 url: 'v2/co/identity/pep-foreigner',
-            })
-        ).toBe(false);
+                group: 'apiRequest',
+                baseCategory: 'identity',
+                dependencies: [{ field: 'documentNumber', type: 'String', required: true }],
+            },
+            new Map()
+        );
+        expect(immigration.baseCategory).toBe('identity');
     });
 
     it('places every live PEP record in Background Check with country or world flags', () => {
@@ -227,7 +246,7 @@ describe('live production PEP catalog', () => {
 
     it('renders full About docs for all 7 locales from thin live string params', () => {
         for (const { entry } of entries) {
-            const prepared = prepareLiveCatalogFeature(toLiveProductionFeature(entry));
+            const prepared = enrichLive(toLiveProductionFeature(entry));
             expect(prepared.nameES, entry.code).toBeTruthy();
             for (const locale of LOCALES) {
                 const doc = prepared.docs?.[locale];
@@ -252,15 +271,11 @@ describe('live production PEP catalog', () => {
     });
 
     it('keeps a real live baseCategory ahead of the static catalog', () => {
-        const entry = staticCatalogEntry('be_api_pep');
-        const prepared = prepareLiveCatalogFeature(
-            {
-                ...toLiveProductionFeature(staticEndpoints().find((row: any) => row.code === 'be_api_pep')),
-                baseCategory: 'identity',
-            },
-            entry
-        );
-        expect(prepared.category).toBe('identity');
+        const prepared = enrichLive({
+            ...toLiveProductionFeature(staticEndpoints().find((row: any) => row.code === 'be_api_pep')),
+            baseCategory: 'identity',
+        });
+        expect(prepared.baseCategory).toBe('identity');
     });
 
     it('has a non-empty catalog title in all 7 feature locales', () => {

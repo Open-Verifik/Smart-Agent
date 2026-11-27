@@ -24,6 +24,7 @@ import {
     catalogCountryScope,
     DEFAULT_POSTMAN_COUNTRY,
     endpointMatchesCountryFilter,
+    mergeCatalogCountryRows,
     WORLD_CATALOG_COUNTRY,
 } from './postman-catalog.util';
 import {
@@ -1764,8 +1765,10 @@ export class PostmanComponent {
     selectedCountry = this._postmanService.selectedCountry;
 
     countries = computed(() =>
-        this._postmanService
-            .catalogCountries()
+        mergeCatalogCountryRows(
+            this._postmanService.catalogCountries(),
+            this._postmanService.visibleEndpoints().map((endpoint) => endpoint.country)
+        )
             .map(({ country, count }) => ({ name: country, count }))
             .sort((a, b) => {
                 const aWorld = a.name.toLowerCase() === WORLD_CATALOG_COUNTRY;

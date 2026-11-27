@@ -7,25 +7,31 @@ const FALLBACK_DOC_PARAMS: Record<string, EndpointDocParamRow[]> = {
 };
 
 /**
- * Production `AppFeature.docs.<locale>.params` is sometimes a list of field-name strings
- * instead of `{ field, description }` rows. Coerce both shapes so the About table can render.
+ * `AppFeature.docs` sometimes stores params as field-name strings (`["fullName"]`)
+ * instead of `{ field, description }` rows. Staff-only `force` is never a client param.
  */
-export const normalizeDocParamList = (params: unknown): EndpointDocParamRow[] => {
+export const coerceEndpointDocParamRows = (params: unknown): EndpointDocParamRow[] => {
     if (!Array.isArray(params)) return [];
     const rows: EndpointDocParamRow[] = [];
     for (const item of params) {
         if (typeof item === 'string') {
             const field = item.trim();
-            if (field) rows.push({ field, description: '' });
+            if (!field || SYSTEM_PARAM_KEYS.has(field)) continue;
+            rows.push({ field, description: '' });
             continue;
         }
         if (!item || typeof item !== 'object') continue;
-        const record = item as Partial<EndpointDocParamRow>;
-        const field = typeof record.field === 'string' ? record.field.trim() : '';
-        if (!field) continue;
+        const field =
+            typeof (item as EndpointDocParamRow).field === 'string'
+                ? (item as EndpointDocParamRow).field.trim()
+                : '';
+        if (!field || SYSTEM_PARAM_KEYS.has(field)) continue;
         rows.push({
             field,
-            description: typeof record.description === 'string' ? record.description : '',
+            description:
+                typeof (item as EndpointDocParamRow).description === 'string'
+                    ? (item as EndpointDocParamRow).description
+                    : '',
         });
     }
     return rows;
@@ -34,10 +40,9 @@ export const normalizeDocParamList = (params: unknown): EndpointDocParamRow[] =>
 const collectDocParamRows = (endpoint: ApiEndpoint): EndpointDocParamRow[] => {
     const byField = new Map<string, EndpointDocParamRow>();
     for (const locale of Object.values(endpoint.docs || {})) {
-        for (const row of normalizeDocParamList(locale?.params)) {
-            const field = row.field?.trim();
-            if (!field || byField.has(field) || SYSTEM_PARAM_KEYS.has(field)) continue;
-            byField.set(field, row);
+        for (const row of coerceEndpointDocParamRows(locale?.params)) {
+            if (byField.has(row.field)) continue;
+            byField.set(row.field, row);
         }
     }
     for (const row of FALLBACK_DOC_PARAMS[endpoint.code || ''] || []) {
