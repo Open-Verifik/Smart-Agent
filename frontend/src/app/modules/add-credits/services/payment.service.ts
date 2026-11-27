@@ -41,11 +41,105 @@ export interface CreditPurchaseResponse {
     message?: string;
 }
 
-/**
- * Charge currency for a Bold order. Bold only offers PSE, Nequi and Botón Bancolombia on COP
+/** Charge currency for a Bold order. Bold only offers PSE, Nequi and Botón Bancolombia on COP
  * checkouts; USD is card-only. Credits are always priced in USD either way.
  */
 export type BoldCurrency = 'USD' | 'COP';
+
+export type ClientKybTier = 'none' | 'legacy_kyc' | 'tier1_standard' | 'tier2_full';
+
+export interface ClientKybDocument {
+    _id?: string;
+    slotId?: string;
+    documentType?: string;
+    label?: string;
+    fileName?: string;
+    fileUrl?: string;
+    status?: string;
+    ocrStatus?: string;
+    uploadedAt?: string;
+}
+
+export interface ClientKybMissingNote {
+    slotId?: string;
+    label?: string;
+    note: string;
+    addedAt?: string;
+}
+
+export interface ClientKybRepresentative {
+    _id?: string;
+    fullName?: string;
+    role?: string;
+    email?: string;
+    phone?: string;
+    documentType?: string;
+    documentNumber?: string;
+    kycStatus?: string;
+    isSignatory?: boolean;
+}
+
+export interface ClientKybSupportTicket {
+    _id: string;
+    number?: string;
+    title?: string;
+    subject?: string;
+    status?: string;
+    category?: string;
+    priority?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface ClientKybReviewEntry {
+    action?: string;
+    previousStatus?: string;
+    newStatus?: string;
+    note?: string;
+    createdAt?: string;
+}
+
+export interface ClientKybRegistrationSummary {
+    _id: string;
+    status: string;
+    kybTier?: ClientKybTier;
+    companyInfo?: {
+        legalName?: string;
+        taxId?: string;
+        country?: string;
+        city?: string;
+        address?: string;
+        email?: string;
+        phone?: string;
+    };
+    documents?: ClientKybDocument[];
+    missingDocumentNotes?: ClientKybMissingNote[];
+    submissionNote?: string;
+    representatives?: ClientKybRepresentative[];
+    supportTickets?: ClientKybSupportTicket[];
+    manualReviewLog?: ClientKybReviewEntry[];
+    submittedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface ClientKybStatusData {
+    effectiveKybTier: ClientKybTier;
+    canRecharge: boolean;
+    sandboxMode: boolean;
+    kybOnboardingEnabled: boolean;
+    businessRegistration: ClientKybRegistrationSummary | null;
+}
+
+export interface ClientKybResumeData {
+    businessRegistrationId: string;
+    status: string;
+    kybTier: ClientKybTier;
+    shortCode: string;
+    verifyUrl: string;
+    expiresAt?: string;
+    sessionToken?: string;
+}
 
 /** Products the API sells at its own fixed peso price instead of a USD credit amount. */
 export type BoldProduct = 'plate_report';
@@ -476,7 +570,7 @@ export class PaymentService {
     }
 
     /**
-     * Resume KYC process
+     * Resume KYC process (legacy fallback)
      */
     resumeKYC() {
         this.loading.set(true);
@@ -492,6 +586,46 @@ export class PaymentService {
                     approvalAction?: string;
                 };
             }>(`${this.apiUrl}/v2/app-registrations/resume-kyc`, {}, { headers })
+            .pipe(
+                finalize(() => {
+                    this.loading.set(false);
+                })
+            );
+    }
+
+    /**
+     * Fetch the authenticated client's current KYB tier and business registration dossier.
+     */
+    getMyKyb() {
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.get<{ data: ClientKybStatusData }>(
+            `${this.apiUrl}/v2/business-registrations/my-kyb`,
+            { headers }
+        );
+    }
+
+    /**
+     * Create or resume the authenticated client's Verifik KYB onboarding session and return its short link.
+     */
+    resumeKYB(options?: { origin?: string; forceNew?: boolean }) {
+        this.loading.set(true);
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const body: Record<string, unknown> = {
+            origin: options?.origin || environment.kycBaseUrl,
+        };
+        if (options?.forceNew) {
+            body['forceNew'] = true;
+        }
+
+        return this._httpClient
+            .post<{ data: ClientKybResumeData }>(
+                `${this.apiUrl}/v2/business-registrations/resume-kyb`,
+                body,
+                { headers }
+            )
             .pipe(
                 finalize(() => {
                     this.loading.set(false);

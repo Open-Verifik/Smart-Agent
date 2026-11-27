@@ -29,6 +29,68 @@ const ISO_TO_NAME: Record<string, string> = {
 	ca: 'Canada',
 	in: 'India',
 	ind: 'India',
+	au: 'Australia',
+	aus: 'Australia',
+	by: 'Belarus',
+	blr: 'Belarus',
+	be: 'Belgium',
+	bel: 'Belgium',
+	cu: 'Cuba',
+	cub: 'Cuba',
+	cz: 'Czechia',
+	cze: 'Czechia',
+	dk: 'Denmark',
+	dnk: 'Denmark',
+	ee: 'Estonia',
+	est: 'Estonia',
+	eu: 'European Union',
+	fi: 'Finland',
+	fin: 'Finland',
+	fr: 'France',
+	fra: 'France',
+	de: 'Germany',
+	deu: 'Germany',
+	is: 'Iceland',
+	isl: 'Iceland',
+	il: 'Israel',
+	isr: 'Israel',
+	jp: 'Japan',
+	jpn: 'Japan',
+	lv: 'Latvia',
+	lva: 'Latvia',
+	lt: 'Lithuania',
+	ltu: 'Lithuania',
+	nl: 'Netherlands',
+	nld: 'Netherlands',
+	nz: 'New Zealand',
+	nzl: 'New Zealand',
+	ni: 'Nicaragua',
+	nic: 'Nicaragua',
+	no: 'Norway',
+	nor: 'Norway',
+	pl: 'Poland',
+	pol: 'Poland',
+	pt: 'Portugal',
+	prt: 'Portugal',
+	pr: 'Puerto Rico',
+	pri: 'Puerto Rico',
+	ro: 'Romania',
+	rou: 'Romania',
+	sg: 'Singapore',
+	sgp: 'Singapore',
+	sk: 'Slovakia',
+	svk: 'Slovakia',
+	se: 'Sweden',
+	swe: 'Sweden',
+	ch: 'Switzerland',
+	che: 'Switzerland',
+	tw: 'Taiwan',
+	twn: 'Taiwan',
+	tt: 'Trinidad and Tobago',
+	tto: 'Trinidad and Tobago',
+	gb: 'United Kingdom',
+	gbr: 'United Kingdom',
+	uk: 'United Kingdom',
 };
 
 const NAME_ALIASES: Record<string, string> = {
@@ -55,6 +117,68 @@ const NAME_ALIASES: Record<string, string> = {
 	paraguay: 'Paraguay',
 	canada: 'Canada',
 	india: 'India',
+	australia: 'Australia',
+	belarus: 'Belarus',
+	bielorrusia: 'Belarus',
+	belgium: 'Belgium',
+	belgica: 'Belgium',
+	bélgica: 'Belgium',
+	cuba: 'Cuba',
+	czechia: 'Czechia',
+	'czech republic': 'Czechia',
+	chequia: 'Czechia',
+	denmark: 'Denmark',
+	dinamarca: 'Denmark',
+	estonia: 'Estonia',
+	'european union': 'European Union',
+	'union europea': 'European Union',
+	'unión europea': 'European Union',
+	finland: 'Finland',
+	finlandia: 'Finland',
+	france: 'France',
+	francia: 'France',
+	germany: 'Germany',
+	alemania: 'Germany',
+	iceland: 'Iceland',
+	islandia: 'Iceland',
+	israel: 'Israel',
+	japan: 'Japan',
+	japón: 'Japan',
+	japon: 'Japan',
+	latvia: 'Latvia',
+	letonia: 'Latvia',
+	lithuania: 'Lithuania',
+	lituania: 'Lithuania',
+	netherlands: 'Netherlands',
+	'países bajos': 'Netherlands',
+	'paises bajos': 'Netherlands',
+	holanda: 'Netherlands',
+	'new zealand': 'New Zealand',
+	'nueva zelanda': 'New Zealand',
+	nicaragua: 'Nicaragua',
+	norway: 'Norway',
+	noruega: 'Norway',
+	poland: 'Poland',
+	polonia: 'Poland',
+	portugal: 'Portugal',
+	'puerto rico': 'Puerto Rico',
+	romania: 'Romania',
+	rumania: 'Romania',
+	singapore: 'Singapore',
+	singapur: 'Singapore',
+	slovakia: 'Slovakia',
+	eslovaquia: 'Slovakia',
+	sweden: 'Sweden',
+	suecia: 'Sweden',
+	switzerland: 'Switzerland',
+	suiza: 'Switzerland',
+	taiwan: 'Taiwan',
+	taiwán: 'Taiwan',
+	'trinidad and tobago': 'Trinidad and Tobago',
+	'trinidad y tobago': 'Trinidad and Tobago',
+	'united kingdom': 'United Kingdom',
+	'reino unido': 'United Kingdom',
+	'great britain': 'United Kingdom',
 };
 
 const COUNTRY_FLAGS: Record<string, string> = {
@@ -79,10 +203,47 @@ const COUNTRY_FLAGS: Record<string, string> = {
 	paraguay: '🇵🇾',
 	canada: '🇨🇦',
 	india: '🇮🇳',
+	australia: '🇦🇺',
+	belarus: '🇧🇾',
+	belgium: '🇧🇪',
+	cuba: '🇨🇺',
+	czechia: '🇨🇿',
+	denmark: '🇩🇰',
+	estonia: '🇪🇪',
+	'european union': '🇪🇺',
+	finland: '🇫🇮',
+	france: '🇫🇷',
+	germany: '🇩🇪',
+	iceland: '🇮🇸',
+	israel: '🇮🇱',
+	japan: '🇯🇵',
+	latvia: '🇱🇻',
+	lithuania: '🇱🇹',
+	netherlands: '🇳🇱',
+	'new zealand': '🇳🇿',
+	nicaragua: '🇳🇮',
+	norway: '🇳🇴',
+	poland: '🇵🇱',
+	portugal: '🇵🇹',
+	'puerto rico': '🇵🇷',
+	romania: '🇷🇴',
+	singapore: '🇸🇬',
+	slovakia: '🇸🇰',
+	sweden: '🇸🇪',
+	switzerland: '🇨🇭',
+	taiwan: '🇹🇼',
+	'trinidad and tobago': '🇹🇹',
+	'united kingdom': '🇬🇧',
 	world: '🌐',
+	global: '🌐',
 };
 
-const tokenize = (country?: string): string => (country || '').trim().toLowerCase();
+const tokenize = (country?: string): string =>
+	(country || '')
+		.trim()
+		.toLowerCase()
+		.replace(/[-_]+/g, ' ')
+		.replace(/\s+/g, ' ');
 
 /**
  * Canonical display name used by the create-config dropdown and AppFeature.country.
@@ -90,12 +251,15 @@ const tokenize = (country?: string): string => (country || '').trim().toLowerCas
 export const normalizeCountryName = (country?: string): string => {
 	const key = tokenize(country);
 
-	if (!key || key === 'world') return key;
+	if (!key || key === 'world' || key === 'global') return key;
 
 	return ISO_TO_NAME[key] || NAME_ALIASES[key] || country!.trim();
 };
 
-export const isWorldCountry = (country?: string): boolean => tokenize(country) === 'world';
+export const isWorldCountry = (country?: string): boolean => {
+	const key = tokenize(country);
+	return key === 'world' || key === 'global';
+};
 
 export const countriesMatch = (left?: string, right?: string): boolean => {
 	if (isWorldCountry(left) || isWorldCountry(right)) return tokenize(left) === tokenize(right);
@@ -180,12 +344,13 @@ export const getCountryFlag = (country?: string): string => {
 /** ISO 3166-1 alpha-2 for flag images (emoji flags often render as letters on Windows). */
 export const countryIso2 = (country?: string): string | null => {
 	const key = tokenize(country);
-	if (!key || key === 'world') return null;
+	if (!key || key === 'world' || key === 'global') return null;
+	if (key === 'uk') return 'gb';
 	if (key.length === 2 && ISO_TO_NAME[key]) return key;
 
 	const name = tokenize(normalizeCountryName(country));
 	const match = Object.entries(ISO_TO_NAME).find(
-		([iso, display]) => iso.length === 2 && tokenize(display) === name
+		([iso, display]) => iso.length === 2 && iso !== 'uk' && tokenize(display) === name
 	);
 	if (match) return match[0];
 	return /^[a-z]{2}$/.test(key) ? key : null;

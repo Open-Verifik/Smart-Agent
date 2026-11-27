@@ -22,6 +22,7 @@ import { StaffAction, StaffResource } from 'app/core/permissions/staff-permissio
 import { Subject, takeUntil } from 'rxjs';
 import { ApiKeySettingsComponent } from './api-key-settings/api-key-settings.component';
 import { BillingDetailsComponent } from './billing-details/billing-details.component';
+import { CompanyVerificationComponent } from './company-verification/company-verification.component';
 import { CostCentersComponent } from './cost-centers/cost-centers.component';
 import { DataRetentionSettingsComponent } from './data-retention-settings/data-retention-settings.component';
 import { MyAccessComponent } from './my-access/my-access.component';
@@ -67,6 +68,7 @@ interface SettingsSection {
         RouterModule,
         TeamHubComponent,
         MyAccessComponent,
+        CompanyVerificationComponent,
         BillingDetailsComponent,
         PaymentHistoryComponent,
         ApiKeySettingsComponent,
@@ -133,6 +135,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
             id: 'workspace',
             title: 'settings.sections.workspace',
             panels: [
+                {
+                    id: 'company_verification',
+                    icon: 'heroicons_outline:shield-check',
+                    title: 'settings.panels.company_verification',
+                    description: 'settings.panels.company_verification_desc',
+                    permission: { resource: 'workspaceSettings', action: 'read' },
+                },
                 {
                     id: 'general',
                     icon: 'heroicons_outline:building-office',
@@ -217,6 +226,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         my_access: 'my-access',
         security: 'security',
         notifications: 'notifications',
+        company_verification: 'company-verification',
         general: 'general',
         team: 'team',
         data_retention: 'data-retention',
@@ -233,6 +243,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         'my-access': 'my_access',
         security: 'security',
         notifications: 'notifications',
+        'company-verification': 'company_verification',
         general: 'general',
         team: 'team',
         'data-retention': 'data_retention',

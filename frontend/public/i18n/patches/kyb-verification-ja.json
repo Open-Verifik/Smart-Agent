@@ -1,0 +1,115 @@
+{
+  "accountEnv": {
+    "kybStrip": {
+      "verifyTitle": "企業認証を完了する (KYB)",
+      "verifyText": "代表者のKYCで標準APIを有効化し、その後法人書類を提出できます。",
+      "pendingTitle": "企業認証を審査中",
+      "pendingText": "提出されたKYB情報をコンプライアンスチームが審査中です。",
+      "changesTitle": "KYBの修正が必要です",
+      "changesText": "コンプライアンスチームから追加情報または書類の更新が求められています。",
+      "cta": "企業認証を開始",
+      "pendingCta": "審査中",
+      "changesCta": "KYBを更新",
+      "viewStatusCta": "KYB状況",
+      "tier1Eyebrow": "Tier 1 · 標準本番環境",
+      "tier1Title": "標準APIが有効です",
+      "tier1Text": "法人書類を提出すると、フルKYB (Tier 2) とすべてのAPIが利用可能になります。",
+      "tier1Cta": "フルKYBを完了",
+      "dismissAria": "バナーを閉じる"
+    },
+    "kybModal": {
+      "title": "本番環境を有効化するための企業認証",
+      "subtitle": "まずは代表者の本人確認で素早く開始し、その後に法人書類を完了できます。",
+      "reason1_title": "Tier 1 · 代表者KYC",
+      "reason1_desc": "少なくとも1名の代表者の本人確認を完了して標準本番APIを有効化します。",
+      "reason2_title": "Tier 2 · フルKYB法人書類",
+      "reason2_desc": "法人登記簿などの書類を提出して高度なAPIとエンタープライズ機能を解放します。",
+      "reason3_title": "柔軟な補足メモ対応",
+      "reason3_desc": "不足書類がある場合は理由メモを添えて手動審査へ提出できます。",
+      "reason4_title": "クレジットとチャージ",
+      "reason4_desc": "初回チャージまたはプラン登録でウェルカムクレジットが別途有効になります。",
+      "cta": "企業認証を開始する"
+    }
+  },
+  "settings": {
+    "panels": {
+      "company_verification": "企業認証 (KYB)",
+      "company_verification_desc": "KYBティア、代表者KYC、法人書類の状況を確認します"
+    },
+    "kyb": {
+      "title": "企業認証 (KYB)",
+      "subtitle": "本番APIを利用するための代表者KYCと法人書類を管理します。",
+      "refresh": "ステータス更新",
+      "ctaStart": "KYB認証を開始",
+      "ctaContinue": "KYB認証を続行",
+      "ctaUpdate": "KYBを更新して再提出",
+      "ctaCompleteTier2": "フルKYBを完了 (Tier 2)",
+      "ctaUpgradeOptional": "フルKYBへアップグレード",
+      "changesAlertTitle": "修正依頼があります",
+      "changesAlertFallback": "法人書類または代表者KYCを確認し、再提出してください。",
+      "manualReviewTitle": "手動審査を実施中",
+      "manualReviewDesc": "提出された書類とメモを確認しています。結果が出次第ご連絡します。",
+      "emptyTitle": "KYB申請はまだ開始されていません",
+      "emptyDesc": "企業認証を開始して代表者KYC（Tier 1）および法人KYB（Tier 2）を完了してください。",
+      "emptyLegacyTitle": "旧KYC方式で認証済み",
+      "emptyLegacyDesc": "すでに本番環境をご利用いただけます。必要に応じてフルKYB書類を提出できます。",
+      "tiers": {
+        "none": {
+          "badge": "サンドボックス · 認証待ち",
+          "title": "代表者を認証して標準本番APIを有効化",
+          "desc": "代表者KYCを完了するとTier 1が有効になり、法人書類の提出でTier 2へ進めます。"
+        },
+        "legacy_kyc": {
+          "badge": "認証済み · 旧KYC",
+          "title": "本番アクセスが有効です",
+          "desc": "既存のKYCアカウントは引き続き全機能をご利用いただけます。"
+        },
+        "tier1_standard": {
+          "badge": "Tier 1 · 標準本番環境",
+          "title": "標準本番APIが有効です",
+          "desc": "代表者KYCが完了しています。法人書類をアップロードしてTier 2へアップグレードしてください。"
+        },
+        "tier2_full": {
+          "badge": "Tier 2 · フルKYB認証済み",
+          "title": "フルKYB認証が完了しました",
+          "desc": "法人書類および代表者の認証がすべて承認されました。"
+        }
+      },
+      "track": {
+        "sandboxTitle": "アカウント作成",
+        "sandboxDesc": "Sandbox利用可能",
+        "tier1Title": "Tier 1 · 標準",
+        "tier1Desc": "代表者KYC",
+        "tier2Title": "Tier 2 · フルKYB",
+        "tier2Desc": "法人書類承認"
+      },
+      "companyCard": {
+        "title": "企業情報",
+        "legalName": "法人名",
+        "taxId": "法人番号 / 税ID",
+        "country": "国",
+        "city": "都市",
+        "email": "連絡先メール",
+        "updated": "最終更新"
+      },
+      "repsCard": {
+        "title": "法務代表者",
+        "verifiedLabel": "認証済み",
+        "defaultRole": "法務代表者",
+        "empty": "代表者がまだ登録されていません。"
+      },
+      "docsCard": {
+        "title": "法人書類",
+        "countLabel": "件アップロード済み",
+        "viewFile": "書類を表示",
+        "empty": "まだ書類がアップロードされていません。",
+        "notesTitle": "コンプライアンス審査メモ"
+      },
+      "ticketsCard": {
+        "title": "関連サポートチケット",
+        "openSupport": "サポートへ移動",
+        "defaultTitle": "KYB審査チケット"
+      }
+    }
+  }
+}

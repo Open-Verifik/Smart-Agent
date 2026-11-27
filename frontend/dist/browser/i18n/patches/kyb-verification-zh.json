@@ -1,0 +1,115 @@
+{
+  "accountEnv": {
+    "kybStrip": {
+      "verifyTitle": "完成企业认证 (KYB)",
+      "verifyText": "先完成代表 KYC 即可开启标准 API，随后上传企业文件。",
+      "pendingTitle": "企业认证审核中",
+      "pendingText": "您的 KYB 申请正在合规审核中。",
+      "changesTitle": "KYB 需要补充更新",
+      "changesText": "合规团队要求您更新企业文件或代表信息。",
+      "cta": "认证企业",
+      "pendingCta": "审核中",
+      "changesCta": "更新 KYB",
+      "viewStatusCta": "KYB 状态",
+      "tier1Eyebrow": "Tier 1 · 标准生产环境",
+      "tier1Title": "标准 API 已激活",
+      "tier1Text": "上传企业文件即可解锁完整 KYB (Tier 2) 与企业级 API。",
+      "tier1Cta": "完成完整 KYB",
+      "dismissAria": "关闭横幅"
+    },
+    "kybModal": {
+      "title": "完成企业认证以开启生产模式",
+      "subtitle": "先通过法定代表 KYC 快速开通，随后再完善企业合规档案。",
+      "reason1_title": "Tier 1 · 快速代表人 KYC",
+      "reason1_desc": "验证至少一位法定代表身份即可开启标准生产 API。",
+      "reason2_title": "Tier 2 · 完整 KYB 企业档案",
+      "reason2_desc": "随时上传公司注册等合规文件以解锁全部受监管与企业级 API。",
+      "reason3_title": "缺失文件备注说明",
+      "reason3_desc": "如暂缺某项文件，可填写说明提交人工合规审核。",
+      "reason4_title": "积分与充值",
+      "reason4_desc": "首次充值或订阅套餐将独立解锁您的欢迎积分。",
+      "cta": "开始企业认证"
+    }
+  },
+  "settings": {
+    "panels": {
+      "company_verification": "企业认证 (KYB)",
+      "company_verification_desc": "查看您的 KYB 等级、已验证代表及企业合规文件"
+    },
+    "kyb": {
+      "title": "企业认证 (KYB)",
+      "subtitle": "管理法定代表 KYC 与企业合规文件以使用生产环境 API。",
+      "refresh": "刷新状态",
+      "ctaStart": "开始 KYB 认证",
+      "ctaContinue": "继续 KYB 认证",
+      "ctaUpdate": "更新并重新提交 KYB",
+      "ctaCompleteTier2": "完成完整 KYB (Tier 2)",
+      "ctaUpgradeOptional": "升级至完整 KYB",
+      "changesAlertTitle": "合规团队要求修改",
+      "changesAlertFallback": "请检查提交的企业文件或代表 KYC 后重新提交。",
+      "manualReviewTitle": "正在进行人工合规审核",
+      "manualReviewDesc": "合规团队正在审核您的文件与备注，有结果将立即通知您。",
+      "emptyTitle": "尚未开始 KYB 档案",
+      "emptyDesc": "开始企业认证，通过代表 KYC 开启标准生产，并通过企业文件开启完整 KYB。",
+      "emptyLegacyTitle": "已通过旧版 KYC 验证",
+      "emptyLegacyDesc": "您的账户已具备完整生产权限，您可随时自愿补充完整 KYB 档案。",
+      "tiers": {
+        "none": {
+          "badge": "沙盒模式 · 待认证",
+          "title": "验证代表人以开启标准生产模式",
+          "desc": "完成法定代表 KYC 即可开启 Tier 1，上传企业文件即可升级 Tier 2。"
+        },
+        "legacy_kyc": {
+          "badge": "已认证 · 旧版 KYC",
+          "title": "您的生产访问权限已激活",
+          "desc": "现有 KYC 账户自动保留全部权限，您也可随时补充完整 KYB。"
+        },
+        "tier1_standard": {
+          "badge": "Tier 1 · 标准生产环境",
+          "title": "标准生产 API 已解锁",
+          "desc": "代表人 KYC 已通过。请上传企业文件以升级至 Tier 2 (完整 KYB)。"
+        },
+        "tier2_full": {
+          "badge": "Tier 2 · 完整 KYB 已认证",
+          "title": "完整 KYB 认证已通过",
+          "desc": "您的企业文件与代表身份均已获批，可调用全部 Verifik API。"
+        }
+      },
+      "track": {
+        "sandboxTitle": "账户已创建",
+        "sandboxDesc": "沙盒测试就绪",
+        "tier1Title": "Tier 1 · 标准版",
+        "tier1Desc": "代表人 KYC",
+        "tier2Title": "Tier 2 · 完整 KYB",
+        "tier2Desc": "企业文件已批准"
+      },
+      "companyCard": {
+        "title": "企业资料",
+        "legalName": "法定名称",
+        "taxId": "税号 / 注册号",
+        "country": "国家",
+        "city": "城市",
+        "email": "联系邮箱",
+        "updated": "最后更新"
+      },
+      "repsCard": {
+        "title": "法定代表",
+        "verifiedLabel": "已验证",
+        "defaultRole": "法定代表",
+        "empty": "暂未添加代表。"
+      },
+      "docsCard": {
+        "title": "企业文件",
+        "countLabel": "已上传",
+        "viewFile": "查看文件",
+        "empty": "暂未上传企业文件。",
+        "notesTitle": "合规审核备注"
+      },
+      "ticketsCard": {
+        "title": "关联支持工单",
+        "openSupport": "前往支持中心",
+        "defaultTitle": "KYB 审核工单"
+      }
+    }
+  }
+}

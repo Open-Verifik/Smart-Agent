@@ -547,13 +547,23 @@ const collectArrayPaths = (
                                         </div>
                                         <div class="mt-3 space-y-2">
                                             @for (source of resultSources(); track source.id) {
-                                                <div class="flex h-8 items-center gap-2.5">
-                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-slate-300">description</mat-icon>
+                                                <div class="flex h-8 items-center gap-2">
+                                                    <mat-icon class="!h-5 !w-5 shrink-0 !text-[20px] text-slate-300">description</mat-icon>
                                                     <span
                                                         class="flex h-7 min-w-0 flex-1 items-center truncate rounded-lg bg-slate-100 px-3 text-xs text-slate-500 dark:bg-gray-800 dark:text-slate-300"
                                                         [matTooltip]="nodeTitle(source)"
                                                         matTooltipShowDelay="300"
                                                     >{{ nodeTitle(source) }}</span>
+                                                    <button
+                                                        type="button"
+                                                        class="flow-result-remove inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-red-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                                                        [matTooltip]="'visitaGuide.flowRemoveEndpoint' | transloco"
+                                                        [attr.aria-label]="'visitaGuide.flowRemoveEndpoint' | transloco"
+                                                        (pointerdown)="$event.stopPropagation()"
+                                                        (click)="removeNode(source.id); $event.stopPropagation()"
+                                                    >
+                                                        <mat-icon class="!h-4 !w-4 !text-[16px]" aria-hidden="true">close</mat-icon>
+                                                    </button>
                                                 </div>
                                             } @empty {
                                                 @for (bar of resultPlaceholders; track bar) {
@@ -913,17 +923,20 @@ const collectArrayPaths = (
                                 }
                                 <div cdkDropList [cdkDropListData]="trayItems()" [cdkDropListSortingDisabled]="true" class="flex flex-col gap-2.5 sm:gap-3">
                                     @for (feature of trayItems(); track feature._id) {
-                                            <article
+                                             <article
                                                 cdkDrag
                                                 [cdkDragDisabled]="isAdded(feature)"
                                                 [cdkDragData]="trayDrag(feature)"
-                                                class="flow-library-card rounded-2xl border p-3 shadow-sm sm:px-3.5"
+                                                [attr.tabindex]="isAdded(feature) ? null : 0"
+                                                class="flow-library-card rounded-2xl border p-3 shadow-sm transition sm:px-3.5"
                                                 [ngClass]="
                                                     isAdded(feature)
                                                         ? 'cursor-default border-dashed border-slate-300 bg-slate-50 dark:border-gray-600 dark:bg-gray-950'
-                                                        : 'cursor-grab border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-900'
+                                                        : 'cursor-pointer border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-sky-500/70 dark:hover:bg-sky-950/30'
                                                 "
-                                                (dblclick)="addFromLibrary(feature)"
+                                                (click)="onLibraryCardClick(feature)"
+                                                (keydown.enter)="onLibraryCardClick(feature)"
+                                                (keydown.space)="$event.preventDefault(); onLibraryCardClick(feature)"
                                                 (cdkDragStarted)="onTrayDragStart()"
                                                 (cdkDragEnded)="onTrayDragEnd()"
                                             >
@@ -981,17 +994,31 @@ const collectArrayPaths = (
                                                         >
                                                             <mat-icon class="!h-5 !w-5 !text-[20px]" aria-hidden="true">info</mat-icon>
                                                         </button>
-                                                        <button
-                                                            type="button"
-                                                            class="flow-library-card-btn inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:border-emerald-200 disabled:bg-emerald-50 disabled:text-emerald-600 dark:border-gray-700 dark:bg-gray-800 dark:text-slate-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-950/60 dark:hover:text-sky-300 dark:disabled:border-emerald-800/70 dark:disabled:bg-emerald-950/40 dark:disabled:text-emerald-400"
-                                                            [disabled]="isAdded(feature)"
-                                                            [attr.aria-label]="isAdded(feature) ? ('visitaGuide.flowEndpointAdded' | transloco) : ('visitaGuide.flowAddEndpoint' | transloco)"
-                                                            (pointerdown)="$event.stopPropagation()"
-                                                            (mousedown)="$event.stopPropagation()"
-                                                            (click)="addFromLibrary(feature); $event.stopPropagation()"
-                                                        >
-                                                            <mat-icon class="!h-5 !w-5 !text-[20px]" aria-hidden="true">{{ isAdded(feature) ? 'check' : 'add' }}</mat-icon>
-                                                        </button>
+                                                        @if (isAdded(feature)) {
+                                                            <button
+                                                                type="button"
+                                                                class="flow-library-card-btn flow-library-card-remove inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] items-center justify-center rounded-xl border border-red-200/80 bg-red-50/70 text-red-600 transition hover:border-red-300 hover:bg-red-100 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-400 dark:hover:border-red-700 dark:hover:bg-red-950/80 dark:hover:text-red-300"
+                                                                [matTooltip]="'visitaGuide.flowRemoveEndpoint' | transloco"
+                                                                [attr.aria-label]="'visitaGuide.flowRemoveEndpoint' | transloco"
+                                                                (pointerdown)="$event.stopPropagation()"
+                                                                (mousedown)="$event.stopPropagation()"
+                                                                (click)="removeFeatureFromLibrary(feature); $event.stopPropagation()"
+                                                            >
+                                                                <mat-icon class="!h-5 !w-5 !text-[20px]" aria-hidden="true">close</mat-icon>
+                                                            </button>
+                                                        } @else {
+                                                            <button
+                                                                type="button"
+                                                                class="flow-library-card-btn inline-flex h-9 w-9 min-h-[2.25rem] min-w-[2.25rem] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:border-gray-700 dark:bg-gray-800 dark:text-slate-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-950/60 dark:hover:text-sky-300"
+                                                                [matTooltip]="'visitaGuide.flowAddEndpoint' | transloco"
+                                                                [attr.aria-label]="'visitaGuide.flowAddEndpoint' | transloco"
+                                                                (pointerdown)="$event.stopPropagation()"
+                                                                (mousedown)="$event.stopPropagation()"
+                                                                (click)="addFromLibrary(feature); $event.stopPropagation()"
+                                                            >
+                                                                <mat-icon class="!h-5 !w-5 !text-[20px]" aria-hidden="true">add</mat-icon>
+                                                            </button>
+                                                        }
                                                     </footer>
                                                 </div>
                                             </article>
@@ -1685,6 +1712,7 @@ export class EndpointChainBoardComponent {
     private _moving: { id: string; dx: number; dy: number } | null = null;
     private _panelsBeforeMove: { library: boolean; config: boolean } | null = null;
     private _didMove = false;
+    private _suppressLibraryClickUntil = 0;
 
     dropBucket(id: string): unknown[] {
         let bucket = this._dropBuckets.get(id);
@@ -2154,10 +2182,12 @@ export class EndpointChainBoardComponent {
     }
 
     onTrayDragStart(): void {
+        this._suppressLibraryClickUntil = Date.now() + 250;
         this._hidePanelsForMove();
     }
 
     onTrayDragEnd(): void {
+        this._suppressLibraryClickUntil = Date.now() + 250;
         const previous = this._panelsBeforeMove;
         this._panelsBeforeMove = null;
         if (!previous) return;
@@ -2812,9 +2842,34 @@ export class EndpointChainBoardComponent {
         return Boolean(id && usedFeatureIds(this.graph()).includes(id));
     }
 
+    onLibraryCardClick(feature: AppFeature): void {
+        if (Date.now() < this._suppressLibraryClickUntil || this.isAdded(feature)) return;
+        this.addFromLibrary(feature);
+    }
+
     addFromLibrary(feature: AppFeature): void {
         if (this.isAdded(feature)) return;
         this.attachToSelected(feature);
+    }
+
+    removeFeatureFromLibrary(feature: AppFeature): void {
+        const id = feature._id;
+        if (!id) return;
+        const targets = listEndpointNodes(this.graph()).filter((node) => node.feature?._id === id);
+        if (!targets.length) return;
+        let next = this.graph();
+        let clearedSelected = false;
+        const currentSelectedId = this.selectedId();
+        for (const node of targets) {
+            next = removeFlowNode(next, node.id);
+            if (currentSelectedId === node.id) clearedSelected = true;
+        }
+        this.graph.set(next);
+        if (clearedSelected) {
+            this.selectNode(FLOW_START_ID, false);
+            this.configOpen.set(false);
+        }
+        this._emit();
     }
 
     attachToSelected(feature: AppFeature): void {
