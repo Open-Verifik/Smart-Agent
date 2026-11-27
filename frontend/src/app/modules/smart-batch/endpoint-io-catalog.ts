@@ -512,7 +512,10 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
     },
     "communication_global_email_otp": {
         "inputs": [
-            "email"
+            "project",
+            "validationMethod",
+            "email",
+            "type"
         ],
         "outputs": []
     },
@@ -1872,8 +1875,9 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
     },
     "communication_global_messaging_whatsapp": {
         "inputs": [
+            "phone",
             "countryCode",
-            "phone"
+            "whatsappTemplate"
         ],
         "outputs": []
     },
@@ -2256,8 +2260,8 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
     },
     "communication_messaging_sms": {
         "inputs": [
-            "countryCode",
-            "phone"
+            "phone",
+            "countryCode"
         ],
         "outputs": []
     },
@@ -2544,9 +2548,10 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
     },
     "ocr_scan_gpt": {
         "inputs": [
+            "image",
             "documentType",
-            "country",
-            "image"
+            "backImage",
+            "template"
         ],
         "outputs": []
     },
@@ -6102,6 +6107,20 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
                 "CCPA"
             ]
         }
+    },
+    "panama_api_lawyer_idoneidad": {
+        "inputs": [
+            "cedula",
+            "idoneidad",
+            "fullName"
+        ],
+        "outputs": [
+            "cedula",
+            "idoneidad",
+            "fullName",
+            "status",
+            "profession"
+        ]
     },
     "panama_api_pep": {
         "inputs": [

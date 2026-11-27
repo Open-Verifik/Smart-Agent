@@ -997,7 +997,7 @@
       "description": "Consulta oficial en tiempo real de identidad ciudadana y empresarios individuales en Noruega. Verifica nombres legales, estado de registro y datos de identidad oficial."
     },
     "ocr_scan_gpt": {
-      "title": "Escaneo OCR de Documentos GPT",
+      "title": "Scan Agent",
       "description": "OCR potenciado por GPT para documentos de identidad y otros escaneos. Envía una imagen y recibe campos estructurados (nombres, números de documento, fechas) junto con el texto extraído para flujos de KYC."
     },
     "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
     "panama_api_jtia_license": {
       "title": "Panamá - Verificación de Idoneidad de Ingenieros, Arquitectos y Técnicos (JTIA)",
       "description": "Verifica ingenieros, arquitectos, técnicos en ingeniería e instaladores electricistas idóneos en Panamá por Cédula, número de idoneidad o nombre completo ante la Junta Técnica de Ingeniería y Arquitectura (JTIA)."
+    },
+    "panama_api_lawyer_idoneidad": {
+      "title": "Panamá — Verificación de Idoneidad de Abogado",
+      "description": "Verifica la idoneidad de un abogado en Panamá ante el Órgano Judicial por cédula, número de idoneidad o nombre completo."
     },
     "panama_api_pep": {
       "title": "Panamá - Consulta de Personas Expuestas Políticamente (PEP)",

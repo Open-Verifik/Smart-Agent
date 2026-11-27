@@ -997,7 +997,7 @@
             "description": "Vérifiez l'identité nationale, la validité des documents et le statut légal des citoyens et entrepreneurs individuels en Norvège."
         },
         "ocr_scan_gpt": {
-            "title": "Mondial — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "Service officiel de vérification et de validation pour Mondial : GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1023,6 +1023,10 @@
         "panama_api_identity_lookup": {
             "title": "Citoyen panaméen (CCPA)",
             "description": "Vérifier l'identité des personnes au Panama avec l'API KYC Verifik (cédula CCPA)."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "Panama — Vérification d'idoneité d'avocat",
+            "description": "Vérifiez l'idoneidad d'un avocat au Panama auprès de l'Órgano Judicial par cédula, numéro d'idoneidad ou nom complet."
         },
         "panama_api_jtia_license": {
             "title": "Panama — Panama - Engineering & Architecture License Verification (JTIA)",

@@ -997,7 +997,7 @@
             "description": "Validação de identidade nacional e situação cadastral do cidadão ou empresário individual no registro oficial de Noruega."
         },
         "ocr_scan_gpt": {
-            "title": "Global — OCR Document Scan Prompt",
+            "title": "Scan Agent",
             "description": "Serviço oficial de verificação e validação para Global: GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
         },
         "ocr_scan_pro": {
@@ -1027,6 +1027,10 @@
         "panama_api_jtia_license": {
             "title": "Panamá — Panama - Engineering & Architecture License Verification (JTIA)",
             "description": "Serviço oficial de verificação e validação para Panamá: Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+        },
+        "panama_api_lawyer_idoneidad": {
+            "title": "Panamá — Verificação de idoneidade de advogado",
+            "description": "Verifique a idoneidade de um advogado no Panamá no Órgano Judicial por cédula, número de idoneidade ou nome completo."
         },
         "panama_api_pep": {
             "title": "Panamá — Triagem de Pessoas Politicamente Expostas (PEP)",

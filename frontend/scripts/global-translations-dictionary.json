@@ -2221,31 +2221,31 @@
   },
   "ocr_scan_gpt": {
     "en": {
-      "title": "OCR Document Scan GPT",
+      "title": "Scan Agent",
       "description": "Provides reliable verification and validation services."
     },
     "es": {
-      "title": "Escaneo OCR de Documentos GPT",
+      "title": "Scan Agent",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Scan OCR GPT",
+      "title": "Scan Agent",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Escaneamento OCR GPT",
+      "title": "Scan Agent",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "OCRドキュメントスキャン GPT",
+      "title": "Scan Agent",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "OCR 문서 스캔 GPT",
+      "title": "Scan Agent",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "OCR 文档扫描 GPT",
+      "title": "Scan Agent",
       "description": "提供可靠的验证和验证服务。"
     }
   },
