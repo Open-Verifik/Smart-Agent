@@ -9,6 +9,7 @@ import {
     extractCountryRows,
     extractFeatureRows,
     isCatalogTransportFailure,
+    mergeCatalogCountryRows,
 } from './postman-catalog.util';
 
 describe('postman-catalog.util', () => {
@@ -50,7 +51,7 @@ describe('postman-catalog.util', () => {
                     { country: 'world', count: 5 },
                     { country: 'World', count: 1 },
                 ],
-            }),
+            })
         ).toEqual([
             { country: 'Dominican Republic', count: 7 },
             { country: 'world', count: 6 },
@@ -78,11 +79,30 @@ describe('postman-catalog.util', () => {
     it('shows only the selected country in the sidebar, including aliases and ISO variants', () => {
         expect(endpointMatchesCountryFilter('Bolivia', 'Bolivia')).toBe(true);
         expect(endpointMatchesCountryFilter('BO', 'Bolivia')).toBe(true);
-        expect(endpointMatchesCountryFilter('República Dominicana', 'Dominican Republic')).toBe(true);
+        expect(endpointMatchesCountryFilter('República Dominicana', 'Dominican Republic')).toBe(
+            true
+        );
         expect(endpointMatchesCountryFilter('World', 'world')).toBe(true);
         expect(endpointMatchesCountryFilter('world', 'Bolivia')).toBe(false);
         expect(endpointMatchesCountryFilter('Chile', 'Colombia')).toBe(false);
         expect(endpointMatchesCountryFilter('world', 'world')).toBe(true);
+    });
+
+    it('keeps Global watchlists on world and still shows United States and European Union', () => {
+        expect(
+            mergeCatalogCountryRows(
+                [
+                    { country: 'Global', count: 82 },
+                    { country: 'world', count: 10 },
+                    { country: 'United States', count: 14 },
+                ],
+                ['European Union', 'United States', 'Global']
+            )
+        ).toEqual([
+            { country: 'world', count: 92 },
+            { country: 'United States', count: 14 },
+            { country: 'European Union', count: 1 },
+        ]);
     });
 
     it('treats HTTP status 0 as a catalog transport failure', () => {
