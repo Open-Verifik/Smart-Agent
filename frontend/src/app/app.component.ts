@@ -24,11 +24,15 @@ export class AppComponent implements OnInit {
     private _accountEnvironment = inject(AccountEnvironmentService);
     private _router = inject(Router);
     private _onboardingService = inject(OnboardingService);
+    private _urlTokenCaptured = false;
 
     /**
      * Constructor
      */
-    constructor() {}
+    constructor() {
+        // Capture SSO token before guards, resolvers, or child components inspect localStorage.
+        this._captureTokenFromUrl();
+    }
 
     ngOnInit(): void {
         /**
@@ -59,6 +63,11 @@ export class AppComponent implements OnInit {
      * @private
      */
     private _captureTokenFromUrl(): void {
+        if (this._urlTokenCaptured || typeof window === 'undefined') {
+            return;
+        }
+        this._urlTokenCaptured = true;
+
         const path = window.location.pathname || '';
 
         // Bridge route owns exchange + final JWT flow (see BridgeComponent).
@@ -66,7 +75,8 @@ export class AppComponent implements OnInit {
             return;
         }
 
-        const urlParams = new URL(window.location.href).searchParams;
+        const currentUrl = new URL(window.location.href);
+        const urlParams = currentUrl.searchParams;
         const tokenFromUrl = urlParams.get('token');
         const userFromUrl = urlParams.get('user');
         const projectType = (urlParams.get('type') || '').trim();
@@ -103,6 +113,17 @@ export class AppComponent implements OnInit {
                 console.warn('[AppComponent] Failed to decode user data from URL', e);
             }
         }
+
+        // Strip sensitive token/user query parameters while keeping the destination screen path
+        urlParams.delete('token');
+        urlParams.delete('user');
+        const remainingQuery = urlParams.toString();
+        const cleanedUrl = `${currentUrl.pathname}${remainingQuery ? `?${remainingQuery}` : ''}${currentUrl.hash}`;
+        window.history.replaceState(
+            window.history.state,
+            typeof document !== 'undefined' ? document.title : '',
+            cleanedUrl
+        );
     }
 
     /**

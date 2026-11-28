@@ -124,6 +124,11 @@ export const appRoutes: Route[] = [
                     ),
             },
             {
+                path: 'billing',
+                redirectTo: 'add-credits',
+                pathMatch: 'full',
+            },
+            {
                 path: 'add-credits',
                 canActivate: [staffPermissionGuard],
                 data: { permission: { resource: 'billingCredits' } },
